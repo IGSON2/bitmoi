@@ -1,0 +1,172 @@
+.modal {
+  width: 100%;
+  height: 100%;
+  padding: 0% 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.result {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2%;
+}
+.header {
+  width: 100%;
+  height: auto;
+  font-weight: 700;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: flex-end;
+  column-gap: 5%;
+  animation: headerdrop 0.8s ease;
+}
+.headertitle {
+  width: 65%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: center;
+}
+.headername {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  width: 100%;
+  font-size: 2vw;
+  letter-spacing: 1px;
+}
+.headerentry {
+  display: flex;
+  justify-content: end;
+  align-items: flex-end;
+  position: relative;
+  top: 5%;
+  right: 1%;
+  font-weight: 500;
+  width: 100%;
+  font-size: 0.9vw;
+  letter-spacing: 2px;
+}
+.headerlev {
+  width: 35%;
+  height: 100%;
+  font-size: 3.5vw;
+  display: flex;
+  justify-content: start;
+  align-items: flex-end;
+  position: relative;
+  top: 5%;
+}
+.roe {
+  width: 100%;
+  height: 10%;
+  font-size: 3vw;
+  font-weight: 700;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  animation: roeup 1.3s ease;
+}
+.horizontalfield {
+  width: 90%;
+  height: 10%;
+  font-size: 1vw;
+  column-gap: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  animation: infoappear 2.2s ease;
+}
+
+.infovalue {
+  width: 50%;
+  height: 100%;
+  font-size: 1.1vw;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.liquidated {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ef5350;
+  font-weight: 700;
+  animation: infoappear 3s ease;
+}
+.buttonfield {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: infoappear 3s ease;
+}
+.buttonfield button {
+  color: white;
+  border: none;
+  background: #333d79;
+  border-radius: 15px;
+  font-size: 1vw;
+  width: 50%;
+  height: 70%;
+  letter-spacing: 1px;
+}
+
+.buttonfield button:hover {
+  cursor: pointer;
+  background: #4b569e;
+}
+
+@keyframes headerdrop {
+  0% {
+    z-index: 9;
+    position: relative;
+    top: -100%;
+  }
+  100% {
+    z-index: 9;
+    position: relative;
+    top: 0%;
+  }
+}
+
+@keyframes roeup {
+  0% {
+    z-index: 10;
+    position: relative;
+    bottom: -100%;
+  }
+
+  100% {
+    z-index: 10;
+    position: relative;
+    bottom: 0%;
+  }
+}
+
+@keyframes infoappear {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,15 @@
+.practicepage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1%;
+}
+.chart {
+  height: 88%;
+}
+.ad {
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

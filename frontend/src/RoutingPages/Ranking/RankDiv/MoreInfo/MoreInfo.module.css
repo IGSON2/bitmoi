@@ -1,0 +1,120 @@
+.moreinfo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 10px;
+}
+
+.comment {
+  width: 100%;
+  background-color: rgb(228, 228, 228);
+  text-align: center;
+  padding: 5px 0px;
+}
+.myword {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.myword input {
+  padding: 0% 10px;
+  width: 88%;
+  height: 30px;
+}
+.myword button {
+  width: 10%;
+  height: 30px;
+  border: none;
+  border-radius: 5px;
+  background: #333d79;
+  color: #faebef;
+}
+.myword button:hover {
+  cursor: pointer;
+}
+.myword button:active {
+  box-shadow: 2px 2px 6px rgb(48, 47, 47) inset;
+  position: relative;
+}
+.detailscore {
+  width: 100%;
+  padding: 10px 0%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 1fr 2fr;
+  grid-template-areas:
+    "date lev pnl roe"
+    "stage stage stage stage";
+}
+
+.field {
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: #aaa solid 1px;
+  border-radius: 10px;
+}
+.title,
+.value {
+  width: 100%;
+  text-align: center;
+  font-size: 1vw;
+}
+
+.value {
+  font-weight: 700;
+}
+
+.date {
+  grid-area: date;
+}
+.lev {
+  grid-area: lev;
+}
+.pnl {
+  grid-area: pnl;
+}
+.roe {
+  grid-area: roe;
+}
+.stage {
+  grid-area: stage;
+}
+
+.stageinfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.onestage {
+  width: 10%;
+  height: 100%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #aaa;
+  border-radius: 10px;
+}
+.stagename {
+  font-size: 1vw;
+  font-weight: 700;
+}
+.stagedate {
+  font-size: 1vw;
+  text-align: center;
+}
+.stageroe {
+  font-size: 1.2vw;
+  font-weight: 700;
+}

@@ -1,0 +1,48 @@
+.footer {
+  width: 100%;
+  height: 100%;
+  bottom: 0%;
+  margin-top: 50px;
+  padding: 50px 35% 100px 35%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "insta facebook twitter"
+    "nav nav nav"
+    "copyright copyright copyright";
+  justify-items: center;
+  align-items: center;
+  border-top: 1px #aaa solid;
+  row-gap: 15px;
+}
+.insta {
+  grid-area: insta;
+}
+
+.facebook {
+  grid-area: facebook;
+}
+
+.twitter {
+  grid-area: twitter;
+}
+
+.icon {
+  font-size: 2vw;
+}
+.nav {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  column-gap: 5%;
+  grid-area: nav;
+  font-size: 1vw;
+}
+
+.copyright {
+  grid-area: copyright;
+  font-size: 1vw;
+}

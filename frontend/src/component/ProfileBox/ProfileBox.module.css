@@ -1,0 +1,94 @@
+.profiebox {
+  width: 100%;
+  height: 100%;
+  padding-right: 10px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.profilediv {
+  height: 100%;
+  width: 70%;
+}
+
+.loginbutton {
+  padding-right: 5%;
+  color: #555860;
+  border: none;
+  background-color: transparent;
+}
+
+.loginbutton:disabled:hover {
+  cursor: default;
+  color: #555860;
+}
+
+.profileimg:hover {
+  cursor: pointer;
+}
+
+.imgbox > img {
+  padding: 1%;
+  width: auto;
+  height: 100%;
+}
+
+.openedProfile {
+  height: 80%;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  column-gap: 2%;
+  justify-content: space-evenly;
+  align-items: center;
+  animation: profileOpen 1s ease;
+  position: relative;
+  right: 0%;
+}
+
+.profileImg {
+  width: 60px;
+  border-radius: 50%;
+}
+
+.profileImg:hover {
+  cursor: pointer;
+}
+
+.nameoptions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.username {
+  font-size: large;
+  font-weight: 700;
+  overflow: "hidden";
+}
+
+.options {
+  height: 60%;
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  column-gap: 30%;
+  font-size: x-large;
+}
+.options *:hover,
+.loginbutton:hover {
+  cursor: pointer;
+  color: #4f62cc;
+}
+
+@keyframes profileOpen {
+  0% {
+    right: -50%;
+  }
+  100% {
+    right: 0%;
+  }
+}

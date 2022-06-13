@@ -1,0 +1,40 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Noto Sans KR", sans-serif;
+}
+a {
+  text-decoration: none;
+}
+a:visited {
+  color: black;
+}
+
+a:link {
+  color: black;
+}
+
+a:active {
+  color: #262223;
+}
+
+a:hover {
+  color: #a11538;
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+input::-webkit-input-placeholder {
+  text-align: center;
+  font-size: 0.8vw;
+  transition: 0.5s;
+}
+input:focus::-webkit-input-placeholder {
+  color: transparent;
+  transition: 0.2s;
+}
+/*light : #FAEBEF 
+  dark : #333D79 */

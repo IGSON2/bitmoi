@@ -1,0 +1,153 @@
+.loginwindow {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0%;
+  left: 0%;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #555860;
+}
+
+.bg {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 7;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popupbody {
+  width: 400px;
+  height: 280px;
+  padding-top: 20px;
+  z-index: 8;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.closebutton {
+  width: 100%;
+  height: 20px;
+  padding-right: 7%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-weight: 700;
+  font-size: larger;
+}
+
+.closebutton:hover,
+.boxinput label:hover {
+  cursor: pointer;
+  color: #838791;
+}
+
+.title,
+.message {
+  width: 90%;
+  padding-left: 5%;
+  display: flex;
+  justify-content: start;
+}
+
+.message {
+  margin-top: 2%;
+  height: 30px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  color: #3e4da3;
+}
+
+.inputform {
+  width: 90%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 3%;
+}
+
+.account {
+  width: 100%;
+  height: 20%;
+  background-color: #ecebeb;
+  border: none;
+  padding-left: 5%;
+}
+
+.account::placeholder {
+  text-align: start;
+  font-size: large;
+}
+
+.boxinput {
+  width: 90%;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  column-gap: 2%;
+  padding-left: 5%;
+}
+
+.login {
+  width: 90%;
+  height: 15%;
+  border-radius: 5px;
+  border: none;
+  font-size: medium;
+  color: #fff;
+  background-color: #3e4da3;
+}
+
+.googlelogindiv {
+  width: 90%;
+  height: 120px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.googleloginbutton {
+  width: 100%;
+}
+
+.login:hover {
+  cursor: pointer;
+  background-color: #4957a1;
+}
+
+.googleloginbutton:hover {
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.footer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  column-gap: 3%;
+}
+
+.footer > a:hover {
+  cursor: pointer;
+}
+
+.warning {
+  width: 90%;
+  margin-top: 5%;
+  text-align: center;
+  color: #ef5350;
+  font-size: small;
+}

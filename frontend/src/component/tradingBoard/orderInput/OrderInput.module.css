@@ -1,0 +1,419 @@
+.ordernavclosed {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  white-space: pre-wrap;
+}
+.ordernavopened {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.ordernavopened input::-webkit-input-placeholder {
+  font-size: 0.6vw;
+  transition: 0.2s;
+}
+.ordernavopened label {
+  font-size: 0.7vw;
+  transition: 0.5s;
+}
+.ordernavopened > .orderzone > .orderbox button {
+  font-size: 0.65vw;
+}
+
+.submitornot {
+  width: 100%;
+  height: 100%;
+}
+
+.positionselector {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 6%;
+}
+
+.long {
+  width: 25%;
+}
+.long button {
+  border: 3px solid #26a69a;
+  background-color: #26a69a;
+}
+
+.short {
+  width: 30%;
+}
+.short button {
+  border: 3px solid #ef5350;
+  background-color: #ef5350;
+}
+
+.positionbutton {
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin-left: -1%;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  color: white;
+  font-size: small;
+}
+
+.positionbutton:hover {
+  cursor: pointer;
+}
+
+.positionbutton_active {
+  z-index: 5;
+  height: 130%;
+  width: 120%;
+  margin-left: -1%;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: white;
+  position: relative;
+  font-size: medium;
+  top: -30%;
+}
+
+.short > .positionbutton_active {
+  left: -20%;
+}
+
+.orderbox {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 70%;
+  padding: 1% 5%;
+}
+
+.orderheader {
+  width: 100%;
+  height: 8%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 3% 0%;
+}
+.ordertitle {
+  width: 50%;
+  height: 100%;
+  font-size: 1.25vw;
+  font-weight: 700;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+.stage {
+  width: 50%;
+  height: 100%;
+  padding-right: 2%;
+  font-size: 0.75vw;
+  color: rgb(105, 105, 105);
+  display: flex;
+  justify-content: end;
+  align-items: flex-end;
+}
+.orderform {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  row-gap: 2%;
+}
+
+.lableinputs {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 20%;
+  padding: 2px;
+  justify-content: space-evenly;
+  align-items: center;
+  border: 1px solid rgb(105, 105, 105);
+  border-radius: 3px;
+}
+
+.lables {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9vw;
+  width: 30%;
+  height: 100%;
+  color: rgb(105, 105, 105);
+  transition: 0.5s;
+}
+.lableinputs input,
+.maxvalue {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: medium;
+  width: 50%;
+  height: 100%;
+  border: none;
+  text-align: center;
+}
+
+.entrypricediv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: medium;
+  width: 50%;
+  height: 100%;
+  border: none;
+  text-align: center;
+}
+
+.inputclose {
+  width: 0px;
+  height: 0px;
+  color: rgb(105, 105, 105);
+  position: relative;
+  top: -35px;
+  right: 20px;
+  font-size: 16px;
+}
+
+.inputclose:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.lableinputs input::-webkit-inner-spin-button,
+.lableinputs input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.lableinputs input:focus,
+.leverageinput:focus {
+  outline: none;
+}
+.lableinputs:hover,
+.levlableinput:hover {
+  border: 1px solid black;
+}
+.quanwarning,
+.profitwarning,
+.losswarning {
+  color: #ef5350;
+}
+.inputrightdiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
+  height: 100%;
+  color: rgb(105, 105, 105);
+  font-size: 0.8vw;
+  overflow: hidden;
+  transition: 1s;
+}
+.levlableinput {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 20%;
+  justify-content: center;
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px solid rgb(105, 105, 105);
+  border-radius: 3px;
+}
+
+.levrangeinput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 50%;
+  height: 100%;
+  border: none;
+}
+
+.levinput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 50%;
+  height: 50%;
+  border: 1px rgb(105, 105, 105) solid;
+  border-radius: 3px;
+}
+
+.changeinput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3vw;
+  font-weight: 700;
+  padding-bottom: 1%;
+  width: 20%;
+  height: 100%;
+}
+.twoinputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 100%;
+  padding: 4% 0%;
+}
+.twoinputs input {
+  width: 100%;
+  overflow: hidden;
+}
+
+.changeinput:hover {
+  cursor: pointer;
+  transition: 0s;
+}
+
+.changeinput:active {
+  box-shadow: 2px 2px 6px rgb(109, 108, 108) inset;
+  border-radius: 3px;
+}
+.submitdiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 20%;
+}
+
+.submitbutton {
+  border: none;
+  border-radius: 5px;
+  color: white;
+  width: 30%;
+  height: 90%;
+  position: relative;
+  padding: 1%;
+}
+
+.abledbutton:hover {
+  cursor: pointer;
+}
+.abledbutton:active {
+  box-shadow: 2px 2px 6px rgb(48, 47, 47) inset;
+  position: relative;
+  right: -1%;
+  bottom: -1%;
+}
+.submitbutton:disabled {
+  background-color: rgb(109, 108, 108);
+}
+.submitbutton:disabled:hover {
+  background-color: rgb(109, 108, 108);
+}
+.longsubmit {
+  background-color: #26a69a;
+}
+.shortsubmit {
+  background-color: #ef5350;
+}
+.longsubmit:hover {
+  background-color: #35b6a9;
+}
+.shortsubmit:hover {
+  background-color: #ee6765;
+}
+.longinput {
+  accent-color: #31998f;
+}
+.shortinput {
+  accent-color: rgb(239, 83, 80);
+}
+
+.commission {
+  width: 100%;
+  height: 3%;
+  padding: 1% 6% 1% 5%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-size: 0.6vw;
+  color: rgb(105, 105, 105);
+}
+
+.balancetitle {
+  width: 100%;
+  height: 5%;
+  padding: 1% 5%;
+  font-size: 1.2vw;
+  font-weight: 700;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.balanceinterface {
+  width: 100%;
+  height: 16%;
+  padding: 0 5% 5% 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.balanceroe {
+  width: 40%;
+  height: 100%;
+  padding-left: 5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2vw;
+  font-weight: 700;
+}
+
+.balancebox {
+  width: 60%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.balancebody {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 60%;
+  justify-content: end;
+  align-items: center;
+}
+
+.balance {
+  width: 70%;
+  height: 100%;
+  font-size: 1.3vw;
+  padding-right: 2%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  overflow: hidden;
+}
+.balanceusdt {
+  width: 30%;
+  height: 100%;
+  padding-top: 2%;
+  font-size: 0.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(105, 105, 105);
+}

@@ -1,0 +1,65 @@
+.navpage {
+  width: 100%;
+  height: 100%;
+}
+
+.navbar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+}
+.navmenu {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  color: #262223;
+}
+
+.navmenubutton {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: white;
+  font-size: 0.7vw;
+  text-align: start;
+  padding-left: 10px;
+}
+
+.navmenubutton:hover {
+  animation: buttonhover 5s ease infinite alternate;
+  cursor: pointer;
+}
+
+.navmenubutton:active {
+  box-shadow: 2px 2px 15px inset black;
+  font-size: medium;
+}
+
+@keyframes buttonhover {
+  0% {
+    background: #333d79;
+    color: #faebef;
+  }
+
+  20% {
+    background: #333d79;
+    color: #faebef;
+  }
+
+  100% {
+    background: #faebef;
+    color: #333d79;
+  }
+}
+
+@keyframes buttonclick {
+  0% {
+    font-size: medium;
+  }
+  100% {
+    font-size: large;
+  }
+}

@@ -1,0 +1,177 @@
+.ChartHeader {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: row;
+  color: #555860;
+  overflow: hidden;
+}
+
+.title {
+  width: 46%;
+  height: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: row;
+}
+
+.name {
+  height: 100%;
+  width: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3vw;
+  font-weight: 500;
+}
+
+.addinfo {
+  height: 100%;
+  width: 15%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15%;
+  border: 1px solid #555860;
+  border-radius: 3px;
+}
+
+.entrytime {
+  height: 50%;
+  width: 100%;
+  padding: 0% 1%;
+  font-size: 0.7vw;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: end;
+}
+
+.tradingvalue {
+  height: 50%;
+  width: 100%;
+  padding: 0% 1%;
+  font-size: 0.7vw;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: end;
+}
+
+.childname {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.childvalue {
+  width: 50%;
+  height: 100%;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.buttons {
+  height: 100%;
+  width: 15%;
+}
+.buttonsparent {
+  height: 50%;
+  width: 100%;
+  border: 1px solid #555860;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.buttonschildren {
+  border: none;
+  font-size: 1vw;
+  color: #555860;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imgbox {
+  border: 1px solid #555860;
+  border-radius: 3px;
+  font-size: 1vw;
+  padding: 2px;
+  height: 100%;
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.helpbutton {
+  width: 20px;
+  height: 20%;
+  position: relative;
+  top: 10%;
+  font-size: small;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  border: none;
+  background-color: #dddee9;
+  color: #555860;
+  transition: 0.5s;
+}
+
+.blank {
+  width: 1%;
+  height: 15%;
+}
+
+.profilediv {
+  height: 100%;
+  width: 23%;
+}
+
+.buttons button {
+  background: transparent;
+}
+
+.buttons button:hover {
+  cursor: pointer;
+  background-color: #dddee9;
+  border-radius: 3px;
+}
+
+.helpbutton:hover {
+  border: none;
+  cursor: pointer;
+  color: #4f62cc;
+  background: transparent;
+}
+
+.buttons button:active,
+.options button:active {
+  font-size: 0.9vw;
+  background-color: rgba(79, 98, 197, 0.6);
+}
+
+.buttons button:disabled {
+  cursor: default;
+  background-color: #ffffff;
+}
+
+.buttons button:disabled:active {
+  font-size: 1vw;
+}

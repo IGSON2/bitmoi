@@ -1,0 +1,18 @@
+.warningdiv {
+  width: 70%;
+  height: 100%;
+  padding: 3%;
+}
+
+.warningdiv p {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ef5350;
+  font-size: 0.6vw;
+  font-weight: 600;
+  padding: 1%;
+}

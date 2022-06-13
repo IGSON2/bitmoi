@@ -1,0 +1,8 @@
+.competitionpage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.chart {
+  height: 97%;
+}
