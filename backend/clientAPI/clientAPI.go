@@ -43,9 +43,6 @@ func Start() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 	}), limiter.New(limiter.Config{
-		// Next: func(c *fiber.Ctx) bool {
-		// 	return c.IP() == "127.0.0.1"
-		// },
 		Max:        30,
 		Expiration: 30 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
@@ -80,20 +77,6 @@ func Start() {
 		apiGroup.Post("/moreinfo", moreinfo)
 	}
 	log.Panic(app.Listen(port))
-
-	// app.Get("/api", apihome)
-	// app.Get("/api/competition", competition)
-	// app.Get("/api/competition/:array", competition)
-	// app.Post("/api/competition", competition)
-	// app.Get("/api/practice", practice)
-	// app.Get("/api/practice/:array", practice)
-	// app.Post("/api/practice", practice)
-	// app.Get("/api/interval", sendInterval)
-	// app.Get("/api/myscore", myscore)
-	// app.Get("/api/ranking", ranking)
-	// app.Post("/api/ranking", ranking)
-	// app.Get("/api/moreinfo", moreinfo)
-	// app.Post("/api/moreinfo", moreinfo)
 }
 
 func apihome(c *fiber.Ctx) error {

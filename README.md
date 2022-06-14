@@ -1,3 +1,3 @@
-# A mock investment service for technical analysts, BITMOI !
+# A mock investment service for technical analysts, BITMOI
 
 ## http://www.bitmoi.net

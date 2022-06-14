@@ -113,29 +113,6 @@ function Login({ message, popupOpen }) {
             onClick={gLogion}
           />
         </div>
-        {/* <form className={styles.inputform} onSubmit={signIn}> */}
-        {/* <input
-            className={styles.account}
-            onChange={onChange}
-            value={email}
-            placeholder="Email"
-          ></input>
-          <input
-            className={styles.account}
-            onChange={onChange}
-            value={password}
-            placeholder="Password"
-            type="password"
-          ></input>
-          
-          <button className={styles.login}>로그인</button> */}
-
-        {/* </form> */}
-        {/* <div className={styles.footer}>
-          <a href="/signup">회원가입</a>
-          <a>비밀번호 찾기</a>
-        </div> */}
-        {/* <h4 className={styles.warning}>{warningMsg}</h4> */}
       </div>
     </div>
   );
