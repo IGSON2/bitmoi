@@ -436,7 +436,7 @@ function OrderInput({
       }
       if (lossClosed) {
         setLossPrice(
-          Math.ceil((entryPrice - entryPrice * (1 / leverage)) * 100000) /
+          Math.ceil((entryPrice - entryPrice * (0.9 / leverage)) * 100000) /
             100000
         );
       }
@@ -483,7 +483,8 @@ function OrderInput({
       }
       if (lossClosed) {
         setLossPrice(
-          Math.floor((entryPrice + entryPrice * (1 / leverage)) * 10000) / 10000
+          Math.floor((entryPrice + entryPrice * (0.9 / leverage)) * 10000) /
+            10000
         );
       }
       if (entryPrice > profitPrice && entryPrice < lossPrice) {
@@ -584,11 +585,13 @@ function OrderInput({
   const lossClose = () => {
     if (isLong) {
       setLossPrice(
-        Math.floor((entryPrice - entryPrice * (1 / leverage)) * 10000) / 10000
+        Math.floor((entryPrice - entryPrice * (0.99 / leverage)) * 10000) /
+          10000
       );
     } else {
       setLossPrice(
-        Math.floor((entryPrice + entryPrice * (1 / leverage)) * 10000) / 10000
+        Math.floor((entryPrice + entryPrice * (0.99 / leverage)) * 10000) /
+          10000
       );
     }
     setLossClosed(true);

@@ -95,12 +95,8 @@ function ChartHeader(props) {
                   }
                 : { color: "#555860" }
             }
-            // disabled={props.headerInterval === "submit" ? true : false}
-            disabled={true}
+            disabled={props.headerInterval === "submit" ? true : false}
             onClick={fiveMinute}
-            title={
-              "아쉽게도 서버 사양이 부족해 서비스 할 수 없게 됐습니다.\n조만간 더 좋은 환경에서 제공해 드리겠습니다!"
-            }
           >
             5M
           </button>
@@ -114,12 +110,8 @@ function ChartHeader(props) {
                   }
                 : { color: "#555860" }
             }
-            // disabled={props.headerInterval === "submit" ? true : false}
-            disabled={true}
+            disabled={props.headerInterval === "submit" ? true : false}
             onClick={fifteenMinute}
-            title={
-              "아쉽게도 서버 사양이 부족해 서비스 할 수 없게 됐습니다.\n조만간 더 좋은 환경에서 제공해 드리겠습니다!"
-            }
           >
             15M
           </button>

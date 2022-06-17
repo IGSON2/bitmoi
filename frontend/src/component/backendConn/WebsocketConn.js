@@ -24,7 +24,7 @@
 //   var result = {};
 //   const [socketConnected, setSocketConnected] = useState(false);
 //   const [dataLoaded, setDataLoaded] = useState(false);
-//   const webSocketUrl = "ws://localhost:80/ws";
+//   const webSocketUrl = "ws://www.bitmoi.net/ws";
 //   let ws = useRef(null); // const = 재선언 재할당 불가능, let 재선언 불가능 재할당 가능 => useRef로 초기 할당된 객체에 다른 value를 재할당 하기 위함.
 
 //   useEffect(() => {
