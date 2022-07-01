@@ -48,7 +48,8 @@ const ResultPopup = (props) => {
               props.result.roe > 0 ? { color: "#26a69a" } : { color: "#ef5350" }
             }
           >
-            {props.result.roe} %
+            {Math.floor(100 * (props.result.roe - props.leverage * 0.02)) / 100}{" "}
+            %
           </div>
           <div className={styles.horizontalfield}>
             <div className={styles.infovalue} title={"PNL + Commisison"}>
@@ -72,12 +73,21 @@ const ResultPopup = (props) => {
                 NEXT
               </button>
             ) : props.result.stage === 10 ? (
-              <button
-                onClick={goRanking}
-                disabled={props.submitOrder ? true : false}
-              >
-                스코어 등재하기
-              </button>
+              props.mode === "competition" ? (
+                <button
+                  onClick={goRanking}
+                  disabled={props.submitOrder ? true : false}
+                >
+                  스코어 등재하기
+                </button>
+              ) : (
+                <button
+                  onClick={retry}
+                  disabled={props.submitOrder ? true : false}
+                >
+                  RETRY
+                </button>
+              )
             ) : (
               <button
                 onClick={retry}

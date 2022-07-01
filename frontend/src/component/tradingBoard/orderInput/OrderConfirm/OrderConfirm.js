@@ -94,6 +94,7 @@ function Orderconfirm({
           color={color}
           balance={balance}
           scoreid={order.scoreid}
+          leverage={order.leverage}
         />
       ) : (
         <div className={styles.orderconfirm}>

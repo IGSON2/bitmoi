@@ -85,7 +85,7 @@ func randomizeChart(name, interval string) OnePairChart {
 	tempchart := OnePairChart{Name: name, OneChart: (*intervalChart)[name], interval: interval}
 	tempchart.setRandomBackSteps()
 	tempchart.compareBTCvalue((*intervalChart)["BTCUSDT"])
-	tempchart.EntryTime = utilities.EntryTimeFormatter(tempchart.OneChart.PData[len(tempchart.OneChart.PData)-1].Time)
+	tempchart.EntryTime = utilities.EntryTimeFormatter(tempchart.OneChart.PData[len(tempchart.OneChart.PData)-1].Time + 32400000)
 	tempchart.OneChart.transformTime()
 	return tempchart
 }
@@ -186,9 +186,9 @@ func (o *OnePairChart) addIdentifier() {
 func (o *OnePairChart) calculateBacksteps(oneHourBacksteps int, reqInterval string) {
 	switch reqInterval {
 	case "5m":
-		o.backSteps = ((oneHourBacksteps) * 12) - 11
+		o.backSteps = ((oneHourBacksteps) * 12) - 11 + 576
 	case "15m":
-		o.backSteps = ((oneHourBacksteps) * 4) - 3
+		o.backSteps = ((oneHourBacksteps) * 4) - 3 + 192
 	case "4h":
 		if oneHourBacksteps%4 == 0 {
 			o.backSteps = int(oneHourBacksteps/4) + 1

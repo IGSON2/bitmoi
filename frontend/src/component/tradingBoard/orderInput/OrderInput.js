@@ -436,7 +436,7 @@ function OrderInput({
       }
       if (lossClosed) {
         setLossPrice(
-          Math.ceil((entryPrice - entryPrice * (0.9 / leverage)) * 100000) /
+          Math.ceil((entryPrice - entryPrice * (0.98 / leverage)) * 100000) /
             100000
         );
       }
@@ -483,7 +483,7 @@ function OrderInput({
       }
       if (lossClosed) {
         setLossPrice(
-          Math.floor((entryPrice + entryPrice * (0.9 / leverage)) * 10000) /
+          Math.floor((entryPrice + entryPrice * (0.98 / leverage)) * 10000) /
             10000
         );
       }

@@ -55,7 +55,7 @@ func SendCompResult(compOrder OrderStruct) ResultData {
 		ResultScore: calculateResult(resultchart, compOrder),
 	}
 	compResult.ResultScore.Name = compResult.ResultChart.PData[0].Name
-	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(((compResult.ResultChart.PData[0].Time - 32400) * 1000) - int64(60*60*1000))
+	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(compResult.ResultChart.PData[0].Time*1000 - 3600000)
 	return compResult
 }
 
