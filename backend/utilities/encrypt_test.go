@@ -2,7 +2,10 @@ package utilities
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/gob"
+	"encoding/hex"
+	"io"
 	"testing"
 	"time"
 
@@ -22,12 +25,12 @@ func TestEncrypt(t *testing.T) {
 		EntryPrice: 5381.432,
 	}
 
-	pub, prv := GenerateKey()
+	pub, prv := GenerateAsymKey()
 
-	encrypted := Encrypt[interface{}](test, pub)
+	encrypted := EncryptByAsym[interface{}](test, pub)
 	t.Log(len(string(encrypted)))
 
-	decrypted := Decrypt(encrypted, prv)
+	decrypted := DecryptByAsym(encrypted, prv)
 	result := new(testStruct)
 	gob.NewDecoder(bytes.NewBuffer(decrypted)).Decode(&result)
 
@@ -49,11 +52,32 @@ func TestBase64(t *testing.T) {
 }
 
 func TestMarshalKey(t *testing.T) {
-	_, pvk := GenerateKey()
+	_, pvk := GenerateAsymKey()
 	b := PrivateKeyToBytes(pvk)
 	t.Log(b)
 
 	pvk2 := BytesToPrivateKey(b)
 
 	require.Equal(t, pvk, pvk2)
+}
+
+func TestGenerateSymKey(t *testing.T) {
+	key := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, key); err != nil {
+		t.Error(err)
+	}
+	t.Log(hex.EncodeToString(key))
+}
+
+func TestAseEncrypt(t *testing.T) {
+	test := testStruct{
+		Start:      time.Now().Add(-100 * time.Hour),
+		Candles:    500,
+		EntryPrice: 5381.432,
+	}
+	buffer := bytes.NewBuffer(nil)
+	gob.NewEncoder(buffer).Encode(&test)
+	before := hex.EncodeToString(buffer.Bytes())
+	encoded := EncrtpByASE(buffer.Bytes())
+	t.Log(before, encoded)
 }

@@ -2,15 +2,19 @@ package utilities
 
 import (
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/gob"
+	"encoding/hex"
+	"io"
 )
 
-func GenerateKey() (*rsa.PublicKey, *rsa.PrivateKey) {
+func GenerateAsymKey() (*rsa.PublicKey, *rsa.PrivateKey) {
 	pvk, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil
@@ -18,7 +22,7 @@ func GenerateKey() (*rsa.PublicKey, *rsa.PrivateKey) {
 	return &pvk.PublicKey, pvk
 }
 
-func Encrypt[T any](data T, pub *rsa.PublicKey) []byte {
+func EncryptByAsym[T any](data T, pub *rsa.PublicKey) []byte {
 	buffer := bytes.NewBuffer(nil)
 	err := gob.NewEncoder(buffer).Encode(data)
 	if err != nil {
@@ -31,7 +35,7 @@ func Encrypt[T any](data T, pub *rsa.PublicKey) []byte {
 	return b
 }
 
-func Decrypt(b []byte, priv *rsa.PrivateKey) []byte {
+func DecryptByAsym(b []byte, priv *rsa.PrivateKey) []byte {
 	r, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priv, b, nil)
 	if err != nil {
 		return nil
@@ -61,4 +65,25 @@ func BytesToPrivateKey(b []byte) *rsa.PrivateKey {
 		return nil
 	}
 	return prv
+}
+
+// AES Encrypt
+func EncrtpByASE(data []byte) string {
+	// Create a new AES cipher block using the key
+	block, err := aes.NewCipher([]byte(GetConfig().symmetricKey))
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Generate a random initialization vector (IV)
+	iv := make([]byte, aes.BlockSize)
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic(err.Error())
+	}
+
+	// Encrypt the plaintext using AES in CBC mode
+	mode := cipher.NewCBCEncrypter(block, iv)
+	ciphertext := make([]byte, len(data))
+	mode.CryptBlocks(ciphertext, data)
+	return hex.EncodeToString(ciphertext)
 }
