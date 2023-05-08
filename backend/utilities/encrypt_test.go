@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/gob"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -66,7 +67,7 @@ func TestGenerateSymKey(t *testing.T) {
 	if _, err := io.ReadFull(rand.Reader, key); err != nil {
 		t.Error(err)
 	}
-	t.Log(hex.EncodeToString(key))
+	t.Log(fmt.Printf("%s", key))
 }
 
 func TestAseEncrypt(t *testing.T) {

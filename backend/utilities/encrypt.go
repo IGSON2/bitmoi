@@ -70,7 +70,7 @@ func BytesToPrivateKey(b []byte) *rsa.PrivateKey {
 // AES Encrypt
 func EncrtpByASE(data []byte) string {
 	// Create a new AES cipher block using the key
-	block, err := aes.NewCipher([]byte(GetConfig().symmetricKey))
+	block, err := aes.NewCipher([]byte(GetConfig().SymmetricKey))
 	if err != nil {
 		panic(err.Error())
 	}
