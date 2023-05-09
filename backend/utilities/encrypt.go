@@ -11,7 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/hex"
-	"io"
+	"encoding/json"
 )
 
 func GenerateAsymKey() (*rsa.PublicKey, *rsa.PrivateKey) {
@@ -67,23 +67,36 @@ func BytesToPrivateKey(b []byte) *rsa.PrivateKey {
 	return prv
 }
 
-// AES Encrypt
-func EncrtpByASE(data []byte) string {
-	// Create a new AES cipher block using the key
-	block, err := aes.NewCipher([]byte(GetConfig().SymmetricKey))
+func EncrtpByASE[T any](data T) string {
+	bytesData, err := json.Marshal(data)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// Generate a random initialization vector (IV)
-	iv := make([]byte, aes.BlockSize)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	block, err := aes.NewCipher([]byte(GetConfig().SymmetricKey))
+	if err != nil {
 		panic(err.Error())
 	}
+	iv := make([]byte, aes.BlockSize)
+	stream := cipher.NewCTR(block, iv)
 
-	// Encrypt the plaintext using AES in CBC mode
-	mode := cipher.NewCBCEncrypter(block, iv)
-	ciphertext := make([]byte, len(data))
-	mode.CryptBlocks(ciphertext, data)
-	return hex.EncodeToString(ciphertext)
+	encryptedData := make([]byte, len(bytesData))
+	stream.XORKeyStream(encryptedData, bytesData)
+
+	return hex.EncodeToString(encryptedData)
+}
+
+func DecryptByASE(encrypted string) []byte {
+	b, err := hex.DecodeString(encrypted)
+	if err != nil {
+		return nil
+	}
+	block, _ := aes.NewCipher([]byte(GetConfig().SymmetricKey))
+	iv := make([]byte, aes.BlockSize)
+
+	stream := cipher.NewCTR(block, iv)
+	decryptedData := make([]byte, len(b))
+
+	stream.XORKeyStream(decryptedData, b)
+	return decryptedData
 }

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/gob"
-	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"testing"
@@ -14,14 +14,14 @@ import (
 )
 
 type testStruct struct {
-	Start      time.Time
+	Start      int64
 	Candles    int
 	EntryPrice float64
 }
 
 func TestEncrypt(t *testing.T) {
 	test := testStruct{
-		Start:      time.Now().Add(-100 * time.Hour),
+		Start:      time.Now().Add(-100 * time.Hour).UnixMilli(),
 		Candles:    500,
 		EntryPrice: 5381.432,
 	}
@@ -35,14 +35,14 @@ func TestEncrypt(t *testing.T) {
 	result := new(testStruct)
 	gob.NewDecoder(bytes.NewBuffer(decrypted)).Decode(&result)
 
-	require.WithinDuration(t, test.Start, result.Start, 1*time.Second)
+	require.Equal(t, test.Start, result.Start)
 	require.Equal(t, test.Candles, result.Candles)
 	require.Equal(t, test.EntryPrice, result.EntryPrice)
 }
 
 func TestBase64(t *testing.T) {
 	test := testStruct{
-		Start:      time.Now().Add(-100 * time.Hour),
+		Start:      time.Now().Add(-100 * time.Hour).UnixMilli(),
 		Candles:    500,
 		EntryPrice: 5381.432,
 	}
@@ -72,13 +72,22 @@ func TestGenerateSymKey(t *testing.T) {
 
 func TestAseEncrypt(t *testing.T) {
 	test := testStruct{
-		Start:      time.Now().Add(-100 * time.Hour),
+		Start:      time.Now().Add(-100 * time.Hour).UnixMilli(),
 		Candles:    500,
 		EntryPrice: 5381.432,
 	}
-	buffer := bytes.NewBuffer(nil)
-	gob.NewEncoder(buffer).Encode(&test)
-	before := hex.EncodeToString(buffer.Bytes())
-	encoded := EncrtpByASE(buffer.Bytes())
-	t.Log(before, encoded)
+	jsonData, err := json.Marshal(test)
+	require.NoError(t, err)
+
+	encoded := EncrtpByASE(jsonData)
+
+	decodedByte := DecryptByASE(encoded)
+
+	var result testStruct
+	err = json.Unmarshal(decodedByte, &result)
+	require.NoError(t, err)
+
+	require.Equal(t, test.Start, result.Start)
+	require.Equal(t, test.Candles, result.Candles)
+	require.Equal(t, test.EntryPrice, result.EntryPrice)
 }

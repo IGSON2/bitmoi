@@ -180,7 +180,7 @@ func (o *OnePairChart) addIdentifier() {
 		BmVolumeFactor: o.volumeFactor,
 		BmRanPastDate:  o.ranPastDate,
 	}
-	o.Identifier = moisha.EncodeInfo(&uniqueInfo)
+	o.Identifier = utilities.EncrtpByASE(&uniqueInfo)
 }
 
 func (o *OnePairChart) calculateBacksteps(oneHourBacksteps int, reqInterval string) {
