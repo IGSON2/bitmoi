@@ -14,9 +14,10 @@ import (
 )
 
 type testStruct struct {
-	Start      int64
-	Candles    int
-	EntryPrice float64
+	Start      int64   `json:"start"`
+	Candles    int     `json:"candles"`
+	EntryPrice float64 `json:"entryprice"`
+	Secret     string
 }
 
 func TestEncrypt(t *testing.T) {
@@ -75,19 +76,18 @@ func TestAseEncrypt(t *testing.T) {
 		Start:      time.Now().Add(-100 * time.Hour).UnixMilli(),
 		Candles:    500,
 		EntryPrice: 5381.432,
+		Secret:     "s",
 	}
-	jsonData, err := json.Marshal(test)
-	require.NoError(t, err)
-
-	encoded := EncrtpByASE(jsonData)
+	encoded := EncrtpByASE(test)
 
 	decodedByte := DecryptByASE(encoded)
 
 	var result testStruct
-	err = json.Unmarshal(decodedByte, &result)
+	err := json.Unmarshal(decodedByte, &result)
 	require.NoError(t, err)
 
 	require.Equal(t, test.Start, result.Start)
 	require.Equal(t, test.Candles, result.Candles)
 	require.Equal(t, test.EntryPrice, result.EntryPrice)
+	require.Equal(t, test.Secret, result.Secret, fmt.Sprintf("origin : %v, result :%v", test.Secret, result.Start))
 }

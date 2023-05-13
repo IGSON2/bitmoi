@@ -1,8 +1,8 @@
 package db
 
 import (
-	"bitmoi/backend/moisha"
 	"bitmoi/backend/utilities"
+	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
@@ -172,13 +172,20 @@ func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
 }
 
 func (o *OnePairChart) addIdentifier() {
-	uniqueInfo := moisha.OriginInfo{
-		BmName:         o.Name,
-		BmInterval:     o.interval,
-		BmBacksteps:    o.backSteps,
-		BmPriceFactor:  o.priceFactor,
-		BmVolumeFactor: o.volumeFactor,
-		BmRanPastDate:  o.ranPastDate,
+	uniqueInfo := struct {
+		Name         string  `json:"name"`
+		Interval     string  `json:"interval"`
+		Backsteps    int     `json:"backsteps"`
+		PriceFactor  float64 `json:"pricefactor"`
+		VolumeFactor float64 `json:"volumefactor"`
+		RanPastDate  int64   `json:"ranpastdate"`
+	}{
+		Name:         o.Name,
+		Interval:     o.interval,
+		Backsteps:    o.backSteps,
+		PriceFactor:  o.priceFactor,
+		VolumeFactor: o.volumeFactor,
+		RanPastDate:  o.ranPastDate,
 	}
 	o.Identifier = utilities.EncrtpByASE(&uniqueInfo)
 }
@@ -250,15 +257,21 @@ func (c *CandleData) encodeValue(pFactor, vFactor float64, pastDays int64) {
 
 func SendOtherInterval(identifier, reqInterval, mode string) CandleData {
 	intervalChart := AC.InitAllchart(reqInterval)
-	originInfo := moisha.DecodeInfo(identifier)
-	if originInfo == nil {
-		return CandleData{}
-	}
-	tempchart := OnePairChart{Name: originInfo.BmName, OneChart: (*intervalChart)[originInfo.BmName], interval: reqInterval}
-	tempchart.calculateBacksteps(originInfo.BmBacksteps, reqInterval)
+	unmarshalOriginInfo := utilities.DecryptByASE(identifier)
+	var originInfo = struct {
+		Name         string  `json:"name"`
+		Interval     string  `json:"interval"`
+		Backsteps    int     `json:"backsteps"`
+		PriceFactor  float64 `json:"pricefactor"`
+		VolumeFactor float64 `json:"volumefactor"`
+		RanPastDate  int64   `json:"ranpastdate"`
+	}{}
+	json.Unmarshal(unmarshalOriginInfo, &originInfo)
+	tempchart := OnePairChart{Name: originInfo.Name, OneChart: (*intervalChart)[originInfo.Name], interval: reqInterval}
+	tempchart.calculateBacksteps(originInfo.Backsteps, reqInterval)
 	tempchart.OneChart.transformTime()
 	if mode == "competition" {
-		tempchart.OneChart.encodeValue(originInfo.BmPriceFactor, originInfo.BmVolumeFactor, originInfo.BmRanPastDate)
+		tempchart.OneChart.encodeValue(originInfo.PriceFactor, originInfo.VolumeFactor, originInfo.RanPastDate)
 	}
 	return tempchart.OneChart
 }

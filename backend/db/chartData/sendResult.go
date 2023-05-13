@@ -1,7 +1,6 @@
 package db
 
 import (
-	"bitmoi/backend/moisha"
 	"bitmoi/backend/utilities"
 	"fmt"
 	"math"
@@ -47,7 +46,8 @@ type ResultData struct {
 }
 
 func SendCompResult(compOrder OrderStruct) ResultData {
-	compInfo := moisha.DecodeInfo(compOrder.Identifier)
+	compInfo := utilities.DecryptByASE(compOrder.Identifier)
+	// TODO: decode compInfo
 	resultchart := compResult(compInfo)
 	var compResult = ResultData{
 		OriginChart: compOrigin(compInfo),
