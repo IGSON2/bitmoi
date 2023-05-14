@@ -24,7 +24,7 @@ var (
 )
 
 func getkeys() (string, string) {
-	keys := utilities.ReadText("./backend/db/chartData/keys.TXT")
+	keys := utilities.ReadText("./backend/db/keys")
 
 	apikey := (strings.Split(keys[0], ":"))
 	scrkey := (strings.Split(keys[1], ":"))

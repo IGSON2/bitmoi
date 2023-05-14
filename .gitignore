@@ -9,3 +9,4 @@ backend/moisha/
 
 react
 *.env
+backend/db/keys

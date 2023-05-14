@@ -55,7 +55,7 @@ func MakeRanNum(seedNum, minimum int) int {
 	return int(ranBigNum.Int64()) + minimum
 }
 
-//string 타입을 float64 타입으로 변환합니다.
+// string 타입을 float64 타입으로 변환합니다.
 func StrToFloat(volstr string) float64 {
 	volumefloat, err := strconv.ParseFloat(volstr, 64)
 	Errchk(err)
@@ -65,19 +65,19 @@ func StrToFloat(volstr string) float64 {
 	return volfloatstrdot
 }
 
-//float64 타입을 string 타입으로 변환합니다.
+// float64 타입을 string 타입으로 변환합니다.
 func FloatToStr(floatnum float64) string {
 	floatStr := strconv.FormatFloat(floatnum, 'f', 5, 64)
 	return floatStr
 }
 
-//m 까지의 Unixmilli시간을 알아보기 쉽게 재 포멧 합니다.
+// m 까지의 Unixmilli시간을 알아보기 쉽게 재 포멧 합니다.
 func TransMilli(m int64) string {
 	date := fmt.Sprintf("%02d년%02d월%02d일%02d시%02d분", time.UnixMilli(m).Year(), time.UnixMilli(m).Month(), time.UnixMilli(m).Day(), time.UnixMilli(m).Hour(), time.UnixMilli(m).Minute())
 	return date
 }
 
-//시간단위와 기간단위를 입력해 string 타입으로 변환합니다. 주로 NewKlineService 함수의 인자로 사용합니다.
+// 시간단위와 기간단위를 입력해 string 타입으로 변환합니다. 주로 NewKlineService 함수의 인자로 사용합니다.
 func MakeInterval(a int, str string) string {
 	return strconv.Itoa(a) + strings.ToLower(str)
 }

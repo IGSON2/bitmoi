@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	log "github.com/inconshreveable/log15"
 )
 
 type URLDescription struct {
@@ -38,12 +39,14 @@ type Server struct {
 	config utilities.Config
 	store  db.Store
 	router *fiber.App
+	logger log.Logger
 }
 
 func NewServer(c utilities.Config, s db.Store) (*Server, error) {
 	server := &Server{
 		config: c,
 		store:  s,
+		logger: log.New("module", "server"),
 	}
 
 	router := fiber.New()
@@ -134,18 +137,18 @@ func myscore(c *fiber.Ctx) error {
 	if err := c.QueryParser(q); err != nil {
 		return err
 	}
-	return c.JSON(scoreData.SelectStageScoreDB(q.User, q.Index))
+	return c.JSON(db.SelectStageScoreDB(q.User, q.Index))
 }
 
 func ranking(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		return c.JSON((scoreData.SelectTotalScoreDB()))
+		return c.JSON((db.SelectTotalScoreDB()))
 	case "POST":
-		var t scoreData.TotalData
+		var t db.TotalData
 		err := c.BodyParser(&t)
 		utilities.Errchk(err)
-		scoreData.InsertTotalScore(t)
+		db.InsertTotalScore(t)
 		return nil
 	default:
 		return errors.New("Not allowed method : " + c.Method())
@@ -159,12 +162,12 @@ func moreinfo(c *fiber.Ctx) error {
 		if err := c.QueryParser(q); err != nil {
 			return err
 		}
-		return c.JSON((scoreData.SendMoreInfo(q.User, q.Scoreid)))
+		return c.JSON((db.SendMoreInfo(q.User, q.Scoreid)))
 	case "POST":
 		var t PostedComment
 		err := c.BodyParser(&t)
 		utilities.Errchk(err)
-		return scoreData.UpdateComment(t.Comment, t.User)
+		return db.UpdateComment(t.Comment, t.User)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
 	}

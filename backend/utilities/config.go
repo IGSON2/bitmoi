@@ -8,6 +8,9 @@ import (
 
 type Config struct {
 	SymmetricKey string `mapstructure:"SYMMETRIC_KEY"`
+	DBDriver     string `mapstructure:"DB_Driver"`
+	DBSource     string `mapstructure:"DB_SOURCE"`
+	Address      string `mapstructure:"ADDRESS"`
 }
 
 var C *Config
