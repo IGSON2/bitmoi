@@ -1,7 +1,7 @@
 package apiWebsocket
 
 import (
-	db "bitmoi/backend/db/chartData"
+	db "bitmoi/backend/db/sqlc"
 )
 
 const (

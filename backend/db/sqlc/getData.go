@@ -31,7 +31,7 @@ func getkeys() (string, string) {
 	return apikey[1], scrkey[1]
 }
 
-//모든 페어들을 대상으로 15m, 1h, 1d 단위 각각 최대 1000개의 캔들 정보들을 수집합니다.
+// 모든 페어들을 대상으로 15m, 1h, 1d 단위 각각 최대 1000개의 캔들 정보들을 수집합니다.
 func getOneIntvChart(intN int, intU string, coinnames []string) {
 	wg.Add(len(coinnames))
 	for _, name := range coinnames {
@@ -40,7 +40,7 @@ func getOneIntvChart(intN int, intU string, coinnames []string) {
 	wg.Wait()
 }
 
-//Go routine을 이용, 전역변수로 선언된 각 시간 단위별 채널에 대해 name 페어의 intN + intU 단위 최대 1000개의 캔들 정보를 수집하고 그에 맞는 채널로 전송합니다.
+// Go routine을 이용, 전역변수로 선언된 각 시간 단위별 채널에 대해 name 페어의 intN + intU 단위 최대 1000개의 캔들 정보를 수집하고 그에 맞는 채널로 전송합니다.
 func getInfos(intN int, intU string, name string) {
 	startTimemilli := howcandles(intN, intU, Xcandles)
 	endTimeMilli := howcandles(intN, intU, Xcandles-1000)
@@ -90,7 +90,7 @@ func getInfos(intN int, intU string, name string) {
 	wg.Done()
 }
 
-//현재로부터 intN + intU 단위의 캔들을 candles개 만큼 가져올 수 있는 일자를 Millisecond로 반환합니다.
+// 현재로부터 intN + intU 단위의 캔들을 candles개 만큼 가져올 수 있는 일자를 Millisecond로 반환합니다.
 func howcandles(intN int, intU string, xcandles int) int64 {
 	var start int64
 

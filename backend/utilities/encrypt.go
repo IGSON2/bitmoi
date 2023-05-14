@@ -14,6 +14,15 @@ import (
 	"encoding/json"
 )
 
+type ChartInfo struct {
+	Name         string  `json:"name"`
+	Interval     string  `json:"interval"`
+	Backsteps    int     `json:"backsteps"`
+	PriceFactor  float64 `json:"pricefactor"`
+	VolumeFactor float64 `json:"volumefactor"`
+	RanPastDate  int64   `json:"ranpastdate"`
+}
+
 func GenerateAsymKey() (*rsa.PublicKey, *rsa.PrivateKey) {
 	pvk, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {

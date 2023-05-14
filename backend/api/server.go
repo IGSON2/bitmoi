@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bitmoi/backend/db/scoreData"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"errors"
@@ -12,6 +11,28 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
+
+type URLDescription struct {
+	URL         string `json:"url"`
+	Description string `json:"description"`
+}
+
+type IntervalQuery struct {
+	ReqInterval string `query:"reqinterval"`
+	Identifier  string `query:"identifier"`
+	Mode        string `query:"mode"`
+}
+
+type UserQuery struct {
+	User    string `query:"user"`
+	Scoreid string `query:"scoreid"`
+	Index   int    `query:"index"`
+}
+
+type PostedComment struct {
+	User    string `json:"user"`
+	Comment string `json:"comment"`
+}
 
 type Server struct {
 	config utilities.Config
@@ -62,14 +83,17 @@ func competition(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
 		names := c.Params("array")
-		return c.JSON(db.SendCharts(db.CompetitionMode, db.OneH, splitnames(names)))
+		return c.Status(fiber.StatusOK).JSON(db.SendCharts(db.CompetitionMode, db.OneH, splitnames(names)))
 	case "POST":
 		var CompetitionOrder db.OrderStruct
 		err := c.BodyParser(&CompetitionOrder)
 		utilities.Errchk(err)
-		compResult := db.SendCompResult(CompetitionOrder)
-		scoreData.InsertStageScore(CompetitionOrder, compResult.ResultScore)
-		return c.JSON(compResult)
+		compResult, err := db.SendCompResult(CompetitionOrder)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
+		}
+		db.InsertStageScore(CompetitionOrder, compResult.ResultScore)
+		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
 	}
@@ -83,7 +107,15 @@ func practice(c *fiber.Ctx) error {
 		var PracticeOrder db.OrderStruct
 		err := c.BodyParser(&PracticeOrder)
 		utilities.Errchk(err)
-		return c.JSON(db.SendPracResult(PracticeOrder))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
+		}
+
+		r, err := db.SendPracResult(PracticeOrder)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
+		}
+		return c.Status(fiber.StatusOK).JSON(r)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
 	}

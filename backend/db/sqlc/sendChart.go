@@ -172,14 +172,7 @@ func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
 }
 
 func (o *OnePairChart) addIdentifier() {
-	uniqueInfo := struct {
-		Name         string  `json:"name"`
-		Interval     string  `json:"interval"`
-		Backsteps    int     `json:"backsteps"`
-		PriceFactor  float64 `json:"pricefactor"`
-		VolumeFactor float64 `json:"volumefactor"`
-		RanPastDate  int64   `json:"ranpastdate"`
-	}{
+	uniqueInfo := utilities.ChartInfo{
 		Name:         o.Name,
 		Interval:     o.interval,
 		Backsteps:    o.backSteps,

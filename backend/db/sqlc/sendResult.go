@@ -2,6 +2,7 @@ package db
 
 import (
 	"bitmoi/backend/utilities"
+	"encoding/json"
 	"fmt"
 	"math"
 )
@@ -45,81 +46,90 @@ type ResultData struct {
 	CompOriginName string      `json:"comporiginname,omitempty"`
 }
 
-func SendCompResult(compOrder OrderStruct) ResultData {
-	compInfo := utilities.DecryptByASE(compOrder.Identifier)
-	// TODO: decode compInfo
-	resultchart := compResult(compInfo)
+func SendCompResult(compOrder OrderStruct) (*ResultData, error) {
+	compInfoByte := utilities.DecryptByASE(compOrder.Identifier)
+	var compInfo utilities.ChartInfo
+	err := json.Unmarshal(compInfoByte, &compInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+	}
+	resultchart := compResult(&compInfo)
 	var compResult = ResultData{
-		OriginChart: compOrigin(compInfo),
+		OriginChart: compOrigin(&compInfo),
 		ResultChart: resultchart,
 		ResultScore: calculateResult(resultchart, compOrder),
 	}
 	compResult.ResultScore.Name = compResult.ResultChart.PData[0].Name
 	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(compResult.ResultChart.PData[0].Time*1000 - 3600000)
-	return compResult
+	return &compResult, nil
 }
 
-func SendPracResult(pracOrder OrderStruct) ResultData {
-	pracInfo := moisha.DecodeInfo(pracOrder.Identifier)
-	resultchart := pracResult(pracInfo)
+func SendPracResult(pracOrder OrderStruct) (*ResultData, error) {
+	pracInfoByte := utilities.DecryptByASE(pracOrder.Identifier)
+	var pracInfo utilities.ChartInfo
+	err := json.Unmarshal(pracInfoByte, &pracInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+	}
+	resultchart := pracResult(&pracInfo)
 	var pracResult = ResultData{
 		OriginChart: CandleData{},
 		ResultChart: resultchart,
 		ResultScore: calculateResult(resultchart, pracOrder),
 	}
-	return pracResult
+	return &pracResult, nil
 }
 
-func compOrigin(info *moisha.OriginInfo) CandleData {
+func compOrigin(info *utilities.ChartInfo) CandleData {
 	var loadedChart = CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.BmName].PData[:len((*AC.InitAllchart(OneH))[info.BmName].PData)-info.BmBacksteps],
-		VData: (*AC.InitAllchart(OneH))[info.BmName].VData[:len((*AC.InitAllchart(OneH))[info.BmName].VData)-info.BmBacksteps],
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[:len((*AC.InitAllchart(OneH))[info.Name].PData)-info.Backsteps],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[:len((*AC.InitAllchart(OneH))[info.Name].VData)-info.Backsteps],
 	}
 	return decodeChartWithoutPrice(loadedChart, info)
 }
 
-func compResult(info *moisha.OriginInfo) CandleData {
+func compResult(info *utilities.ChartInfo) CandleData {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("PANIC : ", info.BmName)
+			fmt.Println("PANIC : ", info.Name)
 		}
 	}()
-	strIdx := len((*AC.InitAllchart(OneH))[info.BmName].PData) - info.BmBacksteps
+	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
 	loadedChart := CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.BmName].PData[strIdx : strIdx+24],
-		VData: (*AC.InitAllchart(OneH))[info.BmName].VData[strIdx : strIdx+24],
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
 	}
 	return decodeChartWithoutPrice(loadedChart, info)
 }
 
-func pracResult(info *moisha.OriginInfo) CandleData {
+func pracResult(info *utilities.ChartInfo) CandleData {
 
-	strIdx := len((*AC.InitAllchart(OneH))[info.BmName].PData) - info.BmBacksteps
+	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
 	loadedChart := CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.BmName].PData[strIdx : strIdx+24],
-		VData: (*AC.InitAllchart(OneH))[info.BmName].VData[strIdx : strIdx+24],
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
 	}
 	loadedChart.transformTime()
 	return loadedChart
 }
 
-func decodeChartWithoutPrice(loadedChart CandleData, info *moisha.OriginInfo) CandleData {
+func decodeChartWithoutPrice(loadedChart CandleData, info *utilities.ChartInfo) CandleData {
 	var tempPdata []PriceData
 	var tempVdata []VolumeData
 	for _, onebar := range loadedChart.PData {
 		var newPbar = PriceData{
-			Name:  info.BmName,
-			Open:  onebar.Open * info.BmPriceFactor,
-			Close: onebar.Close * info.BmPriceFactor,
-			High:  onebar.High * info.BmPriceFactor,
-			Low:   onebar.Low * info.BmPriceFactor,
+			Name:  info.Name,
+			Open:  onebar.Open * info.PriceFactor,
+			Close: onebar.Close * info.PriceFactor,
+			High:  onebar.High * info.PriceFactor,
+			Low:   onebar.Low * info.PriceFactor,
 			Time:  onebar.Time/1000 + 32400,
 		}
 		tempPdata = append(tempPdata, newPbar)
 	}
 	for _, onebar := range loadedChart.VData {
 		var newVbar = VolumeData{
-			Value: onebar.Value * info.BmVolumeFactor,
+			Value: onebar.Value * info.VolumeFactor,
 			Time:  onebar.Time/1000 + 32400,
 			Color: onebar.Color,
 		}

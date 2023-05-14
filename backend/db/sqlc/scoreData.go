@@ -1,7 +1,6 @@
-package scoreData
+package db
 
 import (
-	db "bitmoi/backend/db/chartData"
 	"bitmoi/backend/utilities"
 	"database/sql"
 	"math"
@@ -144,7 +143,7 @@ func initStageScoreDB() *sql.DB {
 	return userScoreDB
 }
 
-func InsertStageScore(order db.OrderStruct, result db.ResultScore) {
+func InsertStageScore(order OrderStruct, result ResultScore) {
 	db := initStageScoreDB()
 	defer db.Close()
 	tx, err := db.Begin()

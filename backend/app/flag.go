@@ -1,7 +1,7 @@
 package app
 
 import (
-	db "bitmoi/backend/db/chartData"
+	db "bitmoi/backend/db/sqlc"
 	"time"
 
 	"github.com/urfave/cli/v2"
