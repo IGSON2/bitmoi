@@ -3,7 +3,6 @@ package db
 import (
 	"bitmoi/backend/utilities"
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -24,11 +23,12 @@ var (
 )
 
 func getkeys() (string, string) {
-	keys := utilities.ReadText("./backend/db/keys")
+	// keys := utilities.ReadText("./backend/db/keys")
 
-	apikey := (strings.Split(keys[0], ":"))
-	scrkey := (strings.Split(keys[1], ":"))
-	return apikey[1], scrkey[1]
+	// apikey := (strings.Split(keys[0], ":"))
+	// scrkey := (strings.Split(keys[1], ":"))
+	// return apikey[1], scrkey[1]
+	return "", ""
 }
 
 // 모든 페어들을 대상으로 15m, 1h, 1d 단위 각각 최대 1000개의 캔들 정보들을 수집합니다.

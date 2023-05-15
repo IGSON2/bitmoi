@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/inconshreveable/log15"
+	"github.com/rs/zerolog"
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,7 +16,7 @@ var (
 )
 
 var bApp = app.NewApp()
-var applog = log.New("module", "app")
+var applog = zerolog.New(os.Stdout) //.New("module", "app")
 
 func init() {
 	bApp.Commands = []*cli.Command{
@@ -34,6 +34,7 @@ func main() {
 }
 
 func bitmoi(ctx *cli.Context) error {
-	applog.Info("Start bitmoi", "port", ctx.Args().First())
+	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
+	applog.Info().Any("port", ctx.Args().First()).Msg("Start bitmoi")
 	return nil
 }
