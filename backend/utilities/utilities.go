@@ -29,17 +29,18 @@ func Tojson(data interface{}) []byte {
 }
 
 func ReadText(filename string) []string {
-	var dates []string
+	var datas []string
 	files, err := filepath.Glob(filename)
 	Errchk(err)
 	f, err := os.Open(files[0])
 	Errchk(err)
+	defer f.Close()
 	fmt.Printf("Read Text : %s...\n", files[0])
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		dates = append(dates, scanner.Text())
+		datas = append(datas, scanner.Text())
 	}
-	return dates
+	return datas
 }
 
 func ToByte(data interface{}) []byte {
@@ -91,4 +92,10 @@ func EntryTimeFormatter(entryTime int64) string {
 		time.UnixMilli(entryTime).Minute(),
 	)
 	return timeString[2:]
+}
+
+// 어제 오전 9시의 Unix Millsecond timestamp를 반환합니다.
+func Yesterday9AM() int64 {
+	nineAMmilli := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()-1, 9, 1, 0, 0, time.Local).UnixMilli()
+	return nineAMmilli
 }

@@ -11,7 +11,7 @@ import (
 )
 
 const insertCandles = `-- name: InsertCandles :execresult
-INSERT INTO Candles (
+INSERT INTO candles_4h (
     name,
     open,
     close,
@@ -31,7 +31,7 @@ type InsertCandlesParams struct {
 	Close  float64 `json:"close"`
 	High   float64 `json:"high"`
 	Low    float64 `json:"low"`
-	Time   int32   `json:"time"`
+	Time   int64   `json:"time"`
 	Volume float64 `json:"volume"`
 	Color  string  `json:"color"`
 }

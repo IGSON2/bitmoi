@@ -1,5 +1,5 @@
 -- name: InsertCandles :execresult
-INSERT INTO Candles (
+INSERT INTO candles_4h (
     name,
     open,
     close,

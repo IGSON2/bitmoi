@@ -3,10 +3,12 @@ module bitmoi
 go 1.18
 
 require (
-	github.com/adshao/go-binance/v2 v2.3.5
+	github.com/adshao/go-binance/v2 v2.4.2
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/inconshreveable/log15 v2.16.0+incompatible
 	github.com/mattn/go-sqlite3 v1.14.13
+	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli/v2 v2.25.3
@@ -30,7 +32,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect

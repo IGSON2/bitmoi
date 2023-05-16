@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS Candles;
+DROP TABLE IF EXISTS candles_4h;

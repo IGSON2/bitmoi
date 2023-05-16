@@ -35,7 +35,7 @@ type Charts struct {
 	Charts OnePairChart `json:"charts"`
 }
 
-var allPairs = utilities.ReadText("./backend/db/chartData/Allpairs.txt")
+var allPairs = []string{"BTCUSDT"}
 
 func randomMinMax(interval string) (fivMonth int, waitingTime int) {
 	switch interval {

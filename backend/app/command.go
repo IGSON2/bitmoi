@@ -19,9 +19,15 @@ var (
 )
 
 func getCandleData(ctx *cli.Context) error {
-	timeStamp, err := strconv.Atoi(ctx.Args().Get(2))
-	if err != nil {
-		return fmt.Errorf("cannot parse string timestamp flag : %w", err)
+	var timestamp int
+	var err error
+
+	if timestampArg := ctx.Args().Get(2); timestampArg != "" {
+		timestamp, err = strconv.Atoi(timestampArg)
+		if err != nil {
+			return fmt.Errorf("cannot parse string timestamp flag : %w", err)
+		}
 	}
-	return db.SaveCandles(ctx.Args().First(), int64(timeStamp))
+
+	return db.SaveCandles(ctx.Args().First(), int64(timestamp))
 }

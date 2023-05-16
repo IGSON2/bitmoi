@@ -16,7 +16,7 @@ var (
 )
 
 var bApp = app.NewApp()
-var applog = zerolog.New(os.Stdout) //.New("module", "app")
+var applog = zerolog.New(os.Stdout)
 
 func init() {
 	bApp.Commands = []*cli.Command{

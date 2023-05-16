@@ -11,6 +11,8 @@ type Config struct {
 	DBDriver     string `mapstructure:"DB_Driver"`
 	DBSource     string `mapstructure:"DB_SOURCE"`
 	Address      string `mapstructure:"ADDRESS"`
+	apikey       string `mapstructure:"apikey"`
+	srckey       string `mapstructure:"srckey"`
 }
 
 var C *Config
@@ -18,7 +20,7 @@ var C *Config
 func GetConfig() *Config {
 	if C == nil {
 		viper.AddConfigPath("../../")
-		viper.SetConfigName("app")
+		viper.SetConfigName("a")
 		viper.SetConfigType("env")
 
 		viper.AutomaticEnv()
@@ -32,4 +34,9 @@ func GetConfig() *Config {
 		}
 	}
 	return C
+}
+
+func GetAPIKeys() (apikey, srckey string) {
+	cfg := GetConfig()
+	return cfg.apikey, cfg.srckey
 }

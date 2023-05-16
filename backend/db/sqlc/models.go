@@ -6,14 +6,13 @@ package db
 
 import ()
 
-type Candle struct {
-	Name     string  `json:"name"`
-	Open     float64 `json:"open"`
-	Close    float64 `json:"close"`
-	High     float64 `json:"high"`
-	Low      float64 `json:"low"`
-	Time     int32   `json:"time"`
-	Volume   float64 `json:"volume"`
-	Color    string  `json:"color"`
-	Interval string  `json:"interval"`
+type Candles4h struct {
+	Name   string  `json:"name"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Time   int64   `json:"time"`
+	Volume float64 `json:"volume"`
+	Color  string  `json:"color"`
 }
