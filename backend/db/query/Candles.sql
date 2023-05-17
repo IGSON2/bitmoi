@@ -11,3 +11,13 @@ INSERT INTO candles_4h (
 ) VALUES (
   ?,?,?,?,?,?,?,?
 );
+
+-- name: GetOneCandle :one
+SELECT * FROM candles_4h
+WHERE name = ? AND time = ?;
+
+-- name: GetCandles :many
+SELECT * FROM candles_4h 
+WHERE name = ? 
+ORDER BY time DESC 
+LIMIT ?;

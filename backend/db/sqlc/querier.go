@@ -10,6 +10,8 @@ import (
 )
 
 type Querier interface {
+	GetCandles(ctx context.Context, arg GetCandlesParams) ([]Candles4h, error)
+	GetOneCandle(ctx context.Context, arg GetOneCandleParams) (Candles4h, error)
 	InsertCandles(ctx context.Context, arg InsertCandlesParams) (sql.Result, error)
 }
 
