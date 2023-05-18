@@ -124,22 +124,48 @@ func (s *Server) selectCandles(interval, name string, limit int) (CandlesInterfa
 		cs := Candles15mSlice(candles)
 		return &cs, err
 	}
+	return nil, fmt.Errorf("invalid interval %s", interval)
+}
+
+func makeChart(candles CandlesInterface, mode int) (*OnePairChart, error) {
+	cd := candles.InitCandleData()
+	var oc = OnePairChart{
+		Name:      candles.Name(),
+		interval:  candles.Interval(),
+		EntryTime: candles.EntryTime(),
+		OneChart:  cd,
+	}
+
+	oc.setRandomBackSteps()
+	oc.setFactors()
+	oc.addIdentifier()
 
 }
 
-func makeChart(candles CandlesInterface, selectErr error) (*OnePairChart, error) {
-	if selectErr != nil {
-		return nil, fmt.Errorf("cannot make chart, err : %w", selectErr)
+func (o *OnePairChart) setFactors() {
+	var mins []float64
+	var vols []float64
+	var ranPastDate int64 = int64(86400 * (utilities.MakeRanNum(19000, 10950)))
+	for _, onebar := range o.OneChart.PData {
+		mins = append(mins, onebar.Low)
 	}
-	cd := candles.InitCandleData()
-
-	var oc = OnePairChart{
-		Name:     candles.Name(),
-		OneChart: cd,
+	for _, onebar := range o.OneChart.VData {
+		vols = append(vols, onebar.Value)
 	}
+	sort.Slice(mins, func(i, j int) bool {
+		return mins[i] < mins[j]
+	})
+	sort.Slice(vols, func(i, j int) bool {
+		return vols[i] < vols[j]
+	})
+	basisPrice := mins[utilities.MakeRanNum(int(len(mins)/2), 0)]
+	priceFactor := (100 / (mins[len(mins)-1] / mins[0])) / basisPrice
+	basisVolume := vols[utilities.MakeRanNum(int(len(vols)/2), 0)]
+	volumeFactor := ((mins[len(mins)-1] / mins[0]) / 20) / basisVolume
 
-	oc.addIdentifier()
-
+	o.priceFactor = priceFactor
+	o.volumeFactor = volumeFactor
+	o.ranPastDate = ranPastDate
 }
 
 func (o *OnePairChart) setRandomBackSteps() {
@@ -163,30 +189,9 @@ func (o *OnePairChart) setRandomBackSteps() {
 }
 
 func (o *OnePairChart) anonymization(stage int) {
-	var mins []float64
-	var vols []float64
-	var ranPastDate int64 = int64(86400 * (utilities.MakeRanNum(19000, 10950)))
-	for _, onebar := range o.OneChart.PData {
-		mins = append(mins, onebar.Low)
-	}
-	for _, onebar := range o.OneChart.VData {
-		vols = append(vols, onebar.Value)
-	}
-	sort.Slice(mins, func(i, j int) bool {
-		return mins[i] < mins[j]
-	})
-	sort.Slice(vols, func(i, j int) bool {
-		return vols[i] < vols[j]
-	})
-	basisPrice := mins[utilities.MakeRanNum(int(len(mins)/2), 0)]
-	priceFactor := (100 / (mins[len(mins)-1] / mins[0])) / basisPrice
-	basisVolume := vols[utilities.MakeRanNum(int(len(vols)/2), 0)]
-	volumeFactor := ((mins[len(mins)-1] / mins[0]) / 20) / basisVolume
 
 	o.OneChart.encodeValue(priceFactor, volumeFactor, ranPastDate)
-	o.priceFactor = priceFactor
-	o.volumeFactor = volumeFactor
-	o.ranPastDate = ranPastDate
+
 	o.addIdentifier()
 	o.backSteps = 0
 	o.EntryTime = "Sometime"
@@ -259,20 +264,6 @@ func (o *OnePairChart) calculateBacksteps(oneHourBacksteps int, reqInterval stri
 			VData: o.OneChart.VData[len(o.OneChart.PData)-o.backSteps-2000 : len(o.OneChart.VData)-o.backSteps],
 		}
 	}
-}
-
-func (c *CandleData) transformTime() {
-	var tempPdata []PriceData
-	var tempVdata []VolumeData
-	for _, oneBar := range c.PData {
-		oneBar.Time = (oneBar.Time / 1000) + 32400
-		tempPdata = append(tempPdata, oneBar)
-	}
-	for _, oneBar := range c.VData {
-		oneBar.Time = (oneBar.Time / 1000) + 32400
-		tempVdata = append(tempVdata, oneBar)
-	}
-	*c = CandleData{tempPdata, tempVdata}
 }
 
 func (c *CandleData) encodeValue(pFactor, vFactor float64, pastDays int64) {

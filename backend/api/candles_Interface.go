@@ -1,13 +1,27 @@
 package api
 
-import db "bitmoi/backend/db/sqlc"
+import (
+	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/utilities"
+)
 
 type CandlesInterface interface {
-	InitCandleData() CandleData
+	Interval() string
 	Name() string
+	EntryTime() string
+	InitCandleData() CandleData
 }
 
 type Candles1dSlice []db.Candles1d
+
+func (c *Candles1dSlice) EntryTime() string {
+	slice := ([]db.Candles1d)(*c)
+	return utilities.EntryTimeFormatter(slice[len(slice)-1].Time)
+}
+
+func (c *Candles1dSlice) Interval() string {
+	return db.OneD
+}
 
 func (c *Candles1dSlice) Name() string {
 	return ([]db.Candles1d)(*c)[0].Name
@@ -38,6 +52,15 @@ func (c *Candles1dSlice) InitCandleData() CandleData {
 
 type Candles4hSlice []db.Candles4h
 
+func (c *Candles4hSlice) EntryTime() string {
+	slice := ([]db.Candles4h)(*c)
+	return utilities.EntryTimeFormatter(slice[len(slice)-1].Time)
+}
+
+func (c *Candles4hSlice) Interval() string {
+	return db.FourH
+}
+
 func (c *Candles4hSlice) Name() string {
 	return ([]db.Candles4h)(*c)[0].Name
 }
@@ -67,6 +90,15 @@ func (c *Candles4hSlice) InitCandleData() CandleData {
 
 type Candles1hSlice []db.Candles1h
 
+func (c *Candles1hSlice) EntryTime() string {
+	slice := ([]db.Candles1h)(*c)
+	return utilities.EntryTimeFormatter(slice[len(slice)-1].Time)
+}
+
+func (c *Candles1hSlice) Interval() string {
+	return db.OneH
+}
+
 func (c *Candles1hSlice) Name() string {
 	return ([]db.Candles1h)(*c)[0].Name
 }
@@ -95,6 +127,15 @@ func (c *Candles1hSlice) InitCandleData() CandleData {
 }
 
 type Candles15mSlice []db.Candles15m
+
+func (c *Candles15mSlice) EntryTime() string {
+	slice := ([]db.Candles15m)(*c)
+	return utilities.EntryTimeFormatter(slice[len(slice)-1].Time)
+}
+
+func (c *Candles15mSlice) Interval() string {
+	return db.FifM
+}
 
 func (c *Candles15mSlice) Name() string {
 	return ([]db.Candles15m)(*c)[0].Name

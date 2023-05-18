@@ -10,6 +10,10 @@ import (
 )
 
 type Querier interface {
+	Counting15mCandles(ctx context.Context) (int64, error)
+	Counting1dCandles(ctx context.Context) (int64, error)
+	Counting1hCandles(ctx context.Context) (int64, error)
+	Counting4hCandles(ctx context.Context) (int64, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
 	Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]Candles1d, error)
 	Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]Candles1h, error)

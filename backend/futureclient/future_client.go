@@ -74,7 +74,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64) erro
 		f.Logger.Info().Any("endtime", endTimeMilli).Msg("EndTime set by received timestamp.")
 	}
 
-	var info db.InsertQueryInterface
+	info := *new(db.InsertQueryInterface) // TODO: Nil
 
 	klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTimemilli).EndTime(endTimeMilli).Limit(1000).
 		Interval(interval).Do(context.Background())
@@ -97,7 +97,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64) erro
 			utilities.StrToFloat(k.High),
 			utilities.StrToFloat(k.Low),
 			utilities.StrToFloat(k.Volume),
-			k.OpenTime,
+			(k.OpenTime/1000)+32400,
 			name,
 			color,
 		)

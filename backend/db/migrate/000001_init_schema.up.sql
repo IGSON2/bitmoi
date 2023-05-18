@@ -1,4 +1,5 @@
 CREATE TABLE `candles_1d` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `open` double NOT NULL,
   `close` double NOT NULL,
@@ -10,6 +11,7 @@ CREATE TABLE `candles_1d` (
 );
 
 CREATE TABLE `candles_4h` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `open` double NOT NULL,
   `close` double NOT NULL,
@@ -19,7 +21,9 @@ CREATE TABLE `candles_4h` (
   `volume` double NOT NULL,
   `color` varchar(255) NOT NULL
 );
+
 CREATE TABLE `candles_1h` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `open` double NOT NULL,
   `close` double NOT NULL,
@@ -29,7 +33,9 @@ CREATE TABLE `candles_1h` (
   `volume` double NOT NULL,
   `color` varchar(255) NOT NULL
 );
+
 CREATE TABLE `candles_15m` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `open` double NOT NULL,
   `close` double NOT NULL,
