@@ -9,21 +9,14 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var (
-	flags = []cli.Flag{
-		app.APIPortFlag,
-	}
-)
-
 var bApp = app.NewApp()
 var applog = zerolog.New(os.Stdout)
 
 func init() {
 	bApp.Commands = []*cli.Command{
-		app.GetCommand,
+		app.StoreCommand,
 	}
 	bApp.Action = bitmoi
-	bApp.Flags = flags
 }
 
 func main() {

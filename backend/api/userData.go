@@ -1,4 +1,4 @@
-package db
+package api
 
 import (
 	"bitmoi/backend/utilities"

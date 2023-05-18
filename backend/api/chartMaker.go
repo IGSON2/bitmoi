@@ -1,17 +1,29 @@
-package db
+package api
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"encoding/json"
+	"context"
 	"fmt"
 	"math"
 	"sort"
+	"time"
 )
 
-const (
-	PracticeMode int = iota
-	CompetitionMode
-)
+type PriceData struct {
+	Name  string  `json:"-"`
+	Open  float64 `json:"open"`
+	Close float64 `json:"close"`
+	High  float64 `json:"high"`
+	Low   float64 `json:"low"`
+	Time  int64   `json:"time"`
+}
+
+type VolumeData struct {
+	Value float64 `json:"value"`
+	Time  int64   `json:"time"`
+	Color string  `json:"color"`
+}
 
 type CandleData struct {
 	PData []PriceData  `json:"pdata"`
@@ -35,59 +47,99 @@ type Charts struct {
 	Charts OnePairChart `json:"charts"`
 }
 
-var allPairs = []string{"BTCUSDT"}
+func getAllchart(start, end int64, intN int, intU string) map[string]CandleData {
+	var allChart = make(map[string]CandleData)
 
-func randomMinMax(interval string) (fivMonth int, waitingTime int) {
-	switch interval {
-	case FiveM:
-		return 43200, 288
-	case FifM:
-		return 14400, 96
-	case OneH:
-		return 3600, 24
-	case FourH:
-		return 900, 6
-	case OneD:
-		return 150, 1
-	default:
-		return 0, 0
-	}
-}
-
-func SendCharts(mode int, interval string, names []string) Charts {
-	var tenCharts Charts
-	var ranName string
-Outer:
-	for {
-		ranName = allPairs[utilities.MakeRanNum(len(allPairs), 0)]
-		var sameHere bool = false
-		for _, name := range names {
-			if ranName == name {
-				sameHere = true
+	cycleNum := cycleByCase(start, end, intN, intU)
+	for i := 1; i <= cycleNum; i++ {
+		if i%3 == 0 {
+			time.Sleep(1 * time.Minute)
+		}
+		Xcandles = i * 1000
+		getOneIntvChart(intN, intU, allPairs)
+		for j := 0; j < len(allPairs); j++ {
+			var oneCoinOfOneIntv CandleData
+			infoByCase(intN, intU, &oneCoinOfOneIntv)
+			if oneCoinOfOneIntv.PData == nil || oneCoinOfOneIntv.VData == nil {
+				continue
 			}
+			name := oneCoinOfOneIntv.PData[0].Name
+			var tempPdatas []PriceData = allChart[name].PData
+			var tempVdatas []VolumeData = allChart[name].VData
+			tempPdatas = append(oneCoinOfOneIntv.PData, tempPdatas...)
+			tempVdatas = append(oneCoinOfOneIntv.VData, tempVdatas...)
+			allChart[name] = CandleData{tempPdatas, tempVdatas}
+			fmt.Println(name, " Done.")
 		}
-		if !sameHere {
-			break Outer
-		}
+		fmt.Printf("%s - %d / %d Done.\n", MakeInterval(intN, intU), i, cycleNum)
 	}
-	chartBymode := randomizeChart(ranName, interval)
-	if mode == CompetitionMode {
-		(&chartBymode).anonymization(len(names))
-	} else {
-		chartBymode.addIdentifier()
-	}
-	tenCharts.Charts = chartBymode
-	return tenCharts
+	return allChart
 }
 
-func randomizeChart(name, interval string) OnePairChart {
-	intervalChart := AC.InitAllchart(interval)
-	tempchart := OnePairChart{Name: name, OneChart: (*intervalChart)[name], interval: interval}
-	tempchart.setRandomBackSteps()
-	tempchart.compareBTCvalue((*intervalChart)["BTCUSDT"])
-	tempchart.EntryTime = utilities.EntryTimeFormatter(tempchart.OneChart.PData[len(tempchart.OneChart.PData)-1].Time + 32400000)
-	tempchart.OneChart.transformTime()
-	return tempchart
+func cycleByCase(start, end int64, intN int, intU string) int {
+	var howHours int
+	var cyclenum int
+	termsByHours := (end - start) / (1000 * 60 * 60)
+	howHours = int(termsByHours/250) + 1
+
+	fmt.Println("TermHours : ", termsByHours)
+	switch intU {
+	case "m":
+		switch intN {
+		case 5:
+			cyclenum = 3 * howHours
+		case 15:
+			cyclenum = howHours
+		}
+	case "h":
+		switch intN {
+		case 1:
+			cyclenum = int(howHours/4) + 1
+		case 4:
+			cyclenum = int(howHours/16) + 1
+		}
+	case "d":
+		cyclenum = int(howHours/96) + 1
+	}
+	fmt.Println("CycleNum : ", cyclenum)
+	return cyclenum
+}
+
+func (s *Server) selectCandles(interval, name string, limit int) (CandlesInterface, error) {
+	switch interval {
+	case db.OneD:
+		candles, err := s.store.Get1dCandles(context.Background(), db.Get1dCandlesParams{name, int32(limit)})
+		cs := Candles1dSlice(candles)
+		return &cs, err
+	case db.FourH:
+		candles, err := s.store.Get4hCandles(context.Background(), db.Get4hCandlesParams{name, int32(limit)})
+		cs := Candles4hSlice(candles)
+		return &cs, err
+	case db.OneH:
+		candles, err := s.store.Get1hCandles(context.Background(), db.Get1hCandlesParams{name, int32(limit)})
+		cs := Candles1hSlice(candles)
+		return &cs, err
+	case db.FifM:
+		candles, err := s.store.Get15mCandles(context.Background(), db.Get15mCandlesParams{name, int32(limit)})
+		cs := Candles15mSlice(candles)
+		return &cs, err
+	}
+
+}
+
+func makeChart(candles CandlesInterface, selectErr error) (*OnePairChart, error) {
+	if selectErr != nil {
+		return nil, fmt.Errorf("cannot make chart, err : %w", selectErr)
+	}
+	cd := candles.InitCandleData()
+
+	var oc = OnePairChart{
+		Name:     candles.Name(),
+		OneChart: cd,
+	}
+
+	oc.addIdentifier()
+
 }
 
 func (o *OnePairChart) setRandomBackSteps() {
@@ -246,25 +298,4 @@ func (c *CandleData) encodeValue(pFactor, vFactor float64, pastDays int64) {
 		tempVData = append(tempVData, newVbar)
 	}
 	*c = CandleData{tempPData, tempVData}
-}
-
-func SendOtherInterval(identifier, reqInterval, mode string) CandleData {
-	intervalChart := AC.InitAllchart(reqInterval)
-	unmarshalOriginInfo := utilities.DecryptByASE(identifier)
-	var originInfo = struct {
-		Name         string  `json:"name"`
-		Interval     string  `json:"interval"`
-		Backsteps    int     `json:"backsteps"`
-		PriceFactor  float64 `json:"pricefactor"`
-		VolumeFactor float64 `json:"volumefactor"`
-		RanPastDate  int64   `json:"ranpastdate"`
-	}{}
-	json.Unmarshal(unmarshalOriginInfo, &originInfo)
-	tempchart := OnePairChart{Name: originInfo.Name, OneChart: (*intervalChart)[originInfo.Name], interval: reqInterval}
-	tempchart.calculateBacksteps(originInfo.Backsteps, reqInterval)
-	tempchart.OneChart.transformTime()
-	if mode == "competition" {
-		tempchart.OneChart.encodeValue(originInfo.PriceFactor, originInfo.VolumeFactor, originInfo.RanPastDate)
-	}
-	return tempchart.OneChart
 }

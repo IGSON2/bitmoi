@@ -4,13 +4,14 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"errors"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	log "github.com/inconshreveable/log15"
+	"github.com/rs/zerolog"
 )
 
 type URLDescription struct {
@@ -39,14 +40,17 @@ type Server struct {
 	config utilities.Config
 	store  db.Store
 	router *fiber.App
-	logger log.Logger
+	logger *zerolog.Logger
 }
 
 func NewServer(c utilities.Config, s db.Store) (*Server, error) {
+	serverLogger := zerolog.New(os.Stdout)
+	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
+
 	server := &Server{
 		config: c,
 		store:  s,
-		logger: log.New("module", "server"),
+		logger: &serverLogger,
 	}
 
 	router := fiber.New()
@@ -76,6 +80,7 @@ func NewServer(c utilities.Config, s db.Store) (*Server, error) {
 	router.Post("/ranking", ranking)
 	router.Get("/moreinfo", moreinfo)
 	router.Post("/moreinfo", moreinfo)
+	router.Get("/test", server.test)
 
 	server.router = router
 

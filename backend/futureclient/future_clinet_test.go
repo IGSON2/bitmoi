@@ -1,6 +1,7 @@
 package futureclient
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"context"
 	"testing"
@@ -27,7 +28,6 @@ func TestGetInfo(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)
 
-	infos, err := f.getInfos(4, "h", "BTCUSDT")
+	err = f.StoreCandles(db.FourH, "BTCUSDT", 0)
 	require.NoError(t, err)
-	require.NotNil(t, infos)
 }

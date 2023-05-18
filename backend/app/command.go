@@ -1,33 +1,48 @@
 package app
 
 import (
-	db "bitmoi/backend/db"
+	"bitmoi/backend/futureclient"
+	"bitmoi/backend/utilities"
 	"fmt"
-	"strconv"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
 
 var (
-	GetCommand = &cli.Command{
-		Action:    getCandleData,
-		Name:      "get",
-		Usage:     "Get candles data form binance",
+	StoreCommand = &cli.Command{
+		Action:    GetCandleData,
+		Name:      "store",
+		Usage:     "Store candles data form binance",
 		ArgsUsage: "<Set_interval , Set_target_date_of_timestamp>",
-		Flags:     []cli.Flag{IntervalFlag, TimestampFlag},
+		Flags:     []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, PairListFlage},
 	}
 )
 
-func getCandleData(ctx *cli.Context) error {
-	var timestamp int
-	var err error
+func GetCandleData(ctx *cli.Context) error {
+	var names []string
+	f, err := futureclient.NewFutureClient(*utilities.GetConfig())
+	if err != nil {
+		return fmt.Errorf("cannot create future client, err : %w", err)
+	}
 
-	if timestampArg := ctx.Args().Get(2); timestampArg != "" {
-		timestamp, err = strconv.Atoi(timestampArg)
-		if err != nil {
-			return fmt.Errorf("cannot parse string timestamp flag : %w", err)
+	if ctx.Bool("all") {
+		names = f.Pairs
+	} else {
+		if pairsflag := ctx.String("pairs"); pairsflag == "" {
+			return fmt.Errorf("require at least one pair")
+		} else {
+			for _, n := range strings.Split(pairsflag, " ") {
+				names = append(names, n+"USDT")
+			}
 		}
 	}
 
-	return db.SaveCandles(ctx.Args().First(), int64(timestamp))
+	for _, name := range names {
+		err = f.StoreCandles(ctx.String("interval"), name, ctx.Int64("timestamp"))
+		if err != nil {
+			return fmt.Errorf("cannot store candles, err : %w", err)
+		}
+	}
+	return nil
 }

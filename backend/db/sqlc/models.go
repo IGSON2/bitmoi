@@ -6,6 +6,39 @@ package db
 
 import ()
 
+type Candles15m struct {
+	Name   string  `json:"name"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Time   int64   `json:"time"`
+	Volume float64 `json:"volume"`
+	Color  string  `json:"color"`
+}
+
+type Candles1d struct {
+	Name   string  `json:"name"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Time   int64   `json:"time"`
+	Volume float64 `json:"volume"`
+	Color  string  `json:"color"`
+}
+
+type Candles1h struct {
+	Name   string  `json:"name"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Time   int64   `json:"time"`
+	Volume float64 `json:"volume"`
+	Color  string  `json:"color"`
+}
+
 type Candles4h struct {
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`

@@ -20,8 +20,8 @@ func TestGetStore(t *testing.T) {
 	s := NewStore(conn)
 	require.NotNil(t, s)
 
-	iq := InsertCandlesParams{
-		Name:   "FOURTHPAIR",
+	iq := Insert4hCandlesParams{
+		Name:   "TWELVETHPAIR",
 		Open:   93.241,
 		Close:  95.882,
 		High:   100.7732,
@@ -31,14 +31,14 @@ func TestGetStore(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	_, err = s.InsertCandles(ctx, iq)
+	_, err = s.Insert4hCandles(ctx, iq)
 	require.NoError(t, err)
 
-	gq := GetOneCandleParams{
+	gq := GetOne4hCandleParams{
 		Name: iq.Name,
 		Time: iq.Time,
 	}
-	r, err := s.GetOneCandle(ctx, gq)
+	r, err := s.GetOne4hCandle(ctx, gq)
 	require.NoError(t, err)
 	require.Equal(t, iq.Name, r.Name)
 	require.Equal(t, iq.Open, r.Open)
@@ -49,12 +49,12 @@ func TestGetStore(t *testing.T) {
 	require.Equal(t, iq.Volume, r.Volume)
 
 	for i := 0; i < 10; i++ {
-		iq.Time += int64((i + 1) * 5000)
-		_, err = s.InsertCandles(ctx, iq)
+		iq.Time = 10000000 + int64((i+1)*5000)
+		_, err = s.Insert4hCandles(ctx, iq)
 		require.NoError(t, err)
 	}
 
-	rs, err := s.GetCandles(ctx, GetCandlesParams{
+	rs, err := s.Get4hCandles(ctx, Get4hCandlesParams{
 		Name:  iq.Name,
 		Limit: 10,
 	})
@@ -68,7 +68,7 @@ func TestGetStore(t *testing.T) {
 		require.Equal(t, iq.Close, r.Close)
 		require.Equal(t, iq.High, r.High)
 		require.Equal(t, iq.Low, r.Low)
-		require.Equal(t, iq.Time, r.Time+int64((i+1)*5000))
+		require.Equal(t, 10000000+int64((i)*5000), r.Time)
 		require.Equal(t, iq.Volume, r.Volume)
 	}
 }

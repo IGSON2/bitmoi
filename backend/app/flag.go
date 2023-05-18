@@ -8,11 +8,6 @@ import (
 )
 
 var (
-	APIPortFlag = &cli.IntFlag{
-		Name:  "port",
-		Usage: "Set API port number",
-		Value: 4000,
-	}
 	IntervalFlag = &cli.StringFlag{
 		Name:  "interval",
 		Usage: "Set interval to get",
@@ -20,7 +15,17 @@ var (
 	}
 	TimestampFlag = &cli.Int64Flag{
 		Name:  "timestamp",
-		Usage: "Set timestamp to retrieve data by the specified date.",
+		Usage: "Set the unixmilli timestamp to retrieve data by the specified date. 15m 1h 4h 1d",
 		Value: time.Now().Add(-1 * 24 * 7 * time.Hour).UnixMilli(),
+	}
+	GetAllFlag = &cli.BoolFlag{
+		Name:  "all",
+		Usage: "If it's true, get all pairs",
+		Value: false,
+	}
+	PairListFlage = &cli.StringFlag{
+		Name:  "pairs",
+		Usage: "Specify pairs to get, type symbal and seperate by space e.b : BTC ETH",
+		Value: "",
 	}
 )

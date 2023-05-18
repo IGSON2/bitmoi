@@ -6,9 +6,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/zerolog"
 
 	"github.com/adshao/go-binance/v2/futures"
 )
@@ -22,8 +24,9 @@ type FutureClient struct {
 	Store         db.Store
 	Pairs         []string
 	Yesterday     int64
-	CandlesCh     chan db.InsertCandlesParams
+	CandlesCh     chan db.InsertQueryInterface
 	LimitCalndles int
+	Logger        *zerolog.Logger
 }
 
 func NewFutureClient(c utilities.Config) (*FutureClient, error) {
@@ -32,17 +35,20 @@ func NewFutureClient(c utilities.Config) (*FutureClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open db store %w", err)
 	}
+	clientlogger := zerolog.New(os.Stdout)
+	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
 
 	f := &FutureClient{
 		Client:        futures.NewClient(utilities.GetAPIKeys()),
 		Store:         db.NewStore(dbConn),
 		Yesterday:     utilities.Yesterday9AM(),
 		LimitCalndles: LimitCandlesNum,
+		Logger:        &clientlogger,
 	}
 	if getErr := f.getAllPairs(); getErr != nil {
 		return nil, getErr
 	}
-	f.CandlesCh = make(chan db.InsertCandlesParams, len(f.Pairs))
+	f.CandlesCh = make(chan db.InsertQueryInterface, len(f.Pairs))
 	return f, nil
 }
 
@@ -57,44 +63,71 @@ func (f *FutureClient) getAllPairs() error {
 	return nil
 }
 
-// Go routine을 이용, 전역변수로 선언된 각 시간 단위별 채널에 대해 name 페어의 intN + intU 단위 최대 1000개의 캔들 정보를 수집하고 그에 맞는 채널로 전송합니다.
-func (f *FutureClient) getInfos(intN int, intU string, name string) ([]db.InsertCandlesParams, error) {
-	startTimemilli := f.howcandles(intN, intU, 0)
-	endTimeMilli := f.howcandles(intN, intU, 1000)
-	var infos []db.InsertCandlesParams
+func (f *FutureClient) StoreCandles(interval, name string, timestamp int64) error {
+	startTimemilli := f.howcandles(interval, 0)
+	var endTimeMilli int64
+	if timestamp <= 0 {
+		endTimeMilli = f.howcandles(interval, 1000)
+		f.Logger.Info().Any("endtime", endTimeMilli).Msg("Timestamp dosen't specified. Set the endtime 1000 candles before.")
+	} else {
+		endTimeMilli = timestamp
+		f.Logger.Info().Any("endtime", endTimeMilli).Msg("EndTime set by received timestamp.")
+	}
 
-	klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTimemilli).EndTime(endTimeMilli).Limit(10).
-		Interval(utilities.MakeInterval(intN, intU)).Do(context.Background())
+	var info db.InsertQueryInterface
+
+	klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTimemilli).EndTime(endTimeMilli).Limit(1000).
+		Interval(interval).Do(context.Background())
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("cannot get kilnes, err :%w", err)
 	}
 
 	for _, k := range klines {
-		i := db.InsertCandlesParams{
-			Name:   name,
-			Open:   utilities.StrToFloat(k.Open),
-			Close:  utilities.StrToFloat(k.Close),
-			High:   utilities.StrToFloat(k.High),
-			Low:    utilities.StrToFloat(k.Low),
-			Time:   k.OpenTime,
-			Volume: utilities.StrToFloat(k.Volume),
-		}
-		if i.Close >= i.Open {
-			i.Color = "rgba(38,166,154,0.5)"
+		var color string
+
+		if utilities.StrToFloat(k.Close) >= utilities.StrToFloat(k.Open) {
+			color = "rgba(38,166,154,0.5)"
 		} else {
-			i.Color = "rgba(239,83,80,0.5)"
+			color = "rgba(239,83,80,0.5)"
 		}
-		_, err = f.Store.InsertCandles(context.Background(), i)
+
+		info.SetCandleInfo(
+			utilities.StrToFloat(k.Open),
+			utilities.StrToFloat(k.Close),
+			utilities.StrToFloat(k.High),
+			utilities.StrToFloat(k.Low),
+			utilities.StrToFloat(k.Volume),
+			k.OpenTime,
+			name,
+			color,
+		)
+
+		switch interval {
+		case db.OneD:
+			param, _ := info.(*db.Insert1dCandlesParams)
+			_, err = f.Store.Insert1dCandles(context.Background(), *param)
+		case db.FourH:
+			param, _ := info.(*db.Insert4hCandlesParams)
+			_, err = f.Store.Insert4hCandles(context.Background(), *param)
+		case db.OneH:
+			param, _ := info.(*db.Insert1hCandlesParams)
+			_, err = f.Store.Insert1hCandles(context.Background(), *param)
+		case db.FifM:
+			param, _ := info.(*db.Insert15mCandlesParams)
+			_, err = f.Store.Insert15mCandles(context.Background(), *param)
+		}
+
 		if err != nil {
-			return nil, err
+			return fmt.Errorf("cannot insert candle into db err : %w", err)
 		}
-		infos = append(infos, i)
 	}
-	return infos, nil
+	return nil
 }
 
 // 현재로부터 intN + intU 단위의 캔들을 candles개 만큼 가져올 수 있는 일자를 Millisecond로 반환합니다.
-func (f *FutureClient) howcandles(intN int, intU string, sub int) int64 {
+func (f *FutureClient) howcandles(interval string, sub int) int64 {
+	intN, intU := db.ParseInterval(interval)
+
 	var start int64
 
 	switch intU {
