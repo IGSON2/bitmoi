@@ -7,7 +7,6 @@ package db
 import ()
 
 type Candles15m struct {
-	ID     int64   `json:"id"`
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`
 	Close  float64 `json:"close"`
@@ -19,7 +18,6 @@ type Candles15m struct {
 }
 
 type Candles1d struct {
-	ID     int64   `json:"id"`
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`
 	Close  float64 `json:"close"`
@@ -31,7 +29,6 @@ type Candles1d struct {
 }
 
 type Candles1h struct {
-	ID     int64   `json:"id"`
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`
 	Close  float64 `json:"close"`
@@ -43,7 +40,6 @@ type Candles1h struct {
 }
 
 type Candles4h struct {
-	ID     int64   `json:"id"`
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`
 	Close  float64 `json:"close"`

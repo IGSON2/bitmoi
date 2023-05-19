@@ -20,7 +20,7 @@ type ChartInfo struct {
 	Backsteps    int     `json:"backsteps"`
 	PriceFactor  float64 `json:"pricefactor"`
 	VolumeFactor float64 `json:"volumefactor"`
-	RanPastDate  int64   `json:"ranpastdate"`
+	TimeFactor   int64   `json:"ranpastdate"`
 }
 
 func GenerateAsymKey() (*rsa.PublicKey, *rsa.PrivateKey) {

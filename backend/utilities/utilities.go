@@ -3,12 +3,9 @@ package utilities
 import (
 	"bufio"
 	"bytes"
-	"crypto/rand"
 	"encoding/gob"
-	"encoding/json"
 	"fmt"
 	"log"
-	"math/big"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,12 +16,6 @@ func Errchk(err error) {
 	if err != nil {
 		log.Panicln(err)
 	}
-}
-
-func Tojson(data interface{}) []byte {
-	jsonBytes, err := json.Marshal(data)
-	Errchk(err)
-	return jsonBytes
 }
 
 func ReadText(filename string) []string {
@@ -46,13 +37,6 @@ func ToByte(data interface{}) []byte {
 	var buffer bytes.Buffer
 	gob.NewEncoder(&buffer).Encode(data)
 	return buffer.Bytes()
-}
-
-func MakeRanNum(seedNum, minimum int) int {
-	ranSeed := big.NewInt(int64(seedNum - minimum))
-	ranBigNum, err := rand.Int(rand.Reader, ranSeed)
-	Errchk(err)
-	return int(ranBigNum.Int64()) + minimum
 }
 
 // string 타입을 float64 타입으로 변환합니다.

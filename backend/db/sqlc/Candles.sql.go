@@ -10,64 +10,21 @@ import (
 	"database/sql"
 )
 
-const counting15mCandles = `-- name: Counting15mCandles :one
-SELECT count(time) FROM candles_15m
-`
-
-func (q *Queries) Counting15mCandles(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, counting15mCandles)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const counting1dCandles = `-- name: Counting1dCandles :one
-SELECT count(time) FROM candles_1d
-`
-
-func (q *Queries) Counting1dCandles(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, counting1dCandles)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const counting1hCandles = `-- name: Counting1hCandles :one
-SELECT count(time) FROM candles_1h
-`
-
-func (q *Queries) Counting1hCandles(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, counting1hCandles)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const counting4hCandles = `-- name: Counting4hCandles :one
-SELECT count(time) FROM candles_4h
-`
-
-func (q *Queries) Counting4hCandles(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, counting4hCandles)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const get15mCandles = `-- name: Get15mCandles :many
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_15m 
-WHERE name = ? 
+SELECT name, open, close, high, low, time, volume, color FROM candles_15m 
+WHERE name = ?  AND time <= ?
 ORDER BY time ASC 
 LIMIT ?
 `
 
 type Get15mCandlesParams struct {
 	Name  string `json:"name"`
+	Time  int64  `json:"time"`
 	Limit int32  `json:"limit"`
 }
 
 func (q *Queries) Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error) {
-	rows, err := q.db.QueryContext(ctx, get15mCandles, arg.Name, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, get15mCandles, arg.Name, arg.Time, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +33,6 @@ func (q *Queries) Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([
 	for rows.Next() {
 		var i Candles15m
 		if err := rows.Scan(
-			&i.ID,
 			&i.Name,
 			&i.Open,
 			&i.Close,
@@ -99,20 +55,39 @@ func (q *Queries) Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([
 	return items, nil
 }
 
+const get15mMinMaxTime = `-- name: Get15mMinMaxTime :one
+SELECT MIN(time), MAX(time)
+FROM candles_15m
+WHERE name = ?
+`
+
+type Get15mMinMaxTimeRow struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
+}
+
+func (q *Queries) Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error) {
+	row := q.db.QueryRowContext(ctx, get15mMinMaxTime, name)
+	var i Get15mMinMaxTimeRow
+	err := row.Scan(&i.Min, &i.Max)
+	return i, err
+}
+
 const get1dCandles = `-- name: Get1dCandles :many
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_1d 
-WHERE name = ? 
+SELECT name, open, close, high, low, time, volume, color FROM candles_1d 
+WHERE name = ? AND time <= ?
 ORDER BY time ASC 
 LIMIT ?
 `
 
 type Get1dCandlesParams struct {
 	Name  string `json:"name"`
+	Time  int64  `json:"time"`
 	Limit int32  `json:"limit"`
 }
 
 func (q *Queries) Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]Candles1d, error) {
-	rows, err := q.db.QueryContext(ctx, get1dCandles, arg.Name, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, get1dCandles, arg.Name, arg.Time, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +96,6 @@ func (q *Queries) Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]C
 	for rows.Next() {
 		var i Candles1d
 		if err := rows.Scan(
-			&i.ID,
 			&i.Name,
 			&i.Open,
 			&i.Close,
@@ -144,20 +118,39 @@ func (q *Queries) Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]C
 	return items, nil
 }
 
+const get1dMinMaxTime = `-- name: Get1dMinMaxTime :one
+SELECT MIN(time), MAX(time)
+FROM candles_1d
+WHERE name = ?
+`
+
+type Get1dMinMaxTimeRow struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
+}
+
+func (q *Queries) Get1dMinMaxTime(ctx context.Context, name string) (Get1dMinMaxTimeRow, error) {
+	row := q.db.QueryRowContext(ctx, get1dMinMaxTime, name)
+	var i Get1dMinMaxTimeRow
+	err := row.Scan(&i.Min, &i.Max)
+	return i, err
+}
+
 const get1hCandles = `-- name: Get1hCandles :many
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_1h 
-WHERE name = ? 
+SELECT name, open, close, high, low, time, volume, color FROM candles_1h 
+WHERE name = ?  AND time <= ?
 ORDER BY time ASC 
 LIMIT ?
 `
 
 type Get1hCandlesParams struct {
 	Name  string `json:"name"`
+	Time  int64  `json:"time"`
 	Limit int32  `json:"limit"`
 }
 
 func (q *Queries) Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]Candles1h, error) {
-	rows, err := q.db.QueryContext(ctx, get1hCandles, arg.Name, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, get1hCandles, arg.Name, arg.Time, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +159,6 @@ func (q *Queries) Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]C
 	for rows.Next() {
 		var i Candles1h
 		if err := rows.Scan(
-			&i.ID,
 			&i.Name,
 			&i.Open,
 			&i.Close,
@@ -189,20 +181,39 @@ func (q *Queries) Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]C
 	return items, nil
 }
 
+const get1hMinMaxTime = `-- name: Get1hMinMaxTime :one
+SELECT MIN(time), MAX(time)
+FROM candles_1h
+WHERE name = ?
+`
+
+type Get1hMinMaxTimeRow struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
+}
+
+func (q *Queries) Get1hMinMaxTime(ctx context.Context, name string) (Get1hMinMaxTimeRow, error) {
+	row := q.db.QueryRowContext(ctx, get1hMinMaxTime, name)
+	var i Get1hMinMaxTimeRow
+	err := row.Scan(&i.Min, &i.Max)
+	return i, err
+}
+
 const get4hCandles = `-- name: Get4hCandles :many
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_4h 
-WHERE name = ? 
+SELECT name, open, close, high, low, time, volume, color FROM candles_4h 
+WHERE name = ?  AND time <= ?
 ORDER BY time ASC 
 LIMIT ?
 `
 
 type Get4hCandlesParams struct {
 	Name  string `json:"name"`
+	Time  int64  `json:"time"`
 	Limit int32  `json:"limit"`
 }
 
 func (q *Queries) Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]Candles4h, error) {
-	rows, err := q.db.QueryContext(ctx, get4hCandles, arg.Name, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, get4hCandles, arg.Name, arg.Time, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +222,6 @@ func (q *Queries) Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]C
 	for rows.Next() {
 		var i Candles4h
 		if err := rows.Scan(
-			&i.ID,
 			&i.Name,
 			&i.Open,
 			&i.Close,
@@ -234,21 +244,38 @@ func (q *Queries) Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]C
 	return items, nil
 }
 
+const get4hMinMaxTime = `-- name: Get4hMinMaxTime :one
+SELECT MIN(time), MAX(time)
+FROM candles_4h
+WHERE name = ?
+`
+
+type Get4hMinMaxTimeRow struct {
+	Min interface{} `json:"min"`
+	Max interface{} `json:"max"`
+}
+
+func (q *Queries) Get4hMinMaxTime(ctx context.Context, name string) (Get4hMinMaxTimeRow, error) {
+	row := q.db.QueryRowContext(ctx, get4hMinMaxTime, name)
+	var i Get4hMinMaxTimeRow
+	err := row.Scan(&i.Min, &i.Max)
+	return i, err
+}
+
 const getOne15mCandle = `-- name: GetOne15mCandle :one
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_15m
-WHERE name = ? AND id = ?
+SELECT name, open, close, high, low, time, volume, color FROM candles_15m
+WHERE name = ? AND time = ?
 `
 
 type GetOne15mCandleParams struct {
 	Name string `json:"name"`
-	ID   int64  `json:"id"`
+	Time int64  `json:"time"`
 }
 
 func (q *Queries) GetOne15mCandle(ctx context.Context, arg GetOne15mCandleParams) (Candles15m, error) {
-	row := q.db.QueryRowContext(ctx, getOne15mCandle, arg.Name, arg.ID)
+	row := q.db.QueryRowContext(ctx, getOne15mCandle, arg.Name, arg.Time)
 	var i Candles15m
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Open,
 		&i.Close,
@@ -262,20 +289,19 @@ func (q *Queries) GetOne15mCandle(ctx context.Context, arg GetOne15mCandleParams
 }
 
 const getOne1dCandle = `-- name: GetOne1dCandle :one
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_1d
-WHERE name = ? AND id = ?
+SELECT name, open, close, high, low, time, volume, color FROM candles_1d
+WHERE name = ? AND time = ?
 `
 
 type GetOne1dCandleParams struct {
 	Name string `json:"name"`
-	ID   int64  `json:"id"`
+	Time int64  `json:"time"`
 }
 
 func (q *Queries) GetOne1dCandle(ctx context.Context, arg GetOne1dCandleParams) (Candles1d, error) {
-	row := q.db.QueryRowContext(ctx, getOne1dCandle, arg.Name, arg.ID)
+	row := q.db.QueryRowContext(ctx, getOne1dCandle, arg.Name, arg.Time)
 	var i Candles1d
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Open,
 		&i.Close,
@@ -289,20 +315,19 @@ func (q *Queries) GetOne1dCandle(ctx context.Context, arg GetOne1dCandleParams) 
 }
 
 const getOne1hCandle = `-- name: GetOne1hCandle :one
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_1h
-WHERE name = ? AND id = ?
+SELECT name, open, close, high, low, time, volume, color FROM candles_1h
+WHERE name = ? AND time = ?
 `
 
 type GetOne1hCandleParams struct {
 	Name string `json:"name"`
-	ID   int64  `json:"id"`
+	Time int64  `json:"time"`
 }
 
 func (q *Queries) GetOne1hCandle(ctx context.Context, arg GetOne1hCandleParams) (Candles1h, error) {
-	row := q.db.QueryRowContext(ctx, getOne1hCandle, arg.Name, arg.ID)
+	row := q.db.QueryRowContext(ctx, getOne1hCandle, arg.Name, arg.Time)
 	var i Candles1h
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Open,
 		&i.Close,
@@ -316,20 +341,19 @@ func (q *Queries) GetOne1hCandle(ctx context.Context, arg GetOne1hCandleParams) 
 }
 
 const getOne4hCandle = `-- name: GetOne4hCandle :one
-SELECT id, name, open, close, high, low, time, volume, color FROM candles_4h
-WHERE name = ? AND id = ?
+SELECT name, open, close, high, low, time, volume, color FROM candles_4h
+WHERE name = ? AND time = ?
 `
 
 type GetOne4hCandleParams struct {
 	Name string `json:"name"`
-	ID   int64  `json:"id"`
+	Time int64  `json:"time"`
 }
 
 func (q *Queries) GetOne4hCandle(ctx context.Context, arg GetOne4hCandleParams) (Candles4h, error) {
-	row := q.db.QueryRowContext(ctx, getOne4hCandle, arg.Name, arg.ID)
+	row := q.db.QueryRowContext(ctx, getOne4hCandle, arg.Name, arg.Time)
 	var i Candles4h
 	err := row.Scan(
-		&i.ID,
 		&i.Name,
 		&i.Open,
 		&i.Close,

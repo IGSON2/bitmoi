@@ -2,20 +2,16 @@ package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
-	"bitmoi/backend/utilities"
-	"encoding/json"
-
-	"github.com/gofiber/fiber"
 )
 
 const (
-	PracticeMode int = iota
+	PracticeMode int8 = iota
 	CompetitionMode
 )
 
 var allPairs = []string{"BTCUSDT"}
 
-func randomMinMax(interval string) (fivMonth int, waitingTime int) {
+func fiveMonthAndOneDay(interval string) (fivMonth int, waitingTime int) {
 	switch interval {
 	case db.FiveM:
 		return 43200, 288
@@ -32,53 +28,49 @@ func randomMinMax(interval string) (fivMonth int, waitingTime int) {
 	}
 }
 
-func SendCharts(mode int, interval string, names []string) Charts {
-	var tenCharts Charts
-	var ranName string
-Outer:
-	for {
-		ranName = allPairs[utilities.MakeRanNum(len(allPairs), 0)]
-		var sameHere bool = false
-		for _, name := range names {
-			if ranName == name {
-				sameHere = true
-			}
-		}
-		if !sameHere {
-			break Outer
-		}
-	}
-	chartBymode := makeChart(ranName, interval)
-	if mode == CompetitionMode {
-		(&chartBymode).anonymization(len(names))
-	} else {
-		chartBymode.addIdentifier()
-	}
-	tenCharts.Charts = chartBymode
-	return tenCharts
-}
+// func SendCharts(mode int, interval string, names []string) Charts {
+// 	var tenCharts Charts
+// 	var ranName string
+// Outer:
+// 	for {
+// 		ranName = allPairs[utilities.MakeRanInt(0, len(allPairs))]
+// 		var sameHere bool = false
+// 		for _, name := range names {
+// 			if ranName == name {
+// 				sameHere = true
+// 			}
+// 		}
+// 		if !sameHere {
+// 			break Outer
+// 		}
+// 	}
+// 	chartBymode := makeChart(ranName, interval)
+// 	if mode == CompetitionMode {
+// 		(&chartBymode).anonymization(len(names))
+// 	} else {
+// 		chartBymode.addIdentifier()
+// 	}
+// 	tenCharts.Charts = chartBymode
+// 	return tenCharts
+// }
 
-func SendOtherInterval(identifier, reqInterval, mode string) CandleData {
-	intervalChart := AC.InitAllchart(reqInterval)
-	unmarshalOriginInfo := utilities.DecryptByASE(identifier)
-	var originInfo = struct {
-		Name         string  `json:"name"`
-		Interval     string  `json:"interval"`
-		Backsteps    int     `json:"backsteps"`
-		PriceFactor  float64 `json:"pricefactor"`
-		VolumeFactor float64 `json:"volumefactor"`
-		RanPastDate  int64   `json:"ranpastdate"`
-	}{}
-	json.Unmarshal(unmarshalOriginInfo, &originInfo)
-	tempchart := OnePairChart{Name: originInfo.Name, OneChart: (*intervalChart)[originInfo.Name], interval: reqInterval}
-	tempchart.calculateBacksteps(originInfo.Backsteps, reqInterval)
-	tempchart.OneChart.transformTime()
-	if mode == "competition" {
-		tempchart.OneChart.encodeValue(originInfo.PriceFactor, originInfo.VolumeFactor, originInfo.RanPastDate)
-	}
-	return tempchart.OneChart
-}
-
-func (s *Server) test(c *fiber.Ctx) error {
-	return nil
-}
+// func SendOtherInterval(identifier, reqInterval, mode string) CandleData {
+// 	intervalChart := AC.InitAllchart(reqInterval)
+// 	unmarshalOriginInfo := utilities.DecryptByASE(identifier)
+// 	var originInfo = struct {
+// 		Name         string  `json:"name"`
+// 		Interval     string  `json:"interval"`
+// 		Backsteps    int     `json:"backsteps"`
+// 		PriceFactor  float64 `json:"pricefactor"`
+// 		VolumeFactor float64 `json:"volumefactor"`
+// 		TimeFactor   int64   `json:"timefactor"`
+// 	}{}
+// 	json.Unmarshal(unmarshalOriginInfo, &originInfo)
+// 	tempchart := OnePairChart{Name: originInfo.Name, OneChart: (*intervalChart)[originInfo.Name], interval: reqInterval}
+// 	tempchart.calculateBacksteps(originInfo.Backsteps, reqInterval)
+// 	tempchart.OneChart.transformTime()
+// 	if mode == "competition" {
+// 		tempchart.OneChart.encodeChart(originInfo.PriceFactor, originInfo.VolumeFactor, originInfo.TimeFactor)
+// 	}
+// 	return tempchart.OneChart
+// }

@@ -10,14 +10,14 @@ import (
 )
 
 type Querier interface {
-	Counting15mCandles(ctx context.Context) (int64, error)
-	Counting1dCandles(ctx context.Context) (int64, error)
-	Counting1hCandles(ctx context.Context) (int64, error)
-	Counting4hCandles(ctx context.Context) (int64, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
+	Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error)
 	Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]Candles1d, error)
+	Get1dMinMaxTime(ctx context.Context, name string) (Get1dMinMaxTimeRow, error)
 	Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]Candles1h, error)
+	Get1hMinMaxTime(ctx context.Context, name string) (Get1hMinMaxTimeRow, error)
 	Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]Candles4h, error)
+	Get4hMinMaxTime(ctx context.Context, name string) (Get4hMinMaxTimeRow, error)
 	GetOne15mCandle(ctx context.Context, arg GetOne15mCandleParams) (Candles15m, error)
 	GetOne1dCandle(ctx context.Context, arg GetOne1dCandleParams) (Candles1d, error)
 	GetOne1hCandle(ctx context.Context, arg GetOne1hCandleParams) (Candles1h, error)
