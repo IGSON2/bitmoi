@@ -14,7 +14,7 @@ import (
 )
 
 func TestGetStore(t *testing.T) {
-	c := utilities.GetConfig()
+	c := utilities.GetConfig("../../../.")
 	conn, err := sql.Open(c.DBDriver, c.DBSource)
 	require.NoError(t, err)
 	require.NotNil(t, conn)

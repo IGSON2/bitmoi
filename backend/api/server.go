@@ -36,13 +36,13 @@ type PostedComment struct {
 }
 
 type Server struct {
-	config utilities.Config
+	config *utilities.Config
 	store  db.Store
 	router *fiber.App
 	logger *zerolog.Logger
 }
 
-func NewServer(c utilities.Config, s db.Store) (*Server, error) {
+func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	serverLogger := zerolog.New(os.Stdout)
 	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
 
@@ -84,6 +84,10 @@ func NewServer(c utilities.Config, s db.Store) (*Server, error) {
 	server.router = router
 
 	return server, nil
+}
+
+func (s *Server) Listen() error {
+	return s.router.Listen(s.config.Address)
 }
 
 // func competition(c *fiber.Ctx) error {

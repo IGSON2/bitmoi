@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bitmoi/backend/api"
 	"bitmoi/backend/app"
+	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/utilities"
+	"database/sql"
 	"fmt"
 	"os"
 
@@ -28,6 +32,17 @@ func main() {
 
 func bitmoi(ctx *cli.Context) error {
 	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
-	applog.Info().Any("port", ctx.Args().First()).Msg("Start bitmoi")
-	return nil
+	applog.Info().Msg("Start bitmoi")
+	config := utilities.GetConfig("./")
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		return fmt.Errorf("cannot connect db %w", err)
+	}
+	dbStore := db.NewStore(conn)
+	server, err := api.NewServer(config, dbStore)
+	if err != nil {
+		return fmt.Errorf("cannot create server %w", err)
+	}
+
+	return server.Listen()
 }

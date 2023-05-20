@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/adshao/go-binance/v2 v2.4.2
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.34.0
 	github.com/mattn/go-sqlite3 v1.14.13
 	github.com/rs/zerolog v1.29.1
@@ -20,8 +19,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/gofiber/utils v0.0.10 // indirect
-	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect

@@ -82,7 +82,7 @@ func EncrtpByASE[T any](data T) string {
 		panic(err.Error())
 	}
 
-	block, err := aes.NewCipher([]byte(GetConfig().SymmetricKey))
+	block, err := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -100,7 +100,7 @@ func DecryptByASE(encrypted string) []byte {
 	if err != nil {
 		return nil
 	}
-	block, _ := aes.NewCipher([]byte(GetConfig().SymmetricKey))
+	block, _ := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
 	iv := make([]byte, aes.BlockSize)
 
 	stream := cipher.NewCTR(block, iv)

@@ -17,9 +17,9 @@ type Config struct {
 
 var C *Config
 
-func GetConfig() *Config {
+func GetConfig(path string) *Config {
 	if C == nil {
-		viper.AddConfigPath("../../")
+		viper.AddConfigPath(path)
 		viper.SetConfigName("a")
 		viper.SetConfigType("env")
 
@@ -37,6 +37,6 @@ func GetConfig() *Config {
 }
 
 func GetAPIKeys() (apikey, srckey string) {
-	cfg := GetConfig()
+	cfg := GetConfig("../../.")
 	return cfg.apikey, cfg.srckey
 }

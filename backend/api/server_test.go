@@ -13,7 +13,7 @@ import (
 )
 
 func TestGetCandles(t *testing.T) {
-	c := utilities.GetConfig()
+	c := utilities.GetConfig("../../.")
 	conn, err := sql.Open(c.DBDriver, c.DBSource)
 	require.NoError(t, err)
 	require.NotNil(t, conn)
@@ -21,11 +21,11 @@ func TestGetCandles(t *testing.T) {
 	s := db.NewStore(conn)
 	require.NotNil(t, s)
 
-	server, err := NewServer(*c, s)
+	server, err := NewServer(c, s)
 	require.NoError(t, err)
 	require.NotNil(t, server)
 
-	req, err := http.NewRequest(http.MethodGet, "/test/?interval=4h&name=LPDUSDT", nil)
+	req, err := http.NewRequest(http.MethodGet, "/test/?interval=4h&name=YGBUSDT", nil)
 	require.NoError(t, err)
 
 	res, err := server.router.Test(req)

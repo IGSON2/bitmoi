@@ -63,11 +63,11 @@ func TransMilli(m int64) string {
 
 func EntryTimeFormatter(entryTime int64) string {
 	timeString := fmt.Sprintf("%d.%02d.%02d %02d:%02d",
-		time.UnixMilli(entryTime).Year(),
-		time.UnixMilli(entryTime).Month(),
-		time.UnixMilli(entryTime).Day(),
-		time.UnixMilli(entryTime).Hour(),
-		time.UnixMilli(entryTime).Minute(),
+		time.Unix(entryTime, 0).Year(),
+		time.Unix(entryTime, 0).Month(),
+		time.Unix(entryTime, 0).Day(),
+		time.Unix(entryTime, 0).Hour(),
+		time.Unix(entryTime, 0).Minute(),
 	)
 	return timeString[2:]
 }

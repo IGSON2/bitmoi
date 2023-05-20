@@ -170,6 +170,7 @@ func makeChart(candles CandlesInterface, mode int8, refTimestamp int64) (*OnePai
 		interval:     candles.Interval(),
 		EntryTime:    candles.EntryTime(),
 		refTimestamp: int(refTimestamp),
+		OneChart:     candles.InitCandleData(),
 	}
 
 	if mode == CompetitionMode {
