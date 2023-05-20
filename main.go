@@ -9,12 +9,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rs/zerolog"
 	"github.com/urfave/cli/v2"
 )
 
 var bApp = app.NewApp()
-var applog = zerolog.New(os.Stdout)
 
 func init() {
 	bApp.Commands = []*cli.Command{
@@ -31,8 +29,6 @@ func main() {
 }
 
 func bitmoi(ctx *cli.Context) error {
-	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
-	applog.Info().Msg("Start bitmoi")
 	config := utilities.GetConfig("./")
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {

@@ -93,7 +93,7 @@ func TestAESEncrypt(t *testing.T) {
 }
 
 func TestAESDecrypt(t *testing.T) {
-	var c ChartInfo
+	var c IdentificationData
 	identifier := "00b609ff3f019dbe24c52f266654abd4a01cc67fca9b4218ad3284ddf6b24372af28212653857d47f69e948ef9d409e2407247db7ff28f4ec5fd2daa9984ef0588e8dbc904fc1ed9a4c7080803bbd027599bf920e57594ca1861204e4263111d0465ea2924b49d9d27e3c26abd10c9c65fb1d19e51b181a8330933495ce937e2153a599da4fc1a35e7a0754c0ceba185c68e4cdd6a0738d6c65b"
 
 	b := DecryptByASE(identifier)

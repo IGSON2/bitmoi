@@ -29,7 +29,7 @@ type FutureClient struct {
 	Logger        *zerolog.Logger
 }
 
-func NewFutureClient(c utilities.Config) (*FutureClient, error) {
+func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 	dbConn, err := sql.Open(c.DBDriver, c.DBSource)
 
 	if err != nil {
@@ -45,14 +45,14 @@ func NewFutureClient(c utilities.Config) (*FutureClient, error) {
 		LimitCalndles: LimitCandlesNum,
 		Logger:        &clientlogger,
 	}
-	if getErr := f.getAllPairs(); getErr != nil {
+	if getErr := f.GetAllPairs(); getErr != nil {
 		return nil, getErr
 	}
 	f.CandlesCh = make(chan db.InsertQueryInterface, len(f.Pairs))
 	return f, nil
 }
 
-func (f *FutureClient) getAllPairs() error {
+func (f *FutureClient) GetAllPairs() error {
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)

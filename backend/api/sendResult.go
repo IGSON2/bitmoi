@@ -2,6 +2,8 @@ package api
 
 import (
 	"bitmoi/backend/utilities"
+	"encoding/json"
+	"fmt"
 	"math"
 )
 
@@ -44,74 +46,74 @@ type ResultData struct {
 	CompOriginName string      `json:"comporiginname,omitempty"`
 }
 
-// func SendCompResult(compOrder OrderStruct) (*ResultData, error) {
-// 	compInfoByte := utilities.DecryptByASE(compOrder.Identifier)
-// 	var compInfo utilities.ChartInfo
-// 	err := json.Unmarshal(compInfoByte, &compInfo)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
-// 	}
-// 	resultchart := compResult(&compInfo)
-// 	var compResult = ResultData{
-// 		OriginChart: compOrigin(&compInfo),
-// 		ResultChart: resultchart,
-// 		ResultScore: calculateResult(resultchart, compOrder),
-// 	}
-// 	compResult.ResultScore.Name = compResult.ResultChart.PData[0].Name
-// 	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(compResult.ResultChart.PData[0].Time*1000 - 3600000)
-// 	return &compResult, nil
-// }
+func SendCompResult(compOrder OrderStruct) (*ResultData, error) {
+	compInfoByte := utilities.DecryptByASE(compOrder.Identifier)
+	var compInfo utilities.ChartInfo
+	err := json.Unmarshal(compInfoByte, &compInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+	}
+	resultchart := compResult(&compInfo)
+	var compResult = ResultData{
+		OriginChart: compOrigin(&compInfo),
+		ResultChart: resultchart,
+		ResultScore: calculateResult(resultchart, compOrder),
+	}
+	compResult.ResultScore.Name = compResult.ResultChart.PData[0].Name
+	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(compResult.ResultChart.PData[0].Time*1000 - 3600000)
+	return &compResult, nil
+}
 
-// func SendPracResult(pracOrder OrderStruct) (*ResultData, error) {
-// 	pracInfoByte := utilities.DecryptByASE(pracOrder.Identifier)
-// 	var pracInfo utilities.ChartInfo
-// 	err := json.Unmarshal(pracInfoByte, &pracInfo)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
-// 	}
-// 	resultchart := pracResult(&pracInfo)
-// 	var pracResult = ResultData{
-// 		OriginChart: CandleData{},
-// 		ResultChart: resultchart,
-// 		ResultScore: calculateResult(resultchart, pracOrder),
-// 	}
-// 	return &pracResult, nil
-// }
+func SendPracResult(pracOrder OrderStruct) (*ResultData, error) {
+	pracInfoByte := utilities.DecryptByASE(pracOrder.Identifier)
+	var pracInfo utilities.ChartInfo
+	err := json.Unmarshal(pracInfoByte, &pracInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+	}
+	resultchart := pracResult(&pracInfo)
+	var pracResult = ResultData{
+		OriginChart: CandleData{},
+		ResultChart: resultchart,
+		ResultScore: calculateResult(resultchart, pracOrder),
+	}
+	return &pracResult, nil
+}
 
-// func compOrigin(info *utilities.ChartInfo) CandleData {
-// 	var loadedChart = CandleData{
-// 		PData: (*AC.InitAllchart(OneH))[info.Name].PData[:len((*AC.InitAllchart(OneH))[info.Name].PData)-info.Backsteps],
-// 		VData: (*AC.InitAllchart(OneH))[info.Name].VData[:len((*AC.InitAllchart(OneH))[info.Name].VData)-info.Backsteps],
-// 	}
-// 	return decodeChartWithoutPrice(loadedChart, info)
-// }
+func compOrigin(info *utilities.ChartInfo) CandleData {
+	var loadedChart = CandleData{
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[:len((*AC.InitAllchart(OneH))[info.Name].PData)-info.Backsteps],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[:len((*AC.InitAllchart(OneH))[info.Name].VData)-info.Backsteps],
+	}
+	return decodeChartWithoutPrice(loadedChart, info)
+}
 
-// func compResult(info *utilities.ChartInfo) CandleData {
-// 	defer func() {
-// 		if r := recover(); r != nil {
-// 			fmt.Println("PANIC : ", info.Name)
-// 		}
-// 	}()
-// 	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
-// 	loadedChart := CandleData{
-// 		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
-// 		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
-// 	}
-// 	return decodeChartWithoutPrice(loadedChart, info)
-// }
+func compResult(info *utilities.ChartInfo) CandleData {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("PANIC : ", info.Name)
+		}
+	}()
+	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
+	loadedChart := CandleData{
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
+	}
+	return decodeChartWithoutPrice(loadedChart, info)
+}
 
-// func pracResult(info *utilities.ChartInfo) CandleData {
+func pracResult(info *utilities.ChartInfo) CandleData {
 
-// 	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
-// 	loadedChart := CandleData{
-// 		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
-// 		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
-// 	}
-// 	loadedChart.transformTime()
-// 	return loadedChart
-// }
+	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
+	loadedChart := CandleData{
+		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
+		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
+	}
+	loadedChart.transformTime()
+	return loadedChart
+}
 
-func decodeChartWithoutPrice(loadedChart CandleData, info *utilities.ChartInfo) CandleData {
+func decodeChartWithoutPrice(loadedChart CandleData, info *utilities.IdentificationData) CandleData {
 	var tempPdata []PriceData
 	var tempVdata []VolumeData
 	for _, onebar := range loadedChart.PData {

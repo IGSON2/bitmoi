@@ -17,7 +17,7 @@
 //       ],
 //       interval: "",
 //       backsteps: 0,
-//       tradingvalue: 0,
+//       btcratio: 0,
 //       name: "",
 //     },
 //   ]);

@@ -4,6 +4,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -12,6 +13,10 @@ import (
 
 const (
 	oneTimeLoad = 2000
+)
+
+var (
+	ErrGetCandleData = errors.New("server cannot get candle data")
 )
 
 type PriceData struct {
@@ -37,7 +42,7 @@ type CandleData struct {
 type OnePairChart struct {
 	Name         string     `json:"name"`
 	OneChart     CandleData `json:"onechart"`
-	TradingValue float64    `json:"tradingvalue"`
+	BtcRatio     float64    `json:"btcratio"`
 	EntryTime    string     `json:"entrytime"`
 	Identifier   string     `json:"identifier"`
 	interval     string
@@ -49,64 +54,6 @@ type OnePairChart struct {
 
 type Charts struct {
 	Charts OnePairChart `json:"charts"`
-}
-
-// func getAllchart(start, end int64, intN int, intU string) map[string]CandleData {
-// 	var allChart = make(map[string]CandleData)
-
-// 	cycleNum := cycleByCase(start, end, intN, intU)
-// 	for i := 1; i <= cycleNum; i++ {
-// 		if i%3 == 0 {
-// 			time.Sleep(1 * time.Minute)
-// 		}
-// 		Xcandles = i * 1000
-// 		getOneIntvChart(intN, intU, allPairs)
-// 		for j := 0; j < len(allPairs); j++ {
-// 			var oneCoinOfOneIntv CandleData
-// 			infoByCase(intN, intU, &oneCoinOfOneIntv)
-// 			if oneCoinOfOneIntv.PData == nil || oneCoinOfOneIntv.VData == nil {
-// 				continue
-// 			}
-// 			name := oneCoinOfOneIntv.PData[0].Name
-// 			var tempPdatas []PriceData = allChart[name].PData
-// 			var tempVdatas []VolumeData = allChart[name].VData
-// 			tempPdatas = append(oneCoinOfOneIntv.PData, tempPdatas...)
-// 			tempVdatas = append(oneCoinOfOneIntv.VData, tempVdatas...)
-// 			allChart[name] = CandleData{tempPdatas, tempVdatas}
-// 			fmt.Println(name, " Done.")
-// 		}
-// 		fmt.Printf("%s - %d / %d Done.\n", MakeInterval(intN, intU), i, cycleNum)
-// 	}
-// 	return allChart
-// }
-
-func cycleByCase(start, end int64, intN int, intU string) int {
-	var howHours int
-	var cyclenum int
-	termsByHours := (end - start) / (1000 * 60 * 60)
-	howHours = int(termsByHours/250) + 1
-
-	fmt.Println("TermHours : ", termsByHours)
-	switch intU {
-	case "m":
-		switch intN {
-		case 5:
-			cyclenum = 3 * howHours
-		case 15:
-			cyclenum = howHours
-		}
-	case "h":
-		switch intN {
-		case 1:
-			cyclenum = int(howHours/4) + 1
-		case 4:
-			cyclenum = int(howHours/16) + 1
-		}
-	case "d":
-		cyclenum = int(howHours/96) + 1
-	}
-	fmt.Println("CycleNum : ", cyclenum)
-	return cyclenum
 }
 
 func (s *Server) SelectMinMaxTime(interval, name string) (int64, int64, error) {
@@ -135,10 +82,14 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
 }
 
-func (s *Server) selectCandlesToRef(interval, name string) (CandlesInterface, int64, error) {
+func (s *Server) makeChartUpToRef(interval, name string, mode, prevStage int8) (*OnePairChart, error) {
+	var cdd CandleData
+	logErr := func(err error) {
+		s.logger.Error().Err(err).Msg(ErrGetCandleData.Error())
+	}
 	min, max, err := s.SelectMinMaxTime(interval, name)
 	if err != nil {
-		return nil, 0, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
+		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
 	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
@@ -146,40 +97,46 @@ func (s *Server) selectCandlesToRef(interval, name string) (CandlesInterface, in
 	switch interval {
 	case db.OneD:
 		candles, err := s.store.Get1dCandles(context.Background(), db.Get1dCandlesParams{name, refTimestamp, oneTimeLoad})
+		logErr(err)
 		cs := Candles1dSlice(candles)
-		return &cs, refTimestamp, err
+		cdd = (&cs).InitCandleData()
 	case db.FourH:
 		candles, err := s.store.Get4hCandles(context.Background(), db.Get4hCandlesParams{name, refTimestamp, oneTimeLoad})
+		logErr(err)
 		cs := Candles4hSlice(candles)
-		return &cs, refTimestamp, err
+		cdd = (&cs).InitCandleData()
 	case db.OneH:
 		candles, err := s.store.Get1hCandles(context.Background(), db.Get1hCandlesParams{name, refTimestamp, oneTimeLoad})
+		logErr(err)
 		cs := Candles1hSlice(candles)
-		return &cs, refTimestamp, err
+		cdd = (&cs).InitCandleData()
 	case db.FifM:
 		candles, err := s.store.Get15mCandles(context.Background(), db.Get15mCandlesParams{name, refTimestamp, oneTimeLoad})
+		logErr(err)
 		cs := Candles15mSlice(candles)
-		return &cs, refTimestamp, err
+		cdd = (&cs).InitCandleData()
 	}
-	return nil, 0, fmt.Errorf("invalid interval %s", interval)
-}
+	if cdd.PData == nil || cdd.VData == nil {
+		return nil, ErrGetCandleData
+	}
 
-func makeChart(candles CandlesInterface, mode int8, refTimestamp int64) (*OnePairChart, error) {
-	var oc = OnePairChart{
-		Name:         candles.Name(),
-		interval:     candles.Interval(),
-		EntryTime:    candles.EntryTime(),
+	var oc = &OnePairChart{
+		Name:         name,
+		OneChart:     cdd,
+		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
+		interval:     interval,
 		refTimestamp: int(refTimestamp),
-		OneChart:     candles.InitCandleData(),
 	}
+
+	//TODO : SetBtcRatio
 
 	if mode == CompetitionMode {
 		oc.setFactors()
-		oc.anonymization()
+		oc.anonymization(prevStage)
 	} else {
 		oc.addIdentifier()
 	}
-	return &oc, nil
+	return oc, nil
 }
 
 func (o *OnePairChart) setFactors() {
@@ -208,14 +165,14 @@ func (o *OnePairChart) setFactors() {
 	o.timeFactor = timeFactor
 }
 
-func (o *OnePairChart) anonymization() {
+func (o *OnePairChart) anonymization(stage int8) {
 
 	o.OneChart.encodeChart(o.priceFactor, o.volumeFactor, o.timeFactor)
 
 	o.addIdentifier()
 	o.refTimestamp = 0
 	o.EntryTime = "Sometime"
-	o.Name = "SomePair"
+	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
 }
 
 func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
@@ -229,7 +186,7 @@ func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
 	for _, onebar := range o.OneChart.VData[len(o.OneChart.VData)-721 : len(o.OneChart.VData)-1] {
 		volSum += onebar.Value
 	}
-	thisTradingValue := closeSum * volSum
+	thisBtcRatio := closeSum * volSum
 
 	btcEndIdx := len(btcChart.PData) - o.refTimestamp - 1
 	btcStartIdx := btcEndIdx - 720
@@ -242,14 +199,14 @@ func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
 	for _, oneBTCbar := range btcChart.VData[btcStartIdx:btcEndIdx] {
 		btcVolSum += oneBTCbar.Value
 	}
-	btcTradingValue := btcCloseSum * btcVolSum
+	btcBtcRatio := btcCloseSum * btcVolSum
 
-	o.TradingValue = math.Round((thisTradingValue/btcTradingValue)*10000) / 100
+	o.BtcRatio = math.Round((thisBtcRatio/btcBtcRatio)*10000) / 100
 
 }
 
 func (o *OnePairChart) addIdentifier() {
-	uniqueInfo := utilities.ChartInfo{
+	uniqueInfo := utilities.IdentificationData{
 		Name:         o.Name,
 		Interval:     o.interval,
 		Backsteps:    o.refTimestamp,
@@ -291,7 +248,7 @@ func (c *CandleData) encodeChart(pFactor, vFactor float64, tFactor int64) {
 	var tempVData []VolumeData
 	for _, onebar := range c.PData {
 		newPbar := PriceData{
-			Name:  "Anonymous",
+			Name:  "",
 			Open:  onebar.Open * pFactor,
 			Close: onebar.Close * pFactor,
 			High:  onebar.High * pFactor,

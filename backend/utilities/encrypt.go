@@ -14,7 +14,7 @@ import (
 	"encoding/json"
 )
 
-type ChartInfo struct {
+type IdentificationData struct {
 	Name         string  `json:"name"`
 	Interval     string  `json:"interval"`
 	Backsteps    int     `json:"backsteps"`

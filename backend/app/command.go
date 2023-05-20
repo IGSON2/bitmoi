@@ -21,7 +21,7 @@ var (
 
 func GetCandleData(ctx *cli.Context) error {
 	var names []string
-	f, err := futureclient.NewFutureClient(*utilities.GetConfig("../../."))
+	f, err := futureclient.NewFutureClient(utilities.GetConfig("../../."))
 	if err != nil {
 		return fmt.Errorf("cannot create future client, err : %w", err)
 	}

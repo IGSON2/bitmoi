@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -76,4 +77,64 @@ func EntryTimeFormatter(entryTime int64) string {
 func Yesterday9AM() int64 {
 	nineAMmilli := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()-1, 9, 1, 0, 0, time.Local).UnixMilli()
 	return nineAMmilli
+}
+
+func FindDiffPair(allPair, history []string) string {
+	var ranName string
+Outer:
+	for {
+		ranName = allPair[MakeRanInt(0, len(allPair))]
+		var sameHere bool = false
+		for _, name := range history {
+			if ranName == name {
+				sameHere = true
+			}
+		}
+		if !sameHere {
+			break Outer
+		}
+	}
+	return ranName
+}
+
+func Splitnames(names string) []string {
+	var splited []string
+	if names != "" {
+		splitted := strings.Split(names, ",")
+		for _, str := range splitted {
+			if str != "" && !strings.Contains(str, "STAGE") {
+				splited = append(splited, str)
+			}
+		}
+	}
+	return splited
+}
+
+func cycleByCase(start, end int64, intN int, intU string) int {
+	var howHours int
+	var cyclenum int
+	termsByHours := (end - start) / (1000 * 60 * 60)
+	howHours = int(termsByHours/250) + 1
+
+	fmt.Println("TermHours : ", termsByHours)
+	switch intU {
+	case "m":
+		switch intN {
+		case 5:
+			cyclenum = 3 * howHours
+		case 15:
+			cyclenum = howHours
+		}
+	case "h":
+		switch intN {
+		case 1:
+			cyclenum = int(howHours/4) + 1
+		case 4:
+			cyclenum = int(howHours/16) + 1
+		}
+	case "d":
+		cyclenum = int(howHours/96) + 1
+	}
+	fmt.Println("CycleNum : ", cyclenum)
+	return cyclenum
 }
