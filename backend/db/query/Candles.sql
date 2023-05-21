@@ -22,6 +22,12 @@ WHERE name = ? AND time <= ?
 ORDER BY time ASC 
 LIMIT ?;
 
+-- name: Get1dResult :many
+SELECT * FROM candles_1d 
+WHERE name = ? AND time > ?
+ORDER BY time ASC 
+LIMIT ?;
+
 -- name: Get1dMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_1d
@@ -48,6 +54,12 @@ WHERE name = ? AND time = ?;
 -- name: Get4hCandles :many
 SELECT * FROM candles_4h 
 WHERE name = ?  AND time <= ?
+ORDER BY time ASC 
+LIMIT ?;
+
+-- name: Get4hResult :many
+SELECT * FROM candles_4h 
+WHERE name = ? AND time > ?
 ORDER BY time ASC 
 LIMIT ?;
 
@@ -81,6 +93,12 @@ WHERE name = ?  AND time <= ?
 ORDER BY time ASC 
 LIMIT ?;
 
+-- name: Get1hResult :many
+SELECT * FROM candles_1h 
+WHERE name = ? AND time > ?
+ORDER BY time ASC 
+LIMIT ?;
+
 -- name: Get1hMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_1h
@@ -107,6 +125,12 @@ WHERE name = ? AND time = ?;
 -- name: Get15mCandles :many
 SELECT * FROM candles_15m 
 WHERE name = ?  AND time <= ?
+ORDER BY time ASC 
+LIMIT ?;
+
+-- name: Get15mResult :many
+SELECT * FROM candles_15m 
+WHERE name = ? AND time > ?
 ORDER BY time ASC 
 LIMIT ?;
 

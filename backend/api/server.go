@@ -77,8 +77,8 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Get("/competition/:array", competition)
-	router.Post("/competition", competition)
+	router.Get("/competition/:array", server.competition)
+	router.Post("/competition", server.competition)
 	router.Get("/interval", sendInterval)
 	router.Get("/myscore", myscore)
 	router.Get("/ranking", ranking)
@@ -104,7 +104,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 			//TODO : Handle this
 		}
 		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err := s.makeChartUpToRef(c.Query("interval", db.FourH), nextPair, PracticeMode, int8(len(history)))
+		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, PracticeMode, len(history))
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
@@ -112,13 +112,12 @@ func (s *Server) practice(c *fiber.Ctx) error {
 	case "POST":
 		var PracticeOrder OrderStruct
 		err := c.BodyParser(&PracticeOrder)
-		utilities.Errchk(err)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusBadRequest).JSON(err)
 		}
-
-		r, err := db.SendPracResult(PracticeOrder)
+		r, err := s.createPracResult(&PracticeOrder, nil)
 		if err != nil {
+			s.logger.Error().Err(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
 		return c.Status(fiber.StatusOK).JSON(r)
@@ -127,16 +126,26 @@ func (s *Server) practice(c *fiber.Ctx) error {
 	}
 }
 
-func competition(c *fiber.Ctx) error {
+func (s *Server) competition(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		names := c.Params("array")
-		return c.Status(fiber.StatusOK).JSON(db.SendCharts(db.CompetitionMode, db.OneH, splitnames(names)))
+		history := utilities.Splitnames(c.Query("names", ""))
+		if len(history) >= finalstage {
+			//TODO : Handle this
+		}
+		nextPair := utilities.FindDiffPair(s.pairs, history)
+		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, CompetitionMode, len(history))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
+		}
+		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
-		var CompetitionOrder db.OrderStruct
+		var CompetitionOrder OrderStruct
 		err := c.BodyParser(&CompetitionOrder)
-		utilities.Errchk(err)
-		compResult, err := db.SendCompResult(CompetitionOrder)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(err)
+		}
+		compResult, err := s.createCompResult(&CompetitionOrder)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}

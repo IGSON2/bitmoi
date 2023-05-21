@@ -25,7 +25,7 @@ function OrderInput({
   setBalance,
   setTitleaArray,
   entryTime,
-  scoreId,
+  resultTerm,
 }) {
   const auth = getAuth();
   const [quantity, setQuantity] = useState();
@@ -67,6 +67,7 @@ function OrderInput({
     balance: 0,
     identifier: "",
     scoreid: "",
+    resultterm: 0,
   });
   var commission = 0.0002;
   const inputRef = useRef(null);
@@ -101,7 +102,8 @@ function OrderInput({
       leverage: leverage,
       balance: balance,
       identifier: identifier,
-      scoreid: scoreId,
+      scoreid: Date.now().toString(),
+      resultTerm: resultTerm,
     };
     if (mode === "competition") {
       tempObject.uid = auth.currentUser.uid;

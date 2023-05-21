@@ -4,7 +4,10 @@
 
 package db
 
-import ()
+import (
+	"database/sql"
+	"time"
+)
 
 type Candles15m struct {
 	Name   string  `json:"name"`
@@ -48,4 +51,47 @@ type Candles4h struct {
 	Time   int64   `json:"time"`
 	Volume float64 `json:"volume"`
 	Color  string  `json:"color"`
+}
+
+type Candles5m struct {
+	Name   string  `json:"name"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Time   int64   `json:"time"`
+	Volume float64 `json:"volume"`
+	Color  string  `json:"color"`
+}
+
+type RankingBoard struct {
+	UserID       string          `json:"user_id"`
+	ScoreID      string          `json:"score_id"`
+	DisplayName  string          `json:"display_name"`
+	PhotoUrl     string          `json:"photo_url"`
+	FinalBalance sql.NullFloat64 `json:"final_balance"`
+}
+
+type Score struct {
+	ScoreID    string  `json:"score_id"`
+	UserID     string  `json:"user_id"`
+	Stage      int32   `json:"stage"`
+	Pairname   string  `json:"pairname"`
+	Entrytime  string  `json:"entrytime"`
+	Position   string  `json:"position"`
+	Leverage   int32   `json:"leverage"`
+	Outtime    int64   `json:"outtime"`
+	Entryprice float64 `json:"entryprice"`
+	Endprice   float64 `json:"endprice"`
+	Pnl        float64 `json:"pnl"`
+	Roe        float64 `json:"roe"`
+}
+
+type User struct {
+	UserID            string    `json:"user_id"`
+	Fullname          string    `json:"fullname"`
+	HashedPassword    string    `json:"hashed_password"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
 }

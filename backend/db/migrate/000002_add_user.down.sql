@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS score;
+DROP TABLE IF EXISTS ranking_board;
+DROP TABLE IF EXISTS users;

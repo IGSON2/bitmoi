@@ -36,3 +36,19 @@ func ParseInterval(interval string) (int, string) {
 	}
 	return time, string(unit)
 }
+
+func CalculateTerm(interval string, day int) int {
+	switch interval {
+	case OneD:
+		return day
+	case FourH:
+		return day * 6
+	case OneH:
+		return day * 24
+	case FifM:
+		return day * 96
+	case FiveM:
+		return day * 288
+	}
+	return 0
+}

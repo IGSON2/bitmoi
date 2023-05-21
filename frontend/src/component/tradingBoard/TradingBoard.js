@@ -11,7 +11,7 @@ import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
 import Mobile from "../Mobile/Mobile";
 
-function TradingBoard({ modeHeight, mode, setAdshow, scoreId }) {
+function TradingBoard({ modeHeight, mode, setAdshow }) {
   const [fiveMinutes, setFiveMinutes] = useState();
   const [fifteenMinutes, setFifteenMinutes] = useState();
   const [oneHour, setOneHour] = useState();
@@ -308,7 +308,6 @@ function TradingBoard({ modeHeight, mode, setAdshow, scoreId }) {
                 setBalance={setBalance}
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
-                scoreId={scoreId}
               />
             </div>
           </div>

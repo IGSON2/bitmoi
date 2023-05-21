@@ -17,7 +17,7 @@ import (
 type IdentificationData struct {
 	Name         string  `json:"name"`
 	Interval     string  `json:"interval"`
-	Backsteps    int     `json:"backsteps"`
+	RefTimestamp int64   `json:"reftimestamp"`
 	PriceFactor  float64 `json:"pricefactor"`
 	VolumeFactor float64 `json:"volumefactor"`
 	TimeFactor   int64   `json:"ranpastdate"`

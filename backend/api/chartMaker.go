@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	oneTimeLoad = 2000
+	oneTimeStageLoad = 2000
 )
 
 var (
-	ErrGetCandleData = errors.New("server cannot get candle data")
+	ErrGetStageChart  = errors.New("server cannot get stage chart")
+	ErrGetResultChart = errors.New("server cannot get result chart")
 )
 
 type PriceData struct {
@@ -40,13 +41,13 @@ type CandleData struct {
 }
 
 type OnePairChart struct {
-	Name         string     `json:"name"`
-	OneChart     CandleData `json:"onechart"`
-	BtcRatio     float64    `json:"btcratio"`
-	EntryTime    string     `json:"entrytime"`
-	Identifier   string     `json:"identifier"`
+	Name         string      `json:"name"`
+	OneChart     *CandleData `json:"onechart"`
+	BtcRatio     float64     `json:"btcratio"`
+	EntryTime    string      `json:"entrytime"`
+	Identifier   string      `json:"identifier"`
 	interval     string
-	refTimestamp int
+	refTimestamp int64
 	priceFactor  float64
 	volumeFactor float64
 	timeFactor   int64
@@ -82,42 +83,56 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
 }
 
-func (s *Server) makeChartUpToRef(interval, name string, mode, prevStage int8) (*OnePairChart, error) {
+func (s *Server) selectStageChart(name, interval string, refTimestamp int64) (*CandleData, error) {
 	var cdd CandleData
-	logErr := func(err error) {
-		s.logger.Error().Err(err).Msg(ErrGetCandleData.Error())
+
+	switch interval {
+	case db.OneD:
+		candles, err := s.store.Get1dCandles(context.Background(), db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		if err != nil {
+			return nil, err
+		}
+		cs := Candles1dSlice(candles)
+		cdd = (&cs).InitCandleData()
+	case db.FourH:
+		candles, err := s.store.Get4hCandles(context.Background(), db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		if err != nil {
+			return nil, err
+		}
+		cs := Candles4hSlice(candles)
+		cdd = (&cs).InitCandleData()
+	case db.OneH:
+		candles, err := s.store.Get1hCandles(context.Background(), db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		if err != nil {
+			return nil, err
+		}
+		cs := Candles1hSlice(candles)
+		cdd = (&cs).InitCandleData()
+	case db.FifM:
+		candles, err := s.store.Get15mCandles(context.Background(), db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		if err != nil {
+			return nil, err
+		}
+		cs := Candles15mSlice(candles)
+		cdd = (&cs).InitCandleData()
 	}
+	if cdd.PData == nil || cdd.VData == nil {
+		return nil, ErrGetStageChart
+	}
+	return &cdd, nil
+}
+
+func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int) (*OnePairChart, error) {
+
 	min, max, err := s.SelectMinMaxTime(interval, name)
 	if err != nil {
 		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
 	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
-
-	switch interval {
-	case db.OneD:
-		candles, err := s.store.Get1dCandles(context.Background(), db.Get1dCandlesParams{name, refTimestamp, oneTimeLoad})
-		logErr(err)
-		cs := Candles1dSlice(candles)
-		cdd = (&cs).InitCandleData()
-	case db.FourH:
-		candles, err := s.store.Get4hCandles(context.Background(), db.Get4hCandlesParams{name, refTimestamp, oneTimeLoad})
-		logErr(err)
-		cs := Candles4hSlice(candles)
-		cdd = (&cs).InitCandleData()
-	case db.OneH:
-		candles, err := s.store.Get1hCandles(context.Background(), db.Get1hCandlesParams{name, refTimestamp, oneTimeLoad})
-		logErr(err)
-		cs := Candles1hSlice(candles)
-		cdd = (&cs).InitCandleData()
-	case db.FifM:
-		candles, err := s.store.Get15mCandles(context.Background(), db.Get15mCandlesParams{name, refTimestamp, oneTimeLoad})
-		logErr(err)
-		cs := Candles15mSlice(candles)
-		cdd = (&cs).InitCandleData()
-	}
-	if cdd.PData == nil || cdd.VData == nil {
-		return nil, ErrGetCandleData
+	cdd, err := s.selectStageChart(name, interval, refTimestamp)
+	if err != nil {
+		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
 	var oc = &OnePairChart{
@@ -125,7 +140,7 @@ func (s *Server) makeChartUpToRef(interval, name string, mode, prevStage int8) (
 		OneChart:     cdd,
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
 		interval:     interval,
-		refTimestamp: int(refTimestamp),
+		refTimestamp: refTimestamp,
 	}
 
 	//TODO : SetBtcRatio
@@ -165,12 +180,11 @@ func (o *OnePairChart) setFactors() {
 	o.timeFactor = timeFactor
 }
 
-func (o *OnePairChart) anonymization(stage int8) {
+func (o *OnePairChart) anonymization(stage int) {
 
 	o.OneChart.encodeChart(o.priceFactor, o.volumeFactor, o.timeFactor)
 
 	o.addIdentifier()
-	o.refTimestamp = 0
 	o.EntryTime = "Sometime"
 	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
 }
@@ -188,7 +202,7 @@ func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
 	}
 	thisBtcRatio := closeSum * volSum
 
-	btcEndIdx := len(btcChart.PData) - o.refTimestamp - 1
+	btcEndIdx := len(btcChart.PData) - int(o.refTimestamp) - 1
 	btcStartIdx := btcEndIdx - 720
 
 	var btcCloseSum float64
@@ -209,38 +223,12 @@ func (o *OnePairChart) addIdentifier() {
 	uniqueInfo := utilities.IdentificationData{
 		Name:         o.Name,
 		Interval:     o.interval,
-		Backsteps:    o.refTimestamp,
+		RefTimestamp: o.refTimestamp,
 		PriceFactor:  o.priceFactor,
 		VolumeFactor: o.volumeFactor,
 		TimeFactor:   o.timeFactor,
 	}
 	o.Identifier = utilities.EncrtpByASE(&uniqueInfo)
-}
-
-func (o *OnePairChart) calculateBacksteps(oneHourBacksteps int, reqInterval string) {
-	switch reqInterval {
-	case "5m":
-		o.refTimestamp = ((oneHourBacksteps) * 12) - 11 + 576
-	case "15m":
-		o.refTimestamp = ((oneHourBacksteps) * 4) - 3 + 192
-	case "4h":
-		if oneHourBacksteps%4 == 0 {
-			o.refTimestamp = int(oneHourBacksteps/4) + 1
-		} else {
-			o.refTimestamp = int(oneHourBacksteps/4) + 2
-		}
-	}
-	if len(o.OneChart.PData)-o.refTimestamp < 2000 {
-		o.OneChart = CandleData{
-			PData: o.OneChart.PData[:len(o.OneChart.PData)-o.refTimestamp],
-			VData: o.OneChart.VData[:len(o.OneChart.VData)-o.refTimestamp],
-		}
-	} else {
-		o.OneChart = CandleData{
-			PData: o.OneChart.PData[len(o.OneChart.PData)-o.refTimestamp-2000 : len(o.OneChart.PData)-o.refTimestamp],
-			VData: o.OneChart.VData[len(o.OneChart.PData)-o.refTimestamp-2000 : len(o.OneChart.VData)-o.refTimestamp],
-		}
-	}
 }
 
 func (c *CandleData) encodeChart(pFactor, vFactor float64, tFactor int64) {

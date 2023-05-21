@@ -7,6 +7,10 @@ import (
 	"math"
 )
 
+const (
+	commissionRate = 0.0002
+)
+
 type OrderStruct struct {
 	Mode         string  `json:"mode"`
 	Uid          string  `json:"uid"`
@@ -23,6 +27,7 @@ type OrderStruct struct {
 	Balance      float64 `json:"balance"`
 	Identifier   string  `json:"identifier,omitempty"`
 	ScoreId      string  `json:"scoreid"`
+	ResultTerm   int     `json:"resultterm"`
 }
 
 type ResultScore struct {
@@ -40,185 +45,119 @@ type ResultScore struct {
 }
 
 type ResultData struct {
-	OriginChart    CandleData  `json:"originchart"`
-	ResultChart    CandleData  `json:"resultchart"`
-	ResultScore    ResultScore `json:"resultscore"`
-	CompOriginName string      `json:"comporiginname,omitempty"`
+	OriginChart *CandleData  `json:"originchart"`
+	ResultChart *CandleData  `json:"resultchart"`
+	ResultScore *ResultScore `json:"resultscore"`
 }
 
-func SendCompResult(compOrder OrderStruct) (*ResultData, error) {
-	compInfoByte := utilities.DecryptByASE(compOrder.Identifier)
-	var compInfo utilities.ChartInfo
-	err := json.Unmarshal(compInfoByte, &compInfo)
+func (s *Server) createPracResult(order *OrderStruct, info *utilities.IdentificationData) (*ResultData, error) {
+	if info == nil {
+		infoByte := utilities.DecryptByASE(order.Identifier)
+		err := json.Unmarshal(infoByte, info)
+		if err != nil {
+			return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
+		}
+	}
+	resultchart, err := s.selectResultChart(info, order.ResultTerm)
 	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	resultchart := compResult(&compInfo)
-	var compResult = ResultData{
-		OriginChart: compOrigin(&compInfo),
+	var result = ResultData{
 		ResultChart: resultchart,
-		ResultScore: calculateResult(resultchart, compOrder),
+		ResultScore: calculateResult(resultchart, order),
 	}
-	compResult.ResultScore.Name = compResult.ResultChart.PData[0].Name
-	compResult.ResultScore.Entrytime = utilities.EntryTimeFormatter(compResult.ResultChart.PData[0].Time*1000 - 3600000)
-	return &compResult, nil
+	return &result, nil
 }
 
-func SendPracResult(pracOrder OrderStruct) (*ResultData, error) {
-	pracInfoByte := utilities.DecryptByASE(pracOrder.Identifier)
-	var pracInfo utilities.ChartInfo
-	err := json.Unmarshal(pracInfoByte, &pracInfo)
+func (s *Server) createCompResult(compOrder *OrderStruct) (*ResultData, error) {
+	var compInfo *utilities.IdentificationData
+	infoByte := utilities.DecryptByASE(compOrder.Identifier)
+	err := json.Unmarshal(infoByte, compInfo)
 	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal compition chart identifier err : %w", err)
+		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
-	resultchart := pracResult(&pracInfo)
-	var pracResult = ResultData{
-		OriginChart: CandleData{},
-		ResultChart: resultchart,
-		ResultScore: calculateResult(resultchart, pracOrder),
+
+	result, err := s.createPracResult(compOrder, compInfo)
+	if err != nil {
+		return nil, err
 	}
-	return &pracResult, nil
+
+	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp)
+	if err != nil {
+		return nil, fmt.Errorf("cannot select origin competition chart. err : %w", err)
+	}
+
+	result.OriginChart = originchart
+
+	result.ResultScore.Name = result.ResultChart.PData[0].Name
+	result.ResultScore.Entrytime = utilities.EntryTimeFormatter(originchart.PData[len(originchart.PData)-1].Time)
+	return result, nil
 }
 
-func compOrigin(info *utilities.ChartInfo) CandleData {
-	var loadedChart = CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.Name].PData[:len((*AC.InitAllchart(OneH))[info.Name].PData)-info.Backsteps],
-		VData: (*AC.InitAllchart(OneH))[info.Name].VData[:len((*AC.InitAllchart(OneH))[info.Name].VData)-info.Backsteps],
-	}
-	return decodeChartWithoutPrice(loadedChart, info)
-}
-
-func compResult(info *utilities.ChartInfo) CandleData {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("PANIC : ", info.Name)
-		}
-	}()
-	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
-	loadedChart := CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
-		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
-	}
-	return decodeChartWithoutPrice(loadedChart, info)
-}
-
-func pracResult(info *utilities.ChartInfo) CandleData {
-
-	strIdx := len((*AC.InitAllchart(OneH))[info.Name].PData) - info.Backsteps
-	loadedChart := CandleData{
-		PData: (*AC.InitAllchart(OneH))[info.Name].PData[strIdx : strIdx+24],
-		VData: (*AC.InitAllchart(OneH))[info.Name].VData[strIdx : strIdx+24],
-	}
-	loadedChart.transformTime()
-	return loadedChart
-}
-
-func decodeChartWithoutPrice(loadedChart CandleData, info *utilities.IdentificationData) CandleData {
-	var tempPdata []PriceData
-	var tempVdata []VolumeData
-	for _, onebar := range loadedChart.PData {
-		var newPbar = PriceData{
-			Name:  info.Name,
-			Open:  onebar.Open * info.PriceFactor,
-			Close: onebar.Close * info.PriceFactor,
-			High:  onebar.High * info.PriceFactor,
-			Low:   onebar.Low * info.PriceFactor,
-			Time:  onebar.Time/1000 + 32400,
-		}
-		tempPdata = append(tempPdata, newPbar)
-	}
-	for _, onebar := range loadedChart.VData {
-		var newVbar = VolumeData{
-			Value: onebar.Value * info.VolumeFactor,
-			Time:  onebar.Time/1000 + 32400,
-			Color: onebar.Color,
-		}
-		tempVdata = append(tempVdata, newVbar)
-	}
-
-	return CandleData{tempPdata, tempVdata}
-}
-
-func decodeChartTimeOnly(loadedChart CandleData) CandleData {
-	var tempPdata []PriceData
-	var tempVdata []VolumeData
-	for _, onebar := range loadedChart.PData {
-		newPbar := onebar
-		newPbar.Time = onebar.Time/1000 + 32400
-		tempPdata = append(tempPdata, newPbar)
-	}
-	for _, onebar := range loadedChart.VData {
-		newVbar := onebar
-		newVbar.Time = onebar.Time/1000 + 32400
-		tempVdata = append(tempVdata, newVbar)
-	}
-	return CandleData{tempPdata, tempVdata}
-}
-
-func calculateResult(resultchart CandleData, order OrderStruct) ResultScore {
-	var roe float64
-	var pnl float64
-	var endIdx int
-	var endPrice float64
-	var out int
+func calculateResult(resultchart *CandleData, order *OrderStruct) *ResultScore {
+	var (
+		roe      float64
+		pnl      float64
+		endIdx   int
+		endPrice float64
+	)
 	for idx, candle := range resultchart.PData {
 		if order.IsLong {
 			if candle.High >= order.ProfitPrice {
 				roe = float64(order.QuantityRate/100) * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if candle.Low <= order.LossPrice {
 				roe = float64(order.QuantityRate/100) * (order.LossPrice - order.EntryPrice) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
 				roe = float64(order.QuantityRate/100) * (candle.Close - order.EntryPrice) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.Close
 				break
 			}
 		} else {
 			if candle.Low <= order.ProfitPrice {
 				roe = float64(order.QuantityRate/100) * (order.EntryPrice - order.ProfitPrice) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if candle.High >= order.LossPrice {
 				roe = float64(order.QuantityRate/100) * (order.EntryPrice - order.LossPrice) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
 				roe = float64(order.QuantityRate/100) * (order.EntryPrice - candle.Close) / order.EntryPrice
-				endIdx = idx
+				endIdx = idx + 1
 				endPrice = candle.Close
 				break
 			}
 		}
 	}
-	out = endIdx + 1
 	pnl = roe * float64(100/order.QuantityRate) * order.EntryPrice * order.Quantity
 
-	tempInfo := ResultScore{
+	resultInfo := ResultScore{
 		Stage:      order.Stage,
 		Name:       order.Name,
 		Entrytime:  order.Entrytime,
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
 		EndPrice:   (math.Floor(endPrice*10000) / 10000),
-		OutHour:    out,
+		OutHour:    endIdx,
 		Roe:        (math.Floor(roe*10000*float64(order.Leverage)) / 100),
 		Pnl:        math.Floor(pnl*10000) / 10000,
-		Commission: math.Floor(0.0002*order.EntryPrice*order.Quantity*10000) / 10000,
+		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*10000) / 10000,
 	}
-	if order.Balance+tempInfo.Pnl-tempInfo.Commission < 1 {
-		tempInfo.Isliquidated = true
+	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
+		resultInfo.Isliquidated = true
 	}
-	return tempInfo
+	return &resultInfo
 }

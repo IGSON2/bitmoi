@@ -1,32 +1,11 @@
 package api
 
-import (
-	db "bitmoi/backend/db/sqlc"
-)
-
 const (
 	PracticeMode int8 = iota
 	CompetitionMode
 )
 
 var allPairs = []string{"BTCUSDT"}
-
-func fiveMonthAndOneDay(interval string) (fivMonth int, waitingTime int) {
-	switch interval {
-	case db.FiveM:
-		return 43200, 288
-	case db.FifM:
-		return 14400, 96
-	case db.OneH:
-		return 3600, 24
-	case db.FourH:
-		return 900, 6
-	case db.OneD:
-		return 150, 1
-	default:
-		return 0, 0
-	}
-}
 
 // func SendCharts(mode int, interval string, names []string) Charts {
 // 	var tenCharts Charts
