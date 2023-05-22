@@ -66,10 +66,11 @@ type Candles5m struct {
 
 type RankingBoard struct {
 	UserID       string          `json:"user_id"`
+	PhotoUrl     string          `json:"photo_url"`
 	ScoreID      string          `json:"score_id"`
 	DisplayName  string          `json:"display_name"`
-	PhotoUrl     string          `json:"photo_url"`
 	FinalBalance sql.NullFloat64 `json:"final_balance"`
+	Comment      sql.NullString  `json:"comment"`
 }
 
 type Score struct {
@@ -80,7 +81,7 @@ type Score struct {
 	Entrytime  string  `json:"entrytime"`
 	Position   string  `json:"position"`
 	Leverage   int32   `json:"leverage"`
-	Outtime    int64   `json:"outtime"`
+	Outtime    int32   `json:"outtime"`
 	Entryprice float64 `json:"entryprice"`
 	Endprice   float64 `json:"endprice"`
 	Pnl        float64 `json:"pnl"`
@@ -88,10 +89,12 @@ type Score struct {
 }
 
 type User struct {
-	UserID            string    `json:"user_id"`
-	Fullname          string    `json:"fullname"`
-	HashedPassword    string    `json:"hashed_password"`
-	Email             string    `json:"email"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	CreatedAt         time.Time `json:"created_at"`
+	UserID            string         `json:"user_id"`
+	Uid               sql.NullString `json:"uid"`
+	Fullname          string         `json:"fullname"`
+	HashedPassword    string         `json:"hashed_password"`
+	Email             string         `json:"email"`
+	PasswordChangedAt time.Time      `json:"password_changed_at"`
+	CreatedAt         time.Time      `json:"created_at"`
+	PhotoUrl          string         `json:"photo_url"`
 }

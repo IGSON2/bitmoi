@@ -25,6 +25,7 @@ function WordConfirm({ popupOpen, comment }) {
     }
   };
   const auth = getAuth();
+  // TODO: update userid for firebase
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setThisUser(user.uid);

@@ -1,5 +1,6 @@
 CREATE TABLE `users` (
   `user_id` varchar(255) PRIMARY KEY,
+  `uid` varchar(255),
   `fullname` varchar(255) NOT NULL,
   `hashed_password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -9,14 +10,14 @@ CREATE TABLE `users` (
 );
 
 CREATE TABLE `score` (
-  `score_id` varchar(255) PRIMARY KEY,
+  `score_id` varchar(255) NOT NULL,
   `user_id` varchar(255) NOT NULL,
   `stage` tinyint NOT NULL,
   `pairname` varchar(255) NOT NULL,
   `entrytime` varchar(255) NOT NULL,
   `position` varchar(255) NOT NULL,
   `leverage` tinyint NOT NULL,
-  `outtime` bigint NOT NULL,
+  `outtime` tinyint NOT NULL,
   `entryprice` double NOT NULL,
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
@@ -32,16 +33,16 @@ CREATE TABLE `ranking_board` (
   `comment` varchar(255)
 );
 
-CREATE INDEX `score_index_0` ON `score` (`user_id`);
+CREATE UNIQUE INDEX `users_index_0` ON `users` (`fullname`);
 
-CREATE INDEX `ranking_board_index_1` ON `ranking_board` (`score_id`);
+CREATE INDEX `score_index_1` ON `score` (`user_id`);
 
-CREATE INDEX `ranking_board_index_2` ON `ranking_board` (`photo_url`);
+CREATE UNIQUE INDEX `score_index_2` ON `score` (`user_id`, `score_id`, `stage`);
+
+CREATE INDEX `ranking_board_index_3` ON `ranking_board` (`score_id`);
+
+CREATE UNIQUE INDEX `ranking_board_index_4` ON `ranking_board` (`user_id`, `score_id`);
 
 ALTER TABLE `score` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 ALTER TABLE `ranking_board` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
-ALTER TABLE `ranking_board` ADD FOREIGN KEY (`photo_url`) REFERENCES `users` (`user_id`);
-
-ALTER TABLE `score` ADD FOREIGN KEY (`score_id`) REFERENCES `ranking_board` (`score_id`);

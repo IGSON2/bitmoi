@@ -12,6 +12,7 @@ const ResultPopup = (props) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        // TODO: update userid for firebase
         user: auth.currentUser.uid,
         displayname: auth.currentUser.displayName,
         photourl: auth.currentUser.photoURL,
@@ -58,7 +59,7 @@ const ResultPopup = (props) => {
               USDT
             </div>
             <VerticalLine className={styles.vertical} />
-            <div className={styles.infovalue}>+ {props.result.outhour} H</div>
+            <div className={styles.infovalue}>+ {props.result.outtime} H</div>
           </div>
           {props.result.isliquidated ? (
             <div className={styles.liquidated}>포지션이 청산 되었습니다.</div>

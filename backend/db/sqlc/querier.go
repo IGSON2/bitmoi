@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
 	Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error)
 	Get15mResult(ctx context.Context, arg Get15mResultParams) ([]Candles15m, error)
@@ -22,14 +23,25 @@ type Querier interface {
 	Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]Candles4h, error)
 	Get4hMinMaxTime(ctx context.Context, name string) (Get4hMinMaxTimeRow, error)
 	Get4hResult(ctx context.Context, arg Get4hResultParams) ([]Candles4h, error)
+	GetLastUser(ctx context.Context) (User, error)
 	GetOne15mCandle(ctx context.Context, arg GetOne15mCandleParams) (Candles15m, error)
 	GetOne1dCandle(ctx context.Context, arg GetOne1dCandleParams) (Candles1d, error)
 	GetOne1hCandle(ctx context.Context, arg GetOne1hCandleParams) (Candles1h, error)
 	GetOne4hCandle(ctx context.Context, arg GetOne4hCandleParams) (Candles4h, error)
+	GetRandomUser(ctx context.Context) (User, error)
+	GetRankByUserID(ctx context.Context, userID string) (RankingBoard, error)
+	GetScore(ctx context.Context, arg GetScoreParams) (Score, error)
+	GetScoresByScoreID(ctx context.Context, scoreID string) ([]Score, error)
+	GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error)
+	GetUser(ctx context.Context, userID string) (User, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)
 	Insert1dCandles(ctx context.Context, arg Insert1dCandlesParams) (sql.Result, error)
 	Insert1hCandles(ctx context.Context, arg Insert1hCandlesParams) (sql.Result, error)
 	Insert4hCandles(ctx context.Context, arg Insert4hCandlesParams) (sql.Result, error)
+	InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error)
+	InsertScore(ctx context.Context, arg InsertScoreParams) (sql.Result, error)
+	UpdatePhotoURL(ctx context.Context, arg UpdatePhotoURLParams) (sql.Result, error)
+	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
 }
 
 var _ Querier = (*Queries)(nil)

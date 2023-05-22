@@ -53,7 +53,7 @@ function OrderInput({
   const [lossClosed, setLossClosed] = useState(false);
   const [orderObject, setOrderObject] = useState({
     mode: "",
-    uid: "",
+    userid: "",
     name: "",
     entrytime: "",
     stage: 0,
@@ -89,7 +89,7 @@ function OrderInput({
     event.preventDefault();
     var tempObject = {
       mode: mode,
-      uid: "",
+      userid: "",
       name: name,
       entrytime: entryTime,
       stage: index + 1,
@@ -105,8 +105,9 @@ function OrderInput({
       scoreid: Date.now().toString(),
       resultTerm: resultTerm,
     };
+    // Update userid for firebase
     if (mode === "competition") {
-      tempObject.uid = auth.currentUser.uid;
+      tempObject.userid = auth.currentUser.uid;
     }
     setOrderObject(tempObject);
     setConfirm((current) => !current);

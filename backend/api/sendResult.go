@@ -13,7 +13,7 @@ const (
 
 type OrderStruct struct {
 	Mode         string  `json:"mode"`
-	Uid          string  `json:"uid"`
+	UserId       string  `json:"userid"`
 	Name         string  `json:"name"`
 	Entrytime    string  `json:"entrytime"`
 	Stage        int     `json:"stage"`
@@ -37,7 +37,7 @@ type ResultScore struct {
 	Leverage     int     `json:"leverage"`
 	EntryPrice   float64 `json:"entryprice"`
 	EndPrice     float64 `json:"-"`
-	OutHour      int     `json:"outhour"`
+	OutTime      int     `json:"outtime"`
 	Roe          float64 `json:"roe"`
 	Pnl          float64 `json:"pnl"`
 	Commission   float64 `json:"commission"`
@@ -151,7 +151,7 @@ func calculateResult(resultchart *CandleData, order *OrderStruct) *ResultScore {
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
 		EndPrice:   (math.Floor(endPrice*10000) / 10000),
-		OutHour:    endIdx,
+		OutTime:    endIdx,
 		Roe:        (math.Floor(roe*10000*float64(order.Leverage)) / 100),
 		Pnl:        math.Floor(pnl*10000) / 10000,
 		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*10000) / 10000,

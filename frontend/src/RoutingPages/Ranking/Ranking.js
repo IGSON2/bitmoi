@@ -7,7 +7,7 @@ import H_NavBar from "../../component/navbar/H_NavBar";
 
 function Ranking() {
   const [data, setData] = useState({
-    totallist: [
+    rankingBoard: [
       {
         user: "",
         displayname: "",
@@ -35,7 +35,7 @@ function Ranking() {
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
         </div>
-        {data.totallist.map((v, i) => {
+        {data.rankingBoard.map((v, i) => {
           return <RankDiv key={i} index={i + 1} obj={v} />;
         })}
         <div className={styles.footer}>

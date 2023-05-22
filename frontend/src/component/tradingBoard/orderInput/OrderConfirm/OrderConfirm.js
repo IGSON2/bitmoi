@@ -25,7 +25,7 @@ function Orderconfirm({
     name: "",
     leverage: 0,
     entryprice: 0,
-    outhour: 0,
+    outtime: 0,
     roe: 0,
     pnl: 0,
     commission: 0,

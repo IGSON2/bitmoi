@@ -11,9 +11,9 @@ INSERT INTO score (
     entryprice,
     endprice,
     pnl,
-    roe,
+    roe
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?,?,?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: GetScore :one
@@ -24,8 +24,8 @@ WHERE score_id = ? AND stage = ?;
 SELECT * FROM score
 WHERE score_id = ?;
 
---name: GetScoresByUserID :many
+-- name: GetScoresByUserID :many
 SELECT * FROM score
 WHERE user_id = ?
 ORDER BY score_id DESC 
-Limit = ?;
+Limit ?;

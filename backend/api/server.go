@@ -149,7 +149,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
-		db.InsertStageScore(CompetitionOrder, compResult.ResultScore)
+		s.insertUserScore(&CompetitionOrder, compResult.ResultScore)
 		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
 		return errors.New("Not allowed method : " + c.Method())

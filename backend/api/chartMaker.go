@@ -58,18 +58,21 @@ type Charts struct {
 }
 
 func (s *Server) SelectMinMaxTime(interval, name string) (int64, int64, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	switch interval {
 	case db.OneD:
-		r, err := s.store.Get1dMinMaxTime(context.Background(), name)
+		r, err := s.store.Get1dMinMaxTime(ctx, name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.FourH:
-		r, err := s.store.Get4hMinMaxTime(context.Background(), name)
+		r, err := s.store.Get4hMinMaxTime(ctx, name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.OneH:
-		r, err := s.store.Get1hMinMaxTime(context.Background(), name)
+		r, err := s.store.Get1hMinMaxTime(ctx, name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.FifM:
-		r, err := s.store.Get15mMinMaxTime(context.Background(), name)
+		r, err := s.store.Get15mMinMaxTime(ctx, name)
 		return r.Min.(int64), r.Max.(int64), err
 	}
 	return 0, 0, fmt.Errorf("invalid interval %s", interval)
@@ -85,31 +88,33 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 
 func (s *Server) selectStageChart(name, interval string, refTimestamp int64) (*CandleData, error) {
 	var cdd CandleData
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	switch interval {
 	case db.OneD:
-		candles, err := s.store.Get1dCandles(context.Background(), db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1dCandles(ctx, db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hCandles(context.Background(), db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get4hCandles(ctx, db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hCandles(context.Background(), db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1hCandles(ctx, db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mCandles(context.Background(), db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get15mCandles(ctx, db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
