@@ -42,11 +42,18 @@ func (q *Queries) GetScore(ctx context.Context, arg GetScoreParams) (Score, erro
 
 const getScoresByScoreID = `-- name: GetScoresByScoreID :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
-WHERE score_id = ?
+WHERE score_id = ? AND user_id = ?
+LIMIT ?
 `
 
-func (q *Queries) GetScoresByScoreID(ctx context.Context, scoreID string) ([]Score, error) {
-	rows, err := q.db.QueryContext(ctx, getScoresByScoreID, scoreID)
+type GetScoresByScoreIDParams struct {
+	ScoreID string `json:"score_id"`
+	UserID  string `json:"user_id"`
+	Limit   int32  `json:"limit"`
+}
+
+func (q *Queries) GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreIDParams) ([]Score, error) {
+	rows, err := q.db.QueryContext(ctx, getScoresByScoreID, arg.ScoreID, arg.UserID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +92,7 @@ const getScoresByUserID = `-- name: GetScoresByUserID :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
 WHERE user_id = ?
 ORDER BY score_id DESC 
-Limit ?
+LIMIT ?
 `
 
 type GetScoresByUserIDParams struct {

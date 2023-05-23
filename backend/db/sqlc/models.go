@@ -65,12 +65,12 @@ type Candles5m struct {
 }
 
 type RankingBoard struct {
-	UserID       string          `json:"user_id"`
-	PhotoUrl     string          `json:"photo_url"`
-	ScoreID      string          `json:"score_id"`
-	DisplayName  string          `json:"display_name"`
-	FinalBalance sql.NullFloat64 `json:"final_balance"`
-	Comment      sql.NullString  `json:"comment"`
+	UserID       string  `json:"user_id"`
+	PhotoUrl     string  `json:"photo_url"`
+	ScoreID      string  `json:"score_id"`
+	DisplayName  string  `json:"display_name"`
+	FinalBalance float64 `json:"final_balance"`
+	Comment      string  `json:"comment"`
 }
 
 type Score struct {

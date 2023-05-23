@@ -29,8 +29,8 @@ CREATE TABLE `ranking_board` (
   `photo_url` varchar(255) NOT NULL,
   `score_id` varchar(255) NOT NULL,
   `display_name` varchar(255) NOT NULL,
-  `final_balance` double,
-  `comment` varchar(255)
+  `final_balance` double NOT NULL,
+  `comment` varchar(255) NOT NULL
 );
 
 CREATE UNIQUE INDEX `users_index_0` ON `users` (`fullname`);

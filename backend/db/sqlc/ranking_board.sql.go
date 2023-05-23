@@ -10,6 +10,42 @@ import (
 	"database/sql"
 )
 
+const getAllRanks = `-- name: GetAllRanks :many
+SELECT user_id, photo_url, score_id, display_name, final_balance, comment FROM ranking_board
+ORDER BY balance DESC
+LIMIT ?
+`
+
+func (q *Queries) GetAllRanks(ctx context.Context, limit int32) ([]RankingBoard, error) {
+	rows, err := q.db.QueryContext(ctx, getAllRanks, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []RankingBoard{}
+	for rows.Next() {
+		var i RankingBoard
+		if err := rows.Scan(
+			&i.UserID,
+			&i.PhotoUrl,
+			&i.ScoreID,
+			&i.DisplayName,
+			&i.FinalBalance,
+			&i.Comment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRankByUserID = `-- name: GetRankByUserID :one
 SELECT user_id, photo_url, score_id, display_name, final_balance, comment FROM ranking_board
 WHERE user_id = ?
@@ -43,12 +79,12 @@ INSERT INTO ranking_board (
 `
 
 type InsertRankParams struct {
-	UserID       string          `json:"user_id"`
-	ScoreID      string          `json:"score_id"`
-	DisplayName  string          `json:"display_name"`
-	PhotoUrl     string          `json:"photo_url"`
-	Comment      sql.NullString  `json:"comment"`
-	FinalBalance sql.NullFloat64 `json:"final_balance"`
+	UserID       string  `json:"user_id"`
+	ScoreID      string  `json:"score_id"`
+	DisplayName  string  `json:"display_name"`
+	PhotoUrl     string  `json:"photo_url"`
+	Comment      string  `json:"comment"`
+	FinalBalance float64 `json:"final_balance"`
 }
 
 func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error) {
@@ -69,10 +105,10 @@ WHERE user_id = ?
 `
 
 type UpdateUserRankParams struct {
-	ScoreID      string          `json:"score_id"`
-	FinalBalance sql.NullFloat64 `json:"final_balance"`
-	Comment      sql.NullString  `json:"comment"`
-	UserID       string          `json:"user_id"`
+	ScoreID      string  `json:"score_id"`
+	FinalBalance float64 `json:"final_balance"`
+	Comment      string  `json:"comment"`
+	UserID       string  `json:"user_id"`
 }
 
 func (q *Queries) UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error) {

@@ -177,6 +177,7 @@ func ranking(c *fiber.Ctx) error {
 	case "GET":
 		return c.JSON((db.SelectTotalScoreDB()))
 	case "POST":
+		// Need to API key validation
 		var t db.TotalData
 		err := c.BodyParser(&t)
 		utilities.Errchk(err)

@@ -10,6 +10,11 @@ INSERT INTO ranking_board (
    ?, ?, ?, ?, ?, ?
 );
 
+-- name: GetAllRanks :many
+SELECT * FROM ranking_board
+ORDER BY balance DESC
+LIMIT ?;
+
 -- name: GetRankByUserID :one
 SELECT * FROM ranking_board
 WHERE user_id = ?;

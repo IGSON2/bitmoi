@@ -3,6 +3,8 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"context"
+	"database/sql"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -59,6 +61,10 @@ const (
 	short = "SHORT"
 )
 
+var (
+	ErrNotUpdatedScore = errors.New("failed to update rank due to low score")
+)
+
 func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -88,11 +94,41 @@ func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore) error {
 	return err
 }
 
-func (s *Server) getScoresByUserID()  {}
-func (s *Server) getScoresByScoreID() {}
-func (s *Server) getRankByUserID()    {}
-func (s *Server) insertScoreToRankBoard() {
-	//if firt rank
-	//or already rankded
+func (s *Server) getScoresByUserID(userId string, limit int32) ([]db.Score, error) {
+	return s.store.GetScoresByUserID(context.Background(), db.GetScoresByUserIDParams{
+		UserID: userId,
+		Limit:  limit,
+	})
 }
-func (s *Server) getRankedStagesByScoreID() {}
+
+func (s *Server) getScoresByScoreID(scoreId, userId string, limit int32) ([]db.Score, error) {
+	return s.store.GetScoresByScoreID(context.Background(), db.GetScoresByScoreIDParams{
+		ScoreID: scoreId,
+		UserID:  userId,
+		Limit:   limit,
+	})
+}
+
+func (s *Server) getAllRanks(limit int32) ([]db.RankingBoard, error) {
+	return s.store.GetAllRanks(context.Background(), limit)
+}
+
+func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
+	return s.store.GetRankByUserID(context.Background(), userId)
+}
+
+func (s *Server) insertScoreToRankBoard(params db.InsertRankParams) error {
+	r, err := s.getRankByUserID(params.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			_, err = s.store.InsertRank(context.Background(), params)
+		}
+		return err
+	}
+	if r.FinalBalance > params.FinalBalance {
+		return ErrNotUpdatedScore
+	} else {
+		_, err = s.store.InsertRank(context.Background(), params)
+	}
+	return err
+}
