@@ -40,6 +40,24 @@ func (q *Queries) GetScore(ctx context.Context, arg GetScoreParams) (Score, erro
 	return i, err
 }
 
+const getScoreToStage = `-- name: GetScoreToStage :one
+SELECT SUM(pnl) FROM score
+WHERE score_id = ? AND user_id = ? AND stage <= ?
+`
+
+type GetScoreToStageParams struct {
+	ScoreID string `json:"score_id"`
+	UserID  string `json:"user_id"`
+	Stage   int32  `json:"stage"`
+}
+
+func (q *Queries) GetScoreToStage(ctx context.Context, arg GetScoreToStageParams) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, getScoreToStage, arg.ScoreID, arg.UserID, arg.Stage)
+	var sum interface{}
+	err := row.Scan(&sum)
+	return sum, err
+}
+
 const getScoresByScoreID = `-- name: GetScoresByScoreID :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
 WHERE score_id = ? AND user_id = ?

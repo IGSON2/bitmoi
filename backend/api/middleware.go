@@ -10,5 +10,6 @@ const (
 // DB에 기록된 총 Score를 합산하여 Rank Board에 기록하는 방식이면 되지 않을까?
 // 각 Stage에 대한 POST요청 또한 조작이 가능하지 않을까?
 func ApiAuthMiddleWare(c *fiber.Ctx) error {
-	apikey := c.Get(apiKeyHeader)
+	// apikey := c.Get(apiKeyHeader)
+	return nil
 }

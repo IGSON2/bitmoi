@@ -3,16 +3,19 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"context"
 	"errors"
 	"fmt"
 	"math"
 	"sort"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 const (
-	oneTimeStageLoad = 2000
+	oneTimeStageLoad      = 2000
+	PracticeMode     int8 = iota
+	CompetitionMode
 )
 
 var (
@@ -57,22 +60,19 @@ type Charts struct {
 	Charts OnePairChart `json:"charts"`
 }
 
-func (s *Server) SelectMinMaxTime(interval, name string) (int64, int64, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+func (s *Server) SelectMinMaxTime(interval, name string, c *fiber.Ctx) (int64, int64, error) {
 	switch interval {
 	case db.OneD:
-		r, err := s.store.Get1dMinMaxTime(ctx, name)
+		r, err := s.store.Get1dMinMaxTime(c.Context(), name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.FourH:
-		r, err := s.store.Get4hMinMaxTime(ctx, name)
+		r, err := s.store.Get4hMinMaxTime(c.Context(), name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.OneH:
-		r, err := s.store.Get1hMinMaxTime(ctx, name)
+		r, err := s.store.Get1hMinMaxTime(c.Context(), name)
 		return r.Min.(int64), r.Max.(int64), err
 	case db.FifM:
-		r, err := s.store.Get15mMinMaxTime(ctx, name)
+		r, err := s.store.Get15mMinMaxTime(c.Context(), name)
 		return r.Min.(int64), r.Max.(int64), err
 	}
 	return 0, 0, fmt.Errorf("invalid interval %s", interval)
@@ -86,35 +86,33 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
 }
 
-func (s *Server) selectStageChart(name, interval string, refTimestamp int64) (*CandleData, error) {
+func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *fiber.Ctx) (*CandleData, error) {
 	var cdd CandleData
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	switch interval {
 	case db.OneD:
-		candles, err := s.store.Get1dCandles(ctx, db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1dCandles(c.Context(), db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hCandles(ctx, db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get4hCandles(c.Context(), db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hCandles(ctx, db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1hCandles(c.Context(), db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mCandles(ctx, db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get15mCandles(c.Context(), db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
@@ -127,15 +125,15 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64) (*C
 	return &cdd, nil
 }
 
-func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int) (*OnePairChart, error) {
+func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
 
-	min, max, err := s.SelectMinMaxTime(interval, name)
+	min, max, err := s.SelectMinMaxTime(interval, name, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
 	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
-	cdd, err := s.selectStageChart(name, interval, refTimestamp)
+	cdd, err := s.selectStageChart(name, interval, refTimestamp, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
 	}

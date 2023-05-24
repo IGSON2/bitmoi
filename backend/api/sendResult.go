@@ -5,44 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 const (
 	commissionRate = 0.0002
 )
-
-type OrderStruct struct {
-	Mode         string  `json:"mode"`
-	UserId       string  `json:"userid"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entrytime"`
-	Stage        int     `json:"stage"`
-	IsLong       bool    `json:"islong"`
-	EntryPrice   float64 `json:"entryprice"`
-	Quantity     float64 `json:"quantity"`
-	QuantityRate float64 `json:"quantityrate"`
-	ProfitPrice  float64 `json:"profitprice"`
-	LossPrice    float64 `json:"lossprice"`
-	Leverage     int     `json:"leverage"`
-	Balance      float64 `json:"balance"`
-	Identifier   string  `json:"identifier,omitempty"`
-	ScoreId      string  `json:"scoreid"`
-	ResultTerm   int     `json:"resultterm"`
-}
-
-type ResultScore struct {
-	Stage        int     `json:"stage"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entrytime"`
-	Leverage     int     `json:"leverage"`
-	EntryPrice   float64 `json:"entryprice"`
-	EndPrice     float64 `json:"-"`
-	OutTime      int     `json:"outtime"`
-	Roe          float64 `json:"roe"`
-	Pnl          float64 `json:"pnl"`
-	Commission   float64 `json:"commission"`
-	Isliquidated bool    `json:"isliquidated"`
-}
 
 type ResultData struct {
 	OriginChart *CandleData  `json:"originchart"`
@@ -50,7 +19,7 @@ type ResultData struct {
 	ResultScore *ResultScore `json:"resultscore"`
 }
 
-func (s *Server) createPracResult(order *OrderStruct, info *utilities.IdentificationData) (*ResultData, error) {
+func (s *Server) createPracResult(order *OrderStruct, info *utilities.IdentificationData, c *fiber.Ctx) (*ResultData, error) {
 	if info == nil {
 		infoByte := utilities.DecryptByASE(order.Identifier)
 		err := json.Unmarshal(infoByte, info)
@@ -58,7 +27,7 @@ func (s *Server) createPracResult(order *OrderStruct, info *utilities.Identifica
 			return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 		}
 	}
-	resultchart, err := s.selectResultChart(info, order.ResultTerm)
+	resultchart, err := s.selectResultChart(info, int(order.ResultTerm), c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
@@ -69,7 +38,7 @@ func (s *Server) createPracResult(order *OrderStruct, info *utilities.Identifica
 	return &result, nil
 }
 
-func (s *Server) createCompResult(compOrder *OrderStruct) (*ResultData, error) {
+func (s *Server) createCompResult(compOrder *OrderStruct, c *fiber.Ctx) (*ResultData, error) {
 	var compInfo *utilities.IdentificationData
 	infoByte := utilities.DecryptByASE(compOrder.Identifier)
 	err := json.Unmarshal(infoByte, compInfo)
@@ -77,12 +46,12 @@ func (s *Server) createCompResult(compOrder *OrderStruct) (*ResultData, error) {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
 
-	result, err := s.createPracResult(compOrder, compInfo)
+	result, err := s.createPracResult(compOrder, compInfo, c)
 	if err != nil {
 		return nil, err
 	}
 
-	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp)
+	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select origin competition chart. err : %w", err)
 	}
@@ -151,7 +120,7 @@ func calculateResult(resultchart *CandleData, order *OrderStruct) *ResultScore {
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
 		EndPrice:   (math.Floor(endPrice*10000) / 10000),
-		OutTime:    endIdx,
+		OutTime:    int32(endIdx),
 		Roe:        (math.Floor(roe*10000*float64(order.Leverage)) / 100),
 		Pnl:        math.Floor(pnl*10000) / 10000,
 		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*10000) / 10000,

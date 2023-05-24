@@ -32,6 +32,7 @@ type Querier interface {
 	GetRandomUser(ctx context.Context) (User, error)
 	GetRankByUserID(ctx context.Context, userID string) (RankingBoard, error)
 	GetScore(ctx context.Context, arg GetScoreParams) (Score, error)
+	GetScoreToStage(ctx context.Context, arg GetScoreToStageParams) (interface{}, error)
 	GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreIDParams) ([]Score, error)
 	GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error)
 	GetUser(ctx context.Context, userID string) (User, error)

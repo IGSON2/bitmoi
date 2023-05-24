@@ -14,13 +14,6 @@ import (
 )
 
 func TestGetStore(t *testing.T) {
-	c := utilities.GetConfig("../../../.")
-	conn, err := sql.Open(c.DBDriver, c.DBSource)
-	require.NoError(t, err)
-	require.NotNil(t, conn)
-
-	s := NewStore(conn)
-	require.NotNil(t, s)
 
 	name := strings.ToUpper(utilities.MakeRanString(3)) + "USDT"
 	require.Equal(t, 7, len(name))
@@ -50,11 +43,11 @@ func TestGetStore(t *testing.T) {
 			Volume: volume - float64(i)*0.01,
 		}
 
-		_, err = s.Insert4hCandles(ctx, iq)
+		_, err = testQueries.Insert4hCandles(ctx, iq)
 		require.NoError(t, err)
 	}
 
-	minmax, err := s.Get4hMinMaxTime(ctx, name)
+	minmax, err := testQueries.Get4hMinMaxTime(ctx, name)
 	require.NoError(t, err)
 	require.NotEmpty(t, minmax)
 
@@ -77,7 +70,55 @@ func TestGetStore(t *testing.T) {
 		Time:  refTime,
 		Limit: 1000,
 	}
-	candles4h, err := s.Get4hCandles(ctx, gq)
+	candles4h, err := testQueries.Get4hCandles(ctx, gq)
 	require.NoError(t, err)
 	require.Greater(t, len(candles4h), 0)
+}
+
+func TestInsertUser(t *testing.T) {
+	ctx := context.Background()
+	testQueries.CreateUser(ctx, CreateUserParams{
+		UserID:         "user",
+		Uid:            sql.NullString{String: "1234", Valid: true},
+		Fullname:       "user_full",
+		HashedPassword: "392cdf",
+		Email:          "example@gmail.com",
+		PhotoUrl:       "Photo.url",
+	})
+}
+
+func TestInsertScore(t *testing.T) {
+	ctx := context.Background()
+	for i := 0; i < 5; i++ {
+		_, err := testQueries.InsertScore(ctx, InsertScoreParams{
+			ScoreID:    "1",
+			UserID:     "user",
+			Stage:      int32(i + 1),
+			Pairname:   "SOMPAIR",
+			Entrytime:  "2023",
+			Position:   "LONG",
+			Leverage:   1,
+			Outtime:    2,
+			Entryprice: 10.01,
+			Endprice:   11.01,
+			Pnl:        -240.24,
+			Roe:        -15.1,
+		})
+		require.NoError(t, err)
+	}
+}
+
+func TestGetTotalScore(t *testing.T) {
+	ctx := context.Background()
+	i, err := testQueries.GetScoreToStage(ctx, GetScoreToStageParams{
+		ScoreID: "1",
+		UserID:  "user",
+		Stage:   5,
+	})
+	require.NoError(t, err)
+
+	totalScore, ok := i.(float64)
+	require.Equal(t, true, ok)
+	require.Equal(t, -1201.2, totalScore)
+
 }

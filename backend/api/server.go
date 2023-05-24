@@ -79,13 +79,13 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Post("/practice", server.practice)
 	router.Get("/competition/:array", server.competition)
 	router.Post("/competition", server.competition)
-	router.Get("/interval", sendInterval)
-	router.Get("/myscore", myscore)
-	router.Get("/ranking", ranking)
-	router.Post("/ranking", ranking)
-	router.Get("/moreinfo", moreinfo)
-	router.Post("/moreinfo", moreinfo)
-	router.Get("/test", server.test)
+	// router.Get("/interval", sendInterval)
+	// router.Get("/myscore", myscore)
+	// router.Get("/ranking", ranking)
+	// router.Post("/ranking", ranking)
+	// router.Get("/moreinfo", moreinfo)
+	// router.Post("/moreinfo", moreinfo)
+	// router.Get("/test", server.test)
 
 	server.router = router
 
@@ -104,7 +104,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 			//TODO : Handle this
 		}
 		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, PracticeMode, len(history))
+		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, PracticeMode, len(history), c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
@@ -115,7 +115,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(err)
 		}
-		r, err := s.createPracResult(&PracticeOrder, nil)
+		r, err := s.createPracResult(&PracticeOrder, nil, c)
 		if err != nil {
 			s.logger.Error().Err(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
@@ -134,7 +134,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 			//TODO : Handle this
 		}
 		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, CompetitionMode, len(history))
+		oc, err := s.makeChartToRef(c.Query("interval", db.FourH), nextPair, CompetitionMode, len(history), c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
@@ -145,77 +145,77 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(err)
 		}
-		compResult, err := s.createCompResult(&CompetitionOrder)
+		compResult, err := s.createCompResult(&CompetitionOrder, c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
-		s.insertUserScore(&CompetitionOrder, compResult.ResultScore)
+		s.insertUserScore(&CompetitionOrder, compResult.ResultScore, c)
 		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
 	}
 }
 
-func sendInterval(c *fiber.Ctx) error {
-	i := new(IntervalQuery)
-	if err := c.QueryParser(i); err != nil {
-		return err
-	}
-	return c.JSON(db.SendOtherInterval(i.Identifier, i.ReqInterval, i.Mode))
-}
+// func sendInterval(c *fiber.Ctx) error {
+// 	i := new(IntervalQuery)
+// 	if err := c.QueryParser(i); err != nil {
+// 		return err
+// 	}
+// 	return c.JSON(db.SendOtherInterval(i.Identifier, i.ReqInterval, i.Mode))
+// }
 
-func myscore(c *fiber.Ctx) error {
-	q := new(UserQuery)
-	if err := c.QueryParser(q); err != nil {
-		return err
-	}
-	return c.JSON(db.SelectStageScoreDB(q.User, q.Index))
-}
+// func myscore(c *fiber.Ctx) error {
+// 	q := new(UserQuery)
+// 	if err := c.QueryParser(q); err != nil {
+// 		return err
+// 	}
+// 	return c.JSON(db.SelectStageScoreDB(q.User, q.Index))
+// }
 
-func ranking(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		return c.JSON((db.SelectTotalScoreDB()))
-	case "POST":
-		// Need to API key validation
-		var t db.TotalData
-		err := c.BodyParser(&t)
-		utilities.Errchk(err)
-		db.InsertTotalScore(t)
-		return nil
-	default:
-		return errors.New("Not allowed method : " + c.Method())
-	}
-}
+// func ranking(c *fiber.Ctx) error {
+// 	switch c.Method() {
+// 	case "GET":
+// 		return c.JSON((db.SelectTotalScoreDB()))
+// 	case "POST":
+// 		// Need to API key validation
+// 		var t db.TotalData
+// 		err := c.BodyParser(&t)
+// 		utilities.Errchk(err)
+// 		db.InsertTotalScore(t)
+// 		return nil
+// 	default:
+// 		return errors.New("Not allowed method : " + c.Method())
+// 	}
+// }
 
-func moreinfo(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		q := new(UserQuery)
-		if err := c.QueryParser(q); err != nil {
-			return err
-		}
-		return c.JSON((db.SendMoreInfo(q.User, q.Scoreid)))
-	case "POST":
-		var t PostedComment
-		err := c.BodyParser(&t)
-		utilities.Errchk(err)
-		return db.UpdateComment(t.Comment, t.User)
-	default:
-		return errors.New("Not allowed method : " + c.Method())
-	}
-}
+// func moreinfo(c *fiber.Ctx) error {
+// 	switch c.Method() {
+// 	case "GET":
+// 		q := new(UserQuery)
+// 		if err := c.QueryParser(q); err != nil {
+// 			return err
+// 		}
+// 		return c.JSON((db.SendMoreInfo(q.User, q.Scoreid)))
+// 	case "POST":
+// 		var t PostedComment
+// 		err := c.BodyParser(&t)
+// 		utilities.Errchk(err)
+// 		return db.UpdateComment(t.Comment, t.User)
+// 	default:
+// 		return errors.New("Not allowed method : " + c.Method())
+// 	}
+// }
 
-func (s *Server) test(c *fiber.Ctx) error {
-	interval := c.Query("interval")
-	name := c.Query("name")
-	candles, refTimestamp, err := s.selectCandlesToRef(interval, name)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err)
-	}
-	oc, err := makeChart(candles, CompetitionMode, refTimestamp)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err)
-	}
-	return c.Status(fiber.StatusOK).JSON(oc)
-}
+// func (s *Server) test(c *fiber.Ctx) error {
+// 	interval := c.Query("interval")
+// 	name := c.Query("name")
+// 	candles, refTimestamp, err := s.selectCandlesToRef(interval, name)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).JSON(err)
+// 	}
+// 	oc, err := makeChart(candles, CompetitionMode, refTimestamp)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).JSON(err)
+// 	}
+// 	return c.Status(fiber.StatusOK).JSON(oc)
+// }

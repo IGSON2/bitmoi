@@ -5,42 +5,17 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
+	"github.com/gofiber/fiber/v2"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Score struct {
-	User       string  `json:"user"`
-	Scoreid    string  `json:"scoreid"`
-	Stage      int     `json:"stage"`
-	Pairname   string  `json:"pairname"`
-	Entrytime  string  `json:"entrytime"`
-	Position   string  `json:"position"`
-	Leverage   int     `json:"leverage"`
-	Outtime    int     `json:"outtime"`
-	Entryprice float64 `json:"entryprice"`
-	Endprice   float64 `json:"endprice"`
-	Pnl        float64 `json:"pnl"`
-	Roe        float64 `json:"roe"`
-	Pkey       string  `json:"-"`
-}
-
-type ScoreList struct {
-	ScoreList []Score `json:"scorelist"`
-}
-
-type RankedData struct {
-	User         string  `json:"user"`
-	Displayname  string  `json:"displayname"`
-	PhotoUrl     string  `json:"photourl"`
-	Scoreid      string  `json:"scoreid"`
-	FinalBalance float64 `json:"balance"`
-	Comment      string  `json:"comment"`
-	scoreId      string  `json:"-"`
-}
-
-type RankingBoard struct {
-	RankingBoard []RankedData `json:"rankingBoard"`
+type RegisterRank struct {
+	User        string `json:"user"`
+	Displayname string `json:"displayname"`
+	Scoreid     string `json:"scoreid"`
+	Comment     string `json:"comment"`
 }
 
 type MoreInfoData struct {
@@ -57,18 +32,17 @@ type StageSimple struct {
 }
 
 const (
-	long  = "LONG"
-	short = "SHORT"
+	long                   = "LONG"
+	short                  = "SHORT"
+	defaultBalance float64 = 1000
 )
 
 var (
 	ErrNotUpdatedScore = errors.New("failed to update rank due to low score")
+	ErrLiquidation     = errors.New("you were liquidated due to insufficient balance")
 )
 
-func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore, c *fiber.Ctx) error {
 	var position string
 	if o.IsLong {
 		position = long
@@ -76,22 +50,45 @@ func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore) error {
 		position = short
 	}
 
-	_, err := s.store.InsertScore(ctx, db.InsertScoreParams{
+	_, err := s.store.InsertScore(c.Context(), db.InsertScoreParams{
 		ScoreID:    o.ScoreId,
 		UserID:     o.UserId,
-		Stage:      int32(o.Stage),
+		Stage:      o.Stage,
 		Pairname:   r.Name,
 		Entrytime:  r.Entrytime,
 		Position:   position,
-		Leverage:   int32(o.Leverage),
-		Outtime:    int32(r.OutTime),
+		Leverage:   o.Leverage,
+		Outtime:    r.OutTime,
 		Entryprice: r.EntryPrice,
 		Endprice:   r.EndPrice,
 		Pnl:        r.Pnl,
 		Roe:        r.Roe,
 	})
+	if err != nil {
+		return fmt.Errorf("cannot insert score, err: %w", err)
+	}
 
 	return err
+}
+
+func (s *Server) getScoreToStage(o *OrderStruct, c *fiber.Ctx) error {
+	i, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
+		ScoreID: o.ScoreId,
+		UserID:  o.UserId,
+		Stage:   o.Stage,
+	})
+	if err != nil {
+		return fmt.Errorf("cannot get score to current stage, err: %w", err)
+	}
+	totalScore, ok := i.(float64)
+	if !ok {
+		return fmt.Errorf("cannot assertion totalScore to float, err: %w", err)
+	}
+
+	if defaultBalance+totalScore <= 0 {
+		return ErrLiquidation
+	}
+	return nil
 }
 
 func (s *Server) getScoresByUserID(userId string, limit int32) ([]db.Score, error) {
