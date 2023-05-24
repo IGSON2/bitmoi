@@ -27,6 +27,7 @@ func (s *Server) createPracResult(order *OrderStruct, info *utilities.Identifica
 			return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 		}
 	}
+	// TODO : Order에선 ResultTrem을 전달받을 수 없음. Back에서 계산해야함.
 	resultchart, err := s.selectResultChart(info, int(order.ResultTerm), c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
