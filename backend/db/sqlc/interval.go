@@ -37,18 +37,18 @@ func ParseInterval(interval string) (int, string) {
 	return time, string(unit)
 }
 
-func CalculateTerm(interval string, day int) int {
+func CalculateTerm(interval string, waitingTerm int) int {
 	switch interval {
 	case OneD:
-		return day
+		return waitingTerm
 	case FourH:
-		return day * 6
+		return waitingTerm * 6
 	case OneH:
-		return day * 24
+		return waitingTerm * 24
 	case FifM:
-		return day * 96
+		return waitingTerm * 96
 	case FiveM:
-		return day * 288
+		return waitingTerm * 288
 	}
 	return 0
 }

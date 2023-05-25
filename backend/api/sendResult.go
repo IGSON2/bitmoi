@@ -13,13 +13,27 @@ const (
 	commissionRate = 0.0002
 )
 
+type ResultScore struct {
+	Stage        int32   `json:"stage"`
+	Name         string  `json:"name"`
+	Entrytime    string  `json:"entrytime"`
+	Leverage     int32   `json:"leverage"`
+	EntryPrice   float64 `json:"entryprice"`
+	EndPrice     float64 `json:"-"`
+	OutTime      int32   `json:"outtime"`
+	Roe          float64 `json:"roe"`
+	Pnl          float64 `json:"pnl"`
+	Commission   float64 `json:"commission"`
+	Isliquidated bool    `json:"isliquidated"`
+}
+
 type ResultData struct {
 	OriginChart *CandleData  `json:"originchart"`
 	ResultChart *CandleData  `json:"resultchart"`
 	ResultScore *ResultScore `json:"resultscore"`
 }
 
-func (s *Server) createPracResult(order *OrderStruct, info *utilities.IdentificationData, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createPracResult(order *OrderRequest, info *utilities.IdentificationData, c *fiber.Ctx) (*ResultData, error) {
 	if info == nil {
 		infoByte := utilities.DecryptByASE(order.Identifier)
 		err := json.Unmarshal(infoByte, info)
@@ -27,8 +41,7 @@ func (s *Server) createPracResult(order *OrderStruct, info *utilities.Identifica
 			return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 		}
 	}
-	// TODO : Order에선 ResultTrem을 전달받을 수 없음. Back에서 계산해야함.
-	resultchart, err := s.selectResultChart(info, int(order.ResultTerm), c)
+	resultchart, err := s.selectResultChart(info, int(order.WaitingTerm), c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
@@ -39,7 +52,7 @@ func (s *Server) createPracResult(order *OrderStruct, info *utilities.Identifica
 	return &result, nil
 }
 
-func (s *Server) createCompResult(compOrder *OrderStruct, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
 	var compInfo *utilities.IdentificationData
 	infoByte := utilities.DecryptByASE(compOrder.Identifier)
 	err := json.Unmarshal(infoByte, compInfo)
@@ -64,7 +77,7 @@ func (s *Server) createCompResult(compOrder *OrderStruct, c *fiber.Ctx) (*Result
 	return result, nil
 }
 
-func calculateResult(resultchart *CandleData, order *OrderStruct) *ResultScore {
+func calculateResult(resultchart *CandleData, order *OrderRequest) *ResultScore {
 	var (
 		roe      float64
 		pnl      float64

@@ -22,12 +22,12 @@ func convertInsertRankParams(p db.InsertRankParams) *validInsertRankParams {
 	}
 }
 
-type OrderStruct struct {
+type OrderRequest struct {
 	Mode         string  `json:"mode" validate:"required,eq_ignore_case=competition,eq_ignore_case=practice"`
 	UserId       string  `json:"userid" validate:"required,alpha"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entrytime"`
-	Stage        int32   `json:"stage"`
+	Name         string  `json:"name" validate:"required"`
+	Entrytime    string  `json:"entrytime" validate:"required"`
+	Stage        int32   `json:"stage" validate:"required,number,min=1,max=10"`
 	IsLong       bool    `json:"islong"`
 	EntryPrice   float64 `json:"entryprice" validate:"required,number"`
 	Quantity     float64 `json:"quantity" validate:"required,number"`
@@ -38,19 +38,14 @@ type OrderStruct struct {
 	Balance      float64 `json:"balance" validate:"required,number"`
 	Identifier   string  `json:"identifier,omitempty"`
 	ScoreId      string  `json:"scoreid" validate:"required,numeric"`
-	ResultTerm   int32   `json:"resultterm" validate:"required,number"`
+	WaitingTerm  int32   `json:"waitingterm" validate:"required,number,min=1,max=30"`
 }
 
-type ResultScore struct {
-	Stage        int32   `json:"stage"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entrytime"`
-	Leverage     int32   `json:"leverage"`
-	EntryPrice   float64 `json:"entryprice"`
-	EndPrice     float64 `json:"-"`
-	OutTime      int32   `json:"outtime"`
-	Roe          float64 `json:"roe"`
-	Pnl          float64 `json:"pnl"`
-	Commission   float64 `json:"commission"`
-	Isliquidated bool    `json:"isliquidated"`
+type GetRanksRequest struct {
+	Page uint16
+}
+
+type RankInsertRequest struct {
+	UserId  string `json:"userid" validate:"required,alpha"`
+	ScoreId string `json:"scoreid" validate:"required,numeric"`
 }

@@ -110,7 +110,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
-		var PracticeOrder OrderStruct
+		var PracticeOrder OrderRequest
 		err := c.BodyParser(&PracticeOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(err)
@@ -140,7 +140,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
-		var CompetitionOrder OrderStruct
+		var CompetitionOrder OrderRequest
 		err := c.BodyParser(&CompetitionOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(err)
@@ -149,7 +149,10 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
-		s.insertUserScore(&CompetitionOrder, compResult.ResultScore, c)
+		err = s.insertUserScore(&CompetitionOrder, compResult.ResultScore, c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
+		}
 		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
@@ -172,21 +175,25 @@ func (s *Server) competition(c *fiber.Ctx) error {
 // 	return c.JSON(db.SelectStageScoreDB(q.User, q.Index))
 // }
 
-// func ranking(c *fiber.Ctx) error {
-// 	switch c.Method() {
-// 	case "GET":
-// 		return c.JSON((db.SelectTotalScoreDB()))
-// 	case "POST":
-// 		// Need to API key validation
-// 		var t db.TotalData
-// 		err := c.BodyParser(&t)
-// 		utilities.Errchk(err)
-// 		db.InsertTotalScore(t)
-// 		return nil
-// 	default:
-// 		return errors.New("Not allowed method : " + c.Method())
-// 	}
-// }
+func (s *Server) ranking(c *fiber.Ctx) error {
+	switch c.Method() {
+	case "GET":
+		s.store.GetAllRanks(c.Context())
+		return c.Status(fiber.StatusOK).JSON()
+	case "POST":
+		// Need to API key validation
+		var r RankInsertRequest
+		errs := utilities.ValidateStruct(r)
+		if errs != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf(errs.Error()))
+		}
+		err := c.BodyParser(&r)
+		s.insertScoreToRankBoard()
+		return nil
+	default:
+		return errors.New("Not allowed method : " + c.Method())
+	}
+}
 
 // func moreinfo(c *fiber.Ctx) error {
 // 	switch c.Method() {

@@ -34,3 +34,7 @@ LIMIT ?;
 -- name: GetScoreToStage :one
 SELECT SUM(pnl) FROM score
 WHERE score_id = ? AND user_id = ? AND stage <= ?;
+
+-- name: GetStageLenByScoreID :one
+SELECT COUNT(stage) FROM score
+WHERE score_id = ? AND user_id = ?;

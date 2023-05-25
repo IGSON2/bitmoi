@@ -38,11 +38,12 @@ const (
 )
 
 var (
-	ErrNotUpdatedScore = errors.New("failed to update rank due to low score")
-	ErrLiquidation     = errors.New("you were liquidated due to insufficient balance")
+	ErrNotUpdatedScore    = errors.New("failed to update rank due to low score")
+	ErrLiquidation        = errors.New("you were liquidated due to insufficient balance")
+	ErrInvalidStageLength = errors.New("ㅑnsufficient number of stages cleared")
 )
 
-func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore, c *fiber.Ctx) error {
+func (s *Server) insertUserScore(o *OrderRequest, r *ResultScore, c *fiber.Ctx) error {
 	var position string
 	if o.IsLong {
 		position = long
@@ -71,7 +72,7 @@ func (s *Server) insertUserScore(o *OrderStruct, r *ResultScore, c *fiber.Ctx) e
 	return err
 }
 
-func (s *Server) getScoreToStage(o *OrderStruct, c *fiber.Ctx) error {
+func (s *Server) getScoreToStage(o *OrderRequest, c *fiber.Ctx) error {
 	i, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
 		ScoreID: o.ScoreId,
 		UserID:  o.UserId,
@@ -114,18 +115,29 @@ func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
 	return s.store.GetRankByUserID(context.Background(), userId)
 }
 
-func (s *Server) insertScoreToRankBoard(params db.InsertRankParams) error {
+func (s *Server) insertScoreToRankBoard(params db.InsertRankParams, c *fiber.Ctx) error {
+	length, err := s.store.GetStageLenByScoreID(c.Context(), db.GetStageLenByScoreIDParams{
+		ScoreID: params.ScoreID,
+		UserID:  params.UserID,
+	})
+	if err != nil {
+		return err
+	} else if length != finalstage {
+		return ErrInvalidStageLength
+	}
+
 	r, err := s.getRankByUserID(params.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			_, err = s.store.InsertRank(context.Background(), params)
+			_, err = s.store.InsertRank(c.Context(), params)
 		}
 		return err
 	}
+
 	if r.FinalBalance > params.FinalBalance {
 		return ErrNotUpdatedScore
 	} else {
-		_, err = s.store.InsertRank(context.Background(), params)
+		_, err = s.store.InsertRank(c.Context(), params)
 	}
 	return err
 }

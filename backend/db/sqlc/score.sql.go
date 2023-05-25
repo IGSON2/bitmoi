@@ -154,6 +154,23 @@ func (q *Queries) GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDPa
 	return items, nil
 }
 
+const getStageLenByScoreID = `-- name: GetStageLenByScoreID :one
+SELECT COUNT(stage) FROM score
+WHERE score_id = ? AND user_id = ?
+`
+
+type GetStageLenByScoreIDParams struct {
+	ScoreID string `json:"score_id"`
+	UserID  string `json:"user_id"`
+}
+
+func (q *Queries) GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getStageLenByScoreID, arg.ScoreID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const insertScore = `-- name: InsertScore :execresult
 INSERT INTO score (
     score_id,
