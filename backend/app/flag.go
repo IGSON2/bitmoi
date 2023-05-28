@@ -25,7 +25,7 @@ var (
 	}
 	PairListFlage = &cli.StringFlag{
 		Name:  "pairs",
-		Usage: "Specify pairs to get, type symbal and seperate by space e.b : BTC ETH",
+		Usage: "Specify pairs to get, type symbal and seperate by comma e.b : BTC,ETH",
 		Value: "",
 	}
 )

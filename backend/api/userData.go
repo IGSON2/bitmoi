@@ -35,6 +35,8 @@ const (
 	long                   = "LONG"
 	short                  = "SHORT"
 	defaultBalance float64 = 1000
+	rankRows               = 10
+	myscoreRows            = 15
 )
 
 var (
@@ -45,7 +47,7 @@ var (
 
 func (s *Server) insertUserScore(o *OrderRequest, r *ResultScore, c *fiber.Ctx) error {
 	var position string
-	if o.IsLong {
+	if *o.IsLong {
 		position = long
 	} else {
 		position = short
@@ -92,33 +94,36 @@ func (s *Server) getScoreToStage(o *OrderRequest, c *fiber.Ctx) error {
 	return nil
 }
 
-func (s *Server) getScoresByUserID(userId string, limit int32) ([]db.Score, error) {
-	return s.store.GetScoresByUserID(context.Background(), db.GetScoresByUserIDParams{
+func (s *Server) getMyscores(userId string, pages int32, c *fiber.Ctx) ([]db.Score, error) {
+	return s.store.GetScoresByUserID(c.Context(), db.GetScoresByUserIDParams{
 		UserID: userId,
-		Limit:  limit,
+		Limit:  myscoreRows,
+		Offset: (pages - 1) * myscoreRows,
 	})
 }
 
-func (s *Server) getScoresByScoreID(scoreId, userId string, limit int32) ([]db.Score, error) {
-	return s.store.GetScoresByScoreID(context.Background(), db.GetScoresByScoreIDParams{
+func (s *Server) sendMoreInfo(scoreId, userId string, c *fiber.Ctx) ([]db.Score, error) {
+	return s.store.GetScoresByScoreID(c.Context(), db.GetScoresByScoreIDParams{
 		ScoreID: scoreId,
 		UserID:  userId,
-		Limit:   limit,
 	})
 }
 
-func (s *Server) getAllRanks(limit int32) ([]db.RankingBoard, error) {
-	return s.store.GetAllRanks(context.Background(), limit)
+func (s *Server) getAllRanks(pages int32, c *fiber.Ctx) ([]db.RankingBoard, error) {
+	return s.store.GetAllRanks(context.Background(), db.GetAllRanksParams{
+		Limit:  rankRows,
+		Offset: (pages - 1) * rankRows,
+	})
 }
 
 func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
 	return s.store.GetRankByUserID(context.Background(), userId)
 }
 
-func (s *Server) insertScoreToRankBoard(params db.InsertRankParams, c *fiber.Ctx) error {
+func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) error {
 	length, err := s.store.GetStageLenByScoreID(c.Context(), db.GetStageLenByScoreIDParams{
-		ScoreID: params.ScoreID,
-		UserID:  params.UserID,
+		ScoreID: req.ScoreId,
+		UserID:  req.UserId,
 	})
 	if err != nil {
 		return err
@@ -126,18 +131,43 @@ func (s *Server) insertScoreToRankBoard(params db.InsertRankParams, c *fiber.Ctx
 		return ErrInvalidStageLength
 	}
 
-	r, err := s.getRankByUserID(params.UserID)
+	t, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
+		ScoreID: req.ScoreId,
+		UserID:  req.UserId,
+		Stage:   finalstage,
+	})
+	if err != nil {
+		return err
+	}
+	totalScore, ok := t.(float64)
+	if !ok {
+		return fmt.Errorf("cannot assign totalscore")
+	}
+
+	r, err := s.getRankByUserID(req.UserId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			_, err = s.store.InsertRank(c.Context(), params)
+			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
+				UserID:       r.UserID,
+				ScoreID:      r.ScoreID,
+				DisplayName:  r.DisplayName,
+				Comment:      r.Comment,
+				FinalBalance: totalScore,
+			})
 		}
 		return err
 	}
 
-	if r.FinalBalance > params.FinalBalance {
+	if r.FinalBalance > totalScore {
 		return ErrNotUpdatedScore
 	} else {
-		_, err = s.store.InsertRank(c.Context(), params)
+		_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
+			UserID:       r.UserID,
+			ScoreID:      r.ScoreID,
+			DisplayName:  r.DisplayName,
+			Comment:      r.Comment,
+			FinalBalance: totalScore,
+		})
 	}
 	return err
 }

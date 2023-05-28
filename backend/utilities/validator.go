@@ -11,9 +11,9 @@ var (
 )
 
 type ErrorResponse struct {
-	FailedField string `json:"failedfield"`
-	Tag         string `json:"tag"`
-	Value       string `json:"value"`
+	FailedField string      `json:"failedfield"`
+	Tag         string      `json:"tag"`
+	Value       interface{} `json:"value"`
 }
 
 type ErrorResponses []*ErrorResponse
@@ -43,8 +43,8 @@ func (e *ErrorResponses) Error() string {
 		if response.Tag != "" {
 			errorString += response.Tag
 		}
-		if response.Value != "" {
-			errorString += response.Value
+		if response.Value != nil {
+			errorString += fmt.Sprintf("%s", response.Value)
 		}
 	}
 	return errorString
@@ -59,7 +59,7 @@ func ValidateStruct[T any](i T) *ErrorResponses {
 			var element ErrorResponse
 			element.FailedField = err.StructNamespace()
 			element.Tag = err.Tag()
-			element.Value = fmt.Sprintf("%s", err.Value())
+			element.Value = err.Value()
 			errors = append(errors, &element)
 		}
 		return NewErrResponses(errors)

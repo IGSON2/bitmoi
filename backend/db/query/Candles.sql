@@ -138,3 +138,42 @@ LIMIT ?;
 SELECT MIN(time), MAX(time)
 FROM candles_15m
 WHERE name = ?;
+
+-- name: Insert5mCandles :execresult
+INSERT INTO candles_5m (
+    name,
+    open,
+    close,
+    high,
+    low,
+    time,
+    volume,
+    color
+) VALUES (
+  ?,?,?,?,?,?,?,?
+);
+
+-- name: GetOne5mCandle :one
+SELECT * FROM candles_5m
+WHERE name = ? AND time = ?;
+
+-- name: Get5mCandles :many
+SELECT * FROM candles_5m 
+WHERE name = ?  AND time <= ?
+ORDER BY time ASC 
+LIMIT ?;
+
+-- name: Get5mResult :many
+SELECT * FROM candles_5m 
+WHERE name = ? AND time > ?
+ORDER BY time ASC 
+LIMIT ?;
+
+-- name: Get5mMinMaxTime :one
+SELECT MIN(time), MAX(time)
+FROM candles_5m
+WHERE name = ?;
+
+-- name: GetAllParisInDB :many
+SELECT DISTINCT name from candles_4h
+ORDER BY name;

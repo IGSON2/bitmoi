@@ -33,15 +33,14 @@ type ResultData struct {
 	ResultScore *ResultScore `json:"resultscore"`
 }
 
-func (s *Server) createPracResult(order *OrderRequest, info *utilities.IdentificationData, c *fiber.Ctx) (*ResultData, error) {
-	if info == nil {
-		infoByte := utilities.DecryptByASE(order.Identifier)
-		err := json.Unmarshal(infoByte, info)
-		if err != nil {
-			return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
-		}
+func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
+	pracInfo := new(utilities.IdentificationData)
+	infoByte := utilities.DecryptByASE(order.Identifier)
+	err := json.Unmarshal(infoByte, pracInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
-	resultchart, err := s.selectResultChart(info, int(order.WaitingTerm), c)
+	resultchart, err := s.selectResultChart(pracInfo, int(order.WaitingTerm), c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
@@ -53,16 +52,17 @@ func (s *Server) createPracResult(order *OrderRequest, info *utilities.Identific
 }
 
 func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
-	var compInfo *utilities.IdentificationData
-	infoByte := utilities.DecryptByASE(compOrder.Identifier)
-	err := json.Unmarshal(infoByte, compInfo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
-	}
 
-	result, err := s.createPracResult(compOrder, compInfo, c)
+	result, err := s.createPracResult(compOrder, c)
 	if err != nil {
 		return nil, err
+	}
+
+	var compInfo *utilities.IdentificationData
+	infoByte := utilities.DecryptByASE(compOrder.Identifier)
+	err = json.Unmarshal(infoByte, compInfo)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
 
 	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
@@ -85,7 +85,7 @@ func calculateResult(resultchart *CandleData, order *OrderRequest) *ResultScore 
 		endPrice float64
 	)
 	for idx, candle := range resultchart.PData {
-		if order.IsLong {
+		if *order.IsLong {
 			if candle.High >= order.ProfitPrice {
 				roe = float64(order.QuantityRate/100) * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
 				endIdx = idx + 1

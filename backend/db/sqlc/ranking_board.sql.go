@@ -14,10 +14,16 @@ const getAllRanks = `-- name: GetAllRanks :many
 SELECT user_id, photo_url, score_id, display_name, final_balance, comment FROM ranking_board
 ORDER BY balance DESC
 LIMIT ?
+OFFSET ?
 `
 
-func (q *Queries) GetAllRanks(ctx context.Context, limit int32) ([]RankingBoard, error) {
-	rows, err := q.db.QueryContext(ctx, getAllRanks, limit)
+type GetAllRanksParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]RankingBoard, error) {
+	rows, err := q.db.QueryContext(ctx, getAllRanks, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +106,7 @@ func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Res
 
 const updateUserRank = `-- name: UpdateUserRank :execresult
 UPDATE ranking_board 
-SET score_id = ?, final_balance = ?, comment = ?
+SET score_id = ?, final_balance = ?, comment = ?, display_name =?
 WHERE user_id = ?
 `
 
@@ -108,6 +114,7 @@ type UpdateUserRankParams struct {
 	ScoreID      string  `json:"score_id"`
 	FinalBalance float64 `json:"final_balance"`
 	Comment      string  `json:"comment"`
+	DisplayName  string  `json:"display_name"`
 	UserID       string  `json:"user_id"`
 }
 
@@ -116,6 +123,7 @@ func (q *Queries) UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) 
 		arg.ScoreID,
 		arg.FinalBalance,
 		arg.Comment,
+		arg.DisplayName,
 		arg.UserID,
 	)
 }

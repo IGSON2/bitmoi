@@ -22,14 +22,14 @@ WHERE score_id = ? AND stage = ?;
 
 -- name: GetScoresByScoreID :many
 SELECT * FROM score
-WHERE score_id = ? AND user_id = ?
-LIMIT ?;
+WHERE score_id = ? AND user_id = ?;
 
 -- name: GetScoresByUserID :many
 SELECT * FROM score
 WHERE user_id = ?
 ORDER BY score_id DESC 
-LIMIT ?;
+LIMIT ?
+OFFSET ?;
 
 -- name: GetScoreToStage :one
 SELECT SUM(pnl) FROM score

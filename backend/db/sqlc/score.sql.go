@@ -61,17 +61,15 @@ func (q *Queries) GetScoreToStage(ctx context.Context, arg GetScoreToStageParams
 const getScoresByScoreID = `-- name: GetScoresByScoreID :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
 WHERE score_id = ? AND user_id = ?
-LIMIT ?
 `
 
 type GetScoresByScoreIDParams struct {
 	ScoreID string `json:"score_id"`
 	UserID  string `json:"user_id"`
-	Limit   int32  `json:"limit"`
 }
 
 func (q *Queries) GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreIDParams) ([]Score, error) {
-	rows, err := q.db.QueryContext(ctx, getScoresByScoreID, arg.ScoreID, arg.UserID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getScoresByScoreID, arg.ScoreID, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +109,17 @@ SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtim
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
+OFFSET ?
 `
 
 type GetScoresByUserIDParams struct {
 	UserID string `json:"user_id"`
 	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
 }
 
 func (q *Queries) GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error) {
-	rows, err := q.db.QueryContext(ctx, getScoresByUserID, arg.UserID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getScoresByUserID, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,36 @@
 package api
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+)
 
 const (
 	apiKeyHeader = "X-API-Key"
+)
+
+var (
+	allowOriginMiddleware = cors.New(cors.Config{
+		AllowOrigins: "*",
+	})
+	limiterMiddleware = limiter.New(limiter.Config{
+		Max:        30,
+		Expiration: 30 * time.Second,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.Get("x-forwarded-for")
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
+		},
+	})
+	loggerMiddleware = logger.New(logger.Config{
+		// For more options, see the Config section
+		Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}​\n",
+	})
 )
 
 // 기록을 갱신한 사용자에게만 접근 권한을 주고 이 권한이 오용되지 않아야함

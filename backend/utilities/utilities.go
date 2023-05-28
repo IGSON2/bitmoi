@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -41,13 +42,10 @@ func ToByte(data interface{}) []byte {
 }
 
 // string 타입을 float64 타입으로 변환합니다.
-func StrToFloat(volstr string) float64 {
-	volumefloat, err := strconv.ParseFloat(volstr, 64)
+func StrToFloat(strData string) float64 {
+	floatData, err := strconv.ParseFloat(strData, 64)
 	Errchk(err)
-	volfloatstr := fmt.Sprintf("%.5f", volumefloat)
-	volfloatstrdot, err := strconv.ParseFloat(volfloatstr, 64)
-	Errchk(err)
-	return volfloatstrdot
+	return math.Floor(floatData*10000) / 10000
 }
 
 // float64 타입을 string 타입으로 변환합니다.

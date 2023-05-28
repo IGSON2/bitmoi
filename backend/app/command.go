@@ -11,17 +11,16 @@ import (
 
 var (
 	StoreCommand = &cli.Command{
-		Action:    GetCandleData,
-		Name:      "store",
-		Usage:     "Store candles data form binance",
-		ArgsUsage: "<Set_interval , Set_target_date_of_timestamp>",
-		Flags:     []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, PairListFlage},
+		Action: GetCandleData,
+		Name:   "store",
+		Usage:  "Store candles data form binance",
+		Flags:  []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, PairListFlage},
 	}
 )
 
 func GetCandleData(ctx *cli.Context) error {
 	var names []string
-	f, err := futureclient.NewFutureClient(utilities.GetConfig("../../."))
+	f, err := futureclient.NewFutureClient(utilities.GetConfig("./"))
 	if err != nil {
 		return fmt.Errorf("cannot create future client, err : %w", err)
 	}
@@ -32,17 +31,19 @@ func GetCandleData(ctx *cli.Context) error {
 		if pairsflag := ctx.String("pairs"); pairsflag == "" {
 			return fmt.Errorf("require at least one pair")
 		} else {
-			for _, n := range strings.Split(pairsflag, " ") {
+			for _, n := range strings.Split(pairsflag, ",") {
 				names = append(names, n+"USDT")
 			}
 		}
 	}
 
+	var cnt int
 	for _, name := range names {
-		err = f.StoreCandles(ctx.String("interval"), name, ctx.Int64("timestamp"))
+		err = f.StoreCandles(ctx.String("interval"), name, ctx.Int64("timestamp"), &cnt)
 		if err != nil {
 			return fmt.Errorf("cannot store candles, err : %w", err)
 		}
 	}
+	f.Logger.Info().Msg("All pairs are stored completely")
 	return nil
 }

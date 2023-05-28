@@ -3,83 +3,76 @@ package api
 import (
 	"bitmoi/backend/utilities"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidation(t *testing.T) {
+func TestOrderstructValidation(t *testing.T) {
+	var (
+		// long  = true
+		short = false
+	)
 	testCases := []struct {
 		name     string
-		params   validInsertRankParams
-		expected func(t *testing.T, es *utilities.ErrorResponse)
+		params   OrderRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int)
 	}{
 		{
 			name: "OK",
-			params: validInsertRankParams{
+			params: OrderRequest{
+				Mode:         competition,
 				UserId:       "user",
+				Name:         "user_name",
+				Entrytime:    "2021.01.01 16:00",
+				Stage:        1,
+				IsLong:       &short,
+				EntryPrice:   100.123,
+				Quantity:     0.123,
+				QuantityRate: 15.75,
+				ProfitPrice:  110.2521,
+				LossPrice:    90.2817,
+				Leverage:     25,
+				Balance:      1000,
+				Identifier:   "asdf",
 				ScoreId:      "12345",
-				DisplayName:  "DisplayedName",
-				PhotoUrl:     "photo/url",
-				Comment:      "Some Comment : 안녕하세요! 123",
-				FinalBalance: 1928.9293,
+				WaitingTerm:  1,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+				r := reflect.TypeOf(o).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
-				require.Equal(t, "", es.FailedField, m)
-				require.Equal(t, "", es.Tag, m)
-				require.Equal(t, "", es.Value, m)
+				require.NotContains(t, es.FailedField, r.Name, m)
+				require.NotContains(t, r.Tag, es.Tag, m)
+				require.NotEqual(t, reflect.ValueOf(o).Field(i), es.Value, m)
 			},
 		},
 		{
-			name: "Fail_Missing_UserID",
-			params: validInsertRankParams{
-				UserId:       "",
-				ScoreId:      "12345",
-				DisplayName:  "DisplayedName",
-				PhotoUrl:     "photo/url",
-				Comment:      "안녕하세요~",
-				FinalBalance: 1928.9293,
+			name: "Fail_Missing_Fields",
+			params: OrderRequest{
+				Mode:      "",
+				UserId:    "",
+				Name:      "",
+				Entrytime: "",
+				Stage:     0,
+				// IsLong:       false,
+				EntryPrice:   -1,
+				Quantity:     -1,
+				QuantityRate: -1,
+				ProfitPrice:  -1,
+				LossPrice:    -1,
+				Leverage:     0,
+				Balance:      -1,
+				Identifier:   "",
+				ScoreId:      "",
+				WaitingTerm:  0,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+				r := reflect.TypeOf(o).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
-				require.Equal(t, "validInsertRankParams.UserID", es.FailedField, m)
-				require.Equal(t, "required", es.Tag, m)
-				require.Equal(t, "", es.Value, m)
-			},
-		},
-		{
-			name: "Fail_Missing_Comment",
-			params: validInsertRankParams{
-				UserId:       "user",
-				ScoreId:      "12345",
-				DisplayName:  "DisplayedName",
-				PhotoUrl:     "photourl",
-				Comment:      "",
-				FinalBalance: 1002341.123,
-			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse) {
-				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
-				require.Equal(t, "validInsertRankParams.Comment", es.FailedField, m)
-				require.Equal(t, "required", es.Tag, m)
-				require.Equal(t, "", es.Value, m)
-			},
-		},
-		{
-			name: "Fail_Invalid_ScoreID",
-			params: validInsertRankParams{
-				UserId:       "user",
-				ScoreId:      "스코어",
-				DisplayName:  "DisplayedName",
-				PhotoUrl:     "photo.url",
-				Comment:      "Some Comment : 안녕하세요!",
-				FinalBalance: 1928.9293,
-			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse) {
-				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
-				require.Equal(t, "validInsertRankParams.ScoreID", es.FailedField, m)
-				require.Equal(t, "numeric", es.Tag, m)
-				require.Equal(t, "스코어", es.Value, m)
+				require.Contains(t, es.FailedField, r.Name, m)
+				require.Contains(t, r.Tag, es.Tag, m)
+				require.Equal(t, reflect.ValueOf(o).Field(i).Interface(), es.Value, m)
 			},
 		},
 	}
@@ -88,11 +81,157 @@ func TestValidation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			errResponse := utilities.ValidateStruct(tc.params)
 			if errResponse != nil {
-				for _, es := range *errResponse {
-					tc.expected(t, es)
+				for i, es := range *errResponse {
+					tc.expected(t, es, tc.params, i)
 				}
 			}
 		})
 	}
 
+}
+
+func TestRankInsertRequestValidation(t *testing.T) {
+	testCases := []struct {
+		name     string
+		params   RankInsertRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, req RankInsertRequest, i int)
+	}{
+		{
+			name: "OK",
+			params: RankInsertRequest{
+				UserId:      "user",
+				ScoreId:     "123",
+				Comment:     "comment",
+				DisplayName: "name",
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req RankInsertRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.NotContains(t, es.FailedField, r.Name, m)
+				require.NotContains(t, r.Tag, es.Tag, m)
+				require.NotEqual(t, reflect.ValueOf(req).Field(i), es.Value, m)
+			},
+		},
+		{
+			name: "Fail_Missing_Fields",
+			params: RankInsertRequest{
+				UserId:      "",
+				ScoreId:     "score",
+				Comment:     "",
+				DisplayName: "name",
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req RankInsertRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				if r.Name == "Comment" || r.Name == "DisplayName" {
+					return
+				}
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.Contains(t, es.FailedField, r.Name, m)
+				require.Contains(t, r.Tag, es.Tag, m)
+				require.Equal(t, reflect.ValueOf(req).Field(i).Interface(), es.Value, m)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			errResponse := utilities.ValidateStruct(tc.params)
+			if errResponse != nil {
+				for i, es := range *errResponse {
+					tc.expected(t, es, tc.params, i)
+				}
+			}
+		})
+	}
+}
+
+func TestPageRequestValidation(t *testing.T) {
+	testCases := []struct {
+		name     string
+		params   PageRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int)
+	}{
+		{
+			name: "OK",
+			params: PageRequest{
+				Page: 100,
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.NotContains(t, es.FailedField, r.Name, m)
+				require.NotContains(t, r.Tag, es.Tag, m)
+				require.NotEqual(t, reflect.ValueOf(req).Field(i), es.Value, m)
+			},
+		},
+		{
+			name:   "Fail_Missing_Fields",
+			params: PageRequest{},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.Contains(t, es.FailedField, r.Name, m)
+				require.Contains(t, r.Tag, es.Tag, m)
+				require.Equal(t, reflect.ValueOf(req).Field(i).Interface(), es.Value, m)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			errResponse := utilities.ValidateStruct(tc.params)
+			if errResponse != nil {
+				for i, es := range *errResponse {
+					tc.expected(t, es, tc.params, i)
+				}
+			}
+		})
+	}
+}
+
+func TestMoreInfoRequestValidation(t *testing.T) {
+	testCases := []struct {
+		name     string
+		params   MoreInfoRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, req MoreInfoRequest, i int)
+	}{
+		{
+			name: "OK",
+			params: MoreInfoRequest{
+				UserId:  "user",
+				ScoreId: "123",
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req MoreInfoRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.NotContains(t, es.FailedField, r.Name, m)
+				require.NotContains(t, r.Tag, es.Tag, m)
+				require.NotEqual(t, reflect.ValueOf(req).Field(i), es.Value, m)
+			},
+		},
+		{
+			name: "Fail_Missing_Fields",
+			params: MoreInfoRequest{
+				ScoreId: "score",
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req MoreInfoRequest, i int) {
+				r := reflect.TypeOf(req).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.Contains(t, es.FailedField, r.Name, m)
+				require.Contains(t, r.Tag, es.Tag, m)
+				require.Equal(t, reflect.ValueOf(req).Field(i).Interface(), es.Value, m)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			errResponse := utilities.ValidateStruct(tc.params)
+			if errResponse != nil {
+				for i, es := range *errResponse {
+					tc.expected(t, es, tc.params, i)
+				}
+			}
+		})
+	}
 }
