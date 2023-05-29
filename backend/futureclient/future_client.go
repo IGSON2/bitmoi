@@ -130,11 +130,12 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 			}
 		}
 		endTime = howcandles(endTime, interval, LimitCandlesNum)
+
+		*cnt++
 		if *cnt%900 == 0 {
 			f.Logger.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
 			time.Sleep(1 * time.Minute)
 		}
-		*cnt++
 	}
 	f.Logger.Info().Any("pair", name).Msg("stored complete.")
 	return nil

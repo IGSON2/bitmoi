@@ -118,6 +118,27 @@ func (q *Queries) Get15mResult(ctx context.Context, arg Get15mResultParams) ([]C
 	return items, nil
 }
 
+const get15mVolSumPriceAVG = `-- name: Get15mVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_15m WHERE name = ? AND time <= ?
+`
+
+type Get15mVolSumPriceAVGParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+type Get15mVolSumPriceAVGRow struct {
+	Volsum   interface{} `json:"volsum"`
+	Priceavg interface{} `json:"priceavg"`
+}
+
+func (q *Queries) Get15mVolSumPriceAVG(ctx context.Context, arg Get15mVolSumPriceAVGParams) (Get15mVolSumPriceAVGRow, error) {
+	row := q.db.QueryRowContext(ctx, get15mVolSumPriceAVG, arg.Name, arg.Time)
+	var i Get15mVolSumPriceAVGRow
+	err := row.Scan(&i.Volsum, &i.Priceavg)
+	return i, err
+}
+
 const get1dCandles = `-- name: Get1dCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_1d 
 WHERE name = ? AND time <= ?
@@ -224,6 +245,27 @@ func (q *Queries) Get1dResult(ctx context.Context, arg Get1dResultParams) ([]Can
 		return nil, err
 	}
 	return items, nil
+}
+
+const get1dVolSumPriceAVG = `-- name: Get1dVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1d WHERE name = ? AND time <= ?
+`
+
+type Get1dVolSumPriceAVGParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+type Get1dVolSumPriceAVGRow struct {
+	Volsum   interface{} `json:"volsum"`
+	Priceavg interface{} `json:"priceavg"`
+}
+
+func (q *Queries) Get1dVolSumPriceAVG(ctx context.Context, arg Get1dVolSumPriceAVGParams) (Get1dVolSumPriceAVGRow, error) {
+	row := q.db.QueryRowContext(ctx, get1dVolSumPriceAVG, arg.Name, arg.Time)
+	var i Get1dVolSumPriceAVGRow
+	err := row.Scan(&i.Volsum, &i.Priceavg)
+	return i, err
 }
 
 const get1hCandles = `-- name: Get1hCandles :many
@@ -334,6 +376,27 @@ func (q *Queries) Get1hResult(ctx context.Context, arg Get1hResultParams) ([]Can
 	return items, nil
 }
 
+const get1hVolSumPriceAVG = `-- name: Get1hVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1h WHERE name = ? AND time <= ?
+`
+
+type Get1hVolSumPriceAVGParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+type Get1hVolSumPriceAVGRow struct {
+	Volsum   interface{} `json:"volsum"`
+	Priceavg interface{} `json:"priceavg"`
+}
+
+func (q *Queries) Get1hVolSumPriceAVG(ctx context.Context, arg Get1hVolSumPriceAVGParams) (Get1hVolSumPriceAVGRow, error) {
+	row := q.db.QueryRowContext(ctx, get1hVolSumPriceAVG, arg.Name, arg.Time)
+	var i Get1hVolSumPriceAVGRow
+	err := row.Scan(&i.Volsum, &i.Priceavg)
+	return i, err
+}
+
 const get4hCandles = `-- name: Get4hCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_4h 
 WHERE name = ?  AND time <= ?
@@ -442,6 +505,27 @@ func (q *Queries) Get4hResult(ctx context.Context, arg Get4hResultParams) ([]Can
 	return items, nil
 }
 
+const get4hVolSumPriceAVG = `-- name: Get4hVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_4h WHERE name = ? AND time <= ?
+`
+
+type Get4hVolSumPriceAVGParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+type Get4hVolSumPriceAVGRow struct {
+	Volsum   interface{} `json:"volsum"`
+	Priceavg interface{} `json:"priceavg"`
+}
+
+func (q *Queries) Get4hVolSumPriceAVG(ctx context.Context, arg Get4hVolSumPriceAVGParams) (Get4hVolSumPriceAVGRow, error) {
+	row := q.db.QueryRowContext(ctx, get4hVolSumPriceAVG, arg.Name, arg.Time)
+	var i Get4hVolSumPriceAVGRow
+	err := row.Scan(&i.Volsum, &i.Priceavg)
+	return i, err
+}
+
 const get5mCandles = `-- name: Get5mCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_5m 
 WHERE name = ?  AND time <= ?
@@ -548,6 +632,27 @@ func (q *Queries) Get5mResult(ctx context.Context, arg Get5mResultParams) ([]Can
 		return nil, err
 	}
 	return items, nil
+}
+
+const get5mVolSumPriceAVG = `-- name: Get5mVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_5m WHERE name = ? AND time <= ?
+`
+
+type Get5mVolSumPriceAVGParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+type Get5mVolSumPriceAVGRow struct {
+	Volsum   interface{} `json:"volsum"`
+	Priceavg interface{} `json:"priceavg"`
+}
+
+func (q *Queries) Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error) {
+	row := q.db.QueryRowContext(ctx, get5mVolSumPriceAVG, arg.Name, arg.Time)
+	var i Get5mVolSumPriceAVGRow
+	err := row.Scan(&i.Volsum, &i.Priceavg)
+	return i, err
 }
 
 const getAllParisInDB = `-- name: GetAllParisInDB :many

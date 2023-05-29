@@ -33,6 +33,9 @@ SELECT MIN(time), MAX(time)
 FROM candles_1d
 WHERE name = ?;
 
+-- name: Get1dVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1d WHERE name = ? AND time <= ?;
+
 -- name: Insert4hCandles :execresult
 INSERT INTO candles_4h (
     name,
@@ -68,6 +71,8 @@ SELECT MIN(time), MAX(time)
 FROM candles_4h
 WHERE name = ?;
 
+-- name: Get4hVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_4h WHERE name = ? AND time <= ?;
 
 -- name: Insert1hCandles :execresult
 INSERT INTO candles_1h (
@@ -104,6 +109,9 @@ SELECT MIN(time), MAX(time)
 FROM candles_1h
 WHERE name = ?;
 
+-- name: Get1hVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1h WHERE name = ? AND time <= ?;
+
 -- name: Insert15mCandles :execresult
 INSERT INTO candles_15m (
     name,
@@ -139,6 +147,9 @@ SELECT MIN(time), MAX(time)
 FROM candles_15m
 WHERE name = ?;
 
+-- name: Get15mVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_15m WHERE name = ? AND time <= ?;
+
 -- name: Insert5mCandles :execresult
 INSERT INTO candles_5m (
     name,
@@ -173,6 +184,9 @@ LIMIT ?;
 SELECT MIN(time), MAX(time)
 FROM candles_5m
 WHERE name = ?;
+
+-- name: Get5mVolSumPriceAVG :one
+SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_5m WHERE name = ? AND time <= ?;
 
 -- name: GetAllParisInDB :many
 SELECT DISTINCT name from candles_4h

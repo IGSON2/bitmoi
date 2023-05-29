@@ -50,13 +50,13 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	}
 	server.pairs = ps
 
-	router := fiber.New()
+	router := fiber.New(fiber.Config{})
 
 	router.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Get("/competition/:array", server.competition)
+	router.Get("/competition", server.competition)
 	router.Post("/competition", server.competition)
 	// router.Get("/interval", sendInterval)
 	router.Get("/myscore/:user", server.myscore)
@@ -94,6 +94,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
 		var PracticeOrder OrderRequest
+		// TODO : 유효한 주문인지 검사 필요 e.b 가격*수량 <= lev * bal
 		err := c.BodyParser(&PracticeOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(err)
@@ -136,6 +137,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
 		var CompetitionOrder OrderRequest
+		// TODO : 유효한 주문인지 검사 필요 e.b 가격*수량 <= lev * bal
 		err := c.BodyParser(&CompetitionOrder)
 		if err != nil || CompetitionOrder.Mode != competition {
 			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("%w, mode : %s", err, CompetitionOrder.Mode))

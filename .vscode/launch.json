@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            // "args": ["store","--interval","4h","--timestamp","1672498800000","--pairs","BTC,ETH"]
+            // "args": ["store","--interval","4h","--timestamp","1684508400000","--pairs","BTC"]
             "args": []
         }
     ]

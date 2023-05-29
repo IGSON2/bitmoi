@@ -45,7 +45,7 @@ func ToByte(data interface{}) []byte {
 func StrToFloat(strData string) float64 {
 	floatData, err := strconv.ParseFloat(strData, 64)
 	Errchk(err)
-	return math.Floor(floatData*10000) / 10000
+	return math.Ceil(floatData*100000) / 100000
 }
 
 // float64 타입을 string 타입으로 변환합니다.

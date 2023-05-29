@@ -13,8 +13,11 @@ import (
 )
 
 const (
-	oneTimeStageLoad      = 2000
-	PracticeMode     int8 = iota
+	oneTimeStageLoad = 2000
+	BTCUSDT          = "BTCUSDT"
+)
+const (
+	PracticeMode int8 = iota
 	CompetitionMode
 )
 
@@ -78,12 +81,38 @@ func (s *Server) SelectMinMaxTime(interval, name string, c *fiber.Ctx) (int64, i
 	return 0, 0, fmt.Errorf("invalid interval %s", interval)
 }
 
-func calculateRefTimestamp(section int64, name, interval string) int64 {
-	fiveMonth, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
-	if fiveMonth > float64(section) {
-		fmt.Printf("%s is Shorter than fiveMonth.\n", name)
+func (s *Server) calcBtcRatio(interval, name string, refTimestamp int64, c *fiber.Ctx) (float64, error) {
+	switch interval {
+	case db.OneD:
+		b, err1 := s.store.Get1dVolSumPriceAVG(c.Context(), db.Get1dVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
+		r, err2 := s.store.Get1dVolSumPriceAVG(c.Context(), db.Get1dVolSumPriceAVGParams{Name: name, Time: refTimestamp})
+		if err1 != nil || err2 != nil {
+			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
+		}
+		return convTypeAndCalcRatio(b.Priceavg, b.Volsum, r.Priceavg, r.Volsum)
+	case db.FourH:
+		b, err1 := s.store.Get4hVolSumPriceAVG(c.Context(), db.Get4hVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
+		r, err2 := s.store.Get4hVolSumPriceAVG(c.Context(), db.Get4hVolSumPriceAVGParams{Name: name, Time: refTimestamp})
+		if err1 != nil || err2 != nil {
+			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
+		}
+		return convTypeAndCalcRatio(b.Priceavg, b.Volsum, r.Priceavg, r.Volsum)
+	case db.OneH:
+		b, err1 := s.store.Get1hVolSumPriceAVG(c.Context(), db.Get1hVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
+		r, err2 := s.store.Get1hVolSumPriceAVG(c.Context(), db.Get1hVolSumPriceAVGParams{Name: name, Time: refTimestamp})
+		if err1 != nil || err2 != nil {
+			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
+		}
+		return convTypeAndCalcRatio(b.Priceavg, b.Volsum, r.Priceavg, r.Volsum)
+	case db.FifM:
+		b, err1 := s.store.Get15mVolSumPriceAVG(c.Context(), db.Get15mVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
+		r, err2 := s.store.Get15mVolSumPriceAVG(c.Context(), db.Get15mVolSumPriceAVGParams{Name: name, Time: refTimestamp})
+		if err1 != nil || err2 != nil {
+			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
+		}
+		return convTypeAndCalcRatio(b.Priceavg, b.Volsum, r.Priceavg, r.Volsum)
 	}
-	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
+	return -1, fmt.Errorf("invalid interval %s", interval)
 }
 
 func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *fiber.Ctx) (*CandleData, error) {
@@ -125,6 +154,14 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 	return &cdd, nil
 }
 
+func calculateRefTimestamp(section int64, name, interval string) int64 {
+	fiveMonth, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
+	if fiveMonth > float64(section) {
+		fmt.Printf("%s is Shorter than fiveMonth.\n", name)
+	}
+	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
+}
+
 func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
 
 	min, max, err := s.SelectMinMaxTime(interval, name, c)
@@ -138,18 +175,24 @@ func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int,
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
+	ratio, err := s.calcBtcRatio(interval, name, refTimestamp, c)
+	if err != nil {
+		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, err : %w", name, interval, err)
+	}
+
 	var oc = &OnePairChart{
 		Name:         name,
 		OneChart:     cdd,
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
 		interval:     interval,
 		refTimestamp: refTimestamp,
+		BtcRatio:     ratio,
 	}
 
-	//TODO : SetBtcRatio
-
 	if mode == CompetitionMode {
-		oc.setFactors()
+		if err := oc.setFactors(); err != nil {
+			return nil, fmt.Errorf("cannot set factors. name : %s, interval : %s, err : %w", name, interval, err)
+		}
 		oc.anonymization(prevStage)
 	} else {
 		oc.addIdentifier()
@@ -157,7 +200,7 @@ func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int,
 	return oc, nil
 }
 
-func (o *OnePairChart) setFactors() {
+func (o *OnePairChart) setFactors() error {
 	var mins []float64
 	var vols []float64
 	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
@@ -173,14 +216,16 @@ func (o *OnePairChart) setFactors() {
 	sort.Slice(vols, func(i, j int) bool {
 		return vols[i] < vols[j]
 	})
-	basisPrice := mins[utilities.MakeRanInt(0, int(len(mins)/2))]
-	priceFactor := (100 / (mins[len(mins)-1] / mins[0])) / basisPrice
-	basisVolume := vols[utilities.MakeRanInt(0, int(len(vols)/2))]
-	volumeFactor := ((mins[len(mins)-1] / mins[0]) / 20) / basisVolume
+	rf, err := utilities.MakeRanFloat(0, 100)
+	if err != nil {
+		return err
+	}
 
-	o.priceFactor = priceFactor
-	o.volumeFactor = volumeFactor
+	o.priceFactor = math.Floor(rf*decimal/mins[0]) / decimal
+	o.volumeFactor = math.Floor(rf*decimal/vols[0]) / decimal
 	o.timeFactor = timeFactor
+
+	return nil
 }
 
 func (o *OnePairChart) anonymization(stage int) {
@@ -190,36 +235,6 @@ func (o *OnePairChart) anonymization(stage int) {
 	o.addIdentifier()
 	o.EntryTime = "Sometime"
 	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
-}
-
-func (o *OnePairChart) compareBTCvalue(btcChart CandleData) {
-
-	var closeSum float64
-	var volSum float64
-
-	for _, onebar := range o.OneChart.PData[len(o.OneChart.PData)-721 : len(o.OneChart.PData)-1] {
-		closeSum += onebar.Close
-	}
-	for _, onebar := range o.OneChart.VData[len(o.OneChart.VData)-721 : len(o.OneChart.VData)-1] {
-		volSum += onebar.Value
-	}
-	thisBtcRatio := closeSum * volSum
-
-	btcEndIdx := len(btcChart.PData) - int(o.refTimestamp) - 1
-	btcStartIdx := btcEndIdx - 720
-
-	var btcCloseSum float64
-	var btcVolSum float64
-	for _, oneBTCbar := range btcChart.PData[btcStartIdx:btcEndIdx] {
-		btcCloseSum += oneBTCbar.Close
-	}
-	for _, oneBTCbar := range btcChart.VData[btcStartIdx:btcEndIdx] {
-		btcVolSum += oneBTCbar.Value
-	}
-	btcBtcRatio := btcCloseSum * btcVolSum
-
-	o.BtcRatio = math.Round((thisBtcRatio/btcBtcRatio)*10000) / 100
-
 }
 
 func (o *OnePairChart) addIdentifier() {
@@ -240,21 +255,32 @@ func (c *CandleData) encodeChart(pFactor, vFactor float64, tFactor int64) {
 	for _, onebar := range c.PData {
 		newPbar := PriceData{
 			Name:  "",
-			Open:  onebar.Open * pFactor,
-			Close: onebar.Close * pFactor,
-			High:  onebar.High * pFactor,
-			Low:   onebar.Low * pFactor,
+			Open:  math.Floor(onebar.Open*pFactor*decimal) / decimal,
+			Close: math.Floor(onebar.Close*pFactor*decimal) / decimal,
+			High:  math.Floor(onebar.High*pFactor*decimal) / decimal,
+			Low:   math.Floor(onebar.Low*pFactor*decimal) / decimal,
 			Time:  onebar.Time - tFactor,
 		}
 		tempPData = append(tempPData, newPbar)
 	}
 	for _, onebar := range c.VData {
 		newVbar := VolumeData{
-			Value: onebar.Value * vFactor,
+			Value: math.Floor(onebar.Value*vFactor*decimal) / decimal,
 			Time:  onebar.Time - tFactor,
 			Color: onebar.Color,
 		}
 		tempVData = append(tempVData, newVbar)
 	}
 	*c = CandleData{tempPData, tempVData}
+}
+
+func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
+	bp, ok1 := btcP.(float64)
+	bv, ok2 := btcV.(float64)
+	rp, ok3 := reqP.(float64)
+	rv, ok4 := reqV.(float64)
+	if !ok1 || !ok2 || !ok3 || !ok4 {
+		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
+	}
+	return math.Round(decimal*(rp*rv)/(bp*bv)) / 100, nil
 }

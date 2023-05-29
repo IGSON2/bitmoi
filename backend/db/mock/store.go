@@ -96,6 +96,21 @@ func (mr *MockStoreMockRecorder) Get15mResult(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get15mResult", reflect.TypeOf((*MockStore)(nil).Get15mResult), arg0, arg1)
 }
 
+// Get15mVolSumPriceAVG mocks base method.
+func (m *MockStore) Get15mVolSumPriceAVG(arg0 context.Context, arg1 db.Get15mVolSumPriceAVGParams) (db.Get15mVolSumPriceAVGRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get15mVolSumPriceAVG", arg0, arg1)
+	ret0, _ := ret[0].(db.Get15mVolSumPriceAVGRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get15mVolSumPriceAVG indicates an expected call of Get15mVolSumPriceAVG.
+func (mr *MockStoreMockRecorder) Get15mVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get15mVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get15mVolSumPriceAVG), arg0, arg1)
+}
+
 // Get1dCandles mocks base method.
 func (m *MockStore) Get1dCandles(arg0 context.Context, arg1 db.Get1dCandlesParams) ([]db.Candles1d, error) {
 	m.ctrl.T.Helper()
@@ -139,6 +154,21 @@ func (m *MockStore) Get1dResult(arg0 context.Context, arg1 db.Get1dResultParams)
 func (mr *MockStoreMockRecorder) Get1dResult(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1dResult", reflect.TypeOf((*MockStore)(nil).Get1dResult), arg0, arg1)
+}
+
+// Get1dVolSumPriceAVG mocks base method.
+func (m *MockStore) Get1dVolSumPriceAVG(arg0 context.Context, arg1 db.Get1dVolSumPriceAVGParams) (db.Get1dVolSumPriceAVGRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get1dVolSumPriceAVG", arg0, arg1)
+	ret0, _ := ret[0].(db.Get1dVolSumPriceAVGRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get1dVolSumPriceAVG indicates an expected call of Get1dVolSumPriceAVG.
+func (mr *MockStoreMockRecorder) Get1dVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1dVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get1dVolSumPriceAVG), arg0, arg1)
 }
 
 // Get1hCandles mocks base method.
@@ -186,6 +216,21 @@ func (mr *MockStoreMockRecorder) Get1hResult(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hResult", reflect.TypeOf((*MockStore)(nil).Get1hResult), arg0, arg1)
 }
 
+// Get1hVolSumPriceAVG mocks base method.
+func (m *MockStore) Get1hVolSumPriceAVG(arg0 context.Context, arg1 db.Get1hVolSumPriceAVGParams) (db.Get1hVolSumPriceAVGRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get1hVolSumPriceAVG", arg0, arg1)
+	ret0, _ := ret[0].(db.Get1hVolSumPriceAVGRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get1hVolSumPriceAVG indicates an expected call of Get1hVolSumPriceAVG.
+func (mr *MockStoreMockRecorder) Get1hVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get1hVolSumPriceAVG), arg0, arg1)
+}
+
 // Get4hCandles mocks base method.
 func (m *MockStore) Get4hCandles(arg0 context.Context, arg1 db.Get4hCandlesParams) ([]db.Candles4h, error) {
 	m.ctrl.T.Helper()
@@ -231,6 +276,21 @@ func (mr *MockStoreMockRecorder) Get4hResult(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get4hResult", reflect.TypeOf((*MockStore)(nil).Get4hResult), arg0, arg1)
 }
 
+// Get4hVolSumPriceAVG mocks base method.
+func (m *MockStore) Get4hVolSumPriceAVG(arg0 context.Context, arg1 db.Get4hVolSumPriceAVGParams) (db.Get4hVolSumPriceAVGRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get4hVolSumPriceAVG", arg0, arg1)
+	ret0, _ := ret[0].(db.Get4hVolSumPriceAVGRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get4hVolSumPriceAVG indicates an expected call of Get4hVolSumPriceAVG.
+func (mr *MockStoreMockRecorder) Get4hVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get4hVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get4hVolSumPriceAVG), arg0, arg1)
+}
+
 // Get5mCandles mocks base method.
 func (m *MockStore) Get5mCandles(arg0 context.Context, arg1 db.Get5mCandlesParams) ([]db.Candles5m, error) {
 	m.ctrl.T.Helper()
@@ -274,6 +334,21 @@ func (m *MockStore) Get5mResult(arg0 context.Context, arg1 db.Get5mResultParams)
 func (mr *MockStoreMockRecorder) Get5mResult(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mResult", reflect.TypeOf((*MockStore)(nil).Get5mResult), arg0, arg1)
+}
+
+// Get5mVolSumPriceAVG mocks base method.
+func (m *MockStore) Get5mVolSumPriceAVG(arg0 context.Context, arg1 db.Get5mVolSumPriceAVGParams) (db.Get5mVolSumPriceAVGRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get5mVolSumPriceAVG", arg0, arg1)
+	ret0, _ := ret[0].(db.Get5mVolSumPriceAVGRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get5mVolSumPriceAVG indicates an expected call of Get5mVolSumPriceAVG.
+func (mr *MockStoreMockRecorder) Get5mVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get5mVolSumPriceAVG), arg0, arg1)
 }
 
 // GetAllParisInDB mocks base method.

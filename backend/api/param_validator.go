@@ -6,7 +6,7 @@ const (
 )
 
 type ChartRequestQuery struct {
-	Names    string `json:"names" validate:"required"`
+	Names    string `json:"names"`
 	Interval string `json:"interval" validate:"required,oneof=5m 15m 1h 4h 1d"`
 }
 
