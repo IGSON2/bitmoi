@@ -10,7 +10,6 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/gob"
-	"encoding/hex"
 	"encoding/json"
 )
 
@@ -92,14 +91,11 @@ func EncrtpByASE[T any](data T) string {
 	encryptedData := make([]byte, len(bytesData))
 	stream.XORKeyStream(encryptedData, bytesData)
 
-	return hex.EncodeToString(encryptedData)
+	return Base64Encode(encryptedData)
 }
 
 func DecryptByASE(encrypted string) []byte {
-	b, err := hex.DecodeString(encrypted)
-	if err != nil {
-		return nil
-	}
+	b := Base64Decode(encrypted)
 	block, _ := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
 	iv := make([]byte, aes.BlockSize)
 

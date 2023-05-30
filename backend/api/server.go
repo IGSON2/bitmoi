@@ -138,6 +138,8 @@ func (s *Server) competition(c *fiber.Ctx) error {
 	case "POST":
 		var CompetitionOrder OrderRequest
 		// TODO : 유효한 주문인지 검사 필요 e.b 가격*수량 <= lev * bal
+		// position에 따른 entryprice 대비 profit과 loss값 위치에 대한 검증
+		// entryprice는 identifier에 삽입하여 전송해도 되지 않을까?
 		err := c.BodyParser(&CompetitionOrder)
 		if err != nil || CompetitionOrder.Mode != competition {
 			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("%w, mode : %s", err, CompetitionOrder.Mode))
