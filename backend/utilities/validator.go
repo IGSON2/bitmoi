@@ -38,13 +38,13 @@ func (e *ErrorResponses) Error() string {
 
 	for _, response := range *e {
 		if response.FailedField != "" {
-			errorString += response.FailedField
+			errorString += fmt.Sprintf("Field : %s, ", response.FailedField)
 		}
 		if response.Tag != "" {
-			errorString += response.Tag
+			errorString += fmt.Sprintf("Tag : %s, ", response.Tag)
 		}
 		if response.Value != nil {
-			errorString += fmt.Sprintf("%s", response.Value)
+			errorString += fmt.Sprintf("Value : %s", response.Value)
 		}
 	}
 	return errorString

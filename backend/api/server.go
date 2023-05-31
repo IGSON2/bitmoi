@@ -79,17 +79,17 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		r := new(ChartRequestQuery)
 		err := c.QueryParser(r)
 		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("parsing err : %w, validation err : %s", err, errs.Error()))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
 
 		history := utilities.Splitnames(r.Names)
 		if len(history) >= finalstage {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("invalid current stage"))
+			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 		}
 		nextPair := utilities.FindDiffPair(s.pairs, history)
 		oc, err := s.makeChartToRef(r.Interval, nextPair, PracticeMode, len(history), c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
@@ -97,18 +97,18 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		// TODO : 유효한 주문인지 검사 필요 e.b 가격*수량 <= lev * bal
 		err := c.BodyParser(&PracticeOrder)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(err)
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(err))
 		}
 
 		errs := utilities.ValidateStruct(PracticeOrder)
 		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf(errs.Error()))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 		}
 
 		r, err := s.createPracResult(&PracticeOrder, c)
 		if err != nil {
 			s.logger.Error().Err(err)
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(r)
 	default:
@@ -122,17 +122,17 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		r := new(ChartRequestQuery)
 		err := c.QueryParser(r)
 		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("parsing err : %w, validation err : %s", err, errs.Error()))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
 		history := utilities.Splitnames(r.Names)
 
 		if len(history) >= finalstage {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("invalid current stage"))
+			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 		}
 		nextPair := utilities.FindDiffPair(s.pairs, history)
 		oc, err := s.makeChartToRef(r.Interval, nextPair, CompetitionMode, len(history), c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
@@ -142,21 +142,21 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		// entryprice는 identifier에 삽입하여 전송해도 되지 않을까?
 		err := c.BodyParser(&CompetitionOrder)
 		if err != nil || CompetitionOrder.Mode != competition {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf("%w, mode : %s", err, CompetitionOrder.Mode))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%s, mode : %s", err, CompetitionOrder.Mode))
 		}
 
 		errs := utilities.ValidateStruct(CompetitionOrder)
 		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf(errs.Error()))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 		}
 
 		compResult, err := s.createCompResult(&CompetitionOrder, c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		err = s.insertUserScore(&CompetitionOrder, compResult.ResultScore, c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
@@ -178,14 +178,14 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 	err := c.QueryParser(p)
 	if errs := utilities.ValidateStruct(*p); err != nil || errs != nil {
 		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(errs.Error())
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 		}
-		return c.Status(fiber.StatusBadRequest).JSON(err)
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(err))
 	}
 
 	scores, err := s.getMyscores(u, p.Page, c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err)
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 	}
 	return c.Status(fiber.StatusOK).JSON(scores)
 }
@@ -197,26 +197,26 @@ func (s *Server) rank(c *fiber.Ctx) error {
 		err := c.QueryParser(p)
 		if errs := utilities.ValidateStruct(*p); err != nil || errs != nil {
 			if errs != nil {
-				return c.Status(fiber.StatusBadRequest).JSON(errs.Error())
+				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 			}
-			return c.Status(fiber.StatusBadRequest).JSON(err)
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(err))
 		}
 
 		ranks, err := s.getAllRanks(p.Page, c)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(err)
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 		}
 		return c.Status(fiber.StatusOK).JSON(ranks)
 	case "POST":
 		var r RankInsertRequest
 		err := c.BodyParser(&r)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(err)
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(err))
 		}
 
 		errs := utilities.ValidateStruct(r)
 		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fmt.Errorf(errs.Error()))
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 		}
 		s.insertScoreToRankBoard(&r, c)
 		return nil
@@ -232,11 +232,11 @@ func (s *Server) moreinfo(c *fiber.Ctx) error {
 	}
 	errs := utilities.ValidateStruct(q)
 	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(errs.Error())
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprint(errs.Error()))
 	}
 	scores, err := s.sendMoreInfo(q.UserId, q.ScoreId, c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err)
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprint(err))
 	}
 	return c.Status(fiber.StatusOK).JSON(scores)
 }

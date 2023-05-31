@@ -120,28 +120,28 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 
 	switch interval {
 	case db.OneD:
-		candles, err := s.store.Get1dCandles(c.Context(), db.Get1dCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1dCandles(c.Context(), db.Get1dCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hCandles(c.Context(), db.Get4hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get4hCandles(c.Context(), db.Get4hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hCandles(c.Context(), db.Get1hCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get1hCandles(c.Context(), db.Get1hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mCandles(c.Context(), db.Get15mCandlesParams{name, refTimestamp, oneTimeStageLoad})
+		candles, err := s.store.Get15mCandles(c.Context(), db.Get15mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
@@ -279,6 +279,9 @@ func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
 	bv, ok2 := btcV.(float64)
 	rp, ok3 := reqP.(float64)
 	rv, ok4 := reqV.(float64)
+	if bp == 0 || bv == 0 {
+		return -1, fmt.Errorf("cannot select btcusdt data")
+	}
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
 	}
