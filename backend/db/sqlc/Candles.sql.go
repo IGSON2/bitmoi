@@ -313,6 +313,25 @@ func (q *Queries) Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]C
 	return items, nil
 }
 
+const get1hEntryTimestamp = `-- name: Get1hEntryTimestamp :one
+SELECT time FROM candles_1h 
+WHERE name = ?  AND time <= ?
+ORDER BY time desc 
+LIMIT 1
+`
+
+type Get1hEntryTimestampParams struct {
+	Name string `json:"name"`
+	Time int64  `json:"time"`
+}
+
+func (q *Queries) Get1hEntryTimestamp(ctx context.Context, arg Get1hEntryTimestampParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, get1hEntryTimestamp, arg.Name, arg.Time)
+	var time int64
+	err := row.Scan(&time)
+	return time, err
+}
+
 const get1hMinMaxTime = `-- name: Get1hMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_1h

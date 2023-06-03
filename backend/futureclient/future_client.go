@@ -71,7 +71,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 	endTime := f.Yesterday
 	var startTime int64
 	if timestamp <= 0 {
-		startTime = howcandles(f.Yesterday, interval, LimitCandlesNum)
+		startTime = 0
 		f.Logger.Info().Any("start time", startTime).Msg(fmt.Sprintf("Timestamp dosen't specified. Set the start time %d candles before.", LimitCandlesNum))
 	} else {
 		startTime = timestamp
@@ -129,7 +129,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 				return fmt.Errorf("cannot insert candle into db err : %w", err)
 			}
 		}
-		endTime = howcandles(endTime, interval, LimitCandlesNum)
+		startTime = getNextStartTime(startTime, interval, LimitCandlesNum)
 
 		*cnt++
 		if *cnt%900 == 0 {
@@ -141,19 +141,19 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 	return nil
 }
 
-// 주어진 시간으로부터 intN + intU 단위의 캔들을 candles개 만큼 가져올 수 있는 일자를 Millisecond로 반환합니다.
-func howcandles(root int64, interval string, candles int) int64 {
+// getNextStartTime은 주어진 interval에 맞는 다음 요청에 필요한 starttime을 구합니다.
+func getNextStartTime(root int64, interval string, candles int) int64 {
 	intN, intU := db.ParseInterval(interval)
 
 	var start int64
 
 	switch intU {
 	case "m":
-		start = root - int64(time.Minute.Milliseconds()*int64(intN)*int64(candles))
+		start = root + int64(time.Minute.Milliseconds()*int64(intN)*int64(candles))
 	case "h":
-		start = root - int64(time.Hour.Milliseconds()*int64(intN)*int64(candles))
+		start = root + int64(time.Hour.Milliseconds()*int64(intN)*int64(candles))
 	case "d":
-		start = root - int64(time.Hour.Milliseconds()*int64(intN)*24*int64(candles))
+		start = root + int64(time.Hour.Milliseconds()*int64(intN)*24*int64(candles))
 	}
 
 	return start

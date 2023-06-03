@@ -20,6 +20,7 @@ type Querier interface {
 	Get1dResult(ctx context.Context, arg Get1dResultParams) ([]Candles1d, error)
 	Get1dVolSumPriceAVG(ctx context.Context, arg Get1dVolSumPriceAVGParams) (Get1dVolSumPriceAVGRow, error)
 	Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]Candles1h, error)
+	Get1hEntryTimestamp(ctx context.Context, arg Get1hEntryTimestampParams) (int64, error)
 	Get1hMinMaxTime(ctx context.Context, name string) (Get1hMinMaxTimeRow, error)
 	Get1hResult(ctx context.Context, arg Get1hResultParams) ([]Candles1h, error)
 	Get1hVolSumPriceAVG(ctx context.Context, arg Get1hVolSumPriceAVGParams) (Get1hVolSumPriceAVGRow, error)

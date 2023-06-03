@@ -48,7 +48,7 @@ func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultDat
 	}
 	var result = ResultData{
 		ResultChart: resultchart,
-		ResultScore: calculateResult(resultchart, order, PracticeMode, nil),
+		ResultScore: calculateResult(resultchart, order, practice, nil),
 	}
 	return &result, nil
 }
@@ -67,7 +67,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	}
 	var result = ResultData{
 		ResultChart: resultchart,
-		ResultScore: calculateResult(resultchart, compOrder, CompetitionMode, compInfo),
+		ResultScore: calculateResult(resultchart, compOrder, competition, compInfo),
 	}
 
 	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
@@ -82,7 +82,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	return &result, nil
 }
 
-func calculateResult(resultchart *CandleData, order *OrderRequest, mode int8, info *utilities.IdentificationData) *ResultScore {
+func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, info *utilities.IdentificationData) *ResultScore {
 	var (
 		roe      float64
 		pnl      float64
@@ -90,7 +90,7 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode int8, in
 		endPrice float64
 	)
 
-	if mode == CompetitionMode {
+	if mode == competition {
 		order.EntryPrice = math.Floor(order.EntryPrice/info.PriceFactor*decimal) / decimal
 		order.ProfitPrice = math.Floor(order.ProfitPrice/info.PriceFactor*decimal) / decimal
 		order.LossPrice = math.Floor(order.LossPrice/info.PriceFactor*decimal) / decimal
@@ -163,28 +163,28 @@ func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTe
 
 	switch info.Interval {
 	case db.OneD:
-		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{info.Name, int64(info.RefTimestamp), int32(db.CalculateTerm(db.OneD, waitingTerm))})
+		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneD, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{info.Name, int64(info.RefTimestamp), int32(db.CalculateTerm(db.FourH, waitingTerm))})
+		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FourH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{info.Name, int64(info.RefTimestamp), int32(db.CalculateTerm(db.OneH, waitingTerm))})
+		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = (&cs).InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{info.Name, int64(info.RefTimestamp), int32(db.CalculateTerm(db.FifM, waitingTerm))})
+		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FifM, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}

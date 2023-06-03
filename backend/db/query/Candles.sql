@@ -98,6 +98,12 @@ WHERE name = ?  AND time <= ?
 ORDER BY time ASC 
 LIMIT ?;
 
+-- name: Get1hEntryTimestamp :one
+SELECT time FROM candles_1h 
+WHERE name = ?  AND time <= ?
+ORDER BY time desc 
+LIMIT 1;
+
 -- name: Get1hResult :many
 SELECT * FROM candles_1h 
 WHERE name = ? AND time > ?

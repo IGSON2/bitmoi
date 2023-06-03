@@ -186,6 +186,21 @@ func (mr *MockStoreMockRecorder) Get1hCandles(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hCandles", reflect.TypeOf((*MockStore)(nil).Get1hCandles), arg0, arg1)
 }
 
+// Get1hEntryTimestamp mocks base method.
+func (m *MockStore) Get1hEntryTimestamp(arg0 context.Context, arg1 db.Get1hEntryTimestampParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get1hEntryTimestamp", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get1hEntryTimestamp indicates an expected call of Get1hEntryTimestamp.
+func (mr *MockStoreMockRecorder) Get1hEntryTimestamp(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hEntryTimestamp", reflect.TypeOf((*MockStore)(nil).Get1hEntryTimestamp), arg0, arg1)
+}
+
 // Get1hMinMaxTime mocks base method.
 func (m *MockStore) Get1hMinMaxTime(arg0 context.Context, arg1 string) (db.Get1hMinMaxTimeRow, error) {
 	m.ctrl.T.Helper()

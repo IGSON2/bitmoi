@@ -16,10 +16,6 @@ const (
 	oneTimeStageLoad = 2000
 	BTCUSDT          = "BTCUSDT"
 )
-const (
-	PracticeMode int8 = iota
-	CompetitionMode
-)
 
 var (
 	ErrGetStageChart  = errors.New("server cannot get stage chart")
@@ -77,6 +73,9 @@ func (s *Server) SelectMinMaxTime(interval, name string, c *fiber.Ctx) (int64, i
 	case db.FifM:
 		r, err := s.store.Get15mMinMaxTime(c.Context(), name)
 		return r.Min.(int64), r.Max.(int64), err
+	case db.FiveM:
+		r, err := s.store.Get5mMinMaxTime(c.Context(), name)
+		return r.Min.(int64), r.Max.(int64), err
 	}
 	return 0, 0, fmt.Errorf("invalid interval %s", interval)
 }
@@ -107,6 +106,13 @@ func (s *Server) calcBtcRatio(interval, name string, refTimestamp int64, c *fibe
 	case db.FifM:
 		b, err1 := s.store.Get15mVolSumPriceAVG(c.Context(), db.Get15mVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
 		r, err2 := s.store.Get15mVolSumPriceAVG(c.Context(), db.Get15mVolSumPriceAVGParams{Name: name, Time: refTimestamp})
+		if err1 != nil || err2 != nil {
+			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
+		}
+		return convTypeAndCalcRatio(b.Priceavg, b.Volsum, r.Priceavg, r.Volsum)
+	case db.FiveM:
+		b, err1 := s.store.Get5mVolSumPriceAVG(c.Context(), db.Get5mVolSumPriceAVGParams{Name: BTCUSDT, Time: refTimestamp})
+		r, err2 := s.store.Get5mVolSumPriceAVG(c.Context(), db.Get5mVolSumPriceAVGParams{Name: name, Time: refTimestamp})
 		if err1 != nil || err2 != nil {
 			return -1, fmt.Errorf("getBTC err : %w, getREQ err : %w", err1, err2)
 		}
@@ -147,6 +153,13 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 		}
 		cs := Candles15mSlice(candles)
 		cdd = (&cs).InitCandleData()
+	case db.FiveM:
+		candles, err := s.store.Get5mCandles(c.Context(), db.Get5mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		if err != nil {
+			return nil, err
+		}
+		cs := Candles5mSlice(candles)
+		cdd = (&cs).InitCandleData()
 	}
 	if cdd.PData == nil || cdd.VData == nil {
 		return nil, ErrGetStageChart
@@ -162,7 +175,7 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
 }
 
-func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
+func (s *Server) makeChartToRef(interval, name string, mode string, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
 
 	min, max, err := s.SelectMinMaxTime(interval, name, c)
 	if err != nil {
@@ -189,7 +202,7 @@ func (s *Server) makeChartToRef(interval, name string, mode int8, prevStage int,
 		BtcRatio:     ratio,
 	}
 
-	if mode == CompetitionMode {
+	if mode == competition {
 		if err := oc.setFactors(); err != nil {
 			return nil, fmt.Errorf("cannot set factors. name : %s, interval : %s, err : %w", name, interval, err)
 		}

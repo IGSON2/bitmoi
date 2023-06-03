@@ -163,3 +163,41 @@ func (c *Candles15mSlice) InitCandleData() CandleData {
 	}
 	return CandleData{pDataSlice, vDataSlice}
 }
+
+type Candles5mSlice []db.Candles5m
+
+func (c *Candles5mSlice) EntryTime() string {
+	slice := ([]db.Candles5m)(*c)
+	return utilities.EntryTimeFormatter(slice[len(slice)-1].Time)
+}
+
+func (c *Candles5mSlice) Interval() string {
+	return db.FifM
+}
+
+func (c *Candles5mSlice) Name() string {
+	return ([]db.Candles5m)(*c)[0].Name
+}
+
+func (c *Candles5mSlice) InitCandleData() CandleData {
+	var pDataSlice []PriceData
+	var vDataSlice []VolumeData
+
+	for _, candle := range *c {
+		pDataSlice = append(pDataSlice, PriceData{
+			Name:  candle.Name,
+			Open:  candle.Open,
+			Close: candle.Close,
+			High:  candle.High,
+			Low:   candle.Open,
+			Time:  candle.Time,
+		})
+
+		vDataSlice = append(vDataSlice, VolumeData{
+			Value: candle.Volume,
+			Time:  candle.Time,
+			Color: candle.Color,
+		})
+	}
+	return CandleData{pDataSlice, vDataSlice}
+}

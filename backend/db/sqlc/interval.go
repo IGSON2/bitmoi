@@ -29,7 +29,7 @@ func MakeInterval(a int, str string) string {
 }
 
 func ParseInterval(interval string) (int, string) {
-	timeStr, unit := interval[:len(interval)-2], interval[len(interval)-1]
+	timeStr, unit := interval[:len(interval)-1], interval[len(interval)-1]
 	time, err := strconv.Atoi(timeStr)
 	if err != nil {
 		return 4, "h"

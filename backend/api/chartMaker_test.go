@@ -28,8 +28,7 @@ func TestMakeChart(t *testing.T) {
 			Path:   "/practice",
 			Method: http.MethodGet,
 			Body: ChartRequestQuery{
-				Names:    "",
-				Interval: db.FourH,
+				Names: "",
 			},
 			BuildStub: func(s *mockdb.MockStore) {
 				s.EXPECT().Get4hMinMaxTime(gomock.Any(), gomock.Any()).Times(1).Return(db.Get4hMinMaxTimeRow{}, nil)
