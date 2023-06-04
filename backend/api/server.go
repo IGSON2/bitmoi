@@ -2,14 +2,13 @@ package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog"
 )
 
 const (
@@ -17,20 +16,22 @@ const (
 )
 
 type Server struct {
-	config *utilities.Config
-	store  db.Store
-	router *fiber.App
-	logger *zerolog.Logger
-	pairs  []string
+	config     *utilities.Config
+	store      db.Store
+	router     *fiber.App
+	tokenMaker *token.PasetoMaker
+	pairs      []string
 }
 
 func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
-
-	serverLogger := zerolog.New(os.Stdout).With().Timestamp().Logger().Level(zerolog.InfoLevel)
+	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker : %w", err)
+	}
 	server := &Server{
-		config: c,
-		store:  s,
-		logger: &serverLogger,
+		config:     c,
+		store:      s,
+		tokenMaker: tm,
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())
@@ -100,7 +101,6 @@ func (s *Server) practice(c *fiber.Ctx) error {
 
 		r, err := s.createPracResult(&PracticeOrder, c)
 		if err != nil {
-			s.logger.Error().Err(err)
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 		return c.Status(fiber.StatusOK).JSON(r)
