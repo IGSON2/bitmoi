@@ -1,12 +1,82 @@
 package api
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
+
+type UserResponse struct {
+	UserID            string    `json:"user_id"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
+func convertUserResponse(user db.User) UserResponse {
+	return UserResponse{
+		UserID:            user.UserID,
+		FullName:          user.Fullname,
+		Email:             user.Email,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
+	}
+}
+
+func (s *Server) createUser(c *fiber.Ctx) error {
+	req := new(CreateUserRequest)
+	err := c.BodyParser(req)
+	if errs := utilities.ValidateStruct(*req); err != nil || errs != nil {
+		if errs != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+		}
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	hashedPassword, err := utilities.HashPassword(req.Password)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	arg := db.CreateUserParams{
+		UserID:         req.UserID,
+		HashedPassword: hashedPassword,
+		FullName:       req.FullName,
+		Email:          req.Email,
+	}
+	_, err = s.store.CreateUser(c.Context(), arg)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				return c.Status(fiber.StatusForbidden).SendString(err.Error())
+			}
+		}
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	user, err := s.store.GetUser(c.Context(), req.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	rsp := convertUserResponse(user)
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+type LoginUserResponse struct {
+	SessionID             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	User                  UserResponse `json:"user"`
+}
 
 func (s *Server) loginUser(c *fiber.Ctx) error {
 	loginReq := new(LoginUserRequest)
@@ -15,7 +85,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
 
-	user, err := s.store.GetUser(c.Context(), loginReq.Username)
+	user, err := s.store.GetUser(c.Context(), loginReq.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).SendString(err.Error())
@@ -42,5 +112,29 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
+
+	_, err = s.store.CreateSession(c.Context(), db.CreateSessionParams{
+		SessionID:    refreshPayload.ID.String(),
+		UserID:       user.UserID,
+		RefreshToken: refreshToken,
+		UserAgent:    string(c.Request().Header.UserAgent()),
+		ClientIp:     c.IP(),
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	rsp := LoginUserResponse{
+		SessionID:             refreshPayload.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  convertUserResponse(user),
+	}
+	return c.Status(fiber.StatusOK).JSON(rsp)
 
 }

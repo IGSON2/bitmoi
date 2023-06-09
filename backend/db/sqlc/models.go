@@ -88,6 +88,17 @@ type Score struct {
 	Roe        float64 `json:"roe"`
 }
 
+type Session struct {
+	SessionID    string    `json:"session_id"`
+	UserID       string    `json:"user_id"`
+	RefreshToken string    `json:"refresh_token"`
+	UserAgent    string    `json:"user_agent"`
+	ClientIp     string    `json:"client_ip"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type User struct {
 	UserID            string         `json:"user_id"`
 	Uid               sql.NullString `json:"uid"`

@@ -26,7 +26,7 @@ INSERT INTO users (
 type CreateUserParams struct {
 	UserID         string         `json:"user_id"`
 	Uid            sql.NullString `json:"uid"`
-	Fullname       string         `json:"fullname"`
+	FullName       string         `json:"fullname"`
 	HashedPassword string         `json:"hashed_password"`
 	Email          string         `json:"email"`
 	PhotoUrl       string         `json:"photo_url"`
@@ -36,7 +36,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	return q.db.ExecContext(ctx, createUser,
 		arg.UserID,
 		arg.Uid,
-		arg.Fullname,
+		arg.FullName,
 		arg.HashedPassword,
 		arg.Email,
 		arg.PhotoUrl,

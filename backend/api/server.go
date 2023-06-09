@@ -44,15 +44,19 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 
+	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
+	authGroup.Get("/competition", server.competition)
+	authGroup.Post("/competition", server.competition)
+	authGroup.Get("/myscore/:user", server.myscore)
+	authGroup.Get("/moreinfo", server.moreinfo)
+
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Get("/competition", server.competition)
-	router.Post("/competition", server.competition)
-	router.Get("/interval", server.sendInterval)
-	router.Get("/myscore/:user", server.myscore)
+	router.Get("/interval", server.sendInterval) // TODO: 모드에 따른 Interval 호출 분리 필요
 	router.Get("/rank", server.rank)
 	router.Post("/rank", server.rank)
-	router.Get("/moreinfo", server.moreinfo)
+	router.Post("/user", server.createUser)
+	router.Post("/user/login", server.loginUser)
 
 	server.router = router
 

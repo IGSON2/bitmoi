@@ -71,6 +71,13 @@ type AnotherIntervalRequest struct {
 }
 
 type LoginUserRequest struct {
-	Username string `json:"username" validate:"required,alphanum"`
+	UserID   string `json:"user_id" validate:"required,alphanum"`
 	Password string `json:"password" validate:"required,min=6"`
+}
+
+type CreateUserRequest struct {
+	UserID   string `json:"user_id" validate:"required,alphanum"`
+	Password string `json:"password" validate:"required,min=6"`
+	FullName string `json:"full_name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
 }

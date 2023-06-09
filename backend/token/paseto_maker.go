@@ -24,8 +24,8 @@ func NewPasetoTokenMaker(symmetricKey string) (*PasetoMaker, error) {
 	return maker, nil
 }
 
-func (p *PasetoMaker) CreateToken(username string, duration time.Duration) (string, *Payload, error) {
-	payload, err := NewPayload(username, duration)
+func (p *PasetoMaker) CreateToken(userID string, duration time.Duration) (string, *Payload, error) {
+	payload, err := NewPayload(userID, duration)
 	if err != nil {
 		return "", nil, err
 	}
@@ -33,4 +33,18 @@ func (p *PasetoMaker) CreateToken(username string, duration time.Duration) (stri
 	// payload를 symmetrickey를 이용해 암호화.
 	token, err := p.paseto.Encrypt(p.symmetricKey, payload, nil)
 	return token, payload, err
+}
+
+func (p *PasetoMaker) VerifyToken(token string) (*Payload, error) {
+	payload := new(Payload)
+
+	if err := p.paseto.Decrypt(token, p.symmetricKey, payload, nil); err != nil {
+		return nil, fmt.Errorf("%w %w", ErrInvalidToken, err)
+	}
+
+	if err := payload.ValidExpiration(); err != nil {
+		return nil, err
+	}
+
+	return payload, nil
 }

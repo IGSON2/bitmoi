@@ -42,7 +42,7 @@ const (
 var (
 	ErrNotUpdatedScore    = errors.New("failed to update rank due to low score")
 	ErrLiquidation        = errors.New("you were liquidated due to insufficient balance")
-	ErrInvalidStageLength = errors.New("ㅑnsufficient number of stages cleared")
+	ErrInvalidStageLength = errors.New("insufficient number of stages cleared")
 )
 
 func (s *Server) insertUserScore(o *OrderRequest, r *ResultScore, c *fiber.Ctx) error {

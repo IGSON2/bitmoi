@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	CreateSession(ctx context.Context, arg CreateSessionParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
 	Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error)
@@ -46,6 +47,7 @@ type Querier interface {
 	GetScoreToStage(ctx context.Context, arg GetScoreToStageParams) (interface{}, error)
 	GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreIDParams) ([]Score, error)
 	GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error)
+	GetSession(ctx context.Context) (Session, error)
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
 	GetUser(ctx context.Context, userID string) (User, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)

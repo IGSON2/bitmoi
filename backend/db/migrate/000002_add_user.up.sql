@@ -1,7 +1,7 @@
 CREATE TABLE `users` (
   `user_id` varchar(255) PRIMARY KEY,
   `uid` varchar(255),
-  `fullname` varchar(255) NOT NULL,
+  `full_name` varchar(255) NOT NULL,
   `hashed_password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),

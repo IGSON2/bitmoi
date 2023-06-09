@@ -80,7 +80,7 @@ func TestInsertUser(t *testing.T) {
 	testQueries.CreateUser(ctx, CreateUserParams{
 		UserID:         "user",
 		Uid:            sql.NullString{String: "1234", Valid: true},
-		Fullname:       "user_full",
+		FullName:       "user_full",
 		HashedPassword: "392cdf",
 		Email:          "example@gmail.com",
 		PhotoUrl:       "Photo.url",
