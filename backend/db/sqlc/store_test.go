@@ -79,11 +79,11 @@ func TestInsertUser(t *testing.T) {
 	ctx := context.Background()
 	testQueries.CreateUser(ctx, CreateUserParams{
 		UserID:         "user",
-		Uid:            sql.NullString{String: "1234", Valid: true},
+		OauthUid:       sql.NullString{String: "1234", Valid: true},
 		FullName:       "user_full",
 		HashedPassword: "392cdf",
 		Email:          "example@gmail.com",
-		PhotoUrl:       "Photo.url",
+		PhotoUrl:       sql.NullString{String: "photh.url", Valid: true},
 	})
 }
 

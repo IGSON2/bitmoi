@@ -15,6 +15,10 @@ const (
 	finalstage = 10
 )
 
+var (
+	errNotAuthenticated = errors.New("this service requires authentication in competition mode")
+)
+
 type Server struct {
 	config     *utilities.Config
 	store      db.Store
@@ -44,19 +48,19 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 
+	router.Get("/practice", server.practice)
+	router.Post("/practice", server.practice)
+	router.Get("/interval", server.sendInterval)
+	router.Get("/rank", server.rank)
+	router.Post("/rank", server.rank)
+	router.Post("/user", server.createUser)
+	router.Post("/user/login", server.loginUser)
+
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
 	authGroup.Get("/moreinfo", server.moreinfo)
-
-	router.Get("/practice", server.practice)
-	router.Post("/practice", server.practice)
-	router.Get("/interval", server.sendInterval) // TODO: 모드에 따른 Interval 호출 분리 필요
-	router.Get("/rank", server.rank)
-	router.Post("/rank", server.rank)
-	router.Post("/user", server.createUser)
-	router.Post("/user/login", server.loginUser)
 
 	server.router = router
 
@@ -168,6 +172,11 @@ func (s *Server) sendInterval(c *fiber.Ctx) error {
 	err := c.BodyParser(i)
 	if errs := utilities.ValidateStruct(*i); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
+	if i.Mode == competition {
+		if err := authMiddleware(s.tokenMaker)(c); err != nil {
+			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
+		}
 	}
 	oc, err := s.sendAnotherInterval(i, c)
 	if err != nil {

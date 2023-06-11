@@ -13,8 +13,8 @@ import (
 const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
     user_id,
-    uid,
-    fullname,
+    oauth_uid,
+    full_name,
     hashed_password,
     email,
     photo_url
@@ -25,17 +25,17 @@ INSERT INTO users (
 
 type CreateUserParams struct {
 	UserID         string         `json:"user_id"`
-	Uid            sql.NullString `json:"uid"`
-	FullName       string         `json:"fullname"`
+	OauthUid       sql.NullString `json:"oauth_uid"`
+	FullName       string         `json:"full_name"`
 	HashedPassword string         `json:"hashed_password"`
 	Email          string         `json:"email"`
-	PhotoUrl       string         `json:"photo_url"`
+	PhotoUrl       sql.NullString `json:"photo_url"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createUser,
 		arg.UserID,
-		arg.Uid,
+		arg.OauthUid,
 		arg.FullName,
 		arg.HashedPassword,
 		arg.Email,
@@ -44,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const getLastUser = `-- name: GetLastUser :one
-SELECT user_id, uid, fullname, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
 ORDER BY created_at DESC
 LIMIT 1
 `
@@ -54,8 +54,8 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.Uid,
-		&i.Fullname,
+		&i.OauthUid,
+		&i.FullName,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -66,7 +66,7 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 }
 
 const getRandomUser = `-- name: GetRandomUser :one
-SELECT user_id, uid, fullname, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
 ORDER BY RAND()
 LIMIT 1
 `
@@ -76,8 +76,8 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.Uid,
-		&i.Fullname,
+		&i.OauthUid,
+		&i.FullName,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -88,7 +88,7 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, uid, fullname, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
 WHERE user_id = ?
 LIMIT 1
 `
@@ -98,8 +98,8 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.Uid,
-		&i.Fullname,
+		&i.OauthUid,
+		&i.FullName,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -115,8 +115,8 @@ WHERE user_id = ?
 `
 
 type UpdatePhotoURLParams struct {
-	PhotoUrl string `json:"photo_url"`
-	UserID   string `json:"user_id"`
+	PhotoUrl sql.NullString `json:"photo_url"`
+	UserID   string         `json:"user_id"`
 }
 
 func (q *Queries) UpdatePhotoURL(ctx context.Context, arg UpdatePhotoURLParams) (sql.Result, error) {

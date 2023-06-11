@@ -1,8 +1,8 @@
 -- name: CreateUser :execresult
 INSERT INTO users (
     user_id,
-    uid,
-    fullname,
+    oauth_uid,
+    full_name,
     hashed_password,
     email,
     photo_url

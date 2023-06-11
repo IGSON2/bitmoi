@@ -80,4 +80,6 @@ type CreateUserRequest struct {
 	Password string `json:"password" validate:"required,min=6"`
 	FullName string `json:"full_name" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
+	PhotoUrl string `json:"photo_url,omitempty"`
+	OauthUid string `json:"oauth_uid,omitempty"`
 }

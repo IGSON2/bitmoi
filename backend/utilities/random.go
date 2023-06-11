@@ -40,3 +40,7 @@ func MakeRanString(length int) string {
 
 	return sb.String()
 }
+
+func MakeRanEmail() string {
+	return fmt.Sprintf("%s@email.com", MakeRanString(6))
+}

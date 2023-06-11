@@ -23,7 +23,7 @@ type UserResponse struct {
 func convertUserResponse(user db.User) UserResponse {
 	return UserResponse{
 		UserID:            user.UserID,
-		FullName:          user.Fullname,
+		FullName:          user.FullName,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
@@ -51,6 +51,13 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		FullName:       req.FullName,
 		Email:          req.Email,
 	}
+	if req.PhotoUrl != "" {
+		arg.PhotoUrl = sql.NullString{String: req.PhotoUrl, Valid: true}
+	}
+	if req.OauthUid != "" {
+		arg.OauthUid = sql.NullString{String: req.OauthUid, Valid: true}
+	}
+
 	_, err = s.store.CreateUser(c.Context(), arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {

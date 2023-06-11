@@ -101,11 +101,11 @@ type Session struct {
 
 type User struct {
 	UserID            string         `json:"user_id"`
-	Uid               sql.NullString `json:"uid"`
-	Fullname          string         `json:"fullname"`
+	OauthUid          sql.NullString `json:"oauth_uid"`
+	FullName          string         `json:"full_name"`
 	HashedPassword    string         `json:"hashed_password"`
 	Email             string         `json:"email"`
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
 	CreatedAt         time.Time      `json:"created_at"`
-	PhotoUrl          string         `json:"photo_url"`
+	PhotoUrl          sql.NullString `json:"photo_url"`
 }

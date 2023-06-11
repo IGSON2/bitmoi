@@ -39,9 +39,6 @@ var (
 	})
 )
 
-// 기록을 갱신한 사용자에게만 접근 권한을 주고 이 권한이 오용되지 않아야함
-// DB에 기록된 총 Score를 합산하여 Rank Board에 기록하는 방식이면 되지 않을까?
-// 각 Stage에 대한 POST요청 또한 조작이 가능하지 않을까?
 func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 	abort := func(c *fiber.Ctx, err string) error {
 		return c.Status(fiber.StatusUnauthorized).SendString(err)
