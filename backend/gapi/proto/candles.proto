@@ -1,13 +1,20 @@
-syntax = proto3;
+syntax = "proto3";
 
 package pb;
 
+option go_package = "bitmoi/backend/gapi/pb";
+
 message GetCandlesRequest{
-	repeated string served_names = 1;
+	repeated string names = 1;
+	string mode = 2;
 }
 
 message GetCandlesResponse{
-	Candles candles = 1;
+	string name = 1;
+	Candles onechart = 2;
+	double btcratio = 3;
+	string entrytime = 4;
+	string identifier = 5;
 }
 
 message Candles {
@@ -16,7 +23,7 @@ message Candles {
 }
 
 message PriceData {
-    string name = 1;
+    string name = 1 [json_name="-"];
 	double open = 2;
 	double close = 3;
 	double high = 4;

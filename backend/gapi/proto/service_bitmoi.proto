@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "bitmoi/backend/gapi/pb";
+
+import "candles.proto";
+import "google/api/annotations.proto";
+
+service Bitmoi {
+    rpc GetCandles (GetCandlesRequest) returns (GetCandlesResponse){
+        option (google.api.http)={
+            get:"/vi/get_candles"
+        };
+    }
+}
