@@ -4,12 +4,18 @@ import (
 	"bitmoi/backend/api"
 	"bitmoi/backend/app"
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/gapi"
+	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/utilities"
 	"database/sql"
 	"fmt"
+	"net"
 	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var bApp = app.NewApp()
@@ -35,10 +41,35 @@ func bitmoi(ctx *cli.Context) error {
 		return fmt.Errorf("cannot connect db %w", err)
 	}
 	dbStore := db.NewStore(conn)
-	server, err := api.NewServer(config, dbStore)
+	go runHttpServer(config, dbStore)
+	runGrpcServer(config, dbStore)
+	return nil
+}
+
+func runGrpcServer(config *utilities.Config, store db.Store) {
+	server, err := gapi.NewServer(config, store)
 	if err != nil {
-		return fmt.Errorf("cannot create server %w", err)
+		log.Panic().Err(err).Msg("cannot create gRPC server")
 	}
 
-	return server.Listen()
+	grpcServer := grpc.NewServer()
+	pb.RegisterBitmoiServer(grpcServer, server)
+	reflection.Register(grpcServer)
+
+	listener, err := net.Listen("tcp", config.GRPCAddress)
+	if err != nil {
+		log.Panic().Err(err).Msg("cannot create gRPC listener")
+	}
+
+	log.Info().Msgf("Start gRPC server at %s", listener.Addr().String())
+	log.Panic().Err(grpcServer.Serve(listener)).Msg("cannot start gRPC server")
+}
+
+func runHttpServer(config *utilities.Config, store db.Store) {
+	server, err := api.NewServer(config, store)
+	if err != nil {
+		log.Panic().Err(err).Msg("cannot create server")
+	}
+
+	log.Panic().Err(server.Listen()).Msg("cannot start http server")
 }

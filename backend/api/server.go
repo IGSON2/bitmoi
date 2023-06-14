@@ -68,7 +68,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 }
 
 func (s *Server) Listen() error {
-	return s.router.Listen(s.config.Address)
+	return s.router.Listen(s.config.HTTPAddress)
 }
 
 func (s *Server) practice(c *fiber.Ctx) error {

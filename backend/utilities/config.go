@@ -11,7 +11,8 @@ type Config struct {
 	SymmetricKey         string        `mapstructure:"SYMMETRIC_KEY"`
 	DBDriver             string        `mapstructure:"DB_Driver"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
-	Address              string        `mapstructure:"ADDRESS"`
+	HTTPAddress          string        `mapstructure:"HTTP_ADDRESS"`
+	GRPCAddress          string        `mapstructure:"GRPC_ADDRESS"`
 	apikey               string        `mapstructure:"API_KEY"`
 	srckey               string        `mapstructure:"SRC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
