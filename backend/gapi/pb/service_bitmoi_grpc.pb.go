@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Bitmoi_GetCandles_FullMethodName = "/pb.Bitmoi/GetCandles"
+	Bitmoi_PostScore_FullMethodName  = "/pb.Bitmoi/PostScore"
 )
 
 // BitmoiClient is the client API for Bitmoi service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BitmoiClient interface {
 	GetCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
+	PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 }
 
 type bitmoiClient struct {
@@ -46,11 +48,21 @@ func (c *bitmoiClient) GetCandles(ctx context.Context, in *GetCandlesRequest, op
 	return out, nil
 }
 
+func (c *bitmoiClient) PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
+	out := new(OrderResponse)
+	err := c.cc.Invoke(ctx, Bitmoi_PostScore_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BitmoiServer is the server API for Bitmoi service.
 // All implementations must embed UnimplementedBitmoiServer
 // for forward compatibility
 type BitmoiServer interface {
 	GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
+	PostScore(context.Context, *OrderRequest) (*OrderResponse, error)
 	mustEmbedUnimplementedBitmoiServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedBitmoiServer struct {
 
 func (UnimplementedBitmoiServer) GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCandles not implemented")
+}
+func (UnimplementedBitmoiServer) PostScore(context.Context, *OrderRequest) (*OrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostScore not implemented")
 }
 func (UnimplementedBitmoiServer) mustEmbedUnimplementedBitmoiServer() {}
 
@@ -92,6 +107,24 @@ func _Bitmoi_GetCandles_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bitmoi_PostScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BitmoiServer).PostScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Bitmoi_PostScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BitmoiServer).PostScore(ctx, req.(*OrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bitmoi_ServiceDesc is the grpc.ServiceDesc for Bitmoi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Bitmoi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCandles",
 			Handler:    _Bitmoi_GetCandles_Handler,
+		},
+		{
+			MethodName: "PostScore",
+			Handler:    _Bitmoi_PostScore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

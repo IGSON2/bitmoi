@@ -195,5 +195,5 @@ WHERE name = ?;
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_5m WHERE name = ? AND time <= ?;
 
 -- name: GetAllParisInDB :many
-SELECT DISTINCT name from candles_4h
+SELECT DISTINCT name from candles_1h
 ORDER BY name;

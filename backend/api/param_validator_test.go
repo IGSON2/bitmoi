@@ -25,7 +25,6 @@ func TestOrderstructValidation(t *testing.T) {
 				Mode:         competition,
 				UserId:       "user",
 				Name:         "user_name",
-				Entrytime:    "2021.01.01 16:00",
 				Stage:        1,
 				IsLong:       &short,
 				EntryPrice:   100.123,
@@ -40,22 +39,17 @@ func TestOrderstructValidation(t *testing.T) {
 				WaitingTerm:  1,
 			},
 			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
-				r := reflect.TypeOf(o).Field(i)
-				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
-				require.NotContains(t, es.FailedField, r.Name, m)
-				require.NotContains(t, r.Tag, es.Tag, m)
-				require.NotEqual(t, reflect.ValueOf(o).Field(i), es.Value, m)
+				require.Nil(t, es)
 			},
 		},
 		{
 			name: "Fail_Missing_Fields",
 			params: OrderRequest{
-				Mode:      "",
-				UserId:    "",
-				Name:      "",
-				Entrytime: "",
-				Stage:     0,
-				// IsLong:       false,
+				Mode:         "",
+				UserId:       "",
+				Name:         "",
+				Stage:        -1,
+				IsLong:       nil,
 				EntryPrice:   -1,
 				Quantity:     -1,
 				QuantityRate: -1,
@@ -63,6 +57,33 @@ func TestOrderstructValidation(t *testing.T) {
 				LossPrice:    -1,
 				Leverage:     0,
 				Balance:      -1,
+				Identifier:   "",
+				ScoreId:      "",
+				WaitingTerm:  0,
+			},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+				r := reflect.TypeOf(o).Field(i)
+				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
+				require.Contains(t, es.FailedField, r.Name, m)
+				require.Contains(t, r.Tag, es.Tag, m)
+				require.Equal(t, reflect.ValueOf(o).Field(i).Interface(), es.Value, m)
+			},
+		},
+		{
+			name: "Fail_Boundary_Value",
+			params: OrderRequest{
+				Mode:         "",
+				UserId:       "",
+				Name:         "",
+				Stage:        0,
+				IsLong:       nil,
+				EntryPrice:   0,
+				Quantity:     0,
+				QuantityRate: 0,
+				ProfitPrice:  0,
+				LossPrice:    0,
+				Leverage:     0,
+				Balance:      0,
 				Identifier:   "",
 				ScoreId:      "",
 				WaitingTerm:  0,

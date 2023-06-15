@@ -21,15 +21,15 @@ function Orderconfirm({
 }) {
   const [receivedScore, setReceivedScore] = useState({
     stage: 0,
-    entrytime: "",
+    entry_time: "",
     name: "",
     leverage: 0,
-    entryprice: 0,
-    outtime: 0,
+    entry_price: 0,
+    out_time: 0,
     roe: 0,
     pnl: 0,
     commission: 0,
-    isliquidated: false,
+    is_liquidated: false,
   });
   var profitROE;
   var lossROE;
@@ -62,20 +62,19 @@ function Orderconfirm({
     resultPromise
       .then((rchart) => {
         if (order.mode === "competition") {
-          setPairtitle(rchart.resultscore.name);
+          setPairtitle(rchart.score.name);
           setTitleaArray((current) => [
             ...current,
             rchart.resultscore.name + ",",
           ]);
-          setCandles(rchart.originchart);
+          setCandles(rchart.origin_chart);
         }
-        setResultChart(rchart.resultchart);
-        setResultScore(rchart.resultscore);
+        setResultChart(rchart.result_chart);
+        setResultScore(rchart.score);
         setBalance(
-          (current) =>
-            current + rchart.resultscore.pnl - rchart.resultscore.commission
+          (current) => current + rchart.score.pnl - rchart.score.commission
         );
-        setReceivedScore(rchart.resultscore);
+        setReceivedScore(rchart.score);
       })
       .then(setSubmitOrder(true))
       .then(setModalOpen(true));
@@ -93,7 +92,7 @@ function Orderconfirm({
           submitOrder={submitOrder}
           color={color}
           balance={balance}
-          scoreid={order.scoreid}
+          scoreid={order.score_id}
           leverage={order.leverage}
         />
       ) : (

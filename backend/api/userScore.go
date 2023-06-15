@@ -11,26 +11,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type RegisterRank struct {
-	User        string `json:"user"`
-	Displayname string `json:"displayname"`
-	Scoreid     string `json:"scoreid"`
-	Comment     string `json:"comment"`
-}
-
-type MoreInfoData struct {
-	AvgLev     float64       `json:"avglev"`
-	AvgPnl     float64       `json:"avgpnl"`
-	AvgRoe     float64       `json:"avgroe"`
-	StageArray []StageSimple `json:"stagearray"`
-}
-
-type StageSimple struct {
-	Name string  `json:"name"`
-	Date string  `json:"date"`
-	Roe  float64 `json:"roe"`
-}
-
 const (
 	long                   = "LONG"
 	short                  = "SHORT"
@@ -45,7 +25,7 @@ var (
 	ErrInvalidStageLength = errors.New("insufficient number of stages cleared")
 )
 
-func (s *Server) insertUserScore(o *OrderRequest, r *ResultScore, c *fiber.Ctx) error {
+func (s *Server) insertUserScore(o *OrderRequest, r *OrderResult, c *fiber.Ctx) error {
 	var position string
 	if *o.IsLong {
 		position = long

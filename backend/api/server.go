@@ -12,7 +12,9 @@ import (
 )
 
 const (
-	finalstage = 10
+	finalstage  = 10
+	competition = "competition"
+	practice    = "practice"
 )
 
 var (
@@ -102,7 +104,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 
-		err = s.validateOrderRequest(&PracticeOrder)
+		err = validateOrderRequest(&PracticeOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
@@ -148,7 +150,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 
-		err = s.validateOrderRequest(&CompetitionOrder)
+		err = validateOrderRequest(&CompetitionOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
@@ -157,7 +159,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
-		err = s.insertUserScore(&CompetitionOrder, compResult.ResultScore, c)
+		err = s.insertUserScore(&CompetitionOrder, compResult.Score, c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}

@@ -5,12 +5,19 @@ package pb;
 option go_package = "bitmoi/backend/gapi/pb";
 
 import "candles.proto";
+import "order.proto";
 import "google/api/annotations.proto";
 
 service Bitmoi {
     rpc GetCandles (GetCandlesRequest) returns (GetCandlesResponse){
         option (google.api.http)={
             get:"/vi/get_candles"
+        };
+    }
+
+    rpc PostScore (OrderRequest) returns (OrderResponse){
+        option (google.api.http)={
+            post:"/vi/post_score"
         };
     }
 }

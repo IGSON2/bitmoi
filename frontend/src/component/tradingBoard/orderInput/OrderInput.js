@@ -53,20 +53,20 @@ function OrderInput({
   const [lossClosed, setLossClosed] = useState(false);
   const [orderObject, setOrderObject] = useState({
     mode: "",
-    userid: "",
+    user_id: "",
     name: "",
     entrytime: "",
     stage: 0,
     isLong: true,
-    entryPrice: 0,
+    entry_price: 0,
     quantity: 0,
-    quantityrate: 0,
-    profitPrice: 0,
-    lossPrice: 0,
+    quantity_rate: 0,
+    profit_price: 0,
+    loss_price: 0,
     leverage: 0,
     balance: 0,
     identifier: "",
-    scoreid: "",
+    score_id: "",
     resultterm: 0,
   });
   var commission = 0.0002;
@@ -89,25 +89,25 @@ function OrderInput({
     event.preventDefault();
     var tempObject = {
       mode: mode,
-      userid: "",
+      user_id: "",
       name: name,
       entrytime: entryTime,
       stage: index + 1,
       isLong: isLong,
-      entryPrice: entryPrice,
+      entry_price: entryPrice,
       quantity: quantity,
-      quantityrate: quantityRate,
-      profitPrice: profitPrice,
-      lossPrice: lossPrice,
+      quantity_rate: quantityRate,
+      profit_price: profitPrice,
+      loss_price: lossPrice,
       leverage: leverage,
       balance: balance,
       identifier: identifier,
-      scoreid: Date.now().toString(),
+      score_id: Date.now().toString(),
       resultTerm: resultTerm,
     };
     // Update userid for firebase
     if (mode === "competition") {
-      tempObject.userid = auth.currentUser.uid;
+      tempObject.user_id = auth.currentUser.uid;
     }
     setOrderObject(tempObject);
     setConfirm((current) => !current);

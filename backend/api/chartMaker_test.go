@@ -39,7 +39,7 @@ func TestMakeChart(t *testing.T) {
 		Method    string
 		SetUpAuth func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker)
 		Body      interface{}
-		CheckResp func(resp *http.Response)
+		CheckResp func(resp *http.Response, pairs []string)
 	}{
 		{
 			Name:   "GetPracticeChart",
@@ -49,7 +49,7 @@ func TestMakeChart(t *testing.T) {
 				Names: "",
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {},
-			CheckResp: func(resp *http.Response) {
+			CheckResp: func(resp *http.Response, pairs []string) {
 				oc := new(OnePairChart)
 
 				require.Equal(t, fiber.StatusOK, resp.StatusCode)
@@ -70,7 +70,7 @@ func TestMakeChart(t *testing.T) {
 				require.NotNil(t, oc.OneChart.PData)
 				require.NotNil(t, oc.OneChart.VData)
 
-				require.Equal(t, info.Name, BTCUSDT)
+				require.Contains(t, pairs, info.Name)
 				require.Equal(t, info.Interval, db.OneH)
 				require.Equal(t, info.PriceFactor, float64(0))
 				require.Equal(t, info.VolumeFactor, float64(0))
@@ -87,7 +87,7 @@ func TestMakeChart(t *testing.T) {
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, user.UserID, time.Minute)
 			},
-			CheckResp: func(resp *http.Response) {
+			CheckResp: func(resp *http.Response, pairs []string) {
 				oc := new(OnePairChart)
 
 				require.Equal(t, fiber.StatusOK, resp.StatusCode)
@@ -108,7 +108,7 @@ func TestMakeChart(t *testing.T) {
 				require.NotNil(t, oc.OneChart.PData)
 				require.NotNil(t, oc.OneChart.VData)
 
-				require.Equal(t, info.Name, BTCUSDT)
+				require.Contains(t, pairs, info.Name)
 				require.Equal(t, info.Interval, db.OneH)
 				require.Greater(t, info.PriceFactor, float64(0))
 				require.Greater(t, info.VolumeFactor, float64(0))
@@ -124,7 +124,7 @@ func TestMakeChart(t *testing.T) {
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 			},
-			CheckResp: func(resp *http.Response) {
+			CheckResp: func(resp *http.Response, pairs []string) {
 				require.Equal(t, fiber.StatusUnauthorized, resp.StatusCode)
 			},
 		},
@@ -144,7 +144,7 @@ func TestMakeChart(t *testing.T) {
 			res, err := s.router.Test(req)
 			require.NoError(t, err)
 
-			tc.CheckResp(res)
+			tc.CheckResp(res, s.pairs)
 		})
 	}
 

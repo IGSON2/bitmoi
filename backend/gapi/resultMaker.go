@@ -1,41 +1,21 @@
-package api
+package gapi
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 const (
 	commissionRate = 0.0002
 )
 
-type OrderResult struct {
-	Stage        int32   `json:"stage"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entry_time"`
-	Leverage     int32   `json:"leverage"`
-	EntryPrice   float64 `json:"entry_price"`
-	EndPrice     float64 `json:"-"`
-	OutTime      int32   `json:"out_time"`
-	Roe          float64 `json:"roe"`
-	Pnl          float64 `json:"pnl"`
-	Commission   float64 `json:"commission"`
-	Isliquidated bool    `json:"is_liquidated"`
-}
-
-type ResultData struct {
-	OriginChart *CandleData  `json:"origin_chart"`
-	ResultChart *CandleData  `json:"result_chart"`
-	Score       *OrderResult `json:"score"`
-}
-
-func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createPracResult(order *pb.OrderRequest, c context.Context) (*pb.OrderResponse, error) {
 	pracInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(order.Identifier)
 	err := json.Unmarshal(infoByte, pracInfo)
@@ -46,14 +26,14 @@ func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultDat
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = ResultData{
+	var result = pb.OrderResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, order, practice, nil),
 	}
 	return &result, nil
 }
 
-func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context) (*pb.OrderResponse, error) {
 
 	compInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(compOrder.Identifier)
@@ -65,7 +45,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = ResultData{
+	var result = pb.OrderResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, compOrder, competition, compInfo),
 	}
@@ -82,7 +62,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	return &result, nil
 }
 
-func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, info *utilities.IdentificationData) *OrderResult {
+func calculateResult(resultchart *pb.CandleData, order *pb.OrderRequest, mode string, info *utilities.IdentificationData) *pb.Score {
 	var (
 		roe      float64
 		pnl      float64
@@ -98,7 +78,7 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, 
 	}
 
 	for idx, candle := range resultchart.PData {
-		if *order.IsLong {
+		if order.IsLong {
 			if candle.High >= order.ProfitPrice {
 				roe = float64(order.QuantityRate/100) * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
 				endIdx = idx + 1
@@ -140,7 +120,7 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, 
 	}
 	pnl = roe * float64(100/order.QuantityRate) * order.EntryPrice * order.Quantity
 
-	resultInfo := OrderResult{
+	score := pb.Score{
 		Stage:      order.Stage,
 		Name:       order.Name,
 		Leverage:   order.Leverage,
@@ -151,39 +131,39 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, 
 		Pnl:        math.Floor(pnl*common.Decimal) / common.Decimal,
 		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*common.Decimal) / common.Decimal,
 	}
-	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
-		resultInfo.Isliquidated = true
+	if order.Balance+score.Pnl-score.Commission < 1 {
+		score.IsLiquidated = true
 	}
-	return &resultInfo
+	return &score
 }
 
-func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTerm int, c *fiber.Ctx) (*CandleData, error) {
-	cdd := new(CandleData)
+func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTerm int, c context.Context) (*pb.CandleData, error) {
+	cdd := new(pb.CandleData)
 
 	switch info.Interval {
 	case db.OneD:
-		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneD, waitingTerm))})
+		candles, err := s.store.Get1dResult(c, db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneD, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FourH, waitingTerm))})
+		candles, err := s.store.Get4hResult(c, db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FourH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneH, waitingTerm))})
+		candles, err := s.store.Get1hResult(c, db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FifM, waitingTerm))})
+		candles, err := s.store.Get15mResult(c, db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FifM, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}

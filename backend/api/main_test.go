@@ -14,7 +14,7 @@ func newTestServer(t *testing.T, store db.Store) *Server {
 	c := utilities.GetConfig("../../.")
 
 	s, err := NewServer(c, store)
-	s.pairs = []string{BTCUSDT}
+	// s.pairs = []string{BTCUSDT}
 	require.NoError(t, err)
 	return s
 }

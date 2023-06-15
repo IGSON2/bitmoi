@@ -15,6 +15,7 @@ import (
 
 func TestGetStore(t *testing.T) {
 
+	// name := "BTCUSDT"
 	name := strings.ToUpper(utilities.MakeRanString(3)) + "USDT"
 	require.Equal(t, 7, len(name))
 
@@ -33,7 +34,7 @@ func TestGetStore(t *testing.T) {
 	ctx := context.Background()
 
 	for i := 0; i < 100; i++ {
-		iq := Insert4hCandlesParams{
+		iq := Insert1hCandlesParams{
 			Name:   name,
 			Open:   (price + 10) - float64(10*i),
 			Close:  (price - 10) - float64(10*i),
@@ -43,11 +44,11 @@ func TestGetStore(t *testing.T) {
 			Volume: volume - float64(i)*0.01,
 		}
 
-		_, err = testQueries.Insert4hCandles(ctx, iq)
+		_, err = testQueries.Insert1hCandles(ctx, iq)
 		require.NoError(t, err)
 	}
 
-	minmax, err := testQueries.Get4hMinMaxTime(ctx, name)
+	minmax, err := testQueries.Get1hMinMaxTime(ctx, name)
 	require.NoError(t, err)
 	require.NotEmpty(t, minmax)
 
@@ -65,14 +66,14 @@ func TestGetStore(t *testing.T) {
 	require.Greater(t, refTime, min)
 	require.Less(t, refTime, max)
 
-	gq := Get4hCandlesParams{
+	gq := Get1hCandlesParams{
 		Name:  name,
 		Time:  refTime,
 		Limit: 1000,
 	}
-	candles4h, err := testQueries.Get4hCandles(ctx, gq)
+	candles1h, err := testQueries.Get1hCandles(ctx, gq)
 	require.NoError(t, err)
-	require.Greater(t, len(candles4h), 0)
+	require.Greater(t, len(candles1h), 0)
 }
 
 func TestInsertUser(t *testing.T) {
