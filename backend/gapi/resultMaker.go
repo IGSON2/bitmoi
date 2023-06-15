@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 )
 
 const (
@@ -21,6 +20,9 @@ func (s *Server) createPracResult(order *pb.OrderRequest, c context.Context) (*p
 	err := json.Unmarshal(infoByte, pracInfo)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
+	}
+	if !pracInfo.IsZeroFactor() {
+		return nil, fmt.Errorf("factor is not set to 0, mode: practice")
 	}
 	resultchart, err := s.selectResultChart(pracInfo, int(order.WaitingTerm), c)
 	if err != nil {
@@ -41,6 +43,9 @@ func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
+	if compInfo.IsZeroFactor() {
+		return nil, fmt.Errorf("factor is set to 0, mode: competition")
+	}
 	resultchart, err := s.selectResultChart(compInfo, int(compOrder.WaitingTerm), c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
@@ -57,7 +62,7 @@ func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context)
 
 	result.OriginChart = originchart
 
-	result.Score.Name = result.ResultChart.PData[0].Name
+	result.Score.Name = compInfo.Name
 	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[len(originchart.PData)-1].Time)
 	return &result, nil
 }
@@ -71,10 +76,10 @@ func calculateResult(resultchart *pb.CandleData, order *pb.OrderRequest, mode st
 	)
 
 	if mode == competition {
-		order.EntryPrice = math.Floor(order.EntryPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.ProfitPrice = math.Floor(order.ProfitPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.LossPrice = math.Floor(order.LossPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.Quantity = math.Floor(order.Quantity*info.PriceFactor*common.Decimal) / common.Decimal
+		order.EntryPrice = common.FloorDecimal(order.EntryPrice / info.PriceFactor)
+		order.ProfitPrice = common.FloorDecimal(order.ProfitPrice / info.PriceFactor)
+		order.LossPrice = common.FloorDecimal(order.LossPrice / info.PriceFactor)
+		order.Quantity = common.FloorDecimal(order.Quantity * info.PriceFactor)
 	}
 
 	for idx, candle := range resultchart.PData {
@@ -125,11 +130,11 @@ func calculateResult(resultchart *pb.CandleData, order *pb.OrderRequest, mode st
 		Name:       order.Name,
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
-		EndPrice:   (math.Floor(endPrice*common.Decimal) / common.Decimal),
+		EndPrice:   common.FloorDecimal(endPrice),
 		OutTime:    int32(endIdx),
-		Roe:        (math.Floor(roe*common.Decimal*float64(order.Leverage)) / 100),
-		Pnl:        math.Floor(pnl*common.Decimal) / common.Decimal,
-		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*common.Decimal) / common.Decimal,
+		Roe:        common.FloorDecimal(roe*float64(order.Leverage)) * 100,
+		Pnl:        common.FloorDecimal(pnl),
+		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
 	}
 	if order.Balance+score.Pnl-score.Commission < 1 {
 		score.IsLiquidated = true

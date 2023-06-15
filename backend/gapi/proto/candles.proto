@@ -25,12 +25,11 @@ message CandleData {
 }
 
 message PriceData {
-    string name = 1 [json_name="-"];
-	double open = 2;
-	double close = 3;
-	double high = 4;
-	double low  = 5;
-	int64 time = 6;
+	double open = 1;
+	double close = 2;
+	double high = 3;
+	double low  = 4;
+	int64 time = 5;
 }
 
 message VolumeData {

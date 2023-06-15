@@ -1,3 +1,13 @@
+ifeq ($(OS),Windows_NT)
+	ifneq ($(ls backend/gapi/pb),)
+		DELETE_COMMAND=cd backend/gapi/pb&&del *pb.go
+	else
+		DELETE_COMMAND=echo "already empty"
+	endif
+else
+	DELETE_COMMAND=rm backend/gapi/pb/*pb.go
+endif
+
 sqlc:
 	sqlc generate
 
@@ -16,8 +26,10 @@ migratedown1:
 mock:
 	mockgen -package mockdb -destination backend/db/mock/store.go bitmoi/backend/db/sqlc Store
 
-proto:
-	rm -f backend/gapi/pb/*pb.go
+delete:
+	$(DELETE_COMMAND)
+
+proto: delete
 	protoc \
 	--proto_path=backend/gapi/proto --go_out=backend/gapi/pb \
 	--go_opt=paths=source_relative --go-grpc_out=backend/gapi/pb \
@@ -26,4 +38,6 @@ proto:
 	--validate_out="lang=go:backend/gapi/pb" --validate_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
-.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto
+checkos:
+	echo $(OS)
+.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto checkos

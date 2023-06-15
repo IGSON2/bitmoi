@@ -19,6 +19,10 @@ type IdentificationData struct {
 	TimeFactor   int64   `json:"ranpastdate"`
 }
 
+func (i *IdentificationData) IsZeroFactor() bool {
+	return i.PriceFactor == 0 || i.TimeFactor == 0 || i.VolumeFactor == 0
+}
+
 func Base64Encode(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }

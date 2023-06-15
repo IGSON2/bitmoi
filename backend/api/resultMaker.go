@@ -6,7 +6,6 @@ import (
 	"bitmoi/backend/utilities/common"
 	"encoding/json"
 	"fmt"
-	"math"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -77,7 +76,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 
 	result.OriginChart = originchart
 
-	result.Score.Name = result.ResultChart.PData[0].Name
+	result.Score.Name = compInfo.Name
 	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[len(originchart.PData)-1].Time)
 	return &result, nil
 }
@@ -91,10 +90,10 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, 
 	)
 
 	if mode == competition {
-		order.EntryPrice = math.Floor(order.EntryPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.ProfitPrice = math.Floor(order.ProfitPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.LossPrice = math.Floor(order.LossPrice/info.PriceFactor*common.Decimal) / common.Decimal
-		order.Quantity = math.Floor(order.Quantity*info.PriceFactor*common.Decimal) / common.Decimal
+		order.EntryPrice = common.FloorDecimal(order.EntryPrice / info.PriceFactor)
+		order.ProfitPrice = common.FloorDecimal(order.ProfitPrice / info.PriceFactor)
+		order.LossPrice = common.FloorDecimal(order.LossPrice / info.PriceFactor)
+		order.Quantity = common.FloorDecimal(order.Quantity * info.PriceFactor)
 	}
 
 	for idx, candle := range resultchart.PData {
@@ -145,11 +144,11 @@ func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, 
 		Name:       order.Name,
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
-		EndPrice:   (math.Floor(endPrice*common.Decimal) / common.Decimal),
+		EndPrice:   common.FloorDecimal(endPrice),
 		OutTime:    int32(endIdx),
-		Roe:        (math.Floor(roe*common.Decimal*float64(order.Leverage)) / 100),
-		Pnl:        math.Floor(pnl*common.Decimal) / common.Decimal,
-		Commission: math.Floor(commissionRate*order.EntryPrice*order.Quantity*common.Decimal) / common.Decimal,
+		Roe:        common.FloorDecimal(roe*float64(order.Leverage)) * 100,
+		Pnl:        common.FloorDecimal(pnl),
+		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
 	}
 	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
 		resultInfo.Isliquidated = true

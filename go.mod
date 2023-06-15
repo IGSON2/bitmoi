@@ -8,7 +8,6 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -39,10 +38,8 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/gofiber/utils v0.0.10 // indirect
 	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect

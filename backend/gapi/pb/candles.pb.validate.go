@@ -483,8 +483,6 @@ func (m *PriceData) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
-
 	// no validation rules for Open
 
 	// no validation rules for Close

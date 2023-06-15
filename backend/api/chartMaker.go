@@ -6,7 +6,6 @@ import (
 	"bitmoi/backend/utilities/common"
 	"errors"
 	"fmt"
-	"math"
 	"sort"
 	"time"
 
@@ -24,7 +23,6 @@ var (
 )
 
 type PriceData struct {
-	Name  string  `json:"-"`
 	Open  float64 `json:"open"`
 	Close float64 `json:"close"`
 	High  float64 `json:"high"`
@@ -48,6 +46,7 @@ type OnePairChart struct {
 	OneChart     *CandleData `json:"onechart"`
 	BtcRatio     float64     `json:"btcratio"`
 	EntryTime    string      `json:"entrytime"`
+	EntryPrice   float64     `json:"entry_price"`
 	Identifier   string      `json:"identifier"`
 	interval     string
 	refTimestamp int64
@@ -210,6 +209,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		oc.anonymization(prevStage)
 	} else {
 		oc.addIdentifier()
+		oc.EntryPrice = oc.OneChart.PData[len(oc.OneChart.PData)-1].Close
 	}
 	return oc, nil
 }
@@ -235,8 +235,8 @@ func (o *OnePairChart) setFactors() error {
 		return err
 	}
 
-	o.priceFactor = math.Floor(rf*common.Decimal/mins[0]) / common.Decimal
-	o.volumeFactor = math.Floor(rf*common.Decimal/vols[0]) / common.Decimal
+	o.priceFactor = common.FloorDecimal(rf / mins[0])
+	o.volumeFactor = common.FloorDecimal(rf / vols[0])
 	o.timeFactor = timeFactor
 
 	return nil
@@ -245,7 +245,7 @@ func (o *OnePairChart) setFactors() error {
 func (o *OnePairChart) anonymization(stage int) {
 
 	o.OneChart.encodeChart(o.priceFactor, o.volumeFactor, o.timeFactor)
-
+	o.EntryPrice = o.OneChart.PData[len(o.OneChart.PData)-1].Close
 	o.addIdentifier()
 	o.EntryTime = "Sometime"
 	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
@@ -266,20 +266,20 @@ func (o *OnePairChart) addIdentifier() {
 func (c *CandleData) encodeChart(pFactor, vFactor float64, tFactor int64) {
 	var tempPData []PriceData
 	var tempVData []VolumeData
+
 	for _, onebar := range c.PData {
 		newPbar := PriceData{
-			Name:  "",
-			Open:  math.Floor(onebar.Open*pFactor*common.Decimal) / common.Decimal,
-			Close: math.Floor(onebar.Close*pFactor*common.Decimal) / common.Decimal,
-			High:  math.Floor(onebar.High*pFactor*common.Decimal) / common.Decimal,
-			Low:   math.Floor(onebar.Low*pFactor*common.Decimal) / common.Decimal,
+			Open:  common.FloorDecimal(onebar.Open * pFactor),
+			Close: common.FloorDecimal(onebar.Close * pFactor),
+			High:  common.FloorDecimal(onebar.High * pFactor),
+			Low:   common.FloorDecimal(onebar.Low * pFactor),
 			Time:  onebar.Time - tFactor,
 		}
 		tempPData = append(tempPData, newPbar)
 	}
 	for _, onebar := range c.VData {
 		newVbar := VolumeData{
-			Value: math.Floor(onebar.Value*vFactor*common.Decimal) / common.Decimal,
+			Value: common.FloorDecimal(onebar.Value * vFactor),
 			Time:  onebar.Time - tFactor,
 			Color: onebar.Color,
 		}
@@ -299,5 +299,6 @@ func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
 	if !ok1 || !ok2 || !ok3 || !ok4 {
 		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
 	}
-	return math.Round(common.Decimal*(rp*rv)/(bp*bv)) / 100, nil
+
+	return common.RoundDecimal((rp*rv)/(bp*bv)) / 100, nil
 }
