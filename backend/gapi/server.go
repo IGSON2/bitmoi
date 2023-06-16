@@ -46,8 +46,8 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	return server, nil
 }
 
-func (s *Server) GetCandles(c context.Context, r *pb.GetCandlesRequest) (*pb.GetCandlesResponse, error) {
-	err, next, prevStage := validateAndGetNextPair(r, s.pairs)
+func (s *Server) RequestCandles(c context.Context, r *pb.GetCandlesRequest) (*pb.GetCandlesResponse, error) {
+	next, prevStage, err := validateAndGetNextPair(r, s.pairs)
 	if err != nil {
 		return nil, err
 	}
@@ -59,13 +59,17 @@ func (s *Server) GetCandles(c context.Context, r *pb.GetCandlesRequest) (*pb.Get
 		}
 		return convertGetCandlesRes(oc), nil
 	case competition:
+		p, err := s.authorizeUser(c)
+		if p.UserID != r.UserId {
+			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: %s", err)
+		}
 		oc, err := s.makeChartToRef(db.OneH, next, competition, prevStage, c)
 		if err != nil {
 			return nil, err
 		}
 		return convertGetCandlesRes(oc), nil
 	default:
-		return nil, fmt.Errorf("error: mode must be specified")
+		return nil, status.Errorf(codes.InvalidArgument, "mode must be specified")
 	}
 }
 
@@ -81,6 +85,10 @@ func (s *Server) PostScore(c context.Context, r *pb.OrderRequest) (*pb.OrderResp
 		}
 		return pracResult, nil
 	case competition:
+		p, err := s.authorizeUser(c)
+		if p.UserID != r.UserId {
+			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: %s", err)
+		}
 		compResult, err := s.createCompResult(r, c)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "%s", err)

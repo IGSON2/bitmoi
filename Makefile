@@ -5,7 +5,11 @@ ifeq ($(OS),Windows_NT)
 		DELETE_COMMAND=echo "already empty"
 	endif
 else
-	DELETE_COMMAND=rm backend/gapi/pb/*pb.go
+	ifneq ($(ls backend/gapi/pb),)
+		DELETE_COMMAND=rm backend/gapi/pb/*.go
+	else
+		DELETE_COMMAND=echo "already empty"
+	endif
 endif
 
 sqlc:
@@ -35,7 +39,6 @@ proto: delete
 	--go_opt=paths=source_relative --go-grpc_out=backend/gapi/pb \
 	--go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=backend/gapi/pb --grpc-gateway_opt=paths=source_relative \
-	--validate_out="lang=go:backend/gapi/pb" --validate_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
 checkos:

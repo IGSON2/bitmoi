@@ -5,24 +5,22 @@ package pb;
 option go_package = "bitmoi/backend/gapi/pb";
 
 import "candles.proto";
-import "validate/validate.proto";
 
 message OrderRequest {
-    string mode = 1 [(validate.rules).string = {in: ["practice","competition"]}];
-    string user_id = 2 [(validate.rules).string.min_bytes = 1];
-    string name = 3 [(validate.rules).string.min_bytes = 1];
-    int32 stage = 4 [(validate.rules).int32 = {gt: 0, lte: 10}];
+    string mode = 1;
+    string user_id = 2;
+    string name = 3;
+    int32 stage = 4;
 	bool is_long = 5;
-	double entry_price = 6 [(validate.rules).double.gt = 0];
-	double quantity = 7 [(validate.rules).double.gt = 0];
-	double quantity_rate  = 8 [(validate.rules).double = {gt: 0,lte:100}];
-	double profit_price  = 9 [(validate.rules).double.gte = 0];
-	double loss_price  = 10 [(validate.rules).double.gte = 0];
-	int32 leverage = 11 [(validate.rules).int32 = {gt: 0, lte: 100}];
-	double balance  = 12 [(validate.rules).double.gt = 0];
-    string identifier = 13 [(validate.rules).string.min_bytes = 1];
-    string score_id = 14 [(validate.rules).string.min_bytes = 1];
-    int32 waiting_term = 15 [(validate.rules).int32 = {gt: 0, lte: 30}];
+	double entry_price = 6 ;
+	double quantity = 7 ;
+	double profit_price  = 9 ;
+	double loss_price  = 10 ;
+	int32 leverage = 11;
+	double balance  = 12 ;
+    string identifier = 13 ;
+    string score_id = 14 ;
+    int32 waiting_term = 15;
 }
 
 message OrderResponse {

@@ -19,15 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Bitmoi_GetCandles_FullMethodName = "/pb.Bitmoi/GetCandles"
-	Bitmoi_PostScore_FullMethodName  = "/pb.Bitmoi/PostScore"
+	Bitmoi_RequestCandles_FullMethodName = "/pb.Bitmoi/RequestCandles"
+	Bitmoi_PostScore_FullMethodName      = "/pb.Bitmoi/PostScore"
 )
 
 // BitmoiClient is the client API for Bitmoi service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BitmoiClient interface {
-	GetCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
+	RequestCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
 	PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
 }
 
@@ -39,9 +39,9 @@ func NewBitmoiClient(cc grpc.ClientConnInterface) BitmoiClient {
 	return &bitmoiClient{cc}
 }
 
-func (c *bitmoiClient) GetCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
+func (c *bitmoiClient) RequestCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
 	out := new(GetCandlesResponse)
-	err := c.cc.Invoke(ctx, Bitmoi_GetCandles_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Bitmoi_RequestCandles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (c *bitmoiClient) PostScore(ctx context.Context, in *OrderRequest, opts ...
 // All implementations must embed UnimplementedBitmoiServer
 // for forward compatibility
 type BitmoiServer interface {
-	GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
+	RequestCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
 	PostScore(context.Context, *OrderRequest) (*OrderResponse, error)
 	mustEmbedUnimplementedBitmoiServer()
 }
@@ -70,8 +70,8 @@ type BitmoiServer interface {
 type UnimplementedBitmoiServer struct {
 }
 
-func (UnimplementedBitmoiServer) GetCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCandles not implemented")
+func (UnimplementedBitmoiServer) RequestCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestCandles not implemented")
 }
 func (UnimplementedBitmoiServer) PostScore(context.Context, *OrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostScore not implemented")
@@ -89,20 +89,20 @@ func RegisterBitmoiServer(s grpc.ServiceRegistrar, srv BitmoiServer) {
 	s.RegisterService(&Bitmoi_ServiceDesc, srv)
 }
 
-func _Bitmoi_GetCandles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bitmoi_RequestCandles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCandlesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BitmoiServer).GetCandles(ctx, in)
+		return srv.(BitmoiServer).RequestCandles(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Bitmoi_GetCandles_FullMethodName,
+		FullMethod: Bitmoi_RequestCandles_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BitmoiServer).GetCandles(ctx, req.(*GetCandlesRequest))
+		return srv.(BitmoiServer).RequestCandles(ctx, req.(*GetCandlesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -133,8 +133,8 @@ var Bitmoi_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BitmoiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetCandles",
-			Handler:    _Bitmoi_GetCandles_Handler,
+			MethodName: "RequestCandles",
+			Handler:    _Bitmoi_RequestCandles_Handler,
 		},
 		{
 			MethodName: "PostScore",

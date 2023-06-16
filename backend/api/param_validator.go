@@ -1,37 +1,49 @@
 package api
 
-import "fmt"
+import (
+	"bitmoi/backend/utilities/common"
+	"fmt"
+	"math"
+)
 
 type ChartRequestQuery struct {
 	Names string `json:"names"`
 }
 
 type OrderRequest struct {
-	Mode         string  `json:"mode" validate:"required,oneof=competition practice"`
-	UserId       string  `json:"user_id" validate:"required,alpha"`
-	Name         string  `json:"name" validate:"required"`
-	Stage        int32   `json:"stage" validate:"required,number,min=1,max=10"`
-	IsLong       *bool   `json:"is_long"  validate:"required,boolean"`
-	EntryPrice   float64 `json:"entry_price" validate:"required,number,gt=0"`
-	Quantity     float64 `json:"quantity" validate:"required,number,gt=0"`
-	QuantityRate float64 `json:"quantity_rate" validate:"required,number,gt=0,max=100"`
-	ProfitPrice  float64 `json:"profit_price" validate:"required,number,min=0"`
-	LossPrice    float64 `json:"loss_price" validate:"required,number,min=0"`
-	Leverage     int32   `json:"leverage" validate:"required,number,min=1,max=100"`
-	Balance      float64 `json:"balance" validate:"required,number,gt=0"`
-	Identifier   string  `json:"identifier"  validate:"required"`
-	ScoreId      string  `json:"score_id" validate:"required,numeric"`
-	WaitingTerm  int32   `json:"waiting_term" validate:"required,number,min=1,max=30"`
+	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
+	UserId      string  `json:"user_id" validate:"required,alpha"`
+	Name        string  `json:"name" validate:"required"`
+	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
+	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
+	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
+	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
+	ProfitPrice float64 `json:"profit_price" validate:"required,number,min=0"`
+	LossPrice   float64 `json:"loss_price" validate:"required,number,min=0"`
+	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
+	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
+	Identifier  string  `json:"identifier"  validate:"required"`
+	ScoreId     string  `json:"score_id" validate:"required,numeric"`
+	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=30"`
 }
 
 func validateOrderRequest(o *OrderRequest) error {
+	limit := math.Pow(float64(o.Leverage), float64(-1))
 	if *o.IsLong {
 		if !(o.EntryPrice < o.ProfitPrice && o.LossPrice < o.EntryPrice) {
-			return fmt.Errorf("check the profit and loss price. positon : %s, entry price : %f", long, o.EntryPrice)
+			return fmt.Errorf("check the profit and loss price. positon: %s, entry price: %f", long, o.EntryPrice)
+		}
+		if (o.EntryPrice-o.LossPrice)/o.EntryPrice > limit {
+			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
+				long, o.EntryPrice, o.LossPrice, o.Leverage, common.CeilDecimal(o.EntryPrice*(1-limit)))
 		}
 	} else {
 		if !(o.EntryPrice > o.ProfitPrice && o.LossPrice > o.EntryPrice) {
 			return fmt.Errorf("check the profit and loss price. positon : %s, entry price : %f", short, o.EntryPrice)
+		}
+		if (o.LossPrice-o.EntryPrice)/o.EntryPrice > limit {
+			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
+				short, o.EntryPrice, o.LossPrice, o.Leverage, common.FloorDecimal(o.EntryPrice*(1+limit)))
 		}
 	}
 

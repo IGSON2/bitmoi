@@ -8,6 +8,7 @@ func convertGetCandlesRes(o *OnePairChart) *pb.GetCandlesResponse {
 		Onechart:   o.OneChart,
 		Btcratio:   o.BtcRatio,
 		Entrytime:  o.EntryTime,
+		EntryPrice: o.EntryPrice,
 		Identifier: o.Identifier,
 	}
 }

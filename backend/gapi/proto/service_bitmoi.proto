@@ -9,15 +9,17 @@ import "order.proto";
 import "google/api/annotations.proto";
 
 service Bitmoi {
-    rpc GetCandles (GetCandlesRequest) returns (GetCandlesResponse){
+    rpc RequestCandles (GetCandlesRequest) returns (GetCandlesResponse){
         option (google.api.http)={
-            get:"/vi/get_candles"
+            post: "/v1/get_candles"
+            body: "*"
         };
     }
 
     rpc PostScore (OrderRequest) returns (OrderResponse){
         option (google.api.http)={
-            post:"/vi/post_score"
+            post: "/v1/post_score"
+            body: "*"
         };
     }
 }

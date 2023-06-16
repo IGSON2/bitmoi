@@ -82,57 +82,60 @@ func calculateResult(resultchart *pb.CandleData, order *pb.OrderRequest, mode st
 		order.Quantity = common.FloorDecimal(order.Quantity * info.PriceFactor)
 	}
 
+	maxQuantity := (float64(order.Leverage) * order.Balance) / order.EntryPrice
+	levQuanRate := float64(order.Leverage) * (order.Quantity / maxQuantity)
 	for idx, candle := range resultchart.PData {
 		if order.IsLong {
 			if candle.High >= order.ProfitPrice {
-				roe = float64(order.QuantityRate/100) * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if candle.Low <= order.LossPrice {
-				roe = float64(order.QuantityRate/100) * (order.LossPrice - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * (order.LossPrice - order.EntryPrice) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
-				roe = float64(order.QuantityRate/100) * (candle.Close - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * (candle.Close - order.EntryPrice) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.Close
 				break
 			}
 		} else {
 			if candle.Low <= order.ProfitPrice {
-				roe = float64(order.QuantityRate/100) * (order.EntryPrice - order.ProfitPrice) / order.EntryPrice
+				roe = levQuanRate * (order.EntryPrice - order.ProfitPrice) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if candle.High >= order.LossPrice {
-				roe = float64(order.QuantityRate/100) * (order.EntryPrice - order.LossPrice) / order.EntryPrice
+				roe = levQuanRate * (order.EntryPrice - order.LossPrice) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
-				roe = float64(order.QuantityRate/100) * (order.EntryPrice - candle.Close) / order.EntryPrice
+				roe = levQuanRate * (order.EntryPrice - candle.Close) / order.EntryPrice
 				endIdx = idx + 1
 				endPrice = candle.Close
 				break
 			}
 		}
 	}
-	pnl = roe * float64(100/order.QuantityRate) * order.EntryPrice * order.Quantity
+	pnl = (roe * order.Balance)
 
 	score := pb.Score{
 		Stage:      order.Stage,
 		Name:       order.Name,
 		Leverage:   order.Leverage,
 		EntryPrice: order.EntryPrice,
+		Entrytime:  utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time)),
 		EndPrice:   common.FloorDecimal(endPrice),
 		OutTime:    int32(endIdx),
-		Roe:        common.FloorDecimal(roe*float64(order.Leverage)) * 100,
+		Roe:        common.FloorDecimal(roe * 100),
 		Pnl:        common.FloorDecimal(pnl),
 		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
 	}

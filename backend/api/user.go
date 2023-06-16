@@ -121,7 +121,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 	}
 
 	_, err = s.store.CreateSession(c.Context(), db.CreateSessionParams{
-		SessionID:    refreshPayload.ID.String(),
+		SessionID:    refreshPayload.SessionID.String(),
 		UserID:       user.UserID,
 		RefreshToken: refreshToken,
 		UserAgent:    string(c.Request().Header.UserAgent()),
@@ -135,7 +135,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 	}
 
 	rsp := LoginUserResponse{
-		SessionID:             refreshPayload.ID,
+		SessionID:             refreshPayload.SessionID,
 		AccessToken:           accessToken,
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 		RefreshToken:          refreshToken,

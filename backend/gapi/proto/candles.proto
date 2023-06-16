@@ -4,11 +4,10 @@ package pb;
 
 option go_package = "bitmoi/backend/gapi/pb";
 
-import "validate/validate.proto";
-
 message GetCandlesRequest{
 	string names = 1;
-	string mode = 2 [(validate.rules).string = {in: ["practice","competition"]}];
+	string mode = 2;
+	string userId = 3;
 }
 
 message GetCandlesResponse{
@@ -16,7 +15,8 @@ message GetCandlesResponse{
 	CandleData onechart = 2;
 	double btcratio = 3;
 	string entrytime = 4;
-	string identifier = 5;
+	double entryPrice = 5;
+	string identifier = 6;
 }
 
 message CandleData {

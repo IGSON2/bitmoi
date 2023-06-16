@@ -47,7 +47,7 @@ type Querier interface {
 	GetScoreToStage(ctx context.Context, arg GetScoreToStageParams) (interface{}, error)
 	GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreIDParams) ([]Score, error)
 	GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error)
-	GetSession(ctx context.Context) (Session, error)
+	GetSession(ctx context.Context, sessionID string) (Session, error)
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
 	GetUser(ctx context.Context, userID string) (User, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)

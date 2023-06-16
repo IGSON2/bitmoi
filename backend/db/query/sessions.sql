@@ -1,6 +1,6 @@
 -- name: CreateSession :execresult
 INSERT INTO sessions (
-    session_id,
+  session_id,
   user_id,
   refresh_token,
   user_agent,
@@ -13,4 +13,4 @@ INSERT INTO sessions (
 
 -- name: GetSession :one
 SELECT * FROM sessions
-WHERE id = $1 LIMIT 1;
+WHERE session_id = ? LIMIT 1;

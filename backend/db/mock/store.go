@@ -592,18 +592,18 @@ func (mr *MockStoreMockRecorder) GetScoresByUserID(arg0, arg1 interface{}) *gomo
 }
 
 // GetSession mocks base method.
-func (m *MockStore) GetSession(arg0 context.Context) (db.Session, error) {
+func (m *MockStore) GetSession(arg0 context.Context, arg1 string) (db.Session, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSession", arg0)
+	ret := m.ctrl.Call(m, "GetSession", arg0, arg1)
 	ret0, _ := ret[0].(db.Session)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetSession indicates an expected call of GetSession.
-func (mr *MockStoreMockRecorder) GetSession(arg0 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) GetSession(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockStore)(nil).GetSession), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockStore)(nil).GetSession), arg0, arg1)
 }
 
 // GetStageLenByScoreID mocks base method.

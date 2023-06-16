@@ -35,7 +35,6 @@ func registerCustomValidation() {
 
 func (e *ErrorResponses) Error() string {
 	var errorString string
-
 	for _, response := range *e {
 		if response.FailedField != "" {
 			errorString += fmt.Sprintf("Field : %s, ", response.FailedField)

@@ -13,7 +13,7 @@ import (
 
 const createSession = `-- name: CreateSession :execresult
 INSERT INTO sessions (
-    session_id,
+  session_id,
   user_id,
   refresh_token,
   user_agent,
@@ -49,11 +49,11 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (s
 
 const getSession = `-- name: GetSession :one
 SELECT session_id, user_id, refresh_token, user_agent, client_ip, is_blocked, expires_at, created_at FROM sessions
-WHERE id = $1 LIMIT 1
+WHERE session_id = ? LIMIT 1
 `
 
-func (q *Queries) GetSession(ctx context.Context) (Session, error) {
-	row := q.db.QueryRowContext(ctx, getSession)
+func (q *Queries) GetSession(ctx context.Context, sessionID string) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSession, sessionID)
 	var i Session
 	err := row.Scan(
 		&i.SessionID,

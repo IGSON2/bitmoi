@@ -55,6 +55,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Get("/interval", server.sendInterval)
 	router.Get("/rank", server.rank)
 	router.Post("/rank", server.rank)
+	router.Get("/moreinfo", server.moreinfo)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
 
@@ -62,7 +63,6 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
-	authGroup.Get("/moreinfo", server.moreinfo)
 
 	server.router = router
 
@@ -223,6 +223,9 @@ func (s *Server) rank(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(ranks)
 	case "POST":
+		if err := authMiddleware(s.tokenMaker)(c); err != nil {
+			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
+		}
 		var r RankInsertRequest
 		err := c.BodyParser(&r)
 		if err != nil {
@@ -242,7 +245,7 @@ func (s *Server) rank(c *fiber.Ctx) error {
 
 func (s *Server) moreinfo(c *fiber.Ctx) error {
 	q := new(MoreInfoRequest)
-	if err := c.QueryParser(q); err != nil {
+	if err := c.BodyParser(q); err != nil {
 		return err
 	}
 	errs := utilities.ValidateStruct(q)
