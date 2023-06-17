@@ -8,7 +8,7 @@ const ResultPopup = (props) => {
   const auth = getAuth();
 
   const goRanking = () => {
-    fetch("http://www.bitmoi.net/api/ranking", {
+    fetch("http://localhost:5000/ranking", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

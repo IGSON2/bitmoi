@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -14,7 +15,7 @@ var (
 		Action: GetCandleData,
 		Name:   "store",
 		Usage:  "Store candles data form binance",
-		Flags:  []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, PairListFlage},
+		Flags:  []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, BackwardFlag, PairListFlage},
 	}
 )
 
@@ -39,11 +40,11 @@ func GetCandleData(ctx *cli.Context) error {
 
 	var cnt int
 	for _, name := range names {
-		err = f.StoreCandles(ctx.String("interval"), name, ctx.Int64("timestamp"), &cnt)
+		err = f.StoreCandles(ctx.String("interval"), name, ctx.Int64("timestamp"), ctx.Bool("backward"), &cnt)
 		if err != nil {
 			return fmt.Errorf("cannot store candles, err : %w", err)
 		}
 	}
-	f.Logger.Info().Msg("All pairs are stored completely")
+	log.Info().Msg("All pairs are stored completely")
 	return nil
 }

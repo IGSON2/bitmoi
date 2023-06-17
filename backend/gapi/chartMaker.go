@@ -40,27 +40,6 @@ type Charts struct {
 	Charts OnePairChart `json:"charts"`
 }
 
-func (s *Server) SelectMinMaxTime(interval, name string, c context.Context) (int64, int64, error) {
-	switch interval {
-	case db.OneD:
-		r, err := s.store.Get1dMinMaxTime(c, name)
-		return r.Min.(int64), r.Max.(int64), err
-	case db.FourH:
-		r, err := s.store.Get4hMinMaxTime(c, name)
-		return r.Min.(int64), r.Max.(int64), err
-	case db.OneH:
-		r, err := s.store.Get1hMinMaxTime(c, name)
-		return r.Min.(int64), r.Max.(int64), err
-	case db.FifM:
-		r, err := s.store.Get15mMinMaxTime(c, name)
-		return r.Min.(int64), r.Max.(int64), err
-	case db.FiveM:
-		r, err := s.store.Get5mMinMaxTime(c, name)
-		return r.Min.(int64), r.Max.(int64), err
-	}
-	return 0, 0, fmt.Errorf("invalid interval %s", interval)
-}
-
 func (s *Server) calcBtcRatio(interval, name string, refTimestamp int64, c context.Context) (float64, error) {
 	switch interval {
 	case db.OneD:
@@ -158,7 +137,7 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 
 func (s *Server) makeChartToRef(interval, name string, mode string, prevStage int, c context.Context) (*OnePairChart, error) {
 
-	min, max, err := s.SelectMinMaxTime(interval, name, c)
+	min, max, err := s.store.SelectMinMaxTime(interval, name, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}

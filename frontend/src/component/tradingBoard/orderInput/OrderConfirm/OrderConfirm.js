@@ -56,7 +56,7 @@ function Orderconfirm({
   };
   const finalConfirm = () => {
     const resultPromise = PostOrderJson(
-      "http://www.bitmoi.net/api/" + order.mode,
+      "http://localhost:5000/" + order.mode,
       order
     );
     resultPromise

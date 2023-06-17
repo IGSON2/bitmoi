@@ -31,7 +31,7 @@ function UserScore() {
   const getUserScore = async (i) => {
     // TODO: update userid for firebase
     const result = await fetch(
-      "http://www.bitmoi.net/api/myscore/?user=" +
+      "http://localhost:5000/myscore/?user=" +
         auth.currentUser.uid +
         "&index=" +
         `${i}` +

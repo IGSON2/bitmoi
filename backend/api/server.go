@@ -52,7 +52,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Get("/interval", server.sendInterval)
+	router.Post("/interval", server.sendInterval)
 	router.Get("/rank", server.rank)
 	router.Post("/rank", server.rank)
 	router.Get("/moreinfo", server.moreinfo)

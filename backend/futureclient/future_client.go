@@ -6,12 +6,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/adshao/go-binance/v2/futures"
 )
@@ -25,7 +24,6 @@ type FutureClient struct {
 	Store     db.Store
 	Pairs     []string
 	Yesterday int64
-	Logger    *zerolog.Logger
 }
 
 func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
@@ -34,14 +32,11 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open db store %w", err)
 	}
-	clientlogger := zerolog.New(os.Stdout)
-	zerolog.TimeFieldFormat = zerolog.TimestampFunc().Format("2006-01-02 15:04:05")
 
 	f := &FutureClient{
 		Client:    futures.NewClient(utilities.GetAPIKeys()),
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
-		Logger:    &clientlogger,
 	}
 	if getErr := f.GetAllPairs(); getErr != nil {
 		return nil, getErr
@@ -50,7 +45,7 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 }
 
 func (f *FutureClient) GetAllPairs() error {
-	f.Logger.Info().Msg("start to store all pair names")
+	log.Info().Msg("start to get all pair names")
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
@@ -60,31 +55,50 @@ func (f *FutureClient) GetAllPairs() error {
 			f.Pairs = append(f.Pairs, s.Symbol)
 		}
 	}
-	f.Logger.Info().Msg("all pair names ars stored completely")
+	log.Info().Msg("init all pair names completely")
 	return nil
 }
 
 // StoreCandles retrieves the candle data from the binance and stores it in db.
-// starttime -> endtime (current)
-func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt *int) error {
-	f.Logger.Info().Any("pair", name).Msg("Start to store")
-	endTime := f.Yesterday
-	var startTime int64
-	if timestamp <= 0 {
-		startTime = 0
-		f.Logger.Info().Any("start time", startTime).Msg(fmt.Sprintf("Timestamp dosen't specified. Set the start time %d candles before.", LimitCandlesNum))
+func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, backward bool, cnt *int) error {
+	log.Info().Any("pair", name).Msg("Start to store")
+	c := context.Background()
+	min, max, err := f.Store.SelectMinMaxTime(interval, name, c)
+	min, max = (min-32400)*1000, (max-32400)*1000
+	// TODO: min,max 모두 0인경우엔?
+	if err != nil {
+		log.Err(err).Msgf("cannot get min max timestamp name:%s interval:%s", name, interval)
+		return err
+	}
+
+	var (
+		startTime int64
+		endTime   int64
+	)
+
+	if backward {
+		endTime = getStartTime(min, interval, -1)
+		if min <= timestamp {
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is later than minimum timestamp.")
+			startTime = getStartTime(min, interval, -1*LimitCandlesNum)
+			log.Info().Msgf("start time was automatically set to timestamp before %d candles.", LimitCandlesNum)
+		}
 	} else {
-		startTime = timestamp
-		f.Logger.Info().Any("start time", startTime).Msg("EndTime set by received timestamp.")
+		startTime = getStartTime(max, interval, 1)
+		if timestamp <= max {
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is faster than maximum timestamp.")
+			endTime = getStartTime(min, interval, LimitCandlesNum)
+			log.Info().Msgf("end time was automatically set to timestamp after %d candles.", LimitCandlesNum)
+		}
 	}
 
 	info := initInsertInfo(interval)
 
 	for startTime <= endTime {
-		f.Logger.Info().Any("Start", utilities.TransMilli(startTime)).Any("End", utilities.TransMilli(endTime)).Msg("get klines")
+		log.Info().Any("Start", utilities.TransMilli(startTime)).Any("End", utilities.TransMilli(endTime)).Msg("get klines")
 
 		klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTime).EndTime(endTime).Limit(LimitCandlesNum).
-			Interval(interval).Do(context.Background())
+			Interval(interval).Do(c)
 		if err != nil {
 			return fmt.Errorf("cannot get kilnes, err :%w", err)
 		}
@@ -98,7 +112,6 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 				color = "rgba(239,83,80,0.5)"
 			}
 
-			// TODO : 자릿수 변환으로 인한 연속성 오류 해결 필요
 			info.SetCandleInfo(
 				utilities.StrToFloat(k.Open),
 				utilities.StrToFloat(k.Close),
@@ -113,36 +126,36 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, cnt 
 			switch interval {
 			case db.OneD:
 				param, _ := info.(*db.Insert1dCandlesParams)
-				_, err = f.Store.Insert1dCandles(context.Background(), *param)
+				_, err = f.Store.Insert1dCandles(c, *param)
 			case db.FourH:
 				param, _ := info.(*db.Insert4hCandlesParams)
-				_, err = f.Store.Insert4hCandles(context.Background(), *param)
+				_, err = f.Store.Insert4hCandles(c, *param)
 			case db.OneH:
 				param, _ := info.(*db.Insert1hCandlesParams)
-				_, err = f.Store.Insert1hCandles(context.Background(), *param)
+				_, err = f.Store.Insert1hCandles(c, *param)
 			case db.FifM:
 				param, _ := info.(*db.Insert15mCandlesParams)
-				_, err = f.Store.Insert15mCandles(context.Background(), *param)
+				_, err = f.Store.Insert15mCandles(c, *param)
 			}
 
 			if err != nil {
 				return fmt.Errorf("cannot insert candle into db err : %w", err)
 			}
 		}
-		startTime = getNextStartTime(startTime, interval, LimitCandlesNum)
+		startTime = getStartTime(startTime, interval, LimitCandlesNum)
 
 		*cnt++
 		if *cnt%900 == 0 {
-			f.Logger.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
+			log.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
 			time.Sleep(1 * time.Minute)
 		}
 	}
-	f.Logger.Info().Any("pair", name).Msg("stored complete.")
+	log.Info().Any("pair", name).Msg("stored complete.")
 	return nil
 }
 
-// getNextStartTime은 주어진 interval에 맞는 다음 요청에 필요한 starttime을 구합니다.
-func getNextStartTime(root int64, interval string, candles int) int64 {
+// getStartTime은 주어진 interval에 맞는 다음 요청에 필요한 starttime을 구합니다.
+func getStartTime(root int64, interval string, candles int) int64 {
 	intN, intU := db.ParseInterval(interval)
 
 	var start int64

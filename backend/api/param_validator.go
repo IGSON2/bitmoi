@@ -7,7 +7,7 @@ import (
 )
 
 type ChartRequestQuery struct {
-	Names string `json:"names"`
+	Names string `json:"names" query:"names"`
 }
 
 type OrderRequest struct {

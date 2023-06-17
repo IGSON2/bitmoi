@@ -18,7 +18,7 @@ function Ranking() {
     ],
   });
   const getUserScore = async () => {
-    const result = await fetch("http://www.bitmoi.net/api/ranking");
+    const result = await fetch("http://localhost:5000/ranking");
     const json = await result.json();
     setData(json);
   };

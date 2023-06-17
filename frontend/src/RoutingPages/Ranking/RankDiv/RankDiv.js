@@ -43,7 +43,7 @@ function RankDiv({ index, obj }) {
   const getMoreInfo = () => {
     if (!moreInfo) {
       fetch(
-        "http://www.bitmoi.net/api/moreinfo/?user=" +
+        "http://localhost:5000/moreinfo/?user=" +
           obj.user +
           "&index=0&scoreid=" +
           obj.scoreid

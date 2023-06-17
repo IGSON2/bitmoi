@@ -29,6 +29,6 @@ func TestGetInfo(t *testing.T) {
 	require.NotNil(t, f.Store)
 
 	var cnt int
-	err = f.StoreCandles(db.FourH, "BTCUSDT", 0, &cnt)
+	err = f.StoreCandles(db.FourH, "BTCUSDT", 0, true, &cnt)
 	require.NoError(t, err)
 }

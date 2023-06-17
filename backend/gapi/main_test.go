@@ -14,6 +14,10 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+var (
+	user = utilities.MakeRanString(6)
+)
+
 func newTestServer(t *testing.T, store db.Store) *Server {
 	c := utilities.GetConfig("../../.")
 

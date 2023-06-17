@@ -9,7 +9,6 @@ import {
 } from "react-icons/bs";
 import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
-import Mobile from "../Mobile/Mobile";
 
 function TradingBoard({ modeHeight, mode, setAdshow }) {
   const [fiveMinutes, setFiveMinutes] = useState();
@@ -24,7 +23,6 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
           high: 0,
           low: 0,
           open: 0,
-          // name: "",
           time: 0,
         },
       ],
@@ -45,7 +43,6 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
           high: 0,
           low: 0,
           open: 0,
-          // name: "",
           time: 0,
         },
       ],
@@ -95,32 +92,22 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "init":
         jsonData = await (
           await fetch(
-            "http://www.bitmoi.net/api/" +
-              mode +
-              "?names=" +
-              titleaArray.join("") +
-              "&interval=4h"
+            "http://localhost:5000/" + mode + "?names=" + titleaArray.join("")
           )
         ).json();
         setFiveMinutes();
         setFifteenMinutes();
         setFourHour();
-        setOneHour(jsonData.charts.onechart);
-        setCandles(jsonData.charts.onechart);
-        setIdentifier(jsonData.charts.identifier);
-        setName(jsonData.charts.name);
-        if (!current.includes("STAGE")) {
-          setTitleaArray((current) => [...current, jsonData.charts.name + ","]);
+        setOneHour(jsonData.onechart);
+        setCandles(jsonData.onechart);
+        setIdentifier(jsonData.identifier);
+        setName(jsonData.name);
+        if (!jsonData.name.includes("STAGE")) {
+          setTitleaArray((current) => [...current, jsonData.name + ","]);
         }
-        setBtcRatio(jsonData.charts.btcratio);
-        setEntryPrice(
-          Math.round(
-            jsonData.charts.onechart.pdata[
-              jsonData.charts.onechart.pdata.length - 1
-            ].close * 10000
-          ) / 10000
-        );
-        setEntryTime(jsonData.charts.entrytime);
+        setBtcRatio(jsonData.btcratio);
+        setEntryPrice(jsonData.entry_price);
+        setEntryTime(jsonData.entrytime);
         if (mode === "practice") {
           setAdshow(true);
         }
@@ -129,16 +116,21 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "5m":
         if (fiveMinutes === undefined) {
           jsonData = await (
-            await fetch(
-              "http://www.bitmoi.net/api/" +
-                mode +
-                "?names=" +
-                titleaArray.join("") +
-                "&interval=5m"
-            )
+            await fetch("http://localhost:5000/interval", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                reqinterval: "5m",
+                identifier: identifier,
+                mode: mode,
+                stage: titleaArray.length,
+              }),
+            })
           ).json();
-          setFiveMinutes(jsonData);
-          setCandles(jsonData);
+          setFiveMinutes(jsonData.onechart);
+          setCandles(jsonData.onechart);
         } else {
           setCandles(fiveMinutes);
         }
@@ -147,16 +139,21 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "15m":
         if (fifteenMinutes === undefined) {
           jsonData = await (
-            await fetch(
-              "http://www.bitmoi.net/api/" +
-                mode +
-                "?names=" +
-                titleaArray.join("") +
-                "&interval=15m"
-            )
+            await fetch("http://localhost:5000/interval", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                reqinterval: "15m",
+                identifier: identifier,
+                mode: mode,
+                stage: titleaArray.length,
+              }),
+            })
           ).json();
-          setFifteenMinutes(jsonData);
-          setCandles(jsonData);
+          setFifteenMinutes(jsonData.onechart);
+          setCandles(jsonData.onechart);
         } else {
           setCandles(fifteenMinutes);
         }
@@ -169,16 +166,21 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "4h":
         if (fourHour === undefined) {
           jsonData = await (
-            await fetch(
-              "http://www.bitmoi.net/api/" +
-                mode +
-                "?names=" +
-                titleaArray.join("") +
-                "&interval=4h"
-            )
+            await fetch("http://localhost:5000/interval", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                reqinterval: "4h",
+                identifier: identifier,
+                mode: mode,
+                stage: titleaArray.length,
+              }),
+            })
           ).json();
-          setFourHour(jsonData);
-          setCandles(jsonData);
+          setFourHour(jsonData.onechart);
+          setCandles(jsonData.onechart);
         } else {
           setCandles(fourHour);
         }
