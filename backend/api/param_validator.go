@@ -12,7 +12,7 @@ type ChartRequestQuery struct {
 
 type OrderRequest struct {
 	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
-	UserId      string  `json:"user_id" validate:"required,alpha"`
+	UserId      string  `json:"user_id" validate:"required,alphanum"`
 	Name        string  `json:"name" validate:"required"`
 	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
 	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
@@ -48,7 +48,7 @@ func validateOrderRequest(o *OrderRequest) error {
 	}
 
 	if (o.Balance * float64(o.Leverage)) < (o.Quantity * o.EntryPrice) {
-		return fmt.Errorf("invalid order. check your balance. order amound : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
+		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
 	}
 	return nil
 }

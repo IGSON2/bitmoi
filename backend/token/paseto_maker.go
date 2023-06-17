@@ -30,7 +30,6 @@ func (p *PasetoMaker) CreateToken(userID string, duration time.Duration) (string
 		return "", nil, err
 	}
 
-	// payload를 symmetrickey를 이용해 암호화.
 	token, err := p.paseto.Encrypt(p.symmetricKey, payload, nil)
 	return token, payload, err
 }

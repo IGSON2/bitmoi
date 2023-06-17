@@ -4,7 +4,6 @@ import (
 	"bitmoi/backend/utilities"
 	"database/sql"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,8 +14,8 @@ type ReissueAccessTokenRequest struct {
 }
 
 type ReissueAccessTokenResponse struct {
-	AccessToken          string `json:"access_token"`
-	AccessTokenExpiresAt string `json:"access_token_expires_at"`
+	AccessToken          string    `json:"access_token"`
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
 func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
@@ -40,41 +39,34 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	}
 
 	if session.IsBlocked {
-		err := fmt.Errorf("blocked session")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
+		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("session is blocked"))
 	}
 
-	if session.Username != refreshPayload.Username {
-		err := fmt.Errorf("incorrect session user")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
+	if session.UserID != refreshPayload.UserID {
+		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("user is incorrect"))
+
 	}
 
-	if session.RefreshToken != req.RefreshToken {
-		err := fmt.Errorf("mismatched session token")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
+	if session.RefreshToken != r.RefreshToken {
+		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("mismatched session token"))
 	}
 
 	if time.Now().After(session.ExpiresAt) {
-		err := fmt.Errorf("expired session")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
+		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("expired session"))
 	}
 
-	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
-		refreshPayload.Username,
-		server.config.AccessTokenDuration,
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
+		refreshPayload.UserID,
+		s.config.AccessTokenDuration,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot reissue access token: %s", err))
 	}
 
-	rsp := renewAccessTokenResponse{
+	rsp := ReissueAccessTokenResponse{
 		AccessToken:          accessToken,
 		AccessTokenExpiresAt: accessPayload.ExpiredAt,
 	}
-	ctx.JSON(http.StatusOK, rsp)
+
+	return c.Status(fiber.StatusOK).JSON(rsp)
 }

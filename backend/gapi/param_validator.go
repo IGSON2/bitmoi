@@ -38,7 +38,7 @@ func validateOrderRequest(o *pb.OrderRequest) error {
 	}
 
 	if (o.Balance * float64(o.Leverage)) < (o.Quantity * o.EntryPrice) {
-		return fmt.Errorf("invalid order. check your balance. order amound : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
+		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
 	}
 	if errs := utilities.ValidateStruct(convertOrderRequest(o)); errs != nil {
 		return fmt.Errorf("request validation error: %s", errs.Error())

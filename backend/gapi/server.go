@@ -60,8 +60,13 @@ func (s *Server) RequestCandles(c context.Context, r *pb.GetCandlesRequest) (*pb
 		return convertGetCandlesRes(oc), nil
 	case competition:
 		p, err := s.authorizeUser(c)
+
+		if p == nil || err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "cannot generate payload: err = %v, payload nil = %v", err, p == nil)
+		}
+
 		if p.UserID != r.UserId {
-			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: %s", err)
+			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: err = %v", err)
 		}
 		oc, err := s.makeChartToRef(db.OneH, next, competition, prevStage, c)
 		if err != nil {
@@ -86,6 +91,11 @@ func (s *Server) PostScore(c context.Context, r *pb.OrderRequest) (*pb.OrderResp
 		return pracResult, nil
 	case competition:
 		p, err := s.authorizeUser(c)
+
+		if p == nil || err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "cannot generate payload: err = %v, payload nil = %v", err, p == nil)
+		}
+
 		if p.UserID != r.UserId {
 			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: %s", err)
 		}

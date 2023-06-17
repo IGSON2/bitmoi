@@ -58,6 +58,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Get("/moreinfo", server.moreinfo)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
+	router.Post("/token/reissue_access", server.reissueAccessToken)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
