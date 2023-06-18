@@ -164,7 +164,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 				return fmt.Errorf("cannot insert candle into db err : %w", err)
 			}
 		}
-		startTime = getStartTime(startTime, interval, LimitCandlesNum)
+		startTime = getStartTime(startTime, interval, LimitCandlesNum) // TODO: startTime 뒤에서 시작하다가 앞으로 건너뜀
 
 		*cnt++
 		if *cnt%900 == 0 {

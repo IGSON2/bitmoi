@@ -41,6 +41,7 @@ proto: delete
 	--grpc-gateway_out=backend/gapi/pb --grpc-gateway_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
-checkos:
-	echo $(OS)
-.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto checkos
+rmi:
+	docker compose down && docker rmi bitmoi_api
+
+.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto rmi
