@@ -10,9 +10,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            // "args": ["store","--interval","4h","--timestamp","1684508400000","--pairs","BTC"]
+            "args": ["store","--interval=5m","--timestamp=1685545200000","--pairs=BTC","--backward=true"]
             // "args": ["store","--interval","15m","--timestamp","1682866800000","--pairs","BTC,ADA,ETC"]
-            "args": []
+            // "args": []
         }
     ]
 }

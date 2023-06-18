@@ -65,7 +65,6 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 	c := context.Background()
 	min, max, err := f.Store.SelectMinMaxTime(interval, name, c)
 	min, max = (min-32400)*1000, (max-32400)*1000
-	// TODO: min,max 모두 0인경우엔?
 	if err != nil {
 		log.Err(err).Msgf("cannot get min max timestamp name:%s interval:%s", name, interval)
 		return err
@@ -79,16 +78,32 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 	if backward {
 		endTime = getStartTime(min, interval, -1)
 		if min <= timestamp {
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is later than minimum timestamp.")
-			startTime = getStartTime(min, interval, -1*LimitCandlesNum)
-			log.Info().Msgf("start time was automatically set to timestamp before %d candles.", LimitCandlesNum)
+			if min <= 0 {
+				startTime = timestamp
+				endTime = f.Yesterday
+				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+			} else {
+				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is later than minimum timestamp.")
+				startTime = getStartTime(min, interval, -1*LimitCandlesNum)
+				log.Info().Msgf("start time has been set to before %d candles: %s", LimitCandlesNum, utilities.TransMilli(startTime))
+			}
+		} else {
+			startTime = timestamp
+			log.Info().Msgf("start time has been set to given timestamp %s", utilities.TransMilli(startTime))
 		}
 	} else {
 		startTime = getStartTime(max, interval, 1)
-		if timestamp <= max {
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is faster than maximum timestamp.")
-			endTime = getStartTime(min, interval, LimitCandlesNum)
-			log.Info().Msgf("end time was automatically set to timestamp after %d candles.", LimitCandlesNum)
+		if timestamp <= startTime {
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or faster than maximum timestamp.")
+			endTime = getStartTime(max, interval, LimitCandlesNum)
+			log.Info().Msgf("end time has been set to after %d candles: %s.", LimitCandlesNum, utilities.TransMilli(endTime))
+		} else if timestamp > max {
+			endTime = timestamp
+			log.Info().Msgf("end time has been set to given timestamp %s", utilities.TransMilli(endTime))
+		} else if max < 0 {
+			startTime = getStartTime(f.Yesterday, interval, -1*LimitCandlesNum)
+			endTime = f.Yesterday
+			log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 		}
 	}
 
@@ -136,6 +151,13 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 			case db.FifM:
 				param, _ := info.(*db.Insert15mCandlesParams)
 				_, err = f.Store.Insert15mCandles(c, *param)
+			case db.FiveM:
+				param, _ := info.(*db.Insert5mCandlesParams)
+				_, err = f.Store.Insert5mCandles(c, *param)
+			default:
+				err := fmt.Errorf("unsupported interval: %s", interval)
+				log.Err(err)
+				return err
 			}
 
 			if err != nil {
