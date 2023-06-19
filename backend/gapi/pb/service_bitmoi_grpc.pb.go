@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Bitmoi_RequestCandles_FullMethodName = "/pb.Bitmoi/RequestCandles"
-	Bitmoi_PostScore_FullMethodName      = "/pb.Bitmoi/PostScore"
+	Bitmoi_RequestCandles_FullMethodName  = "/pb.Bitmoi/RequestCandles"
+	Bitmoi_PostScore_FullMethodName       = "/pb.Bitmoi/PostScore"
+	Bitmoi_AnotherInterval_FullMethodName = "/pb.Bitmoi/AnotherInterval"
 )
 
 // BitmoiClient is the client API for Bitmoi service.
@@ -29,6 +30,7 @@ const (
 type BitmoiClient interface {
 	RequestCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
 	PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
+	AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
 }
 
 type bitmoiClient struct {
@@ -57,12 +59,22 @@ func (c *bitmoiClient) PostScore(ctx context.Context, in *OrderRequest, opts ...
 	return out, nil
 }
 
+func (c *bitmoiClient) AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
+	out := new(GetCandlesResponse)
+	err := c.cc.Invoke(ctx, Bitmoi_AnotherInterval_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BitmoiServer is the server API for Bitmoi service.
 // All implementations must embed UnimplementedBitmoiServer
 // for forward compatibility
 type BitmoiServer interface {
 	RequestCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
 	PostScore(context.Context, *OrderRequest) (*OrderResponse, error)
+	AnotherInterval(context.Context, *AnotherIntervalRequest) (*GetCandlesResponse, error)
 	mustEmbedUnimplementedBitmoiServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedBitmoiServer) RequestCandles(context.Context, *GetCandlesRequ
 }
 func (UnimplementedBitmoiServer) PostScore(context.Context, *OrderRequest) (*OrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostScore not implemented")
+}
+func (UnimplementedBitmoiServer) AnotherInterval(context.Context, *AnotherIntervalRequest) (*GetCandlesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AnotherInterval not implemented")
 }
 func (UnimplementedBitmoiServer) mustEmbedUnimplementedBitmoiServer() {}
 
@@ -125,6 +140,24 @@ func _Bitmoi_PostScore_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bitmoi_AnotherInterval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnotherIntervalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BitmoiServer).AnotherInterval(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Bitmoi_AnotherInterval_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BitmoiServer).AnotherInterval(ctx, req.(*AnotherIntervalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bitmoi_ServiceDesc is the grpc.ServiceDesc for Bitmoi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Bitmoi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PostScore",
 			Handler:    _Bitmoi_PostScore_Handler,
+		},
+		{
+			MethodName: "AnotherInterval",
+			Handler:    _Bitmoi_AnotherInterval_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

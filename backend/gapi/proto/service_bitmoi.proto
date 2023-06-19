@@ -6,6 +6,7 @@ option go_package = "bitmoi/backend/gapi/pb";
 
 import "candles.proto";
 import "order.proto";
+import "another_interval.proto";
 import "google/api/annotations.proto";
 
 service Bitmoi {
@@ -19,6 +20,13 @@ service Bitmoi {
     rpc PostScore (OrderRequest) returns (OrderResponse){
         option (google.api.http)={
             post: "/v1/post_score"
+            body: "*"
+        };
+    }
+
+    rpc AnotherInterval (AnotherIntervalRequest) returns (GetCandlesResponse){
+        option (google.api.http)={
+            post: "/v1/another_interval"
             body: "*"
         };
     }

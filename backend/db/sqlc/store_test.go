@@ -33,31 +33,54 @@ func TestGetStore(t *testing.T) {
 
 	ctx := context.Background()
 
-	for i := 0; i < 100; i++ {
-		iq := Insert1hCandlesParams{
+	for i := 0; i < 200; i++ {
+		iq1 := Insert1hCandlesParams{
 			Name:   name,
 			Open:   (price + 10) - float64(10*i),
 			Close:  (price - 10) - float64(10*i),
 			High:   (price + 15) - float64(10*i),
 			Low:    (price - 15) - float64(10*i),
-			Time:   timestamp - int64(i*14400),
+			Time:   timestamp - int64(i*3600),
 			Volume: volume - float64(i)*0.01,
 		}
 
-		_, err = testQueries.Insert1hCandles(ctx, iq)
+		_, err = testQueries.Insert1hCandles(ctx, iq1)
+		require.NoError(t, err)
+
+		iq15 := Insert15mCandlesParams{
+			Name:   name,
+			Open:   (price + 10) - float64(10*i),
+			Close:  (price - 10) - float64(10*i),
+			High:   (price + 15) - float64(10*i),
+			Low:    (price - 15) - float64(10*i),
+			Time:   timestamp - int64(i*900),
+			Volume: volume - float64(i)*0.01,
+		}
+
+		_, err = testQueries.Insert15mCandles(ctx, iq15)
+		require.NoError(t, err)
+
+		iq5 := Insert5mCandlesParams{
+			Name:   name,
+			Open:   (price + 10) - float64(10*i),
+			Close:  (price - 10) - float64(10*i),
+			High:   (price + 15) - float64(10*i),
+			Low:    (price - 15) - float64(10*i),
+			Time:   timestamp - int64(i*300),
+			Volume: volume - float64(i)*0.01,
+		}
+
+		_, err = testQueries.Insert5mCandles(ctx, iq5)
 		require.NoError(t, err)
 	}
 
-	minmax, err := testQueries.Get1hMinMaxTime(ctx, name)
+	//1h
+	minmax1, err := testQueries.Get1hMinMaxTime(ctx, name)
 	require.NoError(t, err)
-	require.NotEmpty(t, minmax)
+	require.NotEmpty(t, minmax1)
 
-	min, ok := minmax.Min.(int64)
-	require.Equal(t, true, ok)
-	require.Greater(t, min, timestamp-int64(1440000))
-
-	max, ok := minmax.Max.(int64)
-	require.Equal(t, true, ok)
+	min, max := minmax1.Convert()
+	require.Greater(t, min, timestamp-int64(3600*200))
 	require.Greater(t, max, min)
 
 	waitingTime := 24 * time.Hour.Seconds()
@@ -66,14 +89,60 @@ func TestGetStore(t *testing.T) {
 	require.Greater(t, refTime, min)
 	require.Less(t, refTime, max)
 
-	gq := Get1hCandlesParams{
+	gq1 := Get1hCandlesParams{
 		Name:  name,
 		Time:  refTime,
 		Limit: 1000,
 	}
-	candles1h, err := testQueries.Get1hCandles(ctx, gq)
+	candles1h, err := testQueries.Get1hCandles(ctx, gq1)
 	require.NoError(t, err)
 	require.Greater(t, len(candles1h), 0)
+
+	//15m
+	minmax15, err := testQueries.Get15mMinMaxTime(ctx, name)
+	require.NoError(t, err)
+	require.NotEmpty(t, minmax15)
+
+	min, max = minmax15.Convert()
+	require.Greater(t, min, timestamp-int64(900*200))
+	require.Greater(t, max, min)
+
+	waitingTime = 6 * time.Hour.Seconds()
+	refTime = max - int64(utilities.MakeRanInt(int(waitingTime), int(max-min)))
+	require.Greater(t, refTime, min)
+	require.Less(t, refTime, max)
+
+	gq15 := Get15mCandlesParams{
+		Name:  name,
+		Time:  refTime,
+		Limit: 1000,
+	}
+	candles15m, err := testQueries.Get15mCandles(ctx, gq15)
+	require.NoError(t, err)
+	require.Greater(t, len(candles15m), 0)
+
+	//5m
+	minmax5, err := testQueries.Get5mMinMaxTime(ctx, name)
+	require.NoError(t, err)
+	require.NotEmpty(t, minmax5)
+
+	min, max = minmax5.Convert()
+	require.Greater(t, min, timestamp-int64(300*200))
+	require.Greater(t, max, min)
+
+	waitingTime = 2 * time.Hour.Seconds()
+	refTime = max - int64(utilities.MakeRanInt(int(waitingTime), int(max-min)))
+	require.Greater(t, refTime, min)
+	require.Less(t, refTime, max)
+
+	gq5 := Get5mCandlesParams{
+		Name:  name,
+		Time:  refTime,
+		Limit: 1000,
+	}
+	candles5m, err := testQueries.Get5mCandles(ctx, gq5)
+	require.NoError(t, err)
+	require.Greater(t, len(candles5m), 0)
 }
 
 func TestInsertUser(t *testing.T) {

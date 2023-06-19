@@ -9,9 +9,10 @@ import (
 
 type Config struct {
 	SymmetricKey         string        `mapstructure:"SYMMETRIC_KEY"`
-	DBDriver             string        `mapstructure:"DB_Driver"`
+	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	HTTPAddress          string        `mapstructure:"HTTP_ADDRESS"`
+	GRPCHTTPAddress      string        `mapstructure:"GRPC_GATEWAY_ADDRESS"`
 	GRPCAddress          string        `mapstructure:"GRPC_ADDRESS"`
 	apikey               string        `mapstructure:"API_KEY"`
 	srckey               string        `mapstructure:"SRC_KEY"`

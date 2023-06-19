@@ -5,21 +5,13 @@ import (
 	"bitmoi/backend/app"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi"
-	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/utilities"
-	"context"
 	"database/sql"
 	"fmt"
-	"net"
-	"net/http"
 	"os"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 var bApp = app.NewApp()
@@ -45,9 +37,9 @@ func bitmoi(ctx *cli.Context) error {
 		return fmt.Errorf("cannot connect db %w", err)
 	}
 	dbStore := db.NewStore(conn)
-	go runHttpServer(config, dbStore)
 	go runGateWayServer(config, dbStore)
-	runGrpcServer(config, dbStore)
+	go runGrpcServer(config, dbStore)
+	runHttpServer(config, dbStore)
 	return nil
 }
 
@@ -56,18 +48,7 @@ func runGrpcServer(config *utilities.Config, store db.Store) {
 	if err != nil {
 		log.Panic().Err(err).Msg("cannot create gRPC server")
 	}
-
-	grpcServer := grpc.NewServer()
-	pb.RegisterBitmoiServer(grpcServer, server)
-	reflection.Register(grpcServer)
-
-	listener, err := net.Listen("tcp", config.GRPCAddress)
-	if err != nil {
-		log.Panic().Err(err).Msg("cannot create gRPC listener")
-	}
-
-	log.Info().Msgf("Start gRPC server at %s", listener.Addr().String())
-	log.Panic().Err(grpcServer.Serve(listener)).Msg("cannot start gRPC server")
+	go server.ListenGRPC()
 }
 
 func runHttpServer(config *utilities.Config, store db.Store) {
@@ -84,34 +65,5 @@ func runGateWayServer(config *utilities.Config, store db.Store) {
 	if err != nil {
 		log.Panic().Err(err).Msg("cannot create gateway server")
 	}
-
-	jsonOption := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{
-			UseProtoNames: true,
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{
-			DiscardUnknown: true,
-		},
-	})
-
-	grpcMux := runtime.NewServeMux(jsonOption)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	err = pb.RegisterBitmoiHandlerServer(ctx, grpcMux, server)
-	if err != nil {
-		log.Panic().Err(err).Msg("cannot register handler server")
-	}
-
-	mux := http.NewServeMux()
-	mux.Handle("/", grpcMux)
-
-	listener, err := net.Listen("tcp", "0.0.0.0:7001")
-	if err != nil {
-		log.Panic().Err(err).Msg("cannot create listener")
-	}
-
-	log.Info().Msgf("start HTTP gateway server at %s", listener.Addr().String())
-	log.Panic().Err(http.Serve(listener, mux)).Msg("cannot start HTTP gate werver")
+	go server.ListenGRPCGateWay()
 }

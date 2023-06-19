@@ -12,22 +12,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMakeChart(t *testing.T) {
+func TestAnotherInterval(t *testing.T) {
 
 	store := newTestStore(t)
 	s := newTestServer(t, store)
 	client := newGRPCClient(t)
 
+	// 1h 요청 -> 5m, 15m 해당 구간만큼 데이터 있어야함 -> 1h요청 identifier 해석 -> another interval요청 -> 결과 비교
+	// identifier := utilities.EncrtpByASE(utilities.IdentificationData{})
+
 	testCases := []struct {
 		Name      string
-		req       *pb.GetCandlesRequest
+		Req       *pb.AnotherIntervalRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
 		CheckResp func(res *pb.GetCandlesResponse, pairs []string, err error)
 	}{
 		{
 			Name: "OK_Practice",
-			req: &pb.GetCandlesRequest{
-				Names:  "",
+			Req: &pb.AnotherIntervalRequest{
 				Mode:   practice,
 				UserId: user,
 			},
@@ -57,8 +59,7 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name: "OK_Competition",
-			req: &pb.GetCandlesRequest{
-				Names:  "",
+			Req: &pb.AnotherIntervalRequest{
 				Mode:   competition,
 				UserId: user,
 			},
@@ -89,8 +90,7 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name: "No_Auth_Competition",
-			req: &pb.GetCandlesRequest{
-				Names:  "",
+			Req: &pb.AnotherIntervalRequest{
 				Mode:   competition,
 				UserId: "unauthorized user",
 			},
@@ -103,8 +103,7 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name: "Fail_Validation_Practice",
-			req: &pb.GetCandlesRequest{
-				Names:  "",
+			Req: &pb.AnotherIntervalRequest{
 				Mode:   "Unsupported",
 				UserId: user,
 			},
@@ -121,7 +120,7 @@ func TestMakeChart(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
 			ctx := tc.SetUpAuth(t, s.tokenMaker)
-			res, err := client.RequestCandles(ctx, tc.req)
+			res, err := client.AnotherInterval(ctx, tc.Req)
 			tc.CheckResp(res, s.pairs, err)
 		})
 	}

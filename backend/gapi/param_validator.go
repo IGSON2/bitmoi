@@ -1,13 +1,11 @@
 package gapi
 
 import (
-	"bitmoi/backend/api"
 	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
 	"fmt"
 	"math"
-	"strings"
 )
 
 const (
@@ -15,64 +13,52 @@ const (
 	short = "SHORT"
 )
 
-var modeValidations = []string{practice, competition}
+func validateOrderRequest(r *pb.OrderRequest) error {
+	if err := r.ValidateAll(); err != nil {
+		return fmt.Errorf("request validation error: %s", err.Error())
+	}
 
-func validateOrderRequest(o *pb.OrderRequest) error {
-	limit := math.Pow(float64(o.Leverage), float64(-1))
-	if o.IsLong {
-		if !(o.EntryPrice < o.ProfitPrice && o.LossPrice < o.EntryPrice) {
-			return fmt.Errorf("check the profit and loss price. positon: %s, entry price: %f", long, o.EntryPrice)
+	limit := math.Pow(float64(r.Leverage), float64(-1))
+	if r.IsLong {
+		if !(r.EntryPrice < r.ProfitPrice && r.LossPrice < r.EntryPrice) {
+			return fmt.Errorf("check the profit and loss price. positon: %s, entry price: %f", long, r.EntryPrice)
 		}
-		if (o.EntryPrice-o.LossPrice)/o.EntryPrice > limit {
+		if (r.EntryPrice-r.LossPrice)/r.EntryPrice > limit {
 			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
-				long, o.EntryPrice, o.LossPrice, o.Leverage, common.CeilDecimal(o.EntryPrice*(1-limit)))
+				long, r.EntryPrice, r.LossPrice, r.Leverage, common.CeilDecimal(r.EntryPrice*(1-limit)))
 		}
 	} else {
-		if !(o.EntryPrice > o.ProfitPrice && o.LossPrice > o.EntryPrice) {
-			return fmt.Errorf("check the profit and loss price. positon : %s, entry price : %f", short, o.EntryPrice)
+		if !(r.EntryPrice > r.ProfitPrice && r.LossPrice > r.EntryPrice) {
+			return fmt.Errorf("check the profit and loss price. positon : %s, entry price : %f", short, r.EntryPrice)
 		}
-		if (o.LossPrice-o.EntryPrice)/o.EntryPrice > limit {
+		if (r.LossPrice-r.EntryPrice)/r.EntryPrice > limit {
 			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
-				short, o.EntryPrice, o.LossPrice, o.Leverage, common.FloorDecimal(o.EntryPrice*(1+limit)))
+				short, r.EntryPrice, r.LossPrice, r.Leverage, common.FloorDecimal(r.EntryPrice*(1+limit)))
 		}
 	}
 
-	if (o.Balance * float64(o.Leverage)) < (o.Quantity * o.EntryPrice) {
-		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
-	}
-	if errs := utilities.ValidateStruct(convertOrderRequest(o)); errs != nil {
-		return fmt.Errorf("request validation error: %s", errs.Error())
+	if (r.Balance * float64(r.Leverage)) < (r.Quantity * r.EntryPrice) {
+		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", r.Quantity*r.EntryPrice, r.Balance*float64(r.Leverage))
 	}
 	return nil
 }
 
-func validateAndGetNextPair(g *pb.GetCandlesRequest, pairs []string) (string, int, error) {
-	if !strings.EqualFold(modeValidations[0], g.Mode) && !strings.EqualFold(modeValidations[1], g.Mode) {
-		return "", 10, fmt.Errorf("mode must be specified between practice or competition")
+func validateGetCandlesRequest(r *pb.GetCandlesRequest, pairs []string) (next string, prevStage int, err error) {
+	if err := r.ValidateAll(); err != nil {
+		return "", 10, err
 	}
-	history := utilities.Splitnames(g.Names)
-	prevStage := len(history)
+	history := utilities.Splitnames(r.Names)
+	prevStage = len(history)
 	if prevStage >= finalstage {
 		return "", 10, fmt.Errorf("invalid current stage")
 	}
-	return utilities.FindDiffPair(pairs, history), prevStage, nil
+	next = utilities.FindDiffPair(pairs, history)
+	return next, prevStage, nil
 }
 
-func convertOrderRequest(r *pb.OrderRequest) *api.OrderRequest {
-	return &api.OrderRequest{
-		Mode:        r.Mode,
-		UserId:      r.UserId,
-		Name:        r.Name,
-		Stage:       r.Stage,
-		IsLong:      &r.IsLong,
-		EntryPrice:  r.EntryPrice,
-		Quantity:    r.Quantity,
-		ProfitPrice: r.ProfitPrice,
-		LossPrice:   r.LossPrice,
-		Leverage:    r.Leverage,
-		Balance:     r.Balance,
-		Identifier:  r.Identifier,
-		ScoreId:     r.ScoreId,
-		WaitingTerm: r.WaitingTerm,
+func validateAnotherIntervalRequest(r *pb.AnotherIntervalRequest) error {
+	if err := r.ValidateAll(); err != nil {
+		return err
 	}
+	return nil
 }

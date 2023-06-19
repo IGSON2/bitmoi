@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
