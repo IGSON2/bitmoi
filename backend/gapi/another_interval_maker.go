@@ -32,10 +32,12 @@ func (s *Server) sendAnotherInterval(a *pb.AnotherIntervalRequest, c context.Con
 	}
 
 	var oc = &OnePairChart{
-		OneChart:  cdd,
-		EntryTime: utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
-		interval:  a.ReqInterval,
-		BtcRatio:  ratio,
+		Name:         originInfo.Name,
+		OneChart:     cdd,
+		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
+		BtcRatio:     ratio,
+		refTimestamp: originInfo.RefTimestamp,
+		interval:     a.ReqInterval,
 	}
 
 	if a.Mode == competition {
@@ -45,6 +47,7 @@ func (s *Server) sendAnotherInterval(a *pb.AnotherIntervalRequest, c context.Con
 		oc.anonymization(int(a.Stage) - 1)
 	} else {
 		oc.addIdentifier()
+		oc.EntryPrice = oc.OneChart.PData[len(oc.OneChart.PData)-1].Close
 	}
 	return oc, nil
 }
