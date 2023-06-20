@@ -100,94 +100,87 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 				return context.Background()
 			},
 		},
-		// {
-		// 	Name: OKPractice15m,
-		// 	CandleReq: &pb.GetCandlesRequest{
-		// 		Mode:   practice,
-		// 		UserId: "",
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FifM,
-		// 		Mode:        practice,
-		// 		UserId:      user,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		return context.Background()
-		// 	},
-		// },
-		// {
-		// 	Name: OKCompetition5m,
-		// 	CandleReq: &pb.GetCandlesRequest{
-		// 		Mode:   competition,
-		// 		UserId: user,
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FiveM,
-		// 		Mode:        competition,
-		// 		UserId:      user,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		token := generateTestAccessToken(t, tm)
-		// 		return addAuthHeaderIntoContext(t, token)
-		// 	},
-		// },
-		// {
-		// 	Name: OKCompetition15m,
-		// 	CandleReq: &pb.GetCandlesRequest{
-		// 		Mode:   competition,
-		// 		UserId: user,
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FifM,
-		// 		Mode:        competition,
-		// 		UserId:      user,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		token := generateTestAccessToken(t, tm)
-		// 		return addAuthHeaderIntoContext(t, token)
-		// 	},
-		// },
-		// {
-		// 	Name: FailCompetitionNoAuth,
-		// 	CandleReq: &pb.GetCandlesRequest{
-		// 		Mode:   competition,
-		// 		UserId: user,
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		Mode:   competition,
-		// 		UserId: "unauthorized user",
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		token := generateTestAccessToken(t, tm)
-		// 		return addAuthHeaderIntoContext(t, token)
-		// 	},
-		// 	CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
-		// 		require.Error(t, err)
-		// 	},
-		// },
-		// {
-		// 	Name: FailPracticeValidation,
-		// 	CandleReq: &pb.GetCandlesRequest{
-		// 		Mode:   competition,
-		// 		UserId: user,
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: "Unsupported",
-		// 		Mode:        competition,
-		// 		UserId:      user,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		token := generateTestAccessToken(t, tm)
-		// 		return addAuthHeaderIntoContext(t, token)
-		// 	},
-		// 	CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
-		// 		t.Log(err)
-		// 		require.Error(t, err)
-		// 	},
-		// },
+		{
+			Name: OKPractice15m,
+			CandleReq: &pb.GetCandlesRequest{
+				Mode:   practice,
+				UserId: "",
+			},
+			Req: &pb.AnotherIntervalRequest{
+				ReqInterval: db.FifM,
+				Mode:        practice,
+				UserId:      user,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				return context.Background()
+			},
+		},
+		{
+			Name: OKCompetition5m,
+			CandleReq: &pb.GetCandlesRequest{
+				Mode:   competition,
+				UserId: user,
+			},
+			Req: &pb.AnotherIntervalRequest{
+				ReqInterval: db.FiveM,
+				Mode:        competition,
+				UserId:      user,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				token := generateTestAccessToken(t, tm)
+				return addAuthHeaderIntoContext(t, token)
+			},
+		},
+		{
+			Name: OKCompetition15m,
+			CandleReq: &pb.GetCandlesRequest{
+				Mode:   competition,
+				UserId: user,
+			},
+			Req: &pb.AnotherIntervalRequest{
+				ReqInterval: db.FifM,
+				Mode:        competition,
+				UserId:      user,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				token := generateTestAccessToken(t, tm)
+				return addAuthHeaderIntoContext(t, token)
+			},
+		},
+		{
+			Name: FailCompetitionNoAuth,
+			CandleReq: &pb.GetCandlesRequest{
+				Mode:   competition,
+				UserId: user,
+			},
+			Req: &pb.AnotherIntervalRequest{
+				Mode:   competition,
+				UserId: "unauthorized user",
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				token := generateTestAccessToken(t, tm)
+				return addAuthHeaderIntoContext(t, token)
+			},
+		},
+		{
+			Name: FailPracticeValidation,
+			CandleReq: &pb.GetCandlesRequest{
+				Mode:   competition,
+				UserId: user,
+			},
+			Req: &pb.AnotherIntervalRequest{
+				ReqInterval: "Unsupported",
+				Mode:        competition,
+				UserId:      user,
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				token := generateTestAccessToken(t, tm)
+				return addAuthHeaderIntoContext(t, token)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
