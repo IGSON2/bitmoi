@@ -253,8 +253,11 @@ func testResponseWithRequest(t *testing.T, candleRes, res *pb.GetCandlesResponse
 	resClose := res.Onechart.PData[len(res.Onechart.PData)-1].Close
 	candleClose := candleRes.Onechart.PData[len(candleRes.Onechart.PData)-1].Close
 
+	resTime := res.Onechart.PData[len(res.Onechart.PData)-1].Time
+	candleTime := candleRes.Onechart.PData[len(candleRes.Onechart.PData)-1].Time
+
 	require.Equal(t, res.Name, candleRes.Name)
-	require.Equal(t, res.Onechart.PData[len(res.Onechart.PData)-1].Time, candleRes.Onechart.PData[len(candleRes.Onechart.PData)-1].Time)
+	require.Equal(t, resTime, candleTime)
 	require.GreaterOrEqual(t, float64(0.01), math.Abs(resClose-candleClose)/resClose) // 각 단위의 캔들의 종가의 차이가 1% 이하여야 함
 	require.Equal(t, res.EntryTime, candleRes.EntryTime)
 	require.GreaterOrEqual(t, float64(0.01), math.Abs(res.EntryPrice-candleRes.EntryPrice)/res.EntryPrice)
