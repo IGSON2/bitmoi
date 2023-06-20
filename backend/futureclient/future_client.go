@@ -61,7 +61,7 @@ func (f *FutureClient) GetAllPairs() error {
 
 // StoreCandles retrieves the candle data from the binance and stores it in db.
 func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, backward bool, cnt *int) error {
-	log.Info().Any("pair", name).Msg("Start to store")
+	log.Info().Any("pair", name).Any("interval", interval).Msg("Start to store")
 	c := context.Background()
 	min, max, err := f.Store.SelectMinMaxTime(interval, name, c)
 	min, max = (min-32400)*1000, (max-32400)*1000
@@ -83,9 +83,8 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 				endTime = f.Yesterday
 				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			} else {
-				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is later than minimum timestamp.")
-				startTime = getStartTime(min, interval, -1*LimitCandlesNum)
-				log.Info().Msgf("start time has been set to before %d candles: %s", LimitCandlesNum, utilities.TransMilli(startTime))
+				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is equal or more futuristic than minimum timestamp.")
+				return nil
 			}
 		} else {
 			startTime = timestamp
@@ -94,9 +93,8 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 	} else {
 		startTime = getStartTime(max, interval, 1)
 		if timestamp <= startTime {
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or faster than maximum timestamp.")
-			endTime = getStartTime(max, interval, LimitCandlesNum)
-			log.Info().Msgf("end time has been set to after %d candles: %s.", LimitCandlesNum, utilities.TransMilli(endTime))
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or more past than maximum timestamp.")
+			return nil
 		} else if timestamp > max {
 			endTime = timestamp
 			log.Info().Msgf("end time has been set to given timestamp %s", utilities.TransMilli(endTime))

@@ -95,7 +95,7 @@ Outer:
 	return ranName
 }
 
-func Splitnames(names string) []string {
+func SplitPairnames(names string) []string {
 	var splited []string
 	if names != "" {
 		splitted := strings.Split(names, ",")
@@ -108,31 +108,17 @@ func Splitnames(names string) []string {
 	return splited
 }
 
-func cycleByCase(start, end int64, intN int, intU string) int {
-	var howHours int
-	var cyclenum int
-	termsByHours := (end - start) / (1000 * 60 * 60)
-	howHours = int(termsByHours/250) + 1
-
-	fmt.Println("TermHours : ", termsByHours)
-	switch intU {
-	case "m":
-		switch intN {
-		case 5:
-			cyclenum = 3 * howHours
-		case 15:
-			cyclenum = howHours
+// SplitAndTrim splits input separated by a comma
+// and trims excessive white space from the substrings.
+func SplitAndTrim(input string) (ret []string) {
+	l := strings.Split(input, ",")
+	for _, r := range l {
+		if r = strings.TrimSpace(r); r != "" {
+			ret = append(ret, r)
 		}
-	case "h":
-		switch intN {
-		case 1:
-			cyclenum = int(howHours/4) + 1
-		case 4:
-			cyclenum = int(howHours/16) + 1
-		}
-	case "d":
-		cyclenum = int(howHours/96) + 1
 	}
-	fmt.Println("CycleNum : ", cyclenum)
-	return cyclenum
+	return ret
 }
+
+func ToDBTimestamp(binance int64) int64 { return (binance / 1000) + 32400 }
+func ToBinanceTimestamp(db int64) int64 { return (db - 32400) * 1000 }

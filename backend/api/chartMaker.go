@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -149,7 +150,7 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 func calculateRefTimestamp(section int64, name, interval string) int64 {
 	fiveMonth, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
 	if fiveMonth > float64(section) {
-		fmt.Printf("%s is Shorter than fiveMonth.\n", name)
+		log.Info().Msgf("%s is Shorter than fiveMonth.\n", name)
 	}
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
 }

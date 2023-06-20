@@ -20,6 +20,9 @@ func init() {
 	bApp.Commands = []*cli.Command{
 		app.StoreCommand,
 	}
+	bApp.Flags = []cli.Flag{
+		app.DatadirFlag,
+	}
 	bApp.Action = bitmoi
 }
 
@@ -32,23 +35,26 @@ func main() {
 
 func bitmoi(ctx *cli.Context) error {
 	config := utilities.GetConfig("./")
+	if path := ctx.String(app.DatadirFlag.Name); path != "" {
+		config.SetDataDir(path)
+	}
+
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		return fmt.Errorf("cannot connect db %w", err)
 	}
 	dbStore := db.NewStore(conn)
-	go runGateWayServer(config, dbStore)
-	go runGrpcServer(config, dbStore)
-	runHttpServer(config, dbStore)
-	return nil
-}
 
-func runGrpcServer(config *utilities.Config, store db.Store) {
-	server, err := gapi.NewServer(config, store)
+	server, err := gapi.NewServer(config, dbStore)
 	if err != nil {
 		log.Panic().Err(err).Msg("cannot create gRPC server")
 	}
+
 	go server.ListenGRPC()
+	go server.ListenGRPCGateWay()
+
+	runHttpServer(config, dbStore)
+	return nil
 }
 
 func runHttpServer(config *utilities.Config, store db.Store) {
@@ -58,12 +64,4 @@ func runHttpServer(config *utilities.Config, store db.Store) {
 	}
 
 	log.Panic().Err(server.Listen()).Msg("cannot start http server")
-}
-
-func runGateWayServer(config *utilities.Config, store db.Store) {
-	server, err := gapi.NewServer(config, store)
-	if err != nil {
-		log.Panic().Err(err).Msg("cannot create gateway server")
-	}
-	go server.ListenGRPCGateWay()
 }

@@ -48,7 +48,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router := fiber.New(fiber.Config{})
 
-	router.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
+	router.Use(allowOriginMiddleware, limiterMiddleware, server.createLoggerMiddleware())
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
@@ -83,7 +83,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
 
-		history := utilities.Splitnames(r.Names)
+		history := utilities.SplitPairnames(r.Names)
 		if len(history) >= finalstage {
 			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 		}
@@ -128,7 +128,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
-		history := utilities.Splitnames(r.Names)
+		history := utilities.SplitPairnames(r.Names)
 
 		if len(history) >= finalstage {
 			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")

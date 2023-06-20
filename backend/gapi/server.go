@@ -38,6 +38,9 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
+
+	setMultiLogger(c)
+
 	server := &Server{
 		config:     c,
 		store:      s,
@@ -54,7 +57,9 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 }
 
 func (s *Server) ListenGRPC() {
-	grpcServer := grpc.NewServer()
+	grpcInterceptor := grpc.UnaryInterceptor(GrpcLogger)
+	grpcServer := grpc.NewServer(grpcInterceptor)
+
 	pb.RegisterBitmoiServer(grpcServer, s)
 	reflection.Register(grpcServer)
 
@@ -62,7 +67,6 @@ func (s *Server) ListenGRPC() {
 	if err != nil {
 		log.Panic().Err(fmt.Errorf("cannot create gRPC listener: %w", err))
 	}
-
 	log.Info().Msgf("Start gRPC server at %s", listener.Addr().String())
 	log.Panic().Err(grpcServer.Serve(listener))
 }

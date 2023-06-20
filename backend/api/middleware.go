@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 const (
@@ -32,10 +31,6 @@ var (
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
 		},
-	})
-	loggerMiddleware = logger.New(logger.Config{
-		// For more options, see the Config section
-		Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}​\n",
 	})
 )
 

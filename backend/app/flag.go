@@ -2,6 +2,7 @@ package app
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/utilities"
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -10,7 +11,7 @@ import (
 var (
 	IntervalFlag = &cli.StringFlag{
 		Name:  "interval",
-		Usage: "Set interval to get. e.b : 5m 15m 1h 4h 1d",
+		Usage: "Set intervals to get. e.b : 5m,15m,1h,4h,1d",
 		Value: db.FourH,
 	}
 	TimestampFlag = &cli.Int64Flag{
@@ -28,9 +29,14 @@ var (
 		Usage: "If it's true, store candles before minimum timestamp otherwise, store candles after maximum timestamp",
 		Value: true,
 	}
-	PairListFlage = &cli.StringFlag{
+	PairListFlag = &cli.StringFlag{
 		Name:  "pairs",
 		Usage: "Specify pairs to get, type symbal and seperate by comma e.b : BTC,ETH",
 		Value: "",
+	}
+	DatadirFlag = &cli.StringFlag{
+		Name:  "datadir",
+		Usage: "Specify pairs to datadir path.",
+		Value: utilities.DefaultDataDir(),
 	}
 )

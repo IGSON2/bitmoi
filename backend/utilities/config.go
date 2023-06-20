@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Environment          string        `mapstructure:"ENVIRONMENT"`
 	SymmetricKey         string        `mapstructure:"SYMMETRIC_KEY"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
@@ -18,9 +19,14 @@ type Config struct {
 	srckey               string        `mapstructure:"SRC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
+	DataDir              string
 }
 
 var C *Config
+
+func (c *Config) SetDataDir(path string) {
+	c.DataDir = path
+}
 
 func GetConfig(path string) *Config {
 	if C == nil {
@@ -37,6 +43,7 @@ func GetConfig(path string) *Config {
 		if err := viper.Unmarshal(&C); err != nil {
 			log.Panicln("Err! cannot unmarshal config. Err : ", err)
 		}
+		C.SetDataDir(DefaultDataDir())
 	}
 	return C
 }

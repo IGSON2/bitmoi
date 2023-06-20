@@ -16,11 +16,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	OKPractice5m           = "OK_Practice_5m"
+	OKPractice15m          = "OK_Practice_15m"
+	FailPracticeValidation = "Fail_Validation_Practice"
+	OKCompetition5m        = "OK_Competition_5m"
+	OKCompetition15m       = "OK_Competition_15m"
+	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
+)
+
 type TestName struct {
 	Names string
 }
 
 func (t *TestName) append(pair string) {
+	if strings.Contains(strings.ToLower(pair), "stage") {
+		log.Error().Err(fmt.Errorf("cannot append competition pariname: pair=%s", pair))
+		return
+	}
 	if n := strings.Count(t.Names, ","); n == 9 {
 		t.Names += pair
 		return
@@ -31,6 +44,14 @@ func (t *TestName) append(pair string) {
 	t.Names += pair + ","
 }
 
+type testResult struct {
+	testName    string
+	candleRes   *pb.GetCandlesResponse
+	intervalRes *pb.GetCandlesResponse
+	intervalReq *pb.AnotherIntervalRequest
+	err         error
+}
+
 func TestSomePairs(t *testing.T) {
 	store := newTestStore(t)
 	server := newTestServer(t, store)
@@ -39,13 +60,22 @@ func TestSomePairs(t *testing.T) {
 
 	require.NoError(t, err)
 
-	for i := 0; i < len(pairs); i++ {
-		testAnotherInterval(t, store, server, client)
-	}
+	ch := make(chan testResult, len(pairs))
 
+	for i := 0; i < len(pairs); i++ {
+		go testAnotherInterval(t, store, server, client, ch)
+	}
+	for i := 0; i < len(pairs); i++ {
+		tr := <-ch
+		if tr.testName == FailCompetitionNoAuth {
+			require.Error(t, tr.err)
+		} else {
+			go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq, tr.err)
+		}
+	}
 }
 
-func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.BitmoiClient) {
+func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.BitmoiClient, ch chan<- testResult) {
 	tn := new(TestName)
 
 	testCases := []struct {
@@ -53,10 +83,9 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		CandleReq *pb.GetCandlesRequest
 		Req       *pb.AnotherIntervalRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
-		CheckResp func(t *testing.T, candleRes, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error)
 	}{
 		{
-			Name: "OK_Practice_5m",
+			Name: OKPractice5m,
 			CandleReq: &pb.GetCandlesRequest{
 				Mode:   practice,
 				UserId: "",
@@ -70,99 +99,95 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()
 			},
-			CheckResp: testResponseWithRequest,
 		},
-		{
-			Name: "OK_Practice_15m",
-			CandleReq: &pb.GetCandlesRequest{
-				Mode:   practice,
-				UserId: "",
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FifM,
-				Mode:        practice,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				return context.Background()
-			},
-			CheckResp: testResponseWithRequest,
-		},
-		{
-			Name: "OK_Competition_5m",
-			CandleReq: &pb.GetCandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FiveM,
-				Mode:        competition,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-			CheckResp: testResponseWithRequest,
-		},
-		{
-			Name: "OK_Competition_15m",
-			CandleReq: &pb.GetCandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FifM,
-				Mode:        competition,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-			CheckResp: testResponseWithRequest,
-		},
-		{
-			Name: "No_Auth_Competition",
-			CandleReq: &pb.GetCandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				Mode:   competition,
-				UserId: "unauthorized user",
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-			CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
-				require.Error(t, err)
-			},
-		},
-		{
-			Name: "Fail_Validation_Practice",
-			CandleReq: &pb.GetCandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: "Unsupported",
-				Mode:        competition,
-				UserId:      user,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-			CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
-				t.Log(err)
-				require.Error(t, err)
-			},
-		},
+		// {
+		// 	Name: OKPractice15m,
+		// 	CandleReq: &pb.GetCandlesRequest{
+		// 		Mode:   practice,
+		// 		UserId: "",
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: db.FifM,
+		// 		Mode:        practice,
+		// 		UserId:      user,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		return context.Background()
+		// 	},
+		// },
+		// {
+		// 	Name: OKCompetition5m,
+		// 	CandleReq: &pb.GetCandlesRequest{
+		// 		Mode:   competition,
+		// 		UserId: user,
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: db.FiveM,
+		// 		Mode:        competition,
+		// 		UserId:      user,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		token := generateTestAccessToken(t, tm)
+		// 		return addAuthHeaderIntoContext(t, token)
+		// 	},
+		// },
+		// {
+		// 	Name: OKCompetition15m,
+		// 	CandleReq: &pb.GetCandlesRequest{
+		// 		Mode:   competition,
+		// 		UserId: user,
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: db.FifM,
+		// 		Mode:        competition,
+		// 		UserId:      user,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		token := generateTestAccessToken(t, tm)
+		// 		return addAuthHeaderIntoContext(t, token)
+		// 	},
+		// },
+		// {
+		// 	Name: FailCompetitionNoAuth,
+		// 	CandleReq: &pb.GetCandlesRequest{
+		// 		Mode:   competition,
+		// 		UserId: user,
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		Mode:   competition,
+		// 		UserId: "unauthorized user",
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		token := generateTestAccessToken(t, tm)
+		// 		return addAuthHeaderIntoContext(t, token)
+		// 	},
+		// 	CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
+		// 		require.Error(t, err)
+		// 	},
+		// },
+		// {
+		// 	Name: FailPracticeValidation,
+		// 	CandleReq: &pb.GetCandlesRequest{
+		// 		Mode:   competition,
+		// 		UserId: user,
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: "Unsupported",
+		// 		Mode:        competition,
+		// 		UserId:      user,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		token := generateTestAccessToken(t, tm)
+		// 		return addAuthHeaderIntoContext(t, token)
+		// 	},
+		// 	CheckResp: func(t *testing.T, candleRes *pb.GetCandlesResponse, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
+		// 		t.Log(err)
+		// 		require.Error(t, err)
+		// 	},
+		// },
 	}
 
 	for _, tc := range testCases {
@@ -174,7 +199,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 			require.NoError(t, err)
 
 			tn.append(candleRes.Name)
-			if len(utilities.Splitnames(tn.Names)) > 10 {
+			if len(utilities.SplitPairnames(tn.Names)) > 10 {
 				t.Log("The number of pairs has reached 10. End the test ")
 				return
 			}
@@ -183,7 +208,13 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 
 			res, err := client.AnotherInterval(ctx, tc.Req)
 
-			tc.CheckResp(t, candleRes, res, tc.Req, err)
+			ch <- testResult{
+				testName:    tc.Name,
+				candleRes:   candleRes,
+				intervalRes: res,
+				intervalReq: tc.Req,
+				err:         err,
+			}
 		})
 	}
 

@@ -47,7 +47,7 @@ func validateGetCandlesRequest(r *pb.GetCandlesRequest, pairs []string) (next st
 	if err := r.ValidateAll(); err != nil {
 		return "", 10, err
 	}
-	history := utilities.Splitnames(r.Names)
+	history := utilities.SplitPairnames(r.Names)
 	prevStage = len(history)
 	if prevStage >= finalstage {
 		return "", 10, fmt.Errorf("invalid current stage")

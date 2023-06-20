@@ -18,8 +18,8 @@ const (
 )
 
 var (
-	ErrGetStageChart  = errors.New("server cannot get stage chart")
-	ErrGetResultChart = errors.New("server cannot get result chart")
+	ErrGetStageChart  = errors.New("server cannot get stage chart data from db")
+	ErrGetResultChart = errors.New("server cannot get result chart data from db")
 )
 
 type OnePairChart struct {
