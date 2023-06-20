@@ -142,6 +142,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
+	// refTimestamp가 이상하다
 	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
 	cdd, err := s.selectStageChart(name, interval, refTimestamp, c)
 	if err != nil {
