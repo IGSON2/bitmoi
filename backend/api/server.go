@@ -52,7 +52,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Post("/interval", server.sendInterval)
+	router.Get("/interval", server.sendInterval)
 	router.Get("/rank", server.rank)
 	router.Post("/rank", server.rank)
 	router.Get("/moreinfo", server.moreinfo)
@@ -60,7 +60,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Post("/user/login", server.loginUser)
 	router.Post("/token/reissue_access", server.reissueAccessToken)
 
-	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
+	authGroup := router.Group("/auth", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
@@ -77,7 +77,7 @@ func (s *Server) Listen() error {
 func (s *Server) practice(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		r := new(ChartRequestQuery)
+		r := new(CandlesRequest)
 		err := c.QueryParser(r)
 		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
@@ -94,7 +94,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
-		var PracticeOrder OrderRequest
+		var PracticeOrder ScoreRequest
 		err := c.BodyParser(&PracticeOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
@@ -123,7 +123,7 @@ func (s *Server) practice(c *fiber.Ctx) error {
 func (s *Server) competition(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		r := new(ChartRequestQuery)
+		r := new(CandlesRequest)
 		err := c.QueryParser(r)
 		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
@@ -140,7 +140,7 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(oc)
 	case "POST":
-		var CompetitionOrder OrderRequest
+		var CompetitionOrder ScoreRequest
 		err := c.BodyParser(&CompetitionOrder)
 		if err != nil || CompetitionOrder.Mode != competition {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%s, mode : %s", err, CompetitionOrder.Mode))

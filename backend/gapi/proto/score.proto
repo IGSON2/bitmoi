@@ -7,7 +7,7 @@ option go_package = "bitmoi/backend/gapi/pb";
 import "candles.proto";
 import "validate/validate.proto";
 
-message OrderRequest {
+message ScoreRequest {
 	string mode = 1 [(validate.rules).string = {in: ["practice","competition"]}];
     string user_id = 2 [(validate.rules).string.min_bytes = 1];
     string name = 3 [(validate.rules).string.min_bytes = 1];
@@ -24,7 +24,7 @@ message OrderRequest {
     int32 waiting_term = 15 [(validate.rules).int32 = {gt: 0, lte: 30}];
 }
 
-message OrderResponse {
+message ScoreResponse {
 	CandleData origin_chart = 1;
 	CandleData result_chart = 2;
 	Score score = 3;

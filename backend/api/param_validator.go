@@ -6,11 +6,11 @@ import (
 	"math"
 )
 
-type ChartRequestQuery struct {
+type CandlesRequest struct {
 	Names string `json:"names" query:"names"`
 }
 
-type OrderRequest struct {
+type ScoreRequest struct {
 	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
 	UserId      string  `json:"user_id" validate:"required,alphanum"`
 	Name        string  `json:"name" validate:"required"`
@@ -27,7 +27,7 @@ type OrderRequest struct {
 	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=30"`
 }
 
-func validateOrderRequest(o *OrderRequest) error {
+func validateOrderRequest(o *ScoreRequest) error {
 	limit := math.Pow(float64(o.Leverage), float64(-1))
 	if *o.IsLong {
 		if !(o.EntryPrice < o.ProfitPrice && o.LossPrice < o.EntryPrice) {

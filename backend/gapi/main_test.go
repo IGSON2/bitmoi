@@ -20,7 +20,11 @@ import (
 )
 
 var (
-	user = utilities.MakeRanString(6)
+	user   = utilities.MakeRanString(6)
+	server *Server
+	store  db.Store
+	client pb.BitmoiClient
+	pairs  []string
 )
 
 func newTestServer(t *testing.T, store db.Store) *Server {
@@ -28,7 +32,6 @@ func newTestServer(t *testing.T, store db.Store) *Server {
 
 	s, err := NewServer(c, store)
 	require.NoError(t, err)
-
 	go s.ListenGRPC()
 	go s.ListenGRPCGateWay()
 	return s

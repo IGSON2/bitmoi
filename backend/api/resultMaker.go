@@ -28,13 +28,13 @@ type OrderResult struct {
 	Isliquidated bool    `json:"is_liquidated"`
 }
 
-type ResultData struct {
+type ScoreResponse struct {
 	OriginChart *CandleData  `json:"origin_chart"`
 	ResultChart *CandleData  `json:"result_chart"`
 	Score       *OrderResult `json:"score"`
 }
 
-func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResponse, error) {
 	pracInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(order.Identifier)
 	err := json.Unmarshal(infoByte, pracInfo)
@@ -45,7 +45,7 @@ func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultDat
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = ResultData{
+	var result = ScoreResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, order, practice, nil),
 	}
@@ -54,7 +54,7 @@ func (s *Server) createPracResult(order *OrderRequest, c *fiber.Ctx) (*ResultDat
 	return &result, nil
 }
 
-func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*ResultData, error) {
+func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*ScoreResponse, error) {
 
 	compInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(compOrder.Identifier)
@@ -66,7 +66,7 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = ResultData{
+	var result = ScoreResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, compOrder, competition, compInfo),
 	}
@@ -79,11 +79,11 @@ func (s *Server) createCompResult(compOrder *OrderRequest, c *fiber.Ctx) (*Resul
 	result.OriginChart = originchart
 
 	result.Score.Name = compInfo.Name
-	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[len(originchart.PData)-1].Time)
+	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[0].Time)
 	return &result, nil
 }
 
-func calculateResult(resultchart *CandleData, order *OrderRequest, mode string, info *utilities.IdentificationData) *OrderResult {
+func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, info *utilities.IdentificationData) *OrderResult {
 	var (
 		roe      float64
 		pnl      float64

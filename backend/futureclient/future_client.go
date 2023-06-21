@@ -159,12 +159,14 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 			}
 
 			if err != nil {
+				if strings.Contains(err.Error(), "Duplicate entry") {
+					continue
+				}
 				return fmt.Errorf("cannot insert candle into db err : %w", err)
 			}
 		}
 
-		// TODO: startTime 뒤에서 시작하다가 앞으로 건너뜀
-		startTime = getStartTime(startTime, interval, LimitCandlesNum)
+		startTime = klines[len(klines)-1].CloseTime + 1
 
 		*cnt++
 		if *cnt%900 == 0 {

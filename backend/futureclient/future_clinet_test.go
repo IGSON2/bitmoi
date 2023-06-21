@@ -10,7 +10,7 @@ import (
 )
 
 func TestExchangeInfo(t *testing.T) {
-	f, err := NewFutureClient(utilities.GetConfig("../../../."))
+	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
@@ -24,11 +24,11 @@ func TestExchangeInfo(t *testing.T) {
 }
 
 func TestGetInfo(t *testing.T) {
-	f, err := NewFutureClient(utilities.GetConfig("../../../."))
+	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)
 
 	var cnt int
-	err = f.StoreCandles(db.FourH, "BTCUSDT", 0, true, &cnt)
+	err = f.StoreCandles(db.FiveM, "XRPUSDT", 1686355200000, true, &cnt)
 	require.NoError(t, err)
 }

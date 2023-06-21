@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.30.0
 // 	protoc        v3.21.9
-// source: order.proto
+// source: score.proto
 
 package pb
 
@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type OrderRequest struct {
+type ScoreRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -42,23 +42,23 @@ type OrderRequest struct {
 	WaitingTerm int32   `protobuf:"varint,15,opt,name=waiting_term,json=waitingTerm,proto3" json:"waiting_term,omitempty"`
 }
 
-func (x *OrderRequest) Reset() {
-	*x = OrderRequest{}
+func (x *ScoreRequest) Reset() {
+	*x = ScoreRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_order_proto_msgTypes[0]
+		mi := &file_score_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *OrderRequest) String() string {
+func (x *ScoreRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OrderRequest) ProtoMessage() {}
+func (*ScoreRequest) ProtoMessage() {}
 
-func (x *OrderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_order_proto_msgTypes[0]
+func (x *ScoreRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_score_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -69,110 +69,110 @@ func (x *OrderRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OrderRequest.ProtoReflect.Descriptor instead.
-func (*OrderRequest) Descriptor() ([]byte, []int) {
-	return file_order_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use ScoreRequest.ProtoReflect.Descriptor instead.
+func (*ScoreRequest) Descriptor() ([]byte, []int) {
+	return file_score_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *OrderRequest) GetMode() string {
+func (x *ScoreRequest) GetMode() string {
 	if x != nil {
 		return x.Mode
 	}
 	return ""
 }
 
-func (x *OrderRequest) GetUserId() string {
+func (x *ScoreRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
 	return ""
 }
 
-func (x *OrderRequest) GetName() string {
+func (x *ScoreRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *OrderRequest) GetStage() int32 {
+func (x *ScoreRequest) GetStage() int32 {
 	if x != nil {
 		return x.Stage
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetIsLong() bool {
+func (x *ScoreRequest) GetIsLong() bool {
 	if x != nil {
 		return x.IsLong
 	}
 	return false
 }
 
-func (x *OrderRequest) GetEntryPrice() float64 {
+func (x *ScoreRequest) GetEntryPrice() float64 {
 	if x != nil {
 		return x.EntryPrice
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetQuantity() float64 {
+func (x *ScoreRequest) GetQuantity() float64 {
 	if x != nil {
 		return x.Quantity
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetProfitPrice() float64 {
+func (x *ScoreRequest) GetProfitPrice() float64 {
 	if x != nil {
 		return x.ProfitPrice
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetLossPrice() float64 {
+func (x *ScoreRequest) GetLossPrice() float64 {
 	if x != nil {
 		return x.LossPrice
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetLeverage() int32 {
+func (x *ScoreRequest) GetLeverage() int32 {
 	if x != nil {
 		return x.Leverage
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetBalance() float64 {
+func (x *ScoreRequest) GetBalance() float64 {
 	if x != nil {
 		return x.Balance
 	}
 	return 0
 }
 
-func (x *OrderRequest) GetIdentifier() string {
+func (x *ScoreRequest) GetIdentifier() string {
 	if x != nil {
 		return x.Identifier
 	}
 	return ""
 }
 
-func (x *OrderRequest) GetScoreId() string {
+func (x *ScoreRequest) GetScoreId() string {
 	if x != nil {
 		return x.ScoreId
 	}
 	return ""
 }
 
-func (x *OrderRequest) GetWaitingTerm() int32 {
+func (x *ScoreRequest) GetWaitingTerm() int32 {
 	if x != nil {
 		return x.WaitingTerm
 	}
 	return 0
 }
 
-type OrderResponse struct {
+type ScoreResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -182,23 +182,23 @@ type OrderResponse struct {
 	Score       *Score      `protobuf:"bytes,3,opt,name=score,proto3" json:"score,omitempty"`
 }
 
-func (x *OrderResponse) Reset() {
-	*x = OrderResponse{}
+func (x *ScoreResponse) Reset() {
+	*x = ScoreResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_order_proto_msgTypes[1]
+		mi := &file_score_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *OrderResponse) String() string {
+func (x *ScoreResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OrderResponse) ProtoMessage() {}
+func (*ScoreResponse) ProtoMessage() {}
 
-func (x *OrderResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_order_proto_msgTypes[1]
+func (x *ScoreResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_score_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,26 +209,26 @@ func (x *OrderResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OrderResponse.ProtoReflect.Descriptor instead.
-func (*OrderResponse) Descriptor() ([]byte, []int) {
-	return file_order_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use ScoreResponse.ProtoReflect.Descriptor instead.
+func (*ScoreResponse) Descriptor() ([]byte, []int) {
+	return file_score_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *OrderResponse) GetOriginChart() *CandleData {
+func (x *ScoreResponse) GetOriginChart() *CandleData {
 	if x != nil {
 		return x.OriginChart
 	}
 	return nil
 }
 
-func (x *OrderResponse) GetResultChart() *CandleData {
+func (x *ScoreResponse) GetResultChart() *CandleData {
 	if x != nil {
 		return x.ResultChart
 	}
 	return nil
 }
 
-func (x *OrderResponse) GetScore() *Score {
+func (x *ScoreResponse) GetScore() *Score {
 	if x != nil {
 		return x.Score
 	}
@@ -256,7 +256,7 @@ type Score struct {
 func (x *Score) Reset() {
 	*x = Score{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_order_proto_msgTypes[2]
+		mi := &file_score_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -269,7 +269,7 @@ func (x *Score) String() string {
 func (*Score) ProtoMessage() {}
 
 func (x *Score) ProtoReflect() protoreflect.Message {
-	mi := &file_order_proto_msgTypes[2]
+	mi := &file_score_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -282,7 +282,7 @@ func (x *Score) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Score.ProtoReflect.Descriptor instead.
 func (*Score) Descriptor() ([]byte, []int) {
-	return file_order_proto_rawDescGZIP(), []int{2}
+	return file_score_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Score) GetStage() int32 {
@@ -362,14 +362,14 @@ func (x *Score) GetIsLiquidated() bool {
 	return false
 }
 
-var File_order_proto protoreflect.FileDescriptor
+var File_score_proto protoreflect.FileDescriptor
 
-var file_order_proto_rawDesc = []byte{
-	0x0a, 0x0b, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x02, 0x70,
+var file_score_proto_rawDesc = []byte{
+	0x0a, 0x0b, 0x73, 0x63, 0x6f, 0x72, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x02, 0x70,
 	0x62, 0x1a, 0x0d, 0x63, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x1a, 0x17, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc4, 0x04, 0x0a, 0x0c, 0x4f, 0x72,
-	0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x30, 0x0a, 0x04, 0x6d, 0x6f,
+	0x61, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc4, 0x04, 0x0a, 0x0c, 0x53, 0x63,
+	0x6f, 0x72, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x30, 0x0a, 0x04, 0x6d, 0x6f,
 	0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1c, 0xfa, 0x42, 0x19, 0x72, 0x17, 0x52,
 	0x08, 0x70, 0x72, 0x61, 0x63, 0x74, 0x69, 0x63, 0x65, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x65,
 	0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x04, 0x6d, 0x6f, 0x64, 0x65, 0x12, 0x20, 0x0a, 0x07,
@@ -405,7 +405,7 @@ var file_order_proto_rawDesc = []byte{
 	0x49, 0x64, 0x12, 0x2c, 0x0a, 0x0c, 0x77, 0x61, 0x69, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x74, 0x65,
 	0x72, 0x6d, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x05, 0x42, 0x09, 0xfa, 0x42, 0x06, 0x1a, 0x04, 0x18,
 	0x1e, 0x20, 0x00, 0x52, 0x0b, 0x77, 0x61, 0x69, 0x74, 0x69, 0x6e, 0x67, 0x54, 0x65, 0x72, 0x6d,
-	0x22, 0x96, 0x01, 0x0a, 0x0d, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x22, 0x96, 0x01, 0x0a, 0x0d, 0x53, 0x63, 0x6f, 0x72, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
 	0x73, 0x65, 0x12, 0x31, 0x0a, 0x0c, 0x6f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x5f, 0x63, 0x68, 0x61,
 	0x72, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x62, 0x2e, 0x43, 0x61,
 	0x6e, 0x64, 0x6c, 0x65, 0x44, 0x61, 0x74, 0x61, 0x52, 0x0b, 0x6f, 0x72, 0x69, 0x67, 0x69, 0x6e,
@@ -439,28 +439,28 @@ var file_order_proto_rawDesc = []byte{
 }
 
 var (
-	file_order_proto_rawDescOnce sync.Once
-	file_order_proto_rawDescData = file_order_proto_rawDesc
+	file_score_proto_rawDescOnce sync.Once
+	file_score_proto_rawDescData = file_score_proto_rawDesc
 )
 
-func file_order_proto_rawDescGZIP() []byte {
-	file_order_proto_rawDescOnce.Do(func() {
-		file_order_proto_rawDescData = protoimpl.X.CompressGZIP(file_order_proto_rawDescData)
+func file_score_proto_rawDescGZIP() []byte {
+	file_score_proto_rawDescOnce.Do(func() {
+		file_score_proto_rawDescData = protoimpl.X.CompressGZIP(file_score_proto_rawDescData)
 	})
-	return file_order_proto_rawDescData
+	return file_score_proto_rawDescData
 }
 
-var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_order_proto_goTypes = []interface{}{
-	(*OrderRequest)(nil),  // 0: pb.OrderRequest
-	(*OrderResponse)(nil), // 1: pb.OrderResponse
+var file_score_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_score_proto_goTypes = []interface{}{
+	(*ScoreRequest)(nil),  // 0: pb.ScoreRequest
+	(*ScoreResponse)(nil), // 1: pb.ScoreResponse
 	(*Score)(nil),         // 2: pb.Score
 	(*CandleData)(nil),    // 3: pb.CandleData
 }
-var file_order_proto_depIdxs = []int32{
-	3, // 0: pb.OrderResponse.origin_chart:type_name -> pb.CandleData
-	3, // 1: pb.OrderResponse.result_chart:type_name -> pb.CandleData
-	2, // 2: pb.OrderResponse.score:type_name -> pb.Score
+var file_score_proto_depIdxs = []int32{
+	3, // 0: pb.ScoreResponse.origin_chart:type_name -> pb.CandleData
+	3, // 1: pb.ScoreResponse.result_chart:type_name -> pb.CandleData
+	2, // 2: pb.ScoreResponse.score:type_name -> pb.Score
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -468,15 +468,15 @@ var file_order_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_order_proto_init() }
-func file_order_proto_init() {
-	if File_order_proto != nil {
+func init() { file_score_proto_init() }
+func file_score_proto_init() {
+	if File_score_proto != nil {
 		return
 	}
 	file_candles_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_order_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*OrderRequest); i {
+		file_score_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ScoreRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -487,8 +487,8 @@ func file_order_proto_init() {
 				return nil
 			}
 		}
-		file_order_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*OrderResponse); i {
+		file_score_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ScoreResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -499,7 +499,7 @@ func file_order_proto_init() {
 				return nil
 			}
 		}
-		file_order_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_score_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Score); i {
 			case 0:
 				return &v.state
@@ -516,18 +516,18 @@ func file_order_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_order_proto_rawDesc,
+			RawDescriptor: file_score_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_order_proto_goTypes,
-		DependencyIndexes: file_order_proto_depIdxs,
-		MessageInfos:      file_order_proto_msgTypes,
+		GoTypes:           file_score_proto_goTypes,
+		DependencyIndexes: file_score_proto_depIdxs,
+		MessageInfos:      file_score_proto_msgTypes,
 	}.Build()
-	File_order_proto = out.File
-	file_order_proto_rawDesc = nil
-	file_order_proto_goTypes = nil
-	file_order_proto_depIdxs = nil
+	File_score_proto = out.File
+	file_score_proto_rawDesc = nil
+	file_score_proto_goTypes = nil
+	file_score_proto_depIdxs = nil
 }

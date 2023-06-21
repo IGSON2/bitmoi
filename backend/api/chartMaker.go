@@ -176,7 +176,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 	var oc = &OnePairChart{
 		Name:         name,
 		OneChart:     cdd,
-		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
+		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		interval:     interval,
 		refTimestamp: refTimestamp,
 		BtcRatio:     ratio,
@@ -189,7 +189,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		oc.anonymization(prevStage)
 	} else {
 		oc.addIdentifier()
-		oc.EntryPrice = oc.OneChart.PData[len(oc.OneChart.PData)-1].Close
+		oc.EntryPrice = oc.OneChart.PData[0].Close
 	}
 	return oc, nil
 }
@@ -225,7 +225,7 @@ func (o *OnePairChart) setFactors() error {
 func (o *OnePairChart) anonymization(stage int) {
 
 	o.OneChart.encodeChart(o.priceFactor, o.volumeFactor, o.timeFactor)
-	o.EntryPrice = o.OneChart.PData[len(o.OneChart.PData)-1].Close
+	o.EntryPrice = o.OneChart.PData[0].Close
 	o.addIdentifier()
 	o.EntryTime = "Sometime"
 	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
@@ -280,5 +280,5 @@ func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
 		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
 	}
 
-	return common.RoundDecimal((rp*rv)/(bp*bv)) / 100, nil
+	return common.RoundDecimal((rp*rv)/(bp*bv)) * 100, nil
 }

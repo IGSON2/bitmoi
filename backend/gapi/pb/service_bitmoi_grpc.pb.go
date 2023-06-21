@@ -28,9 +28,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BitmoiClient interface {
-	RequestCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
-	PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
-	AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error)
+	RequestCandles(ctx context.Context, in *CandlesRequest, opts ...grpc.CallOption) (*CandlesResponse, error)
+	PostScore(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*ScoreResponse, error)
+	AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*CandlesResponse, error)
 }
 
 type bitmoiClient struct {
@@ -41,8 +41,8 @@ func NewBitmoiClient(cc grpc.ClientConnInterface) BitmoiClient {
 	return &bitmoiClient{cc}
 }
 
-func (c *bitmoiClient) RequestCandles(ctx context.Context, in *GetCandlesRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
-	out := new(GetCandlesResponse)
+func (c *bitmoiClient) RequestCandles(ctx context.Context, in *CandlesRequest, opts ...grpc.CallOption) (*CandlesResponse, error) {
+	out := new(CandlesResponse)
 	err := c.cc.Invoke(ctx, Bitmoi_RequestCandles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *bitmoiClient) RequestCandles(ctx context.Context, in *GetCandlesRequest
 	return out, nil
 }
 
-func (c *bitmoiClient) PostScore(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
-	out := new(OrderResponse)
+func (c *bitmoiClient) PostScore(ctx context.Context, in *ScoreRequest, opts ...grpc.CallOption) (*ScoreResponse, error) {
+	out := new(ScoreResponse)
 	err := c.cc.Invoke(ctx, Bitmoi_PostScore_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +59,8 @@ func (c *bitmoiClient) PostScore(ctx context.Context, in *OrderRequest, opts ...
 	return out, nil
 }
 
-func (c *bitmoiClient) AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*GetCandlesResponse, error) {
-	out := new(GetCandlesResponse)
+func (c *bitmoiClient) AnotherInterval(ctx context.Context, in *AnotherIntervalRequest, opts ...grpc.CallOption) (*CandlesResponse, error) {
+	out := new(CandlesResponse)
 	err := c.cc.Invoke(ctx, Bitmoi_AnotherInterval_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *bitmoiClient) AnotherInterval(ctx context.Context, in *AnotherIntervalR
 // All implementations must embed UnimplementedBitmoiServer
 // for forward compatibility
 type BitmoiServer interface {
-	RequestCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error)
-	PostScore(context.Context, *OrderRequest) (*OrderResponse, error)
-	AnotherInterval(context.Context, *AnotherIntervalRequest) (*GetCandlesResponse, error)
+	RequestCandles(context.Context, *CandlesRequest) (*CandlesResponse, error)
+	PostScore(context.Context, *ScoreRequest) (*ScoreResponse, error)
+	AnotherInterval(context.Context, *AnotherIntervalRequest) (*CandlesResponse, error)
 	mustEmbedUnimplementedBitmoiServer()
 }
 
@@ -82,13 +82,13 @@ type BitmoiServer interface {
 type UnimplementedBitmoiServer struct {
 }
 
-func (UnimplementedBitmoiServer) RequestCandles(context.Context, *GetCandlesRequest) (*GetCandlesResponse, error) {
+func (UnimplementedBitmoiServer) RequestCandles(context.Context, *CandlesRequest) (*CandlesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestCandles not implemented")
 }
-func (UnimplementedBitmoiServer) PostScore(context.Context, *OrderRequest) (*OrderResponse, error) {
+func (UnimplementedBitmoiServer) PostScore(context.Context, *ScoreRequest) (*ScoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostScore not implemented")
 }
-func (UnimplementedBitmoiServer) AnotherInterval(context.Context, *AnotherIntervalRequest) (*GetCandlesResponse, error) {
+func (UnimplementedBitmoiServer) AnotherInterval(context.Context, *AnotherIntervalRequest) (*CandlesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AnotherInterval not implemented")
 }
 func (UnimplementedBitmoiServer) mustEmbedUnimplementedBitmoiServer() {}
@@ -105,7 +105,7 @@ func RegisterBitmoiServer(s grpc.ServiceRegistrar, srv BitmoiServer) {
 }
 
 func _Bitmoi_RequestCandles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCandlesRequest)
+	in := new(CandlesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -117,13 +117,13 @@ func _Bitmoi_RequestCandles_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: Bitmoi_RequestCandles_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BitmoiServer).RequestCandles(ctx, req.(*GetCandlesRequest))
+		return srv.(BitmoiServer).RequestCandles(ctx, req.(*CandlesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Bitmoi_PostScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderRequest)
+	in := new(ScoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func _Bitmoi_PostScore_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: Bitmoi_PostScore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BitmoiServer).PostScore(ctx, req.(*OrderRequest))
+		return srv.(BitmoiServer).PostScore(ctx, req.(*ScoreRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

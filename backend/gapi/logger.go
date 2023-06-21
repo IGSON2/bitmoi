@@ -4,6 +4,7 @@ import (
 	"bitmoi/backend/utilities"
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -68,4 +69,47 @@ func GrpcLogger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo
 		Msg("received a gRPC request")
 
 	return result, err
+}
+
+type ResponseRecoder struct {
+	http.ResponseWriter
+	StatusCode int
+	Body       []byte
+}
+
+func (r *ResponseRecoder) WriteHeader(statusCode int) {
+	r.StatusCode = statusCode
+	r.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (r *ResponseRecoder) Write(b []byte) (int, error) {
+	r.Body = b
+	return r.ResponseWriter.Write(b)
+}
+
+func GatewayLogger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+		recoder := ResponseRecoder{
+			ResponseWriter: w,
+			StatusCode:     http.StatusOK,
+		}
+
+		handler.ServeHTTP(&recoder, r)
+		duration := time.Since(startTime)
+
+		logger := log.Info()
+		if recoder.StatusCode != http.StatusOK {
+			logger = log.Error().Bytes("Body", recoder.Body)
+		}
+
+		logger.Str("protocol", "grpc HTTP").
+			Str("method", r.Method).
+			Str("path", r.RequestURI).
+			Int("status_code", recoder.StatusCode).
+			Str("status_text", http.StatusText(recoder.StatusCode)).
+			Dur("duration", duration).
+			Msg("received a grpc HTTP request")
+
+	})
 }

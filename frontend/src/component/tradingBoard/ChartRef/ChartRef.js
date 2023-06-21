@@ -82,8 +82,8 @@ const ChartRef = forwardRef((props, ref) => {
       volumeSeriesRef.current = volumeSeries;
       if (props.toolBar === "NonSelected") {
         chart.timeScale().setVisibleRange({
-          from: props.candles.pdata[props.candles.pdata.length - 200].time,
-          to: props.candles.pdata[props.candles.pdata.length - 1].time,
+          from: props.candles.pdata[0].time,
+          to: props.candles.pdata[200].time,
         });
       }
     }
@@ -229,13 +229,13 @@ const ChartRef = forwardRef((props, ref) => {
     }
     // if (props.modeHeight > 0.8) {
     //   chartRef.current.timeScale().setVisibleRange({
-    //     from: props.candles.pdata[props.candles.pdata.length - 200].time,
-    //     to: props.candles.pdata[props.candles.pdata.length - 1].time,
+    //     from: props.candles.pdata[0].time,
+    //     to: props.candles.pdata[200].time,
     //   });
     // }
 
     if (props.submitOrder && props.loaded) {
-      var i = 0;
+      var i = props.candles.pdata.length - 1;
       candleSeriesRef.current.createPriceLine({
         price: props.entryMarker,
         color: "rgb(51, 61, 121)",
@@ -262,7 +262,7 @@ const ChartRef = forwardRef((props, ref) => {
       });
       candleSeriesRef.current.setMarkers([
         {
-          time: props.candles.pdata[props.candles.pdata.length - 1].time,
+          time: props.candles.pdata[0].time,
           position: "aboveBar",
           color: "rgb(51, 61, 121)",
           shape: "arrowDown",
@@ -284,7 +284,7 @@ const ChartRef = forwardRef((props, ref) => {
         };
 
         chartRef.current.timeScale().setVisibleRange({
-          from: props.candles.pdata[props.candles.pdata.length - 100].time,
+          from: props.candles.pdata[100].time,
           to: props.resultChart.pdata[i].time,
         });
 
@@ -297,11 +297,11 @@ const ChartRef = forwardRef((props, ref) => {
         candleSeriesRef.current.update(nextP);
         volumeSeriesRef.current.update(nextV);
 
-        if (props.resultScore.outtime - 1 == i) {
+        if (props.resultScore.outtime - 1 == 0) {
           if (props.resultScore.pnl > 0) {
             candleSeriesRef.current.setMarkers([
               {
-                time: props.candles.pdata[props.candles.pdata.length - 1].time,
+                time: props.candles.pdata[0].time,
                 position: "aboveBar",
                 color: "rgb(51, 61, 121)",
                 shape: "arrowDown",
@@ -318,7 +318,7 @@ const ChartRef = forwardRef((props, ref) => {
           } else {
             candleSeriesRef.current.setMarkers([
               {
-                time: props.candles.pdata[props.candles.pdata.length - 1].time,
+                time: props.candles.pdata[0].time,
                 position: "aboveBar",
                 color: "rgb(51, 61, 121)",
                 shape: "arrowDown",
@@ -337,7 +337,7 @@ const ChartRef = forwardRef((props, ref) => {
           props.setSubmitOrder(false);
         }
 
-        i++;
+        i--;
       }, 100);
       setTimeout(function () {
         clearInterval(interval);

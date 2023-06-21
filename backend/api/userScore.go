@@ -24,7 +24,7 @@ var (
 	ErrInvalidStageLength = errors.New("insufficient number of stages cleared")
 )
 
-func (s *Server) insertUserScore(o *OrderRequest, r *OrderResult, c *fiber.Ctx) error {
+func (s *Server) insertUserScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) error {
 	var position string
 	if *o.IsLong {
 		position = long
@@ -53,7 +53,7 @@ func (s *Server) insertUserScore(o *OrderRequest, r *OrderResult, c *fiber.Ctx) 
 	return err
 }
 
-func (s *Server) getScoreToStage(o *OrderRequest, c *fiber.Ctx) error {
+func (s *Server) getScoreToStage(o *ScoreRequest, c *fiber.Ctx) error {
 	i, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
 		ScoreID: o.ScoreId,
 		UserID:  o.UserId,

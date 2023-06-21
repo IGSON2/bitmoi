@@ -45,7 +45,7 @@ func TestMakeChart(t *testing.T) {
 			Name:   "GetPracticeChart",
 			Path:   "/practice",
 			Method: http.MethodGet,
-			Body: ChartRequestQuery{
+			Body: CandlesRequest{
 				Names: "",
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {},
@@ -79,9 +79,9 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name:   "GetCompetitonChart",
-			Path:   "/competition",
+			Path:   "/auth/competition",
 			Method: http.MethodGet,
-			Body: ChartRequestQuery{
+			Body: CandlesRequest{
 				Names: "",
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
@@ -117,9 +117,9 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name:   "CompetitionUnAuthorized",
-			Path:   "/competition",
+			Path:   "/auth/competition",
 			Method: http.MethodGet,
-			Body: ChartRequestQuery{
+			Body: CandlesRequest{
 				Names: "",
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
@@ -148,4 +148,56 @@ func TestMakeChart(t *testing.T) {
 		})
 	}
 
+}
+
+func BenchmarkHTTPMakeChart(b *testing.B) {
+	t := new(testing.T)
+	req := makeTestRequest(t)
+	c := &http.Client{}
+	for i := 0; i < b.N; i++ {
+		c.Do(req)
+	}
+}
+
+func BenchmarkHTTPPostScore(b *testing.B) {
+	t := new(testing.T)
+	req := makeTestScoreRequest(t)
+	c := &http.Client{}
+	for i := 0; i < b.N; i++ {
+		c.Do(req)
+	}
+}
+
+func makeTestRequest(t *testing.T) *http.Request {
+	b, err := json.Marshal(CandlesRequest{Names: ""})
+	require.NoError(t, err)
+	req, err := http.NewRequest("GET", "http://localhost:4000/practice", bytes.NewReader(b))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	return req
+}
+
+func makeTestScoreRequest(t *testing.T) *http.Request {
+	long := true
+	b, err := json.Marshal(ScoreRequest{
+		Mode:        practice,
+		UserId:      "user",
+		Name:        "BTCUSDT",
+		Stage:       1,
+		IsLong:      &long,
+		EntryPrice:  1639.31,
+		Quantity:    10,
+		ProfitPrice: 1700,
+		LossPrice:   1600,
+		Leverage:    17,
+		Balance:     1000,
+		Identifier:  "ALYJ/z8Bnb4k2TwsZlSr1KAcxn/Km0IYrTKE3fayRnKvKCE2V4BiXe+el4m6g0j2QnBG13nziUjQ52v00pf4CoruyccVqkubqM0IEBL9jXMdz6VwtibVkVhxIlJMNwwQH3juPDGziIYw48Jq7g==",
+		ScoreId:     "abc",
+		WaitingTerm: 1,
+	})
+	require.NoError(t, err)
+	req, err := http.NewRequest("POST", "http://localhost:7001/v1/score", bytes.NewReader(b))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	return req
 }

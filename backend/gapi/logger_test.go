@@ -18,7 +18,7 @@ func TestLogger(t *testing.T) {
 	}
 	c := newGRPCClient(t)
 
-	res, err := c.RequestCandles(context.Background(), &pb.GetCandlesRequest{Mode: practice})
+	res, err := c.RequestCandles(context.Background(), &pb.CandlesRequest{Mode: practice})
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }

@@ -13,7 +13,7 @@ import (
 const get15mCandles = `-- name: Get15mCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_15m 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?
 `
 
@@ -142,7 +142,7 @@ func (q *Queries) Get15mVolSumPriceAVG(ctx context.Context, arg Get15mVolSumPric
 const get1dCandles = `-- name: Get1dCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_1d 
 WHERE name = ? AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?
 `
 
@@ -271,7 +271,7 @@ func (q *Queries) Get1dVolSumPriceAVG(ctx context.Context, arg Get1dVolSumPriceA
 const get1hCandles = `-- name: Get1hCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_1h 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?
 `
 
@@ -419,7 +419,7 @@ func (q *Queries) Get1hVolSumPriceAVG(ctx context.Context, arg Get1hVolSumPriceA
 const get4hCandles = `-- name: Get4hCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_4h 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?
 `
 
@@ -548,7 +548,7 @@ func (q *Queries) Get4hVolSumPriceAVG(ctx context.Context, arg Get4hVolSumPriceA
 const get5mCandles = `-- name: Get5mCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_5m 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?
 `
 
@@ -700,136 +700,6 @@ func (q *Queries) GetAllParisInDB(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const getOne15mCandle = `-- name: GetOne15mCandle :one
-SELECT name, open, close, high, low, time, volume, color FROM candles_15m
-WHERE name = ? AND time = ?
-`
-
-type GetOne15mCandleParams struct {
-	Name string `json:"name"`
-	Time int64  `json:"time"`
-}
-
-func (q *Queries) GetOne15mCandle(ctx context.Context, arg GetOne15mCandleParams) (Candles15m, error) {
-	row := q.db.QueryRowContext(ctx, getOne15mCandle, arg.Name, arg.Time)
-	var i Candles15m
-	err := row.Scan(
-		&i.Name,
-		&i.Open,
-		&i.Close,
-		&i.High,
-		&i.Low,
-		&i.Time,
-		&i.Volume,
-		&i.Color,
-	)
-	return i, err
-}
-
-const getOne1dCandle = `-- name: GetOne1dCandle :one
-SELECT name, open, close, high, low, time, volume, color FROM candles_1d
-WHERE name = ? AND time = ?
-`
-
-type GetOne1dCandleParams struct {
-	Name string `json:"name"`
-	Time int64  `json:"time"`
-}
-
-func (q *Queries) GetOne1dCandle(ctx context.Context, arg GetOne1dCandleParams) (Candles1d, error) {
-	row := q.db.QueryRowContext(ctx, getOne1dCandle, arg.Name, arg.Time)
-	var i Candles1d
-	err := row.Scan(
-		&i.Name,
-		&i.Open,
-		&i.Close,
-		&i.High,
-		&i.Low,
-		&i.Time,
-		&i.Volume,
-		&i.Color,
-	)
-	return i, err
-}
-
-const getOne1hCandle = `-- name: GetOne1hCandle :one
-SELECT name, open, close, high, low, time, volume, color FROM candles_1h
-WHERE name = ? AND time = ?
-`
-
-type GetOne1hCandleParams struct {
-	Name string `json:"name"`
-	Time int64  `json:"time"`
-}
-
-func (q *Queries) GetOne1hCandle(ctx context.Context, arg GetOne1hCandleParams) (Candles1h, error) {
-	row := q.db.QueryRowContext(ctx, getOne1hCandle, arg.Name, arg.Time)
-	var i Candles1h
-	err := row.Scan(
-		&i.Name,
-		&i.Open,
-		&i.Close,
-		&i.High,
-		&i.Low,
-		&i.Time,
-		&i.Volume,
-		&i.Color,
-	)
-	return i, err
-}
-
-const getOne4hCandle = `-- name: GetOne4hCandle :one
-SELECT name, open, close, high, low, time, volume, color FROM candles_4h
-WHERE name = ? AND time = ?
-`
-
-type GetOne4hCandleParams struct {
-	Name string `json:"name"`
-	Time int64  `json:"time"`
-}
-
-func (q *Queries) GetOne4hCandle(ctx context.Context, arg GetOne4hCandleParams) (Candles4h, error) {
-	row := q.db.QueryRowContext(ctx, getOne4hCandle, arg.Name, arg.Time)
-	var i Candles4h
-	err := row.Scan(
-		&i.Name,
-		&i.Open,
-		&i.Close,
-		&i.High,
-		&i.Low,
-		&i.Time,
-		&i.Volume,
-		&i.Color,
-	)
-	return i, err
-}
-
-const getOne5mCandle = `-- name: GetOne5mCandle :one
-SELECT name, open, close, high, low, time, volume, color FROM candles_5m
-WHERE name = ? AND time = ?
-`
-
-type GetOne5mCandleParams struct {
-	Name string `json:"name"`
-	Time int64  `json:"time"`
-}
-
-func (q *Queries) GetOne5mCandle(ctx context.Context, arg GetOne5mCandleParams) (Candles5m, error) {
-	row := q.db.QueryRowContext(ctx, getOne5mCandle, arg.Name, arg.Time)
-	var i Candles5m
-	err := row.Scan(
-		&i.Name,
-		&i.Open,
-		&i.Close,
-		&i.High,
-		&i.Low,
-		&i.Time,
-		&i.Volume,
-		&i.Color,
-	)
-	return i, err
 }
 
 const insert15mCandles = `-- name: Insert15mCandles :execresult

@@ -34,7 +34,7 @@ func (s *Server) sendAnotherInterval(a *pb.AnotherIntervalRequest, c context.Con
 	var oc = &OnePairChart{
 		Name:         originInfo.Name,
 		OneChart:     cdd,
-		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[len(cdd.PData)-1].Time),
+		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		BtcRatio:     ratio,
 		refTimestamp: originInfo.RefTimestamp,
 		interval:     a.ReqInterval,
@@ -47,7 +47,7 @@ func (s *Server) sendAnotherInterval(a *pb.AnotherIntervalRequest, c context.Con
 		oc.anonymization(int(a.Stage) - 1)
 	} else {
 		oc.addIdentifier()
-		oc.EntryPrice = oc.OneChart.PData[len(oc.OneChart.PData)-1].Close
+		oc.EntryPrice = oc.OneChart.PData[0].Close
 	}
 	return oc, nil
 }
@@ -62,10 +62,10 @@ func (s *Server) cutExceedChart(name string, originTimestamp int64, c context.Co
 		return err
 	}
 
-	for i := len(pdatas) - 1; pdatas[i].Time > entryTIme; i-- {
+	for i := 0; pdatas[i].Time > entryTIme; i++ {
 		cuttingCnt++
 	}
-	cd.PData = cd.PData[:len(pdatas)-cuttingCnt]
-	cd.VData = cd.VData[:len(pdatas)-cuttingCnt]
+	cd.PData = cd.PData[cuttingCnt:]
+	cd.VData = cd.VData[cuttingCnt:]
 	return nil
 }

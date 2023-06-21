@@ -14,7 +14,7 @@ const (
 	commissionRate = 0.0002
 )
 
-func (s *Server) createPracResult(order *pb.OrderRequest, c context.Context) (*pb.OrderResponse, error) {
+func (s *Server) createPracResult(order *pb.ScoreRequest, c context.Context) (*pb.ScoreResponse, error) {
 	pracInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(order.Identifier)
 	err := json.Unmarshal(infoByte, pracInfo)
@@ -28,14 +28,14 @@ func (s *Server) createPracResult(order *pb.OrderRequest, c context.Context) (*p
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = pb.OrderResponse{
+	var result = pb.ScoreResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, order, practice, nil),
 	}
 	return &result, nil
 }
 
-func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context) (*pb.OrderResponse, error) {
+func (s *Server) createCompResult(compOrder *pb.ScoreRequest, c context.Context) (*pb.ScoreResponse, error) {
 
 	compInfo := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(compOrder.Identifier)
@@ -50,7 +50,7 @@ func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context)
 	if err != nil {
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
-	var result = pb.OrderResponse{
+	var result = pb.ScoreResponse{
 		ResultChart: resultchart,
 		Score:       calculateResult(resultchart, compOrder, competition, compInfo),
 	}
@@ -63,11 +63,11 @@ func (s *Server) createCompResult(compOrder *pb.OrderRequest, c context.Context)
 	result.OriginChart = originchart
 
 	result.Score.Name = compInfo.Name
-	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[len(originchart.PData)-1].Time)
+	result.Score.Entrytime = utilities.EntryTimeFormatter(originchart.PData[0].Time)
 	return &result, nil
 }
 
-func calculateResult(resultchart *pb.CandleData, order *pb.OrderRequest, mode string, info *utilities.IdentificationData) *pb.Score {
+func calculateResult(resultchart *pb.CandleData, order *pb.ScoreRequest, mode string, info *utilities.IdentificationData) *pb.Score {
 	var (
 		roe      float64
 		pnl      float64

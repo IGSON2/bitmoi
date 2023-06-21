@@ -67,7 +67,7 @@ func (s *Server) ListenGRPC() {
 	if err != nil {
 		log.Panic().Err(fmt.Errorf("cannot create gRPC listener: %w", err))
 	}
-	log.Info().Msgf("Start gRPC server at %s", listener.Addr().String())
+	log.Info().Msgf("Start gRPC server at %s", s.config.GRPCAddress)
 	log.Panic().Err(grpcServer.Serve(listener))
 }
 
@@ -100,10 +100,10 @@ func (s *Server) ListenGRPCGateWay() {
 	}
 
 	log.Info().Msgf("start HTTP gateway server at %s", listener.Addr().String())
-	log.Panic().Err(http.Serve(listener, mux))
+	log.Panic().Err(http.Serve(listener, GatewayLogger(mux)))
 }
 
-func (s *Server) RequestCandles(c context.Context, r *pb.GetCandlesRequest) (*pb.GetCandlesResponse, error) {
+func (s *Server) RequestCandles(c context.Context, r *pb.CandlesRequest) (*pb.CandlesResponse, error) {
 	next, prevStage, err := validateGetCandlesRequest(r, s.pairs)
 	if err != nil {
 		return nil, err
@@ -135,7 +135,7 @@ func (s *Server) RequestCandles(c context.Context, r *pb.GetCandlesRequest) (*pb
 	}
 }
 
-func (s *Server) PostScore(c context.Context, r *pb.OrderRequest) (*pb.OrderResponse, error) {
+func (s *Server) PostScore(c context.Context, r *pb.ScoreRequest) (*pb.ScoreResponse, error) {
 	if err := validateOrderRequest(r); err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (s *Server) PostScore(c context.Context, r *pb.OrderRequest) (*pb.OrderResp
 	}
 }
 
-func (s *Server) AnotherInterval(c context.Context, r *pb.AnotherIntervalRequest) (*pb.GetCandlesResponse, error) {
+func (s *Server) AnotherInterval(c context.Context, r *pb.AnotherIntervalRequest) (*pb.CandlesResponse, error) {
 	if err := validateAnotherIntervalRequest(r); err != nil {
 		return nil, err
 	}

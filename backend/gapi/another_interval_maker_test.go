@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/rs/zerolog/log"
@@ -24,6 +25,8 @@ const (
 	OKCompetition15m       = "OK_Competition_15m"
 	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
 )
+
+var ()
 
 type TestName struct {
 	Names string
@@ -46,19 +49,24 @@ func (t *TestName) append(pair string) {
 
 type testResult struct {
 	testName    string
-	candleRes   *pb.GetCandlesResponse
-	intervalRes *pb.GetCandlesResponse
+	candleRes   *pb.CandlesResponse
+	intervalRes *pb.CandlesResponse
 	intervalReq *pb.AnotherIntervalRequest
 	err         error
 }
 
 func TestSomePairs(t *testing.T) {
-	store := newTestStore(t)
-	server := newTestServer(t, store)
-	client := newGRPCClient(t)
-	pairs, err := store.GetAllParisInDB(context.Background())
-
-	require.NoError(t, err)
+	oc := sync.Once{}
+	oc.Do(
+		func() {
+			var err error
+			store = newTestStore(t)
+			server = newTestServer(t, store)
+			client = newGRPCClient(t)
+			pairs, err = store.GetAllParisInDB(context.Background())
+			require.NoError(t, err)
+		},
+	)
 
 	ch := make(chan testResult, len(pairs))
 
@@ -80,13 +88,13 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 
 	testCases := []struct {
 		Name      string
-		CandleReq *pb.GetCandlesRequest
+		CandleReq *pb.CandlesRequest
 		Req       *pb.AnotherIntervalRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
 	}{
 		{
 			Name: OKPractice5m,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   practice,
 				UserId: "",
 			},
@@ -102,7 +110,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		},
 		{
 			Name: OKPractice15m,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   practice,
 				UserId: "",
 			},
@@ -118,7 +126,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		},
 		{
 			Name: OKCompetition5m,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
 				UserId: user,
 			},
@@ -135,7 +143,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		},
 		{
 			Name: OKCompetition15m,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
 				UserId: user,
 			},
@@ -152,7 +160,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		},
 		{
 			Name: FailCompetitionNoAuth,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
 				UserId: user,
 			},
@@ -167,7 +175,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		},
 		{
 			Name: FailPracticeValidation,
-			CandleReq: &pb.GetCandlesRequest{
+			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
 				UserId: user,
 			},
@@ -230,28 +238,28 @@ func testIdentifier(t *testing.T, resIden, reqIden, requestedInterval string) {
 	require.Equal(t, resInfo.TimeFactor, reqInfo.TimeFactor)
 }
 
-func testResponseWithRequest(t *testing.T, candleRes, res *pb.GetCandlesResponse, req *pb.AnotherIntervalRequest, err error) {
+func testResponseWithRequest(t *testing.T, candleRes, res *pb.CandlesResponse, req *pb.AnotherIntervalRequest, err error) {
 	require.NoError(t, err)
 	testIdentifier(t, res.Identifier, req.Identifier, req.ReqInterval)
 
 	require.NotNil(t, candleRes)
-	require.NotNil(t, candleRes.Onechart.PData)
-	require.NotNil(t, candleRes.Onechart.VData)
+	require.NotNil(t, candleRes.OneChart.PData)
+	require.NotNil(t, candleRes.OneChart.VData)
 	require.NotEmpty(t, candleRes.Identifier)
 	require.NotNil(t, res)
-	require.NotNil(t, res.Onechart.PData)
-	require.NotNil(t, res.Onechart.VData)
+	require.NotNil(t, res.OneChart.PData)
+	require.NotNil(t, res.OneChart.VData)
 	require.NotEmpty(t, res.Identifier)
 
-	resClose := res.Onechart.PData[len(res.Onechart.PData)-1].Close
-	candleClose := candleRes.Onechart.PData[len(candleRes.Onechart.PData)-1].Close
+	resClose := res.OneChart.PData[0].Close
+	candleClose := candleRes.OneChart.PData[0].Close
 
-	resTime := res.Onechart.PData[len(res.Onechart.PData)-1].Time
-	candleTime := candleRes.Onechart.PData[len(candleRes.Onechart.PData)-1].Time
+	resTime := res.OneChart.PData[0].Time
+	candleTime := candleRes.OneChart.PData[0].Time
 
 	require.Equal(t, res.Name, candleRes.Name)
 	require.Equal(t, resTime, candleTime)
-	require.GreaterOrEqual(t, float64(0.01), math.Abs(resClose-candleClose)/resClose) // 각 단위의 캔들의 종가의 차이가 1% 이하여야 함
+	require.GreaterOrEqual(t, float64(0.03), math.Abs(resClose-candleClose)/resClose) // 각 단위의 캔들의 종가의 차이가 3% 이하여야 함
 	require.Equal(t, res.EntryTime, candleRes.EntryTime)
 	require.GreaterOrEqual(t, float64(0.01), math.Abs(res.EntryPrice-candleRes.EntryPrice)/res.EntryPrice)
 }

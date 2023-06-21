@@ -13,7 +13,7 @@ const (
 	short = "SHORT"
 )
 
-func validateOrderRequest(r *pb.OrderRequest) error {
+func validateOrderRequest(r *pb.ScoreRequest) error {
 	if err := r.ValidateAll(); err != nil {
 		return fmt.Errorf("request validation error: %s", err.Error())
 	}
@@ -43,7 +43,7 @@ func validateOrderRequest(r *pb.OrderRequest) error {
 	return nil
 }
 
-func validateGetCandlesRequest(r *pb.GetCandlesRequest, pairs []string) (next string, prevStage int, err error) {
+func validateGetCandlesRequest(r *pb.CandlesRequest, pairs []string) (next string, prevStage int, err error) {
 	if err := r.ValidateAll(); err != nil {
 		return "", 10, err
 	}

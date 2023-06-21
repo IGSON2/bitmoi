@@ -12,14 +12,10 @@ INSERT INTO candles_1d (
   ?,?,?,?,?,?,?,?
 );
 
--- name: GetOne1dCandle :one
-SELECT * FROM candles_1d
-WHERE name = ? AND time = ?;
-
 -- name: Get1dCandles :many
 SELECT * FROM candles_1d 
 WHERE name = ? AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?;
 
 -- name: Get1dResult :many
@@ -50,14 +46,10 @@ INSERT INTO candles_4h (
   ?,?,?,?,?,?,?,?
 );
 
--- name: GetOne4hCandle :one
-SELECT * FROM candles_4h
-WHERE name = ? AND time = ?;
-
 -- name: Get4hCandles :many
 SELECT * FROM candles_4h 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?;
 
 -- name: Get4hResult :many
@@ -88,14 +80,10 @@ INSERT INTO candles_1h (
   ?,?,?,?,?,?,?,?
 );
 
--- name: GetOne1hCandle :one
-SELECT * FROM candles_1h
-WHERE name = ? AND time = ?;
-
 -- name: Get1hCandles :many
 SELECT * FROM candles_1h 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?;
 
 -- name: Get1hEntryTimestamp :one
@@ -132,14 +120,10 @@ INSERT INTO candles_15m (
   ?,?,?,?,?,?,?,?
 );
 
--- name: GetOne15mCandle :one
-SELECT * FROM candles_15m
-WHERE name = ? AND time = ?;
-
 -- name: Get15mCandles :many
 SELECT * FROM candles_15m 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?;
 
 -- name: Get15mResult :many
@@ -170,14 +154,10 @@ INSERT INTO candles_5m (
   ?,?,?,?,?,?,?,?
 );
 
--- name: GetOne5mCandle :one
-SELECT * FROM candles_5m
-WHERE name = ? AND time = ?;
-
 -- name: Get5mCandles :many
 SELECT * FROM candles_5m 
 WHERE name = ?  AND time <= ?
-ORDER BY time ASC 
+ORDER BY time DESC 
 LIMIT ?;
 
 -- name: Get5mResult :many

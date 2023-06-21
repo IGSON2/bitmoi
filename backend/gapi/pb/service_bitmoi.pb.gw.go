@@ -32,7 +32,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_Bitmoi_RequestCandles_0(ctx context.Context, marshaler runtime.Marshaler, client BitmoiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCandlesRequest
+	var protoReq CandlesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -49,7 +49,7 @@ func request_Bitmoi_RequestCandles_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func local_request_Bitmoi_RequestCandles_0(ctx context.Context, marshaler runtime.Marshaler, server BitmoiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetCandlesRequest
+	var protoReq CandlesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -66,7 +66,7 @@ func local_request_Bitmoi_RequestCandles_0(ctx context.Context, marshaler runtim
 }
 
 func request_Bitmoi_PostScore_0(ctx context.Context, marshaler runtime.Marshaler, client BitmoiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq OrderRequest
+	var protoReq ScoreRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -83,7 +83,7 @@ func request_Bitmoi_PostScore_0(ctx context.Context, marshaler runtime.Marshaler
 }
 
 func local_request_Bitmoi_PostScore_0(ctx context.Context, marshaler runtime.Marshaler, server BitmoiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq OrderRequest
+	var protoReq ScoreRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -147,7 +147,7 @@ func RegisterBitmoiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Bitmoi/RequestCandles", runtime.WithHTTPPathPattern("/v1/get_candles"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Bitmoi/RequestCandles", runtime.WithHTTPPathPattern("/v1/candles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -172,7 +172,7 @@ func RegisterBitmoiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Bitmoi/PostScore", runtime.WithHTTPPathPattern("/v1/post_score"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/pb.Bitmoi/PostScore", runtime.WithHTTPPathPattern("/v1/score"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -261,7 +261,7 @@ func RegisterBitmoiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Bitmoi/RequestCandles", runtime.WithHTTPPathPattern("/v1/get_candles"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Bitmoi/RequestCandles", runtime.WithHTTPPathPattern("/v1/candles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -283,7 +283,7 @@ func RegisterBitmoiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Bitmoi/PostScore", runtime.WithHTTPPathPattern("/v1/post_score"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/pb.Bitmoi/PostScore", runtime.WithHTTPPathPattern("/v1/score"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -325,9 +325,9 @@ func RegisterBitmoiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_Bitmoi_RequestCandles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "get_candles"}, ""))
+	pattern_Bitmoi_RequestCandles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "candles"}, ""))
 
-	pattern_Bitmoi_PostScore_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "post_score"}, ""))
+	pattern_Bitmoi_PostScore_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "score"}, ""))
 
 	pattern_Bitmoi_AnotherInterval_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "another_interval"}, ""))
 )

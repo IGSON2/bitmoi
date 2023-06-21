@@ -16,14 +16,16 @@ func TestOrderstructValidation(t *testing.T) {
 	)
 	testCases := []struct {
 		name     string
-		params   OrderRequest
-		expected func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int)
+		params   ScoreRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, o ScoreRequest, i int)
 	}{
 		{
 			name: "OK",
-			params: OrderRequest{
+			params: ScoreRequest{
 				Mode:        competition,
 				UserId:      "user",
+				Name:        "A",
+				Stage:       1,
 				IsLong:      &short,
 				EntryPrice:  100.123,
 				Quantity:    0.123,
@@ -35,13 +37,13 @@ func TestOrderstructValidation(t *testing.T) {
 				ScoreId:     "12345",
 				WaitingTerm: 1,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o ScoreRequest, i int) {
 				require.Nil(t, es)
 			},
 		},
 		{
 			name: "Fail_Missing_Fields",
-			params: OrderRequest{
+			params: ScoreRequest{
 				Mode:        "",
 				UserId:      "",
 				Name:        "",
@@ -57,7 +59,7 @@ func TestOrderstructValidation(t *testing.T) {
 				ScoreId:     "",
 				WaitingTerm: 0,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o ScoreRequest, i int) {
 				r := reflect.TypeOf(o).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
 				require.Contains(t, es.FailedField, r.Name, m)
@@ -67,7 +69,7 @@ func TestOrderstructValidation(t *testing.T) {
 		},
 		{
 			name: "Fail_Boundary_Value",
-			params: OrderRequest{
+			params: ScoreRequest{
 				Mode:        "",
 				UserId:      "",
 				Name:        "",
@@ -83,7 +85,7 @@ func TestOrderstructValidation(t *testing.T) {
 				ScoreId:     "",
 				WaitingTerm: 0,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse, o OrderRequest, i int) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, o ScoreRequest, i int) {
 				r := reflect.TypeOf(o).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
 				require.Contains(t, es.FailedField, r.Name, m)

@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func (s *Server) insertUserScore(o *pb.OrderRequest, r *pb.Score, c context.Context) error {
+func (s *Server) insertUserScore(o *pb.ScoreRequest, r *pb.Score, c context.Context) error {
 	var position string
 	if o.IsLong {
 		position = "long"

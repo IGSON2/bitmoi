@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on GetCandlesRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *GetCandlesRequest) Validate() error {
+// Validate checks the field values on CandlesRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CandlesRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCandlesRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// GetCandlesRequestMultiError, or nil if none found.
-func (m *GetCandlesRequest) ValidateAll() error {
+// ValidateAll checks the field values on CandlesRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in CandlesRequestMultiError,
+// or nil if none found.
+func (m *CandlesRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCandlesRequest) validate(all bool) error {
+func (m *CandlesRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -59,8 +59,8 @@ func (m *GetCandlesRequest) validate(all bool) error {
 
 	// no validation rules for Names
 
-	if _, ok := _GetCandlesRequest_Mode_InLookup[m.GetMode()]; !ok {
-		err := GetCandlesRequestValidationError{
+	if _, ok := _CandlesRequest_Mode_InLookup[m.GetMode()]; !ok {
+		err := CandlesRequestValidationError{
 			field:  "Mode",
 			reason: "value must be in list [practice competition]",
 		}
@@ -73,19 +73,19 @@ func (m *GetCandlesRequest) validate(all bool) error {
 	// no validation rules for UserId
 
 	if len(errors) > 0 {
-		return GetCandlesRequestMultiError(errors)
+		return CandlesRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCandlesRequestMultiError is an error wrapping multiple validation errors
-// returned by GetCandlesRequest.ValidateAll() if the designated constraints
+// CandlesRequestMultiError is an error wrapping multiple validation errors
+// returned by CandlesRequest.ValidateAll() if the designated constraints
 // aren't met.
-type GetCandlesRequestMultiError []error
+type CandlesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCandlesRequestMultiError) Error() string {
+func (m CandlesRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -94,11 +94,11 @@ func (m GetCandlesRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCandlesRequestMultiError) AllErrors() []error { return m }
+func (m CandlesRequestMultiError) AllErrors() []error { return m }
 
-// GetCandlesRequestValidationError is the validation error returned by
-// GetCandlesRequest.Validate if the designated constraints aren't met.
-type GetCandlesRequestValidationError struct {
+// CandlesRequestValidationError is the validation error returned by
+// CandlesRequest.Validate if the designated constraints aren't met.
+type CandlesRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -106,24 +106,22 @@ type GetCandlesRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCandlesRequestValidationError) Field() string { return e.field }
+func (e CandlesRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCandlesRequestValidationError) Reason() string { return e.reason }
+func (e CandlesRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCandlesRequestValidationError) Cause() error { return e.cause }
+func (e CandlesRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCandlesRequestValidationError) Key() bool { return e.key }
+func (e CandlesRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCandlesRequestValidationError) ErrorName() string {
-	return "GetCandlesRequestValidationError"
-}
+func (e CandlesRequestValidationError) ErrorName() string { return "CandlesRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetCandlesRequestValidationError) Error() string {
+func (e CandlesRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -135,14 +133,14 @@ func (e GetCandlesRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCandlesRequest.%s: %s%s",
+		"invalid %sCandlesRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCandlesRequestValidationError{}
+var _ error = CandlesRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -150,29 +148,29 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCandlesRequestValidationError{}
+} = CandlesRequestValidationError{}
 
-var _GetCandlesRequest_Mode_InLookup = map[string]struct{}{
+var _CandlesRequest_Mode_InLookup = map[string]struct{}{
 	"practice":    {},
 	"competition": {},
 }
 
-// Validate checks the field values on GetCandlesResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetCandlesResponse) Validate() error {
+// Validate checks the field values on CandlesResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *CandlesResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetCandlesResponse with the rules
+// ValidateAll checks the field values on CandlesResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetCandlesResponseMultiError, or nil if none found.
-func (m *GetCandlesResponse) ValidateAll() error {
+// CandlesResponseMultiError, or nil if none found.
+func (m *CandlesResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetCandlesResponse) validate(all bool) error {
+func (m *CandlesResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -182,28 +180,28 @@ func (m *GetCandlesResponse) validate(all bool) error {
 	// no validation rules for Name
 
 	if all {
-		switch v := interface{}(m.GetOnechart()).(type) {
+		switch v := interface{}(m.GetOneChart()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, GetCandlesResponseValidationError{
-					field:  "Onechart",
+				errors = append(errors, CandlesResponseValidationError{
+					field:  "OneChart",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, GetCandlesResponseValidationError{
-					field:  "Onechart",
+				errors = append(errors, CandlesResponseValidationError{
+					field:  "OneChart",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOnechart()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetOneChart()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return GetCandlesResponseValidationError{
-				field:  "Onechart",
+			return CandlesResponseValidationError{
+				field:  "OneChart",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -219,19 +217,19 @@ func (m *GetCandlesResponse) validate(all bool) error {
 	// no validation rules for Identifier
 
 	if len(errors) > 0 {
-		return GetCandlesResponseMultiError(errors)
+		return CandlesResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetCandlesResponseMultiError is an error wrapping multiple validation errors
-// returned by GetCandlesResponse.ValidateAll() if the designated constraints
+// CandlesResponseMultiError is an error wrapping multiple validation errors
+// returned by CandlesResponse.ValidateAll() if the designated constraints
 // aren't met.
-type GetCandlesResponseMultiError []error
+type CandlesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetCandlesResponseMultiError) Error() string {
+func (m CandlesResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -240,11 +238,11 @@ func (m GetCandlesResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetCandlesResponseMultiError) AllErrors() []error { return m }
+func (m CandlesResponseMultiError) AllErrors() []error { return m }
 
-// GetCandlesResponseValidationError is the validation error returned by
-// GetCandlesResponse.Validate if the designated constraints aren't met.
-type GetCandlesResponseValidationError struct {
+// CandlesResponseValidationError is the validation error returned by
+// CandlesResponse.Validate if the designated constraints aren't met.
+type CandlesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -252,24 +250,22 @@ type GetCandlesResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetCandlesResponseValidationError) Field() string { return e.field }
+func (e CandlesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetCandlesResponseValidationError) Reason() string { return e.reason }
+func (e CandlesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetCandlesResponseValidationError) Cause() error { return e.cause }
+func (e CandlesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetCandlesResponseValidationError) Key() bool { return e.key }
+func (e CandlesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetCandlesResponseValidationError) ErrorName() string {
-	return "GetCandlesResponseValidationError"
-}
+func (e CandlesResponseValidationError) ErrorName() string { return "CandlesResponseValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetCandlesResponseValidationError) Error() string {
+func (e CandlesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -281,14 +277,14 @@ func (e GetCandlesResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetCandlesResponse.%s: %s%s",
+		"invalid %sCandlesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetCandlesResponseValidationError{}
+var _ error = CandlesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -296,7 +292,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetCandlesResponseValidationError{}
+} = CandlesResponseValidationError{}
 
 // Validate checks the field values on CandleData with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
