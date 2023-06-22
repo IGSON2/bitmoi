@@ -38,5 +38,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo systemctl stop bitmoi
-            sudo systemctl start bitmoi
+            sudo /home/ubuntu/bitmoi/stop.sh
+            sudo /home/ubuntu/bitmoi/start.sh
