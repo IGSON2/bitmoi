@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Build Go project
+        run: go build -o bitmoi
+
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}  # Replace with your EC2 instance hostname or IP address
+          username: ${{ secrets.EC2_USERNAME }}  # Replace with your EC2 instance username
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Replace with your SSH private key stored as a secret
+          script: |
+            sudo systemctl stop your-app  # Replace with your application's service name
+            sudo mv app /path/to/deployment/directory  # Replace with your deployment directory
+            sudo systemctl start your-app  # Replace with your application's service name

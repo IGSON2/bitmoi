@@ -63,7 +63,7 @@ func TestAESEncrypt(t *testing.T) {
 
 func TestAESDecrypt(t *testing.T) {
 	var c IdentificationData
-	identifier := "00b609ff3f019dbe24c52f266654abd4a01cc67fca9b4218ad3284ddf6b24372af28212653857d47f69e948ef9d409e2407247db7ff28f4ec5fd2daa9984ef0588e8dbc904fc1ed9a4c7080803bbd027599bf920e57594ca1861204e4263111d0465ea2924b49d9d27e3c26abd10c9c65fb1d19e51b181a8330933495ce937e2153a599da4fc1a35e7a0754c0ceba185c68e4cdd6a0738d6c65b"
+	identifier := "ALYJ/z8Bnb4k3SwlZlSr1KAcxn/Km0IYrTKE3fayRnKvKCE2V4BiXe+el4m6g0j2QnBG13z8j0rR5m300pf4CoruyccVqkubqM0KDQOl1S1ZlOw0oSrNi0c2fgMDYREDUzK/Y2eliJwloIsu90GNkky/0ZlVt4usNQM2SBY="
 
 	b := DecryptByASE(identifier)
 	json.Unmarshal(b, &c)

@@ -13,6 +13,9 @@ import (
 )
 
 func TestLogger(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	if err := os.MkdirAll(filepath.Join("data", "grpc", "logs"), 0700); err != nil {
 		log.Panic().Msgf("Err cannot make datadir: %v", err)
 	}

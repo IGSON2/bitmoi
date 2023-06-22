@@ -56,6 +56,9 @@ type testResult struct {
 }
 
 func TestSomePairs(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	oc := sync.Once{}
 	oc.Do(
 		func() {

@@ -161,8 +161,8 @@ func TestInsertScore(t *testing.T) {
 	ctx := context.Background()
 	for i := 0; i < 5; i++ {
 		_, err := testQueries.InsertScore(ctx, InsertScoreParams{
-			ScoreID:    "1",
-			UserID:     "user",
+			ScoreID:    utilities.MakeRanString(3),
+			UserID:     "bknuw",
 			Stage:      int32(i + 1),
 			Pairname:   "SOMPAIR",
 			Entrytime:  "2023",

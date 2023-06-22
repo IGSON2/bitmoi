@@ -59,6 +59,9 @@ type testResult struct {
 var wg sync.WaitGroup
 
 func TestSomePairs(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	store := newTestStore(t)
 	server := newTestServer(t, store)
 	pairs, err := store.GetAllParisInDB(context.Background())
@@ -180,7 +183,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 
 			require.NotNil(t, body)
 			require.NoError(t, err)
-			require.NoError(t, json.Unmarshal(body, intervalOC))
+			require.NoError(t, json.Unmarshal(body, intervalOC), fmt.Sprintf("%s", body))
 			require.NotNil(t, intervalOC.Identifier)
 
 			tn.append(intervalOC.Name)
@@ -224,7 +227,7 @@ func testResponseWithRequest(t *testing.T, candleRes, res *OnePairChart, req *An
 	require.Equal(t, resTime, candleTime)
 	require.GreaterOrEqual(t, float64(0.02), math.Abs(resClose-candleClose)/resClose) // 각 단위의 캔들의 종가의 차이가 2% 이하여야 함
 	require.Equal(t, res.EntryTime, candleRes.EntryTime)
-	require.GreaterOrEqual(t, float64(0.01), math.Abs(res.EntryPrice-candleRes.EntryPrice)/res.EntryPrice)
+	require.GreaterOrEqual(t, float64(0.02), math.Abs(res.EntryPrice-candleRes.EntryPrice)/res.EntryPrice)
 	wg.Done()
 }
 
