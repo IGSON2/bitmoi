@@ -28,9 +28,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
-          source: bitmoi
+          source: bitmoi,Makefile,backend/db/migrate/*
           target: /home/ubuntu/bitmoi
-          
+
       - name: Restart server
         uses: appleboy/ssh-action@master
         with:
@@ -38,5 +38,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo systemctl bitmoi
+            sudo systemctl stop bitmoi
             sudo systemctl start bitmoi
