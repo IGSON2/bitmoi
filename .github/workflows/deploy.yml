@@ -28,6 +28,4 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo systemctl bitmoi
-            sudo mv bitmoi /home/ubuntu/bitmoi/bitmoi
-            sudo systemctl start bitmoi
+            touch ~/hello
