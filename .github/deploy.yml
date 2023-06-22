@@ -2,8 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - release
+    branches: [main]
 
 jobs:
   deploy:
@@ -27,7 +26,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.PRIV }}
+          key: ${{ secrets.EC2_PRIV }}
           script: |
             sudo systemctl bitmoi
             sudo mv bitmoi /home/ubuntu/bitmoi/bitmoi
