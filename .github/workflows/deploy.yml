@@ -21,8 +21,7 @@ jobs:
       - name: Build Go project
         run: |
           go build -o bitmoi
-          echo ${{ secrets.EC2_HOST }}
-          echo ${{ secrets.EC2_USERNAME }}
+          scp bitmoi ${{ secrets.EC2_USERNAME }}@${{ EC2_HOST }}:/home/ubuntu/bitmoi
 
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@master
@@ -31,4 +30,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            touch ~/hello
+            sudo systemctl bitmoi
+            sudo systemctl start bitmoi
