@@ -19,7 +19,10 @@ jobs:
           go-version: 1.18
 
       - name: Build Go project
-        run: go build -o bitmoi
+        run: |
+          go build -o bitmoi
+          echo ${{ secrets.EC2_HOST }}
+          echo ${{ secrets.EC2_USERNAME }}
 
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@master
