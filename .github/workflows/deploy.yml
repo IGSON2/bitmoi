@@ -21,10 +21,17 @@ jobs:
       - name: Build Go project
         run: |
           go build -o bitmoi
-          sudo cat ${{ secrets.EC2_PRIV }} >> $HOME/.ssh/authorized_keys
-          scp bitmoi ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/bitmoi
 
-      - name: Deploy to EC2 instance
+      - name: Deploy file
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIV }}
+          source: bitmoi
+          target: /home/ubuntu/bitmoi
+          
+      - name: Restart server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
