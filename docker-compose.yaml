@@ -1,13 +1,5 @@
 version: '3'
 services:
-  db:
-    image: mysql:latest
-    ports:
-      - 3306:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=123
-      - MYSQL_INITDB_SQL=CREATE DATABASE bitmoi;
-      - MYSQL_DATABASE=bitmoi
 
   api:
     build:  
@@ -30,3 +22,12 @@ services:
         "--",
         "/bitmoi/start_api.sh"
       ]
+
+  gapi:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_INITDB_SQL=CREATE DATABASE bitmoi;
+      - MYSQL_DATABASE=bitmoi

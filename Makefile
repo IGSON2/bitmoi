@@ -41,4 +41,7 @@ proto: delete
 rmi:
 	docker compose down && docker rmi bitmoi_api
 
+checkenv:
+	echo $(PATH)
+
 .PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto rmi

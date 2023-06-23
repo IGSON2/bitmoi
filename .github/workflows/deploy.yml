@@ -13,14 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          go-version: 1.18
-
-      - name: Build Go project
-        run: |
-          go build -o bitmoi
+          role-to-assume: arn:aws:iam::123456789012:role/my-github-actions-role
+          aws-region: ap-northeast-2
 
       - name: Deploy file
         uses: appleboy/scp-action@v0.1.4
@@ -28,7 +25,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
-          source: bitmoi,Makefile,backend/db/migrate/*
+          overwrite: true
+          source: Makefile,backend/db/migrate/*
           target: /home/$${{ secrets.EC2_HOST }}/bitmoi
 
       - name: Restart server
@@ -38,5 +36,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo cd /home/$${{ secrets.EC2_HOST }}/bitmoi&&stop.sh
-            sudo cd home/$${{ secrets.EC2_HOST }}/bitmoi&&start.sh
+            sudo cd /home/$${{ secrets.EC2_HOST }}&&stop.sh
+            sudo cd home/$${{ secrets.EC2_HOST }}&&start.sh

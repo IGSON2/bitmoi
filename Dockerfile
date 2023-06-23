@@ -14,12 +14,6 @@ COPY ./Makefile .
 
 RUN apk update
 RUN apk add make
-RUN apk --no-cache add curl
-RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz|tar xvz
-RUN mv migrate /usr/bin/migrate
-RUN which migrate
-
-COPY ./backend/db/migrate/* ./backend/db/migrate/
 
 COPY ./start_api.sh .
 RUN chmod +x start_api.sh
