@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           source: bitmoi,Makefile,backend/db/migrate/*
-          target: /home/ubuntu/bitmoi
+          target: /home/$${{ secrets.EC2_HOST }}/bitmoi
 
       - name: Restart server
         uses: appleboy/ssh-action@master
@@ -38,5 +38,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo /home/ubuntu/bitmoi/stop.sh
-            sudo /home/ubuntu/bitmoi/start.sh
+            sudo cd /home/$${{ secrets.EC2_HOST }}/bitmoi&&stop.sh
+            sudo cd home/$${{ secrets.EC2_HOST }}/bitmoi&&start.sh
