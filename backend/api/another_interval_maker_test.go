@@ -162,7 +162,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 
 			require.NotNil(t, body)
 			require.NoError(t, err)
-			require.NoError(t, json.Unmarshal(body, originOC))
+			require.NoError(t, json.Unmarshal(body, originOC), string(body))
 			require.NotNil(t, originOC.Identifier)
 
 			tc.CandleReq.Names = tn.Names
@@ -183,7 +183,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 
 			require.NotNil(t, body)
 			require.NoError(t, err)
-			require.NoError(t, json.Unmarshal(body, intervalOC), fmt.Sprintf("%s", body))
+			require.NoError(t, json.Unmarshal(body, intervalOC), string(body))
 			require.NotNil(t, intervalOC.Identifier)
 
 			tn.append(intervalOC.Name)

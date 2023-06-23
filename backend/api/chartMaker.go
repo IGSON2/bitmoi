@@ -170,7 +170,8 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 
 	ratio, err := s.calcBtcRatio(interval, name, refTimestamp, c)
 	if err != nil {
-		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, err : %w", name, interval, err)
+		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
+			name, interval, refTimestamp, err)
 	}
 
 	var oc = &OnePairChart{

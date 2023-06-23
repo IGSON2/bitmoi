@@ -21,20 +21,17 @@ import (
 
 var (
 	user   = utilities.MakeRanString(6)
-	server *Server
+	tm     *token.PasetoMaker
 	store  db.Store
 	client pb.BitmoiClient
 	pairs  []string
 )
 
-func newTestServer(t *testing.T, store db.Store) *Server {
+func newTestPasetoMaker(t *testing.T) *token.PasetoMaker {
 	c := utilities.GetConfig("../../.")
-
-	s, err := NewServer(c, store)
+	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	require.NoError(t, err)
-	go s.ListenGRPC()
-	go s.ListenGRPCGateWay()
-	return s
+	return tm
 }
 
 func newTestStore(t *testing.T) db.Store {

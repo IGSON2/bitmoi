@@ -23,7 +23,8 @@ func (s *Server) sendAnotherInterval(a *pb.AnotherIntervalRequest, c context.Con
 
 	ratio, err := s.calcBtcRatio(a.ReqInterval, originInfo.Name, originInfo.RefTimestamp, c)
 	if err != nil {
-		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, err : %w", originInfo.Name, a.ReqInterval, err)
+		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
+			originInfo.Name, a.ReqInterval, originInfo.RefTimestamp, err)
 	}
 
 	err = s.cutExceedChart(originInfo.Name, originInfo.RefTimestamp, c, cdd)

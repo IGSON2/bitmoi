@@ -15,7 +15,9 @@ const (
 func MakeRanInt(minimum, maximum int) int {
 	ranSeed := big.NewInt(int64(maximum - minimum))
 	ranBigNum, err := rand.Int(rand.Reader, ranSeed)
-	Errchk(err)
+	if err != nil {
+		return -1
+	}
 	return int(ranBigNum.Int64()) + minimum
 }
 

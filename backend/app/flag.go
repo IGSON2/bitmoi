@@ -39,4 +39,14 @@ var (
 		Usage: "Specify pairs to datadir path.",
 		Value: utilities.DefaultDataDir(),
 	}
+	GRPCFlag = &cli.BoolFlag{
+		Name:  "grpc",
+		Usage: "If it's true, run grpc and gateway server.",
+		Value: false,
+	}
+	HTTPFlag = &cli.BoolFlag{
+		Name:  "http",
+		Usage: "If it's true, run http server.",
+		Value: false,
+	}
 )

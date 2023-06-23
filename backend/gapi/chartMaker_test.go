@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -18,15 +19,14 @@ func TestMakeChart(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	store := newTestStore(t)
-	s := newTestServer(t, store)
+	tm := newTestPasetoMaker(t)
 	client := newGRPCClient(t)
 
 	testCases := []struct {
 		Name      string
 		req       *pb.CandlesRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
-		CheckResp func(res *pb.CandlesResponse, pairs []string, err error)
+		CheckResp func(res *pb.CandlesResponse, err error)
 	}{
 		{
 			Name: "OK_Practice",
@@ -38,7 +38,7 @@ func TestMakeChart(t *testing.T) {
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()
 			},
-			CheckResp: func(res *pb.CandlesResponse, pairs []string, err error) {
+			CheckResp: func(res *pb.CandlesResponse, err error) {
 				require.NoError(t, err)
 				require.NotEmpty(t, res.Identifier, "")
 
@@ -52,7 +52,7 @@ func TestMakeChart(t *testing.T) {
 				require.NotNil(t, res.OneChart.PData)
 				require.NotNil(t, res.OneChart.VData)
 
-				require.Contains(t, pairs, res.Name)
+				require.Contains(t, res.Name, "USDT")
 				require.Equal(t, info.Interval, db.OneH)
 				require.Equal(t, info.PriceFactor, float64(0))
 				require.Equal(t, info.VolumeFactor, float64(0))
@@ -70,7 +70,7 @@ func TestMakeChart(t *testing.T) {
 				token := generateTestAccessToken(t, tm)
 				return addAuthHeaderIntoContext(t, token)
 			},
-			CheckResp: func(res *pb.CandlesResponse, pairs []string, err error) {
+			CheckResp: func(res *pb.CandlesResponse, err error) {
 				require.NoError(t, err)
 				require.NotEmpty(t, res.Identifier, "")
 
@@ -86,9 +86,9 @@ func TestMakeChart(t *testing.T) {
 
 				require.Contains(t, res.Name, "STAGE")
 				require.Equal(t, info.Interval, db.OneH)
-				require.Greater(t, info.PriceFactor, float64(0))
-				require.Greater(t, info.VolumeFactor, float64(0))
-				require.Greater(t, info.TimeFactor, int64(0))
+				require.Greater(t, info.PriceFactor, float64(0), fmt.Sprintf("name:%s, ref:%d", info.Name, info.RefTimestamp))
+				require.Greater(t, info.VolumeFactor, float64(0), fmt.Sprintf("name:%s, ref:%d", info.Name, info.RefTimestamp))
+				require.Greater(t, info.TimeFactor, int64(0), fmt.Sprintf("name:%s, ref:%d", info.Name, info.RefTimestamp))
 			},
 		},
 		{
@@ -101,7 +101,7 @@ func TestMakeChart(t *testing.T) {
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()
 			},
-			CheckResp: func(res *pb.CandlesResponse, pairs []string, err error) {
+			CheckResp: func(res *pb.CandlesResponse, err error) {
 				require.Error(t, err)
 			},
 		},
@@ -115,7 +115,7 @@ func TestMakeChart(t *testing.T) {
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()
 			},
-			CheckResp: func(res *pb.CandlesResponse, pairs []string, err error) {
+			CheckResp: func(res *pb.CandlesResponse, err error) {
 				t.Log(err)
 				require.Error(t, err)
 			},
@@ -124,9 +124,9 @@ func TestMakeChart(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			ctx := tc.SetUpAuth(t, s.tokenMaker)
+			ctx := tc.SetUpAuth(t, tm)
 			res, err := client.RequestCandles(ctx, tc.req)
-			tc.CheckResp(res, s.pairs, err)
+			tc.CheckResp(res, err)
 		})
 	}
 

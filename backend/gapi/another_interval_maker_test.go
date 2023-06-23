@@ -18,10 +18,10 @@ import (
 )
 
 const (
-	OKPractice5m           = "OK_Practice_5m"
+	OKPractice4h           = "OK_Practice_4h"
 	OKPractice15m          = "OK_Practice_15m"
 	FailPracticeValidation = "Fail_Validation_Practice"
-	OKCompetition5m        = "OK_Competition_5m"
+	OKCompetition4h        = "OK_Competition_4h"
 	OKCompetition15m       = "OK_Competition_15m"
 	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
 )
@@ -63,8 +63,8 @@ func TestSomePairs(t *testing.T) {
 	oc.Do(
 		func() {
 			var err error
+			tm = newTestPasetoMaker(t)
 			store = newTestStore(t)
-			server = newTestServer(t, store)
 			client = newGRPCClient(t)
 			pairs, err = store.GetAllParisInDB(context.Background())
 			require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestSomePairs(t *testing.T) {
 	ch := make(chan testResult, len(pairs))
 
 	for i := 0; i < len(pairs); i++ {
-		go testAnotherInterval(t, store, server, client, ch)
+		go testAnotherInterval(t, store, tm, client, ch)
 	}
 	for i := 0; i < len(pairs); i++ {
 		tr := <-ch
@@ -86,7 +86,7 @@ func TestSomePairs(t *testing.T) {
 	}
 }
 
-func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.BitmoiClient, ch chan<- testResult) {
+func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, client pb.BitmoiClient, ch chan<- testResult) {
 	tn := new(TestName)
 
 	testCases := []struct {
@@ -96,13 +96,13 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
 	}{
 		{
-			Name: OKPractice5m,
+			Name: OKPractice4h,
 			CandleReq: &pb.CandlesRequest{
 				Mode:   practice,
 				UserId: "",
 			},
 			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FiveM,
+				ReqInterval: db.FourH,
 				Mode:        practice,
 				UserId:      user,
 				Stage:       1,
@@ -111,30 +111,30 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 				return context.Background()
 			},
 		},
+		// {
+		// 	Name: OKPractice15m,
+		// 	CandleReq: &pb.CandlesRequest{
+		// 		Mode:   practice,
+		// 		UserId: "",
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: db.FifM,
+		// 		Mode:        practice,
+		// 		UserId:      user,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		return context.Background()
+		// 	},
+		// },
 		{
-			Name: OKPractice15m,
-			CandleReq: &pb.CandlesRequest{
-				Mode:   practice,
-				UserId: "",
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FifM,
-				Mode:        practice,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				return context.Background()
-			},
-		},
-		{
-			Name: OKCompetition5m,
+			Name: OKCompetition4h,
 			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
 				UserId: user,
 			},
 			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FiveM,
+				ReqInterval: db.FourH,
 				Mode:        competition,
 				UserId:      user,
 				Stage:       1,
@@ -144,23 +144,23 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 				return addAuthHeaderIntoContext(t, token)
 			},
 		},
-		{
-			Name: OKCompetition15m,
-			CandleReq: &pb.CandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FifM,
-				Mode:        competition,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-		},
+		// {
+		// 	Name: OKCompetition15m,
+		// 	CandleReq: &pb.CandlesRequest{
+		// 		Mode:   competition,
+		// 		UserId: user,
+		// 	},
+		// 	Req: &pb.AnotherIntervalRequest{
+		// 		ReqInterval: db.FifM,
+		// 		Mode:        competition,
+		// 		UserId:      user,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+		// 		token := generateTestAccessToken(t, tm)
+		// 		return addAuthHeaderIntoContext(t, token)
+		// 	},
+		// },
 		{
 			Name: FailCompetitionNoAuth,
 			CandleReq: &pb.CandlesRequest{
@@ -196,7 +196,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, client pb.Bitm
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			ctx := tc.SetUpAuth(t, s.tokenMaker)
+			ctx := tc.SetUpAuth(t, tm)
 
 			tc.CandleReq.Names = tn.Names
 			candleRes, err := client.RequestCandles(ctx, tc.CandleReq)

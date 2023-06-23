@@ -22,6 +22,8 @@ func init() {
 	}
 	bApp.Flags = []cli.Flag{
 		app.DatadirFlag,
+		app.GRPCFlag,
+		app.HTTPFlag,
 	}
 	bApp.Action = bitmoi
 }
@@ -45,23 +47,29 @@ func bitmoi(ctx *cli.Context) error {
 	}
 	dbStore := db.NewStore(conn)
 
-	server, err := gapi.NewServer(config, dbStore)
-	if err != nil {
-		log.Panic().Err(err).Msg("cannot create gRPC server")
+	errCh := make(chan error)
+
+	if isGrpcRun := ctx.Bool(app.GRPCFlag.Name); isGrpcRun {
+		server, err := gapi.NewServer(config, dbStore)
+		if err != nil {
+			log.Panic().Err(err).Msg("cannot create gRPC server")
+		}
+		go server.ListenGRPC(errCh)
+		go server.ListenGRPCGateWay(errCh)
 	}
 
-	go server.ListenGRPC()
-	go server.ListenGRPCGateWay()
+	if isHTTPRun := ctx.Bool(app.HTTPFlag.Name); isHTTPRun {
+		go runHttpServer(config, dbStore, errCh)
+	}
 
-	runHttpServer(config, dbStore)
-	return nil
+	return <-errCh
 }
 
-func runHttpServer(config *utilities.Config, store db.Store) {
+func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 	server, err := api.NewServer(config, store)
 	if err != nil {
 		log.Panic().Err(err).Msg("cannot create server")
 	}
 
-	log.Panic().Err(server.Listen()).Msg("cannot start http server")
+	errCh <- server.Listen()
 }

@@ -56,7 +56,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	return server, nil
 }
 
-func (s *Server) ListenGRPC() {
+func (s *Server) ListenGRPC(errCh chan error) {
 	grpcInterceptor := grpc.UnaryInterceptor(GrpcLogger)
 	grpcServer := grpc.NewServer(grpcInterceptor)
 
@@ -68,10 +68,10 @@ func (s *Server) ListenGRPC() {
 		log.Panic().Err(fmt.Errorf("cannot create gRPC listener: %w", err))
 	}
 	log.Info().Msgf("Start gRPC server at %s", s.config.GRPCAddress)
-	log.Panic().Err(grpcServer.Serve(listener))
+	errCh <- grpcServer.Serve(listener)
 }
 
-func (s *Server) ListenGRPCGateWay() {
+func (s *Server) ListenGRPCGateWay(errCh chan error) {
 	jsonOption := runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
 			UseProtoNames: true,
@@ -100,7 +100,7 @@ func (s *Server) ListenGRPCGateWay() {
 	}
 
 	log.Info().Msgf("start HTTP gateway server at %s", listener.Addr().String())
-	log.Panic().Err(http.Serve(listener, GatewayLogger(mux)))
+	errCh <- http.Serve(listener, GatewayLogger(mux))
 }
 
 func (s *Server) RequestCandles(c context.Context, r *pb.CandlesRequest) (*pb.CandlesResponse, error) {
