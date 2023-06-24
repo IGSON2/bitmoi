@@ -10,7 +10,7 @@ services:
       - 5000:5000
     environment:
       - SYMMETRIC_KEY=${SYMMETRIC_KEY}
-      - DB_Driver=${DB_Driver}
+      - DB_DRIVER=${DB_DRIVER}
       - DB_SOURCE=${DB_SOURCE}
       - HTTP_ADDRESS=${HTTP_ADDRESS}
       - ACCESS_TOKEN_DURATION=${ACCESS_TOKEN_DURATION}
@@ -31,7 +31,7 @@ services:
       - 7000:7000
     environment:
       - SYMMETRIC_KEY=${SYMMETRIC_KEY}
-      - DB_Driver=${DB_Driver}
+      - DB_DRIVER=${DB_DRIVER}
       - DB_SOURCE=${DB_SOURCE}
       - GRPC_ADDRESS=${GRPC_ADDRESS}
       - GRPC_GATEWAY_ADDRESS=${GRPC_GATEWAY_ADDRESS}
