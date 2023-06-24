@@ -5,7 +5,7 @@ services:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
-      - ./data:/data
+      - /home/ubuntu/logs:/logs
     ports:
       - 5000:5000
     environment:
@@ -17,7 +17,7 @@ services:
       - REFRESH_TOKEN_DURATION=${REFRESH_TOKEN_DURATION}
     entrypoint: 
       [
-        "--datadir=/data",
+        "--datadir=/logs",
         "--http"
       ]
 
@@ -25,7 +25,7 @@ services:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
-      - ./data:/data
+      - /home/ubuntu/logs:/logs
     ports:
       - 6000:6000
       - 7000:7000
@@ -39,6 +39,6 @@ services:
       - REFRESH_TOKEN_DURATION=${REFRESH_TOKEN_DURATION}
     entrypoint: 
       [
-        "--datadir=/data",
+        "--datadir=/logs",
         "--grpc"
       ]

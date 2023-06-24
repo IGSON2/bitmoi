@@ -42,6 +42,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
+          overwrite: true
           rm: true
           source: docker-compose.yaml,backend/db/migrate/*
           target: /home/$${{ secrets.EC2_HOST }}/bitmoi
