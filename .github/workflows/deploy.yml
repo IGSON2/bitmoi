@@ -16,25 +16,38 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::123456789012:role/my-github-actions-role
+          role-to-assume: arn:aws:iam::122786534921:role/ECR_PowerUser
           aws-region: ap-northeast-2
 
-      - name: Deploy file
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          overwrite: true
-          source: Makefile,backend/db/migrate/*
-          target: /home/$${{ secrets.EC2_HOST }}/bitmoi
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Restart server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          script: |
-            sudo cd /home/$${{ secrets.EC2_HOST }}&&stop.sh
-            sudo cd home/$${{ secrets.EC2_HOST }}&&start.sh
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: bitmoi
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      # - name: Deploy file
+      #   uses: appleboy/scp-action@v0.1.4
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key: ${{ secrets.EC2_PRIV }}
+      #     overwrite: true
+      #     source: Makefile,backend/db/migrate/*
+      #     target: /home/$${{ secrets.EC2_HOST }}/bitmoi
+
+      # - name: Restart server
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key: ${{ secrets.EC2_PRIV }}
+      #     script: |
+      #       sudo cd /home/$${{ secrets.EC2_HOST }}&&stop.sh
+      #       sudo cd home/$${{ secrets.EC2_HOST }}&&start.sh

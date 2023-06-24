@@ -14,9 +14,3 @@ COPY ./Makefile .
 
 RUN apk update
 RUN apk add make
-
-COPY ./start_api.sh .
-RUN chmod +x start_api.sh
-
-COPY ./wait-for.sh .
-RUN chmod +x wait-for.sh
