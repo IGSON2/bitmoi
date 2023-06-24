@@ -34,17 +34,17 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-      # - name: Deploy file
-      #   uses: appleboy/scp-action@v0.1.4
-      #   with:
-      #     host: ${{ secrets.EC2_HOST }}
-      #     username: ${{ secrets.EC2_USERNAME }}
-      #     key: ${{ secrets.EC2_PRIV }}
-      #     overwrite: true
-      #     source: Makefile,backend/db/migrate/*
-      #     target: /home/$${{ secrets.EC2_HOST }}/bitmoi
+      - name: Deploy file
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIV }}
+          overwrite: true
+          source: docker-compose.yaml,backend/db/migrate/*
+          target: /home/$${{ secrets.EC2_HOST }}/bitmoi
 
       # - name: Restart server
       #   uses: appleboy/ssh-action@master

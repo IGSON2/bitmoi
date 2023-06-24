@@ -13,3 +13,5 @@ COPY Makefile .
 
 RUN apk update
 RUN apk add make
+
+ENTRYPOINT [ "bitmoi" ]
