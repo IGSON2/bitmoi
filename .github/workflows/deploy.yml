@@ -36,14 +36,14 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-      - name: Restart server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          script: |
-            rm /home/$${{ secrets.EC2_HOST }}/bitmoi
+      # - name: Remove pervious directory
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key: ${{ secrets.EC2_PRIV }}
+      #     script: |
+      #       rm /home/$${{ secrets.EC2_USERNAME }}/bitmoi
 
       - name: Deploy file
         uses: appleboy/scp-action@v0.1.4
@@ -51,8 +51,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
+          rm: true
           source: docker-compose.yaml,backend/db/migrate/*
-          target: /home/$${{ secrets.EC2_HOST }}/bitmoi
+          target: /home/$${{ secrets.EC2_USERNAME }}/bitmoi
 
       # - name: Restart server
       #   uses: appleboy/ssh-action@master
