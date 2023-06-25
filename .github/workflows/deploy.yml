@@ -61,6 +61,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            sudo cd /home/$${{ secrets.EC2_HOST }}&&stop.sh
+            cd /home/$${{ secrets.EC2_HOST }}&&sudo stop.sh
             sleep 3s
-            sudo cd home/$${{ secrets.EC2_HOST }}&&start.sh
+            cd home/$${{ secrets.EC2_HOST }}&&ssudo tart.sh
