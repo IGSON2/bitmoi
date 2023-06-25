@@ -63,4 +63,5 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USERNAME }}&&sudo ./stop.sh
             sleep 1s
+            cd /home/${{ secrets.EC2_USERNAME }}&& ./login.sh
             cd /home/${{ secrets.EC2_USERNAME }}&&sudo ./start.sh
