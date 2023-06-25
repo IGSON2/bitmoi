@@ -2,7 +2,7 @@ version: '3'
 services:
 
   api:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
+    image: bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
       - /home/ubuntu/logs:/bitmoi/logs
@@ -21,7 +21,7 @@ services:
       
 
   gapi:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
+    image: bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
       - /home/ubuntu/logs:/bitmoi/logs
