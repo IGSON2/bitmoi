@@ -63,4 +63,4 @@ jobs:
           script: |
             cd /home/$${{ secrets.EC2_HOST }}&&sudo stop.sh
             sleep 3s
-            cd home/$${{ secrets.EC2_HOST }}&&ssudo tart.sh
+            cd /home/$${{ secrets.EC2_HOST }}&&sudo start.sh
