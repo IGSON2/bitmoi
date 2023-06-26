@@ -37,15 +37,15 @@ func GetConfig(path string) *Config {
 		viper.SetConfigType("env")
 
 		viper.AutomaticEnv()
+		matches, _ := filepath.Glob(path)
+		files := strings.Join(matches, ",")
 
 		if err := viper.ReadInConfig(); err != nil {
-			matches, _ := filepath.Glob(path)
-			files := strings.Join(matches, ",")
 			log.Panicf("Err! cannot load config. Err : %v, File list : %s", err, files)
 		}
 
 		if err := viper.Unmarshal(&C); err != nil {
-			log.Panicln("Err! cannot unmarshal config. Err : ", err)
+			log.Panicf("Err! cannot unmarshal config. Err : %v, File list : %s", err, files)
 		}
 		C.SetDataDir(DefaultDataDir())
 	}
