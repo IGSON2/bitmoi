@@ -2,6 +2,8 @@ package utilities
 
 import (
 	"log"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -37,7 +39,9 @@ func GetConfig(path string) *Config {
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {
-			log.Panicln("Err! cannot load config. Err : ", err)
+			matches, _ := filepath.Glob(path)
+			files := strings.Join(matches, ",")
+			log.Panicf("Err! cannot load config. Err : %v, File list : %s", err, files)
 		}
 
 		if err := viper.Unmarshal(&C); err != nil {
