@@ -9,6 +9,7 @@ FROM  alpine:latest
 USER root
 WORKDIR /bitmoi
 COPY --from=builder /bitmoi/bitmoi /usr/local/bin/
+COPY a.env .
 
 RUN apk update
 RUN apk add make
