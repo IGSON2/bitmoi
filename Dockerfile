@@ -8,10 +8,10 @@ RUN go build
 FROM  alpine:latest
 USER root
 WORKDIR /bitmoi
-COPY --from=builder /bitmoi/bitmoi /usr/local/bin/
+COPY --from=builder /bitmoi/bitmoi .
 COPY ./a.env .
 
 RUN apk update
 RUN apk add make
 
-ENTRYPOINT ["bitmoi"]
+ENTRYPOINT ["./bitmoi"]
