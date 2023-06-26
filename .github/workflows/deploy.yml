@@ -28,7 +28,10 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Load secrets and save to envfile
-        run: aws secretsmanager get-secret-value --secret-id bitmoi --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > a.env
+        run: |
+          aws secretsmanager get-secret-value --secret-id bitmoi --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > a.env
+          pwd
+          ls -hl
 
 
       - name: Build, tag, and push docker image to Amazon ECR
