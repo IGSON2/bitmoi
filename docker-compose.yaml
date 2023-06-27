@@ -2,40 +2,25 @@ version: '3'
 services:
 
   api:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
+    image: 122786534921.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
       - /home/ubuntu/logs:/bitmoi/logs
     ports:
       - 5000:5000
-    environment:
-      - SYMMETRIC_KEY=${SYMMETRIC_KEY}
-      - DB_DRIVER=${DB_DRIVER}
-      - DB_SOURCE=${DB_SOURCE}
-      - HTTP_ADDRESS=${HTTP_ADDRESS}
-      - ACCESS_TOKEN_DURATION=${ACCESS_TOKEN_DURATION}
-      - REFRESH_TOKEN_DURATION=${REFRESH_TOKEN_DURATION}
     command: 
         "--datadir=/bitmoi/logs
         --http"
       
 
   gapi:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
+    image: 122786534921.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
     volumes:
       - /etc/localtime:/etc/localtime
       - /home/ubuntu/logs:/bitmoi/logs
     ports:
       - 6000:6000
       - 7000:7000
-    environment:
-      - SYMMETRIC_KEY=${SYMMETRIC_KEY}
-      - DB_DRIVER=${DB_DRIVER}
-      - DB_SOURCE=${DB_SOURCE}
-      - GRPC_ADDRESS=${GRPC_ADDRESS}
-      - GRPC_GATEWAY_ADDRESS=${GRPC_GATEWAY_ADDRESS}
-      - ACCESS_TOKEN_DURATION=${ACCESS_TOKEN_DURATION}
-      - REFRESH_TOKEN_DURATION=${REFRESH_TOKEN_DURATION}
     command: 
         "--datadir=/bitmoi/logs
         --grpc"
