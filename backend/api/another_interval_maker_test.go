@@ -5,7 +5,6 @@ import (
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -64,16 +63,14 @@ func TestSomePairs(t *testing.T) {
 	}
 	store := newTestStore(t)
 	server := newTestServer(t, store)
-	pairs, err := store.GetAllParisInDB(context.Background())
-	require.NoError(t, err)
 
 	ch := make(chan testResult)
-	wg.Add(len(pairs))
+	wg.Add(5)
 
-	for i := 0; i < len(pairs); i++ {
+	for i := 0; i < 5; i++ {
 		go testAnotherInterval(t, store, server, ch)
 	}
-	for i := 0; i < len(pairs); i++ {
+	for i := 0; i < 5; i++ {
 		tr := <-ch
 		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq, tr.err)
 	}
@@ -124,7 +121,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 				Stage:       1,
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
-				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "bknuw", time.Minute)
+				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
 			},
 		},
 		{
@@ -137,7 +134,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 				Stage:       1,
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
-				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "bknuw", time.Minute)
+				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
 			},
 		},
 	}

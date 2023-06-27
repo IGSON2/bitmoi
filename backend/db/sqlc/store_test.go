@@ -162,7 +162,7 @@ func TestInsertScore(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		_, err := testQueries.InsertScore(ctx, InsertScoreParams{
 			ScoreID:    utilities.MakeRanString(3),
-			UserID:     "bknuw",
+			UserID:     "igson",
 			Stage:      int32(i + 1),
 			Pairname:   "SOMPAIR",
 			Entrytime:  "2023",
