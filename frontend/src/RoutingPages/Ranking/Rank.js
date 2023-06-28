@@ -9,11 +9,12 @@ function Rank() {
   const [data, setData] = useState({
     rankingBoard: [
       {
-        user: "",
-        displayname: "",
-        photourl: "",
-        scoreid: "",
-        balance: 0,
+        user_id: "",
+        photo_url: "",
+        display_name: "",
+        score_id: "",
+        final_balance: 0,
+        comment: "",
       },
     ],
   });

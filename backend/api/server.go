@@ -217,7 +217,9 @@ func (s *Server) rank(c *fiber.Ctx) error {
 			}
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
-
+		if p.Page == 0 {
+			p.Page = 1
+		}
 		ranks, err := s.getAllRanks(p.Page, c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
