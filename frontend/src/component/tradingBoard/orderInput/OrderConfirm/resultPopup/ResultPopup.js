@@ -8,7 +8,7 @@ const ResultPopup = (props) => {
   const auth = getAuth();
 
   const goRanking = () => {
-    fetch("http://localhost:5000/ranking", {
+    fetch("http://43.202.77.76:5000/ranking", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

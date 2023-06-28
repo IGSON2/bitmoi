@@ -1,0 +1,1 @@
+function GetResultchart({ message, popupOpen }) {}

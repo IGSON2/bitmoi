@@ -92,7 +92,10 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "init":
         jsonData = await (
           await fetch(
-            "http://localhost:5000/" + mode + "?names=" + titleaArray.join("")
+            "http://43.202.77.76:5000/" +
+              mode +
+              "?names=" +
+              titleaArray.join("")
           )
         ).json();
         setFiveMinutes();
@@ -116,7 +119,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "5m":
         if (fiveMinutes === undefined) {
           jsonData = await (
-            await fetch("http://localhost:5000/interval", {
+            await fetch("http://43.202.77.76:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -139,7 +142,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "15m":
         if (fifteenMinutes === undefined) {
           jsonData = await (
-            await fetch("http://localhost:5000/interval", {
+            await fetch("http://43.202.77.76:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -166,7 +169,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "4h":
         if (fourHour === undefined) {
           jsonData = await (
-            await fetch("http://localhost:5000/interval", {
+            await fetch("http://43.202.77.76:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

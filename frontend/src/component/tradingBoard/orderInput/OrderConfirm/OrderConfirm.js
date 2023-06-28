@@ -56,7 +56,7 @@ function Orderconfirm({
   };
   const finalConfirm = () => {
     const resultPromise = PostOrderJson(
-      "http://localhost:5000/" + order.mode,
+      "http://43.202.77.76:5000/" + order.mode,
       order
     );
     resultPromise

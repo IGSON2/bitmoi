@@ -13,6 +13,7 @@ import styles from "./Login.module.css";
 import { BsXLg } from "react-icons/bs";
 import googleLogin from "../images/btn_google_signin_light_normal_web@2x.png";
 import googleFocused from "../images/btn_google_signin_light_focus_web@2x.png";
+
 function Login({ message, popupOpen }) {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();

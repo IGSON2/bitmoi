@@ -18,7 +18,7 @@ function Ranking() {
     ],
   });
   const getUserScore = async () => {
-    const result = await fetch("http://localhost:5000/ranking");
+    const result = await fetch("http://43.202.77.76:5000/ranking");
     const json = await result.json();
     setData(json);
   };

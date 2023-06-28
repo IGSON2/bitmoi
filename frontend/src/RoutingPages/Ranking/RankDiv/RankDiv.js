@@ -43,7 +43,7 @@ function RankDiv({ index, obj }) {
   const getMoreInfo = () => {
     if (!moreInfo) {
       fetch(
-        "http://localhost:5000/moreinfo/?user=" +
+        "http://43.202.77.76:5000/moreinfo/?user=" +
           obj.user +
           "&index=0&scoreid=" +
           obj.scoreid
