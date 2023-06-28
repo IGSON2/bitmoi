@@ -38,7 +38,7 @@ function App() {
             }
           />
           <Route path="/myscore" element={<MyScore />} />
-          <Route path="/rank" element={<Rank />} />
+          <Route path="/rank?page=1" element={<Rank />} />
         </Routes>
       </BrowserRouter>
     </div>

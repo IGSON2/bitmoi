@@ -6,7 +6,7 @@ function V_Navbar() {
     "Home",
     "Competition",
     "Practice",
-    "Ranking",
+    "Rank",
     // "Community",
   ];
   return (

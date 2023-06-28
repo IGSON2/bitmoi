@@ -61,7 +61,7 @@ type RankInsertRequest struct {
 }
 
 type PageRequest struct {
-	Page int32 `json:"page" validate:"required,min=1,number" query:"page"`
+	Page int32 `json:"page" validate:"min=0,number" query:"page"`
 }
 
 type MoreInfoRequest struct {

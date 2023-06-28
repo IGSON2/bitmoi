@@ -7,7 +7,7 @@ function H_NavBar() {
     "HOME",
     "COMPETITION",
     "PRACTICE",
-    "RANKING",
+    "RANK",
     // "Community",
   ];
   return (
