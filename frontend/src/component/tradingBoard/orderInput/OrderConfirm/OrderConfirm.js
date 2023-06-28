@@ -21,10 +21,11 @@ function Orderconfirm({
 }) {
   const [receivedScore, setReceivedScore] = useState({
     stage: 0,
-    entry_time: "",
     name: "",
+    entry_time: "",
     leverage: 0,
     entry_price: 0,
+    end_price: 0,
     out_time: 0,
     roe: 0,
     pnl: 0,
@@ -33,18 +34,20 @@ function Orderconfirm({
   });
   var profitROE;
   var lossROE;
-  if (order.isLong) {
-    profitROE = (order.profitPrice - order.entryPrice) / order.entryPrice;
-    lossROE = (order.entryPrice - order.lossPrice) / order.entryPrice;
+
+  if (order.is_long) {
+    profitROE = (order.profit_price - order.entry_price) / order.entry_price;
+    lossROE = (order.entry_price - order.loss_price) / order.entry_price;
   } else {
-    profitROE = (order.entryPrice - order.profitPrice) / order.entryPrice;
-    lossROE = (order.lossPrice - order.entryPrice) / order.entryPrice;
+    profitROE = (order.entry_price - order.profit_price) / order.entry_price;
+    lossROE = (order.loss_price - order.entry_price) / order.entry_price;
   }
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [invalidOrder, setinvalidOrder] = useState(false);
 
-  const profitPNL = order.entryPrice * order.quantity * profitROE;
-  const lossPNL = order.entryPrice * order.quantity * lossROE;
+  const profitPNL = order.entry_price * order.quantity * profitROE;
+  const lossPNL = order.entry_price * order.quantity * lossROE;
 
   const backClick = () => {
     back((current) => !current);
@@ -56,7 +59,7 @@ function Orderconfirm({
   };
   const finalConfirm = () => {
     const resultPromise = PostOrderJson(
-      "http://43.202.77.76:5000/" + order.mode,
+      "http://bitmoi.co.kr:5000/" + order.mode,
       order
     );
     resultPromise
@@ -76,12 +79,21 @@ function Orderconfirm({
         );
         setReceivedScore(rchart.score);
       })
-      .then(setSubmitOrder(true))
-      .then(setModalOpen(true));
+      .catch((error) => {
+        console.log(error);
+        setinvalidOrder(true);
+        return;
+      })
+      .then(() => {
+        setSubmitOrder(true);
+        setModalOpen(true);
+        setinvalidOrder(false);
+      });
     setTimeout(() => {
       orderInit();
     }, 2390);
   };
+
   return (
     <div className={styles.confirmwindow}>
       {modalOpen ? (
@@ -105,8 +117,8 @@ function Orderconfirm({
             <div>
               현 진입 시점으로부터 24시간 안에 시장 가격이{" "}
               <span className={styles.highlight}>
-                {order.profitPrice > 0
-                  ? order.profitPrice.toLocaleString("en-US", {
+                {order.profit_price > 0
+                  ? order.profit_price.toLocaleString("en-US", {
                       maximumFractionDigits: 4,
                     })
                   : ""}{" "}
@@ -125,8 +137,8 @@ function Orderconfirm({
             <div>
               반대로{" "}
               <span className={styles.highlight}>
-                {order.lossPrice > 0
-                  ? order.lossPrice.toLocaleString("en-US", {
+                {order.loss_price > 0
+                  ? order.loss_price.toLocaleString("en-US", {
                       maximumFractionDigits: 4,
                     })
                   : ""}{" "}
@@ -162,6 +174,11 @@ function Orderconfirm({
               주문 제출하기
             </button>
           </div>
+          {invalidOrder ? (
+            <div className={styles.invalidorder}>잘못된 주문입니다.</div>
+          ) : (
+            <div></div>
+          )}
         </div>
       )}
     </div>

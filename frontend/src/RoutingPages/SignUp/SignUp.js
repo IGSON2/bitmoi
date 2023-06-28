@@ -19,7 +19,7 @@ function SignUp() {
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         const actionCodeSettings = {
-          url: "http://43.202.77.76:3000/practice",
+          url: "http://bitmoi.co.kr:3000/practice",
           handleCodeInApp: true,
         };
         setIsLogined(true);

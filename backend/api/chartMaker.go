@@ -281,5 +281,5 @@ func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
 		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
 	}
 
-	return common.RoundDecimal((rp*rv)/(bp*bv)) * 100, nil
+	return common.CeilDecimal(10*(rp*rv)/(bp*bv)) * 100, nil
 }

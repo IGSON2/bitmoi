@@ -4,7 +4,7 @@ import Home from "./RoutingPages/home/Home";
 import Competition from "./RoutingPages/competition/Competition";
 import Practice from "./RoutingPages/practice/Practice";
 import MyScore from "./RoutingPages/myscore/MyScore";
-import Ranking from "./RoutingPages/Ranking/Ranking";
+import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
 import app from "./component/backendConn/fbase";
 
@@ -38,7 +38,7 @@ function App() {
             }
           />
           <Route path="/myscore" element={<MyScore />} />
-          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/rank" element={<Rank />} />
         </Routes>
       </BrowserRouter>
     </div>

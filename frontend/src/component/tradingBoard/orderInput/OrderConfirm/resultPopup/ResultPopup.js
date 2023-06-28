@@ -8,7 +8,7 @@ const ResultPopup = (props) => {
   const auth = getAuth();
 
   const goRanking = () => {
-    fetch("http://43.202.77.76:5000/ranking", {
+    fetch("http://bitmoi.co.kr:5000/ranking", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -59,14 +59,14 @@ const ResultPopup = (props) => {
               USDT
             </div>
             <VerticalLine className={styles.vertical} />
-            <div className={styles.infovalue}>+ {props.result.outtime} H</div>
+            <div className={styles.infovalue}>+ {props.result.out_time} H</div>
           </div>
-          {props.result.isliquidated ? (
+          {props.result.is_liquidated ? (
             <div className={styles.liquidated}>포지션이 청산 되었습니다.</div>
           ) : null}
 
           <div className={styles.buttonfield}>
-            {props.result.stage < 10 && !props.result.isliquidated ? (
+            {props.result.stage < 10 && !props.result.is_liquidated ? (
               <button
                 onClick={props.close}
                 disabled={props.submitOrder ? true : false}

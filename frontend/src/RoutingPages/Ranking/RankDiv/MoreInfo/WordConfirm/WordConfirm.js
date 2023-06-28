@@ -10,7 +10,7 @@ function WordConfirm({ popupOpen, comment }) {
   const yesnoclick = (e) => {
     switch (e.target.innerText) {
       case "네":
-        fetch("http://43.202.77.76:5000/moreinfo", {
+        fetch("http://bitmoi.co.kr:5000/moreinfo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

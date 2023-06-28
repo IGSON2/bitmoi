@@ -92,12 +92,14 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "init":
         jsonData = await (
           await fetch(
-            "http://43.202.77.76:5000/" +
+            "http://bitmoi.co.kr:5000/" +
               mode +
               "?names=" +
               titleaArray.join("")
           )
         ).json();
+        jsonData.onechart.pdata.reverse();
+        jsonData.onechart.vdata.reverse();
         setFiveMinutes();
         setFifteenMinutes();
         setFourHour();
@@ -119,7 +121,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "5m":
         if (fiveMinutes === undefined) {
           jsonData = await (
-            await fetch("http://43.202.77.76:5000/interval", {
+            await fetch("http://bitmoi.co.kr:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -132,6 +134,8 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
               }),
             })
           ).json();
+          jsonData.onechart.pdata.reverse();
+          jsonData.onechart.vdata.reverse();
           setFiveMinutes(jsonData.onechart);
           setCandles(jsonData.onechart);
         } else {
@@ -142,7 +146,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "15m":
         if (fifteenMinutes === undefined) {
           jsonData = await (
-            await fetch("http://43.202.77.76:5000/interval", {
+            await fetch("http://bitmoi.co.kr:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -155,6 +159,8 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
               }),
             })
           ).json();
+          jsonData.onechart.pdata.reverse();
+          jsonData.onechart.vdata.reverse();
           setFifteenMinutes(jsonData.onechart);
           setCandles(jsonData.onechart);
         } else {
@@ -169,7 +175,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
       case "4h":
         if (fourHour === undefined) {
           jsonData = await (
-            await fetch("http://43.202.77.76:5000/interval", {
+            await fetch("http://bitmoi.co.kr:5000/interval", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -182,6 +188,8 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
               }),
             })
           ).json();
+          jsonData.onechart.pdata.reverse();
+          jsonData.onechart.vdata.reverse();
           setFourHour(jsonData.onechart);
           setCandles(jsonData.onechart);
         } else {
@@ -219,6 +227,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
   window.onkeyup = () => {
     setActive("");
   };
+  console.log(candles);
   return (
     <div className={styles.page}>
       {loaded ? (

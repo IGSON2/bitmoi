@@ -25,7 +25,6 @@ function OrderInput({
   setBalance,
   setTitleaArray,
   entryTime,
-  resultTerm,
 }) {
   const auth = getAuth();
   const [quantity, setQuantity] = useState();
@@ -55,19 +54,17 @@ function OrderInput({
     mode: "",
     user_id: "",
     name: "",
-    entrytime: "",
     stage: 0,
-    isLong: true,
+    is_long: true,
     entry_price: 0,
     quantity: 0,
-    quantity_rate: 0,
     profit_price: 0,
     loss_price: 0,
     leverage: 0,
     balance: 0,
     identifier: "",
     score_id: "",
-    resultterm: 0,
+    waiting_term: 0,
   });
   var commission = 0.0002;
   const inputRef = useRef(null);
@@ -89,21 +86,19 @@ function OrderInput({
     event.preventDefault();
     var tempObject = {
       mode: mode,
-      user_id: "",
+      user_id: "test",
       name: name,
-      entrytime: entryTime,
       stage: index + 1,
-      isLong: isLong,
+      is_long: isLong,
       entry_price: entryPrice,
       quantity: quantity,
-      quantity_rate: quantityRate,
       profit_price: profitPrice,
       loss_price: lossPrice,
       leverage: leverage,
       balance: balance,
       identifier: identifier,
       score_id: Date.now().toString(),
-      resultTerm: resultTerm,
+      waiting_Term: 1,
     };
     // Update userid for firebase
     if (mode === "competition") {
@@ -627,7 +622,7 @@ function OrderInput({
       setLossPrice(Math.floor((entryPrice + entryPrice * 0.1) * 10000) / 10000);
     }
   };
-
+  console.log(quantity);
   return (
     <div
       className={`${opened ? styles.ordernavopened : styles.ordernavclosed}`}

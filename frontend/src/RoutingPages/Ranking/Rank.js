@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import styles from "./Ranking.module.css";
+import styles from "./Rank.module.css";
 import RankDiv from "./RankDiv/RankDiv";
 import Topbutton from "../../component/Topbutton/Topbutton";
 import Footer from "../../component/Footer/Footer";
 import H_NavBar from "../../component/navbar/H_NavBar";
 
-function Ranking() {
+function Rank() {
   const [data, setData] = useState({
     rankingBoard: [
       {
@@ -18,7 +18,7 @@ function Ranking() {
     ],
   });
   const getUserScore = async () => {
-    const result = await fetch("http://43.202.77.76:5000/ranking");
+    const result = await fetch("http://bitmoi.co.kr:5000/rank");
     const json = await result.json();
     setData(json);
   };
@@ -47,4 +47,4 @@ function Ranking() {
   );
 }
 
-export default Ranking;
+export default Rank;
