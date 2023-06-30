@@ -6,7 +6,8 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  `photo_url` varchar(255)
+  `photo_url` varchar(255),
+  `metamask_address` varchar(255)
 );
 
 CREATE TABLE `score` (

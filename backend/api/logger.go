@@ -31,7 +31,7 @@ func (s *Server) createLoggerMiddleware() fiber.Handler {
 	lm := logger.New(logger.Config{
 		Format:     "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n",
 		Output:     w,
-		TimeFormat: "2006-01-02T15:04:05Z09:00",
+		TimeFormat: "2006-01-02T15:04:05",
 	})
 	return lm
 }

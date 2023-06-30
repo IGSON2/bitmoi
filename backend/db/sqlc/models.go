@@ -108,4 +108,5 @@ type User struct {
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
 	CreatedAt         time.Time      `json:"created_at"`
 	PhotoUrl          sql.NullString `json:"photo_url"`
+	MetamaskAddress   sql.NullString `json:"metamask_address"`
 }

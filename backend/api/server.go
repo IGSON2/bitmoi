@@ -4,11 +4,13 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/worker"
 	"context"
 	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/hibiken/asynq"
 )
 
 const (
@@ -22,11 +24,12 @@ var (
 )
 
 type Server struct {
-	config     *utilities.Config
-	store      db.Store
-	router     *fiber.App
-	tokenMaker *token.PasetoMaker
-	pairs      []string
+	config          *utilities.Config
+	store           db.Store
+	router          *fiber.App
+	tokenMaker      *token.PasetoMaker
+	pairs           []string
+	taskDistributor worker.TaskDistributor
 }
 
 func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
@@ -34,10 +37,18 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
+
+	redisOpt := asynq.RedisClientOpt{
+		Addr: c.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+
 	server := &Server{
-		config:     c,
-		store:      s,
-		tokenMaker: tm,
+		config:          c,
+		store:           s,
+		tokenMaker:      tm,
+		taskDistributor: taskDistributor,
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())
@@ -52,7 +63,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
-	router.Post("/interval", server.sendInterval)
+	router.Get("/interval", server.getAnotherInterval)
 	router.Get("/rank", server.rank)
 	router.Post("/rank", server.rank)
 	router.Get("/moreinfo", server.moreinfo)
@@ -170,9 +181,9 @@ func (s *Server) competition(c *fiber.Ctx) error {
 	}
 }
 
-func (s *Server) sendInterval(c *fiber.Ctx) error {
+func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 	i := new(AnotherIntervalRequest)
-	err := c.BodyParser(i)
+	err := c.QueryParser(i)
 	if errs := utilities.ValidateStruct(*i); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
@@ -247,15 +258,15 @@ func (s *Server) rank(c *fiber.Ctx) error {
 }
 
 func (s *Server) moreinfo(c *fiber.Ctx) error {
-	q := new(MoreInfoRequest)
-	if err := c.BodyParser(q); err != nil {
+	r := new(MoreInfoRequest)
+	if err := c.QueryParser(r); err != nil {
 		return err
 	}
-	errs := utilities.ValidateStruct(q)
+	errs := utilities.ValidateStruct(r)
 	if errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 	}
-	scores, err := s.sendMoreInfo(q.UserId, q.ScoreId, c)
+	scores, err := s.sendMoreInfo(r.UserId, r.ScoreId, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

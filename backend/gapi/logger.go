@@ -38,12 +38,12 @@ func setMultiLogger(config *utilities.Config) error {
 			}
 			return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
 		},
-		TimeFormat: "2006-01-02T15:04:05Z09:00"})
+		TimeFormat: "2006-01-02T15:04:05"})
 	if err != nil {
 		return err
 	}
 
-	log.Logger = log.Output(zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02T15:04:05Z09:00"}, fileLogger))
+	log.Logger = log.Output(zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02T15:04:05"}, fileLogger))
 	log.Info().Msgf("gRPC multi logger has set successfully. PATH=%s", logfilePath)
 	return nil
 }

@@ -17,6 +17,7 @@ type Config struct {
 	HTTPAddress          string        `mapstructure:"HTTP_ADDRESS"`
 	GRPCHTTPAddress      string        `mapstructure:"GRPC_GATEWAY_ADDRESS"`
 	GRPCAddress          string        `mapstructure:"GRPC_ADDRESS"`
+	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
 	apikey               string        `mapstructure:"API_KEY"`
 	srckey               string        `mapstructure:"SRC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`

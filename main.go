@@ -6,10 +6,12 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/worker"
 	"database/sql"
 	"fmt"
 	"os"
 
+	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -49,6 +51,8 @@ func bitmoi(ctx *cli.Context) error {
 
 	errCh := make(chan error)
 
+	go runTaskProcessor(config, dbStore, errCh)
+
 	if isGrpcRun := ctx.Bool(app.GRPCFlag.Name); isGrpcRun {
 		server, err := gapi.NewServer(config, dbStore)
 		if err != nil {
@@ -72,4 +76,10 @@ func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 	}
 
 	errCh <- server.Listen()
+}
+
+func runTaskProcessor(config *utilities.Config, store db.Store, errCh chan error) {
+	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store)
+	log.Info().Msg("start task processor")
+	errCh <- fmt.Errorf("failed to start task processor: %w", taskProcessor.Start())
 }
