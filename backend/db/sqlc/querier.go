@@ -45,6 +45,7 @@ type Querier interface {
 	GetSession(ctx context.Context, sessionID string) (Session, error)
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
 	GetUser(ctx context.Context, userID string) (User, error)
+	GetUserMetamaskAddress(ctx context.Context, userID string) (sql.NullString, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)
 	Insert1dCandles(ctx context.Context, arg Insert1dCandlesParams) (sql.Result, error)
 	Insert1hCandles(ctx context.Context, arg Insert1hCandlesParams) (sql.Result, error)
@@ -52,6 +53,7 @@ type Querier interface {
 	Insert5mCandles(ctx context.Context, arg Insert5mCandlesParams) (sql.Result, error)
 	InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error)
 	InsertScore(ctx context.Context, arg InsertScoreParams) (sql.Result, error)
+	UpdateMetamaskAddress(ctx context.Context, arg UpdateMetamaskAddressParams) (sql.Result, error)
 	UpdatePhotoURL(ctx context.Context, arg UpdatePhotoURLParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
 }

@@ -44,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const getLastUser = `-- name: GetLastUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address FROM users
 ORDER BY created_at DESC
 LIMIT 1
 `
@@ -61,12 +61,13 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.PhotoUrl,
+		&i.MetamaskAddress,
 	)
 	return i, err
 }
 
 const getRandomUser = `-- name: GetRandomUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address FROM users
 ORDER BY RAND()
 LIMIT 1
 `
@@ -83,12 +84,13 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.PhotoUrl,
+		&i.MetamaskAddress,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url FROM users
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address FROM users
 WHERE user_id = ?
 LIMIT 1
 `
@@ -105,8 +107,35 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.PhotoUrl,
+		&i.MetamaskAddress,
 	)
 	return i, err
+}
+
+const getUserMetamaskAddress = `-- name: GetUserMetamaskAddress :one
+SELECT metamask_address FROM users
+WHERE user_id = ?
+`
+
+func (q *Queries) GetUserMetamaskAddress(ctx context.Context, userID string) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, getUserMetamaskAddress, userID)
+	var metamask_address sql.NullString
+	err := row.Scan(&metamask_address)
+	return metamask_address, err
+}
+
+const updateMetamaskAddress = `-- name: UpdateMetamaskAddress :execresult
+UPDATE users SET metamask_address = ?
+WHERE user_id = ?
+`
+
+type UpdateMetamaskAddressParams struct {
+	MetamaskAddress sql.NullString `json:"metamask_address"`
+	UserID          string         `json:"user_id"`
+}
+
+func (q *Queries) UpdateMetamaskAddress(ctx context.Context, arg UpdateMetamaskAddressParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateMetamaskAddress, arg.MetamaskAddress, arg.UserID)
 }
 
 const updatePhotoURL = `-- name: UpdatePhotoURL :execresult

@@ -561,6 +561,21 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
 }
 
+// GetUserMetamaskAddress mocks base method.
+func (m *MockStore) GetUserMetamaskAddress(arg0 context.Context, arg1 string) (sql.NullString, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserMetamaskAddress", arg0, arg1)
+	ret0, _ := ret[0].(sql.NullString)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserMetamaskAddress indicates an expected call of GetUserMetamaskAddress.
+func (mr *MockStoreMockRecorder) GetUserMetamaskAddress(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserMetamaskAddress", reflect.TypeOf((*MockStore)(nil).GetUserMetamaskAddress), arg0, arg1)
+}
+
 // Insert15mCandles mocks base method.
 func (m *MockStore) Insert15mCandles(arg0 context.Context, arg1 db.Insert15mCandlesParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -680,6 +695,21 @@ func (m *MockStore) SelectMinMaxTime(arg0, arg1 string, arg2 context.Context) (i
 func (mr *MockStoreMockRecorder) SelectMinMaxTime(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectMinMaxTime", reflect.TypeOf((*MockStore)(nil).SelectMinMaxTime), arg0, arg1, arg2)
+}
+
+// UpdateMetamaskAddress mocks base method.
+func (m *MockStore) UpdateMetamaskAddress(arg0 context.Context, arg1 db.UpdateMetamaskAddressParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMetamaskAddress", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateMetamaskAddress indicates an expected call of UpdateMetamaskAddress.
+func (mr *MockStoreMockRecorder) UpdateMetamaskAddress(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMetamaskAddress", reflect.TypeOf((*MockStore)(nil).UpdateMetamaskAddress), arg0, arg1)
 }
 
 // UpdatePhotoURL mocks base method.

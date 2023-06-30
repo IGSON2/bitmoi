@@ -65,15 +65,15 @@ type PageRequest struct {
 }
 
 type MoreInfoRequest struct {
-	UserId  string `json:"userid" validate:"required,alpha"`
-	ScoreId string `json:"scoreid" validate:"required,numeric"`
+	UserId  string `json:"user_id" validate:"required,alpha" query:"userid"`
+	ScoreId string `json:"score_id" validate:"required,numeric" query:"scoreid"`
 }
 
 type AnotherIntervalRequest struct {
-	ReqInterval string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d"`
-	Identifier  string `json:"identifier" validate:"required"`
-	Mode        string `json:"mode" validate:"required,oneof=competition practice"`
-	Stage       int32  `json:"stage" validate:"required,number,min=1,max=10"`
+	ReqInterval string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
+	Identifier  string `json:"identifier" validate:"required" query:"identifier"`
+	Mode        string `json:"mode" validate:"required,oneof=competition practice" query:"mode"`
+	Stage       int32  `json:"stage" validate:"required,number,min=1,max=10" query:"stage"`
 }
 
 type LoginUserRequest struct {

@@ -9,6 +9,7 @@ import (
 type Store interface {
 	Querier
 	SelectMinMaxTime(interval, name string, c context.Context) (int64, int64, error)
+	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 }
 
 type SqlStore struct {
@@ -24,32 +25,20 @@ func NewStore(db *sql.DB) Store {
 	}
 }
 
-func (s *SqlStore) SelectMinMaxTime(interval, name string, c context.Context) (int64, int64, error) {
-	switch interval {
-	case OneD:
-		r, err := s.Get1dMinMaxTime(c, name)
-		min, max := convTimestamp(&r)
-		return min, max, err
-	case FourH:
-		r, err := s.Get4hMinMaxTime(c, name)
-		min, max := convTimestamp(&r)
-		return min, max, err
-	case OneH:
-		r, err := s.Get1hMinMaxTime(c, name)
-		min, max := convTimestamp(&r)
-		return min, max, err
-	case FifM:
-		r, err := s.Get15mMinMaxTime(c, name)
-		min, max := convTimestamp(&r)
-		return min, max, err
-	case FiveM:
-		r, err := s.Get5mMinMaxTime(c, name)
-		min, max := convTimestamp(&r)
-		return min, max, err
+// ExecTx executes a function within a database transaction
+func (store *SqlStore) execTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
 	}
-	return 0, 0, fmt.Errorf("invalid interval %s", interval)
-}
+	q := New(tx)
+	err = fn(q)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+		}
+		return err
+	}
 
-func convTimestamp(m MinMaxInterface) (min, max int64) {
-	return m.Convert()
+	return tx.Commit()
 }
