@@ -4,6 +4,7 @@ import (
 	"bitmoi/backend/utilities"
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -14,7 +15,9 @@ import (
 )
 
 func TestGetStore(t *testing.T) {
-
+	if testing.Short() {
+		t.Skip()
+	}
 	// name := "BTCUSDT"
 	name := strings.ToUpper(utilities.MakeRanString(3)) + "USDT"
 	require.Equal(t, 7, len(name))
@@ -146,6 +149,9 @@ func TestGetStore(t *testing.T) {
 }
 
 func TestInsertUser(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	ctx := context.Background()
 	testQueries.CreateUser(ctx, CreateUserParams{
 		UserID:         "user",
@@ -158,6 +164,9 @@ func TestInsertUser(t *testing.T) {
 }
 
 func TestInsertScore(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	ctx := context.Background()
 	for i := 0; i < 5; i++ {
 		_, err := testQueries.InsertScore(ctx, InsertScoreParams{
@@ -179,6 +188,9 @@ func TestInsertScore(t *testing.T) {
 }
 
 func TestGetTotalScore(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	ctx := context.Background()
 	i, err := testQueries.GetScoreToStage(ctx, GetScoreToStageParams{
 		ScoreID: "1",
@@ -191,4 +203,40 @@ func TestGetTotalScore(t *testing.T) {
 	require.Equal(t, true, ok)
 	require.Equal(t, -1201.2, totalScore)
 
+}
+
+func TestExecTx(t *testing.T) {
+	ctx := context.Background()
+	tx, err := testDB.BeginTx(ctx, nil)
+	require.NoError(t, err)
+
+	q := New(tx)
+
+	fn := func(q *Queries) (User, error) {
+		var err error
+
+		_, err = q.CreateUser(ctx, CreateUserParams{
+			UserID:         "testTx",
+			OauthUid:       sql.NullString{String: "", Valid: false},
+			FullName:       "test_fullname",
+			HashedPassword: "asdf",
+			Email:          "testemail@email.com",
+			PhotoUrl:       sql.NullString{String: "s3_url", Valid: true},
+		})
+		require.NoError(t, err)
+
+		return q.GetUser(ctx, "testTx")
+	}
+
+	user, err := fn(q)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			require.NoError(t, rbErr, fmt.Sprintf("tx err: %v, rb err: %v", err, rbErr))
+		}
+		require.NoError(t, err, "error! tx has rollback successfully.")
+	}
+
+	require.NotNil(t, user.UserID)
+	require.NotNil(t, user.Email)
+	require.NotNil(t, user.HashedPassword)
 }

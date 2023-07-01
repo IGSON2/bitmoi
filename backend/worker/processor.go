@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,11 +28,18 @@ type RedisTaskProcessor struct {
 }
 
 func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) TaskProcessor {
+	logger := NewLogger()
+	redis.SetLogger(logger)
 	server := asynq.NewServer(redisOpt, asynq.Config{
 		Queues: map[string]int{
 			QueueCritical: 10,
 			QueueDefault:  5,
 		},
+		ErrorHandler: asynq.ErrorHandlerFunc(func(ctx context.Context, task *asynq.Task, err error) {
+			log.Error().Err(err).Str("type", task.Type()).
+				Bytes("payload", task.Payload()).Msg("process task failed")
+		}),
+		Logger: logger,
 	})
 
 	return &RedisTaskProcessor{
@@ -53,7 +61,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 		return fmt.Errorf("faild to unmarshal payload: %w", err)
 	}
 
-	user, err := processor.store.GetUser(ctx, payload.Username)
+	user, err := processor.store.GetUser(ctx, payload.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return fmt.Errorf("user dosen't exist: %w", err)

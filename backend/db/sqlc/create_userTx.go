@@ -21,6 +21,13 @@ func (s *SqlStore) CreateUserTx(ctx context.Context, arg CreateUserTxParams) (Cr
 		if err != nil {
 			return err
 		}
-		return arg.AfterCreate()
+
+		result.User, err = q.GetUser(ctx, arg.UserID)
+		if err != nil {
+			return err
+		}
+		return arg.AfterCreate(result.User)
 	})
+
+	return result, err
 }

@@ -1,0 +1,13 @@
+CREATE TABLE `verify_emails` (
+  `id` bigint AUTO_INCREMENT PRIMARY KEY,
+  `user_id` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `secret_code` varchar(255) NOT NULL,
+  `is_used` boolean NOT NULL DEFAULT false,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `expired_at` timestamp NOT NULL DEFAULT (now() + INTERVAL 15 MINUTE)
+);
+
+ALTER TABLE `verify_emails` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+ALTER TABLE `users` ADD COLUMN `is_email_verified` boolean NOT NULL DEFAULT false;

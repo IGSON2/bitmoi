@@ -3,12 +3,14 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/worker"
 	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 )
 
@@ -58,7 +60,22 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		arg.OauthUid = sql.NullString{String: req.OauthUid, Valid: true}
 	}
 
-	_, err = s.store.CreateUser(c.Context(), arg)
+	txArg := db.CreateUserTxParams{
+		CreateUserParams: arg,
+		AfterCreate: func(user db.User) error {
+			taskPayload := &worker.PayloadSendVerifyEmail{
+				UserID: user.UserID,
+			}
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue(worker.QueueCritical),
+			}
+			return s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
+		},
+	}
+
+	txResult, err := s.store.CreateUserTx(c.Context(), txArg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -68,11 +85,8 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	user, err := s.store.GetUser(c.Context(), req.UserID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	rsp := convertUserResponse(user)
+
+	rsp := convertUserResponse(txResult.User)
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
