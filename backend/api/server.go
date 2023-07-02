@@ -70,6 +70,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
 	router.Post("/token/reissue_access", server.reissueAccessToken)
+	router.Get("/verify_email", server.VerifyEmail)
 
 	authGroup := router.Group("/auth", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
@@ -182,17 +183,17 @@ func (s *Server) competition(c *fiber.Ctx) error {
 }
 
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
-	i := new(AnotherIntervalRequest)
-	err := c.QueryParser(i)
-	if errs := utilities.ValidateStruct(*i); err != nil || errs != nil {
+	r := new(AnotherIntervalRequest)
+	err := c.QueryParser(r)
+	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
-	if i.Mode == competition {
+	if r.Mode == competition {
 		if err := authMiddleware(s.tokenMaker)(c); err != nil {
 			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
 		}
 	}
-	oc, err := s.sendAnotherInterval(i, c)
+	oc, err := s.sendAnotherInterval(r, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -201,16 +202,16 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 
 func (s *Server) myscore(c *fiber.Ctx) error {
 	u := c.Params("user")
-	p := new(PageRequest)
-	err := c.QueryParser(p)
-	if errs := utilities.ValidateStruct(*p); err != nil || errs != nil {
+	r := new(PageRequest)
+	err := c.QueryParser(r)
+	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
 		if errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	scores, err := s.getMyscores(u, p.Page, c)
+	scores, err := s.getMyscores(u, r.Page, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -220,18 +221,18 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 func (s *Server) rank(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		p := new(PageRequest)
-		err := c.QueryParser(p)
-		if errs := utilities.ValidateStruct(*p); err != nil || errs != nil {
+		r := new(PageRequest)
+		err := c.QueryParser(r)
+		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
 			if errs != nil {
 				return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 			}
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
-		if p.Page == 0 {
-			p.Page = 1
+		if r.Page == 0 {
+			r.Page = 1
 		}
-		ranks, err := s.getAllRanks(p.Page, c)
+		ranks, err := s.getAllRanks(r.Page, c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}

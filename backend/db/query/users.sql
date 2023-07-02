@@ -29,10 +29,14 @@ LIMIT 1;
 SELECT metamask_address FROM users
 WHERE user_id = ?;
 
--- name: UpdatePhotoURL :execresult
+-- name: UpdateUserPhotoURL :execresult
 UPDATE users SET photo_url = ?
 WHERE user_id = ?;
 
--- name: UpdateMetamaskAddress :execresult
+-- name: UpdateUserMetamaskAddress :execresult
 UPDATE users SET metamask_address = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserIsEmailVerified :execresult
+UPDATE users SET is_email_verified = ?
 WHERE user_id = ?;

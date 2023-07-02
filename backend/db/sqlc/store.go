@@ -10,6 +10,7 @@ type Store interface {
 	Querier
 	SelectMinMaxTime(interval, name string, c context.Context) (int64, int64, error)
 	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
+	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
 }
 
 type SqlStore struct {

@@ -12,6 +12,7 @@ import (
 type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
+	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (sql.Result, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
 	Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error)
 	Get15mResult(ctx context.Context, arg Get15mResultParams) ([]Candles15m, error)
@@ -46,6 +47,7 @@ type Querier interface {
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
 	GetUser(ctx context.Context, userID string) (User, error)
 	GetUserMetamaskAddress(ctx context.Context, userID string) (sql.NullString, error)
+	GetVerifyEmails(ctx context.Context, arg GetVerifyEmailsParams) (VerifyEmail, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)
 	Insert1dCandles(ctx context.Context, arg Insert1dCandlesParams) (sql.Result, error)
 	Insert1hCandles(ctx context.Context, arg Insert1hCandlesParams) (sql.Result, error)
@@ -53,9 +55,11 @@ type Querier interface {
 	Insert5mCandles(ctx context.Context, arg Insert5mCandlesParams) (sql.Result, error)
 	InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error)
 	InsertScore(ctx context.Context, arg InsertScoreParams) (sql.Result, error)
-	UpdateMetamaskAddress(ctx context.Context, arg UpdateMetamaskAddressParams) (sql.Result, error)
-	UpdatePhotoURL(ctx context.Context, arg UpdatePhotoURLParams) (sql.Result, error)
+	UpdateUserIsEmailVerified(ctx context.Context, arg UpdateUserIsEmailVerifiedParams) (sql.Result, error)
+	UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error)
+	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
+	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (sql.Result, error)
 }
 
 var _ Querier = (*Queries)(nil)

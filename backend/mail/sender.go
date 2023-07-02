@@ -8,6 +8,17 @@ import (
 	"github.com/jordan-wright/email"
 )
 
+type EmailSender interface {
+	SendEmail(
+		subject string,
+		content string,
+		to []string,
+		cc []string,
+		bcc []string,
+		attachFiles []string,
+	) error
+}
+
 const (
 	smtpAuthAddress   = "smtp.gmail.com"
 	smtpServerAddress = "smtp.gmail.com:587"

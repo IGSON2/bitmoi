@@ -89,3 +89,8 @@ type CreateUserRequest struct {
 	PhotoUrl string `json:"photo_url,omitempty"`
 	OauthUid string `json:"oauth_uid,omitempty"`
 }
+
+type VerifyEmailRequest struct {
+	EmailId    int64  `json:"email_id" validate:"required,min=1"`
+	SecretCode string `json:"secret_code" validate:"required,min=32,max=128"`
+}

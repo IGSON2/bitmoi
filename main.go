@@ -5,6 +5,7 @@ import (
 	"bitmoi/backend/app"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi"
+	"bitmoi/backend/mail"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
 	"database/sql"
@@ -51,7 +52,7 @@ func bitmoi(ctx *cli.Context) error {
 
 	errCh := make(chan error)
 
-	go runTaskProcessor(config, dbStore, errCh)
+	go runTaskProcessor(config, dbStore)
 
 	if isGrpcRun := ctx.Bool(app.GRPCFlag.Name); isGrpcRun {
 		server, err := gapi.NewServer(config, dbStore)
@@ -78,8 +79,11 @@ func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 	errCh <- server.Listen()
 }
 
-func runTaskProcessor(config *utilities.Config, store db.Store, errCh chan error) {
-	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store)
+func runTaskProcessor(config *utilities.Config, store db.Store) {
+	gmailSender := mail.NewGmailSender(config)
+	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store, gmailSender)
 	log.Info().Msg("start task processor")
-	errCh <- fmt.Errorf("failed to start task processor: %w", taskProcessor.Start())
+	if err := taskProcessor.Start(); err != nil {
+		log.Panic().Err(err).Msg("failed to start task processor")
+	}
 }
