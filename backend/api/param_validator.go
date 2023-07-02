@@ -91,6 +91,6 @@ type CreateUserRequest struct {
 }
 
 type VerifyEmailRequest struct {
-	EmailId    int64  `json:"email_id" validate:"required,min=1"`
-	SecretCode string `json:"secret_code" validate:"required,min=32,max=128"`
+	EmailId    int64  `json:"email_id" validate:"required,min=1" query:"email_id"`
+	SecretCode string `json:"secret_code" validate:"required,min=32,max=128" query:"secret_code"`
 }
