@@ -26,6 +26,6 @@ func (s *Server) VerifyEmail(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("failed to verify email")
 	}
-
+	c.Status(fiber.StatusOK).SendFile("./welcome.html", false)
 	return c.Status(fiber.StatusOK).JSON(&VerifyEmailResponse{IsVerified: txResult.User.IsEmailVerified})
 }

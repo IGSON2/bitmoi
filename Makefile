@@ -38,6 +38,13 @@ proto: delete
 	--validate_out="lang=go:backend/gapi/pb" --validate_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
+reactproto:
+	protoc \
+	--proto_path=backend/gapi/proto \
+	--js_out=import_style=commonjs:~/Workspace/bitmoi/frontend/generated \
+	--grpc-web_out=import_style=commonjs,mode=grpcwebtext:~/Workspace/bitmoi/frontend/generated \
+	backend/gapi/proto/*.proto
+
 rmi:
 	docker compose down && docker rmi bitmoi_api
 

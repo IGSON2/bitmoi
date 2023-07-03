@@ -16,6 +16,9 @@ import (
 )
 
 func TestAsyncWorker(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	config := utilities.GetConfig("../..")
 	store := newTestStore(t)
 	server := newTestServer(t, store)
@@ -48,6 +51,9 @@ func TestAsyncWorker(t *testing.T) {
 }
 
 func TestNotVerifiedLogin(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	config := utilities.GetConfig("../..")
 	store := newTestStore(t)
 	server := newTestServer(t, store)

@@ -10,6 +10,7 @@ USER root
 WORKDIR /bitmoi
 COPY --from=builder /bitmoi/bitmoi .
 COPY ./a.env .
+COPY ./welcome.html .
 
 RUN apk update
 RUN apk add make
