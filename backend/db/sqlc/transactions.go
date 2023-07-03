@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"fmt"
+	"time"
 )
 
 type CreateUserTxParams struct {
@@ -65,8 +67,11 @@ func (store *SqlStore) VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParam
 		if err != nil {
 			return err
 		}
+		if time.Now().After(result.VerifyEmail.ExpiredAt) {
+			return fmt.Errorf("verification has expired")
+		}
 
-		_, err = q.UpdateUserIsEmailVerified(ctx, UpdateUserIsEmailVerifiedParams{
+		_, err = q.UpdateUserEmailVerified(ctx, UpdateUserEmailVerifiedParams{
 			IsEmailVerified: true,
 			UserID:          result.VerifyEmail.UserID,
 		})

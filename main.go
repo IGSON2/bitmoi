@@ -81,7 +81,7 @@ func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 
 func runTaskProcessor(config *utilities.Config, store db.Store) {
 	gmailSender := mail.NewGmailSender(config)
-	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store, gmailSender)
+	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store, gmailSender, config.AccessTokenDuration)
 	log.Info().Msg("start task processor")
 	if err := taskProcessor.Start(); err != nil {
 		log.Panic().Err(err).Msg("failed to start task processor")

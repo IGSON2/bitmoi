@@ -127,18 +127,18 @@ func (q *Queries) GetUserMetamaskAddress(ctx context.Context, userID string) (sq
 	return metamask_address, err
 }
 
-const updateUserIsEmailVerified = `-- name: UpdateUserIsEmailVerified :execresult
+const updateUserEmailVerified = `-- name: UpdateUserEmailVerified :execresult
 UPDATE users SET is_email_verified = ?
 WHERE user_id = ?
 `
 
-type UpdateUserIsEmailVerifiedParams struct {
+type UpdateUserEmailVerifiedParams struct {
 	IsEmailVerified bool   `json:"is_email_verified"`
 	UserID          string `json:"user_id"`
 }
 
-func (q *Queries) UpdateUserIsEmailVerified(ctx context.Context, arg UpdateUserIsEmailVerifiedParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateUserIsEmailVerified, arg.IsEmailVerified, arg.UserID)
+func (q *Queries) UpdateUserEmailVerified(ctx context.Context, arg UpdateUserEmailVerifiedParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateUserEmailVerified, arg.IsEmailVerified, arg.UserID)
 }
 
 const updateUserMetamaskAddress = `-- name: UpdateUserMetamaskAddress :execresult

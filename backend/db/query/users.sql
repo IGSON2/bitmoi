@@ -37,6 +37,6 @@ WHERE user_id = ?;
 UPDATE users SET metamask_address = ?
 WHERE user_id = ?;
 
--- name: UpdateUserIsEmailVerified :execresult
+-- name: UpdateUserEmailVerified :execresult
 UPDATE users SET is_email_verified = ?
 WHERE user_id = ?;

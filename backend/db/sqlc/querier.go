@@ -55,7 +55,7 @@ type Querier interface {
 	Insert5mCandles(ctx context.Context, arg Insert5mCandlesParams) (sql.Result, error)
 	InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error)
 	InsertScore(ctx context.Context, arg InsertScoreParams) (sql.Result, error)
-	UpdateUserIsEmailVerified(ctx context.Context, arg UpdateUserIsEmailVerifiedParams) (sql.Result, error)
+	UpdateUserEmailVerified(ctx context.Context, arg UpdateUserEmailVerifiedParams) (sql.Result, error)
 	UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error)
 	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
