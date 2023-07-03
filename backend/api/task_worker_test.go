@@ -1,39 +1,35 @@
-package worker
+package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/mail"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/worker"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"time"
 
 	"github.com/hibiken/asynq"
-	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 )
 
 const (
 	QueueCritical = "critical"
 	QueueDefault  = "default"
+	taskTest      = "task:test"
 )
 
-type TaskProcessor interface {
-	ProcessTaskSendVerifyEmail(ctx context.Context, task *asynq.Task) error
-	Start() error
-}
-
-type RedisTaskProcessor struct {
+type TestRedisTaskProcessor struct {
 	server         *asynq.Server
 	store          db.Store
 	mailer         mail.EmailSender
 	accessDuration time.Duration
 }
 
-func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, mailer mail.EmailSender, accessDuration time.Duration) TaskProcessor {
-	logger := NewLogger()
-	redis.SetLogger(logger)
+func NewTestRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, mailer mail.EmailSender, accessDuration time.Duration) *TestRedisTaskProcessor {
 	server := asynq.NewServer(redisOpt, asynq.Config{
 		Queues: map[string]int{
 			QueueCritical: 10,
@@ -43,10 +39,10 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, mailer
 			log.Error().Err(err).Str("type", task.Type()).
 				Bytes("payload", task.Payload()).Msg("process task failed")
 		}),
-		Logger: logger,
+		Logger: worker.NewLogger(),
 	})
 
-	return &RedisTaskProcessor{
+	return &TestRedisTaskProcessor{
 		server:         server,
 		store:          store,
 		mailer:         mailer,
@@ -54,15 +50,15 @@ func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store, mailer
 	}
 }
 
-func (processor *RedisTaskProcessor) Start() error {
+func (processor *TestRedisTaskProcessor) Start() error {
 	mux := asynq.NewServeMux()
 
-	mux.HandleFunc(TaskSendVerifyEmail, processor.ProcessTaskSendVerifyEmail)
+	mux.HandleFunc(taskTest, processor.ProcessTaskSendVerifyEmail)
 	return processor.server.Start(mux)
 }
 
-func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Context, task *asynq.Task) error {
-	var payload PayloadSendVerifyEmail
+func (processor *TestRedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Context, task *asynq.Task) error {
+	var payload worker.PayloadSendVerifyEmail
 	if err := json.Unmarshal(task.Payload(), &payload); err != nil {
 		return fmt.Errorf("faild to unmarshal payload: %w", err)
 	}
@@ -98,21 +94,63 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 		return fmt.Errorf("cannot get verifyEmail by specified data: %w", err)
 	}
 
-	subject := "Bitmoi 인증 코드"
-	verifyUrl := fmt.Sprintf("http://bitmoi.co.kr:5000/verify_email?email_id=%d&secret_code=%s",
+	verifyUrl := fmt.Sprintf("http://localhost:5001/verify_email?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
-	content := fmt.Sprintf(`Hello %s,<br/>
-	Thank you for registering with us!<br/>
-	Please <a href="%s">click here</a> to verify your email address.<br/>
-	`, user.FullName, verifyUrl)
-	to := []string{user.Email}
-	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", verifyUrl, nil)
 	if err != nil {
-		return fmt.Errorf("failed to send verify email: %w", err)
+		return err
 	}
 
-	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).
-		Str("email", user.Email).Msg("processed task")
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	vr := new(VerifyEmailResponse)
+	json.Unmarshal(b, vr)
+
+	if !vr.IsVerified {
+		return fmt.Errorf("not verified")
+	}
 
 	return nil
+}
+
+type RedisTestTaskDistributor struct {
+	client *asynq.Client
+}
+
+func (distributor *RedisTestTaskDistributor) DistributeTaskSendVerifyEmail(
+	ctx context.Context,
+	payload *worker.PayloadSendVerifyEmail,
+	opts ...asynq.Option,
+) error {
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal task payload :%w", err)
+	}
+
+	task := asynq.NewTask(taskTest, jsonPayload, opts...)
+	info, err := distributor.client.EnqueueContext(ctx, task)
+	if err != nil {
+		return fmt.Errorf("failed to enqueue task :%w", err)
+	}
+
+	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).Str("queue", info.Queue).
+		Int("max_retry", info.MaxRetry).Msg("enqueued task")
+	return nil
+}
+
+func NewRedisTaskDistributor(redisOpt asynq.RedisClientOpt) worker.TaskDistributor {
+	client := asynq.NewClient(redisOpt)
+
+	return &RedisTestTaskDistributor{
+		client: client,
+	}
 }

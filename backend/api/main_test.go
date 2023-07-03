@@ -6,14 +6,17 @@ import (
 	"database/sql"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
 )
 
 func newTestServer(t *testing.T, store db.Store) *Server {
 	c := utilities.GetConfig("../../.")
-
+	c.AccessTokenDuration = time.Minute
 	s, err := NewServer(c, store)
+	s.taskDistributor = NewRedisTaskDistributor(asynq.RedisClientOpt{Addr: c.RedisAddress})
 	require.NoError(t, err)
 	return s
 }

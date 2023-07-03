@@ -114,6 +114,22 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	if !user.IsEmailVerified {
+		if time.Now().After(user.CreatedAt.Add(s.config.AccessTokenDuration)) {
+			taskPayload := &worker.PayloadSendVerifyEmail{
+				UserID: user.UserID,
+			}
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue(worker.QueueCritical),
+			}
+			err = s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
+			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("we sent you a verification email one more time, so please complete the verification: %v", err))
+		}
+		return c.Status(fiber.StatusUnauthorized).SendString("Please complete email verification.")
+	}
+
 	if err := utilities.CheckPassword(loginReq.Password, user.HashedPassword); err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("password is not correct err : %v", err))
 	}
