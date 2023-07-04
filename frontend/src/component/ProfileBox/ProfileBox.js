@@ -1,4 +1,3 @@
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import Login from "../login/Login";
 import { BsBoxArrowRight } from "react-icons/bs";
@@ -16,7 +15,6 @@ function ProfileBox() {
     setLoginClick(true);
   };
 
-  const auth = getAuth();
   const [profileURL, setProfileURL] = useState("");
   const [loginTxt, setLoginTxt] = useState("");
   const [openProfile, setOpenProfile] = useState(false);
@@ -29,39 +27,9 @@ function ProfileBox() {
   useEffect(() => {
     setOpenProfile(false);
     setLoginTxt("Loading...");
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLogined(true);
-        if (user.photoURL) {
-          setProfileURL(user.photoURL);
-        } else {
-          user.providerData.forEach((profile) => {
-            if (profile.photoURL) {
-              setProfileURL(profile.photoURL);
-              return false;
-            }
-          });
-        }
-      } else {
-        setIsLogined(false);
-      }
-      setAuthLoad(true);
-      setLoginTxt("Log in");
-    });
   }, []);
 
-  const logOut = async () => {
-    try {
-      await signOut(auth);
-      setIsLogined(false);
-      window.location.reload();
-    } catch (err) {
-      console.log(err);
-      if (auth.currentUser) {
-        setIsLogined(true);
-      }
-    }
-  };
+  const logOut = async () => {};
 
   return (
     <div className={styles.profiebox}>
@@ -74,11 +42,7 @@ function ProfileBox() {
               onClick={profileClick}
             ></img>
             <div className={styles.nameoptions}>
-              <div className={styles.username}>
-                {auth.currentUser.displayName.length > 20
-                  ? auth.currentUser.displayName.slice(0, 20) + "..."
-                  : auth.currentUser.displayName}
-              </div>
+              <div className={styles.username}></div>
               <div className={styles.options}>
                 <Link title="My Page" to={"/myscore"}>
                   <IoIosPerson />

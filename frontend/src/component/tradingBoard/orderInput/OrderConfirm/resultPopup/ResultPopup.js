@@ -2,24 +2,19 @@ import React, { useState } from "react";
 import styles from "./ResultPopup.module.css";
 import VerticalLine from "../../../../lines/VerticalLine";
 import HorizontalLine from "../../../../lines/HorizontalLine";
-import { getAuth } from "firebase/auth";
 
 const ResultPopup = (props) => {
-  const auth = getAuth();
-
   const goRanking = () => {
-    fetch("http://bitmoi.co.kr:5000/ranking", {
+    fetch("http://bitmoi.co.kr:5000/rank", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        // TODO: update userid for firebase
-        user: auth.currentUser.uid,
-        displayname: auth.currentUser.displayName,
-        photourl: auth.currentUser.photoURL,
-        scoreid: props.scoreid,
-        balance: props.balance,
+        user_id: "",
+        score_id: props.scoreid,
+        comment: "",
+        display_name: "",
       }),
-    }).then(window.location.replace("/ranking"));
+    }).then(window.location.replace("/rank?page=1"));
   };
   const retry = () => {
     window.location.reload();

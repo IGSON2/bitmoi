@@ -2,7 +2,6 @@ import styles from "./RankDiv.module.css";
 import { BsChatQuote } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import MoreInfo from "./MoreInfo/MoreInfo";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { BsForward } from "react-icons/bs";
 
 function RankDiv({ index, obj }) {
@@ -60,13 +59,6 @@ function RankDiv({ index, obj }) {
     setMoreInfo((current) => !current);
   };
 
-  const auth = getAuth();
-  // TODO: update userid for firebase
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setThisUser(user.uid);
-    });
-  }, []);
   useEffect(() => {
     if (thisUser && obj) {
       obj.user === thisUser ? setCertified(true) : setCertified(false);

@@ -6,7 +6,6 @@ import Practice from "./RoutingPages/practice/Practice";
 import MyScore from "./RoutingPages/myscore/MyScore";
 import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
-import app from "./component/backendConn/fbase";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);

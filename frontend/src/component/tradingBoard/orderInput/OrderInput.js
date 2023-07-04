@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./OrderInput.module.css";
 import Warning from "./Warning";
 import OrderConfirm from "./OrderConfirm/OrderConfirm";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { AiOutlineCloseCircle, AiOutlinePlusCircle } from "react-icons/ai";
 
 function OrderInput({
@@ -26,7 +25,6 @@ function OrderInput({
   setTitleaArray,
   entryTime,
 }) {
-  const auth = getAuth();
   const [quantity, setQuantity] = useState();
   const [quantityRate, setQuantityRate] = useState(1);
   const [profitPrice, setProfitPrice] = useState();
@@ -102,7 +100,7 @@ function OrderInput({
     };
     // Update userid for firebase
     if (mode === "competition") {
-      tempObject.user_id = auth.currentUser.uid;
+      tempObject.user_id = "";
     }
     setOrderObject(tempObject);
     setConfirm((current) => !current);
@@ -548,15 +546,7 @@ function OrderInput({
 
   useEffect(() => {
     if (mode == "competition") {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setCompLoginErr(false);
-          setLoginWarning("");
-        } else {
-          setCompLoginErr(true);
-          setLoginWarning("경쟁모드는 로그인이 필요한 서비스입니다.");
-        }
-      });
+      setLoginWarning("경쟁모드는 로그인이 필요한 서비스입니다.");
     } else if (mode === "practice") {
       setCompLoginErr(false);
       setLoginWarning("");

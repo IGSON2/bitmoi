@@ -110,26 +110,9 @@
   background-color: #3e4da3;
 }
 
-.googlelogindiv {
-  width: 90%;
-  height: 120px;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-}
-
-.googleloginbutton {
-  width: 100%;
-}
-
 .login:hover {
   cursor: pointer;
   background-color: #4957a1;
-}
-
-.googleloginbutton:hover {
-  cursor: pointer;
-  border-radius: 5px;
 }
 
 .footer {

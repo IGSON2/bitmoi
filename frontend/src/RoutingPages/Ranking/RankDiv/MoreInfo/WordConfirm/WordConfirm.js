@@ -1,4 +1,3 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import styles from "./WordConfirm.module.css";
 function WordConfirm({ popupOpen, comment }) {
@@ -24,13 +23,7 @@ function WordConfirm({ popupOpen, comment }) {
         break;
     }
   };
-  const auth = getAuth();
-  // TODO: update userid for firebase
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setThisUser(user.uid);
-    });
-  }, []);
+
   return (
     <div className={styles.confirmwindow}>
       <div className={styles.bg} onClick={closePopup}></div>

@@ -1,5 +1,6 @@
 {
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "file:///Users/ibizsoftware/Workspace/bitmoi/.github/workflows/deploy.yml"
-    }
+    },
+    "git.ignoreLimitWarning": true
 }

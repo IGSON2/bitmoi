@@ -1,4 +1,3 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import ScoreGraph from "./ScoreGraph/ScoreGraph";
 import { useEffect, useState } from "react";
@@ -7,7 +6,6 @@ import Header from "./Header/Header";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
 
 function UserScore() {
-  const auth = getAuth();
   const [index, setIndex] = useState(1);
   const [userLoaded, setUserLoaded] = useState(false);
   const [data, setData] = useState({
@@ -32,7 +30,7 @@ function UserScore() {
     // TODO: update userid for firebase
     const result = await fetch(
       "http://bitmoi.co.kr:5000/myscore/?user=" +
-        auth.currentUser.uid +
+        "[USERNAME]" +
         "&index=" +
         `${i}` +
         "&scoreid="
@@ -40,17 +38,6 @@ function UserScore() {
     const json = await result.json();
     setData(json);
   };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        getUserScore(index);
-        setUserLoaded(true);
-      } else {
-        setData({});
-      }
-    });
-  }, []);
 
   const increaseIdx = () => {
     setIndex((current) => current + 1);

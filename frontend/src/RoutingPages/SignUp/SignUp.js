@@ -1,37 +1,11 @@
-import {
-  applyActionCode,
-  createUserWithEmailAndPassword,
-  getAuth,
-  onAuthStateChanged,
-  sendEmailVerification,
-} from "firebase/auth";
 import { useEffect, useState } from "react";
 import styles from "./SignUp.module.css";
-import NavBar from "../../component/navbar/NavBar";
+import H_NavBar from "../../component/navbar/H_NavBar";
 function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [passwordChk, setPasswordChk] = useState("");
   const [isLogined, setIsLogined] = useState(false);
-  const auth = getAuth();
   const onSubmit = (e) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        const actionCodeSettings = {
-          url: "http://bitmoi.co.kr:3000/practice",
-          handleCodeInApp: true,
-        };
-        setIsLogined(true);
-        sendEmailVerification(auth.currentUser, actionCodeSettings);
-      })
-      .catch((result) => {
-        setIsLogined(false);
-        console.log("creating error : ", result);
-      })
-      .catch((result) => {
-        console.log("sending email error : ", result);
-      });
   };
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -46,6 +20,7 @@ function SignUp() {
 
   return (
     <div className={styles.signupdiv}>
+      <H_NavBar></H_NavBar>
       {isLogined ? (
         <div className={styles.warning}>
           <h1>잘못된 접근입니다!</h1>

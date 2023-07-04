@@ -38,11 +38,14 @@ proto: delete
 	--validate_out="lang=go:backend/gapi/pb" --validate_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
+installgrpcweb:
+	npm install grpc-tools grpc-web
+
 reactproto:
-	protoc \
+	npx grpc_tools_node_protoc \
+	--js_out=import_style=commonjs,binary:frontend/src/component/pb \
+	--grpc-web_out=import_style=commonjs,mode=grpcwebtext:frontend/src/component/pb \
 	--proto_path=backend/gapi/proto \
-	--js_out=import_style=commonjs:~/Workspace/bitmoi/frontend/generated \
-	--grpc-web_out=import_style=commonjs,mode=grpcwebtext:~/Workspace/bitmoi/frontend/generated \
 	backend/gapi/proto/*.proto
 
 rmi:
@@ -54,4 +57,4 @@ test:
 benchmark:
 	go-wrk -c 80 -d 5 -H Content-Type:application/json -M GET http://43.202.77.76:5000/practice
 
-.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto rmi test benchmark
+.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto installgrpcweb reactproto rmi test benchmark
