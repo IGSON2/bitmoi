@@ -591,6 +591,21 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
 }
 
+// GetUserByFullName mocks base method.
+func (m *MockStore) GetUserByFullName(arg0 context.Context, arg1 string) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByFullName", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByFullName indicates an expected call of GetUserByFullName.
+func (mr *MockStoreMockRecorder) GetUserByFullName(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByFullName", reflect.TypeOf((*MockStore)(nil).GetUserByFullName), arg0, arg1)
+}
+
 // GetUserMetamaskAddress mocks base method.
 func (m *MockStore) GetUserMetamaskAddress(arg0 context.Context, arg1 string) (sql.NullString, error) {
 	m.ctrl.T.Helper()

@@ -12,8 +12,11 @@ INSERT INTO users (
 
 -- name: GetUser :one
 SELECT * FROM users
-WHERE user_id = ?
-LIMIT 1;
+WHERE user_id = ?;
+
+-- name: GetUserByFullName :one
+SELECT * FROM users
+WHERE full_name = ?;
 
 -- name: GetRandomUser :one
 SELECT * FROM users

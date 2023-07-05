@@ -18,18 +18,45 @@ type UserResponse struct {
 	UserID            string    `json:"user_id"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
+	PhotoURL          string    `json:"photo_url"`
+	MetamaskAddress   string    `json:"metamask_address"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 }
 
 func convertUserResponse(user db.User) UserResponse {
-	return UserResponse{
+	uR := UserResponse{
 		UserID:            user.UserID,
 		FullName:          user.FullName,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
+	if user.PhotoUrl.String != "" {
+		uR.PhotoURL = user.PhotoUrl.String
+	}
+	if user.MetamaskAddress.String != "" {
+		uR.MetamaskAddress = user.MetamaskAddress.String
+	}
+
+	return uR
+}
+func (s *Server) checkID(c *fiber.Ctx) error {
+	userID := c.Query("user_id")
+	user, _ := s.store.GetUser(c.Context(), userID)
+	if user.UserID == userID {
+		return c.Status(fiber.StatusBadRequest).SendString("user already exist")
+	}
+	return c.Status(fiber.StatusOK).SendString(userID)
+}
+
+func (s *Server) checkFullName(c *fiber.Ctx) error {
+	fullName := c.Query("full_name")
+	user, _ := s.store.GetUserByFullName(c.Context(), fullName)
+	if user.FullName == fullName {
+		return c.Status(fiber.StatusBadRequest).SendString("full name already exist")
+	}
+	return c.Status(fiber.StatusOK).SendString(fullName)
 }
 
 func (s *Server) createUser(c *fiber.Ctx) error {
@@ -68,7 +95,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 			}
 			opts := []asynq.Option{
 				asynq.MaxRetry(10),
-				asynq.ProcessIn(10 * time.Second),
+				asynq.ProcessIn(5 * time.Second),
 				asynq.Queue(worker.QueueCritical),
 			}
 			return s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
@@ -86,8 +113,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	rsp := convertUserResponse(txResult.User)
-	return c.Status(fiber.StatusOK).JSON(rsp)
+	return c.Status(fiber.StatusOK).JSON(txResult.User.Email)
 }
 
 type LoginUserResponse struct {
@@ -125,9 +151,9 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 				asynq.Queue(worker.QueueCritical),
 			}
 			err = s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
-			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("we sent you a verification email one more time, so please complete the verification: %v", err))
+			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("인증 Email을 한 번 더 보내드렸습니다. 인증을 완료해주세요. : %v", err))
 		}
-		return c.Status(fiber.StatusUnauthorized).SendString("Please complete email verification.")
+		return c.Status(fiber.StatusUnauthorized).SendString("먼저 Email 인증을 완료해주세요.")
 	}
 
 	if err := utilities.CheckPassword(loginReq.Password, user.HashedPassword); err != nil {

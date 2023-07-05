@@ -94,11 +94,33 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 const getUser = `-- name: GetUser :one
 SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
 WHERE user_id = ?
-LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.OauthUid,
+		&i.FullName,
+		&i.HashedPassword,
+		&i.Email,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+		&i.PhotoUrl,
+		&i.MetamaskAddress,
+		&i.IsEmailVerified,
+	)
+	return i, err
+}
+
+const getUserByFullName = `-- name: GetUserByFullName :one
+SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
+WHERE full_name = ?
+`
+
+func (q *Queries) GetUserByFullName(ctx context.Context, fullName string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByFullName, fullName)
 	var i User
 	err := row.Scan(
 		&i.UserID,

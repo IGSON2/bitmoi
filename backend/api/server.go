@@ -69,6 +69,8 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Get("/moreinfo", server.moreinfo)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
+	router.Get("/user/checkid", server.checkID)
+	router.Get("/user/checkname", server.checkFullName)
 	router.Post("/token/reissue_access", server.reissueAccessToken)
 	router.Get("/verify_email", server.VerifyEmail)
 
