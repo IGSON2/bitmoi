@@ -5,7 +5,7 @@ import { LoadAccessToken } from "../../component/Token/Token";
 function SignUp() {
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
-    /^(?=.*[A-Za-z])(?=.*d)(?=.*[$@$!%*#?&])[A-Za-zd$@$!%*#?&]{8,16}$/;
+    /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$@$!%*#?&])[a-zA-Z0-9$@$!%*#?&]{8,16}$/;
 
   const [userID, setUserID] = useState("");
   const [userIDCheckError, setUserIDCheckError] = useState("");
@@ -24,18 +24,32 @@ function SignUp() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    fetch("http://bitmoi.co.kr:5000/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userID,
+        password: password,
+        nickname: nickname,
+        email: emailID + "@" + emailDomain,
+        photo_url: "",
+        oauth_uid: "",
+      }),
+    });
   };
 
   const userIDChange = (e) => {
     setUserID(e.target.value);
     if (!userIDPattern.test(e.target.value)) {
-      setuserIDError("ID는 5자에서 15자 내로 입력해 주세요.");
+      setuserIDError("ID는 영문 숫자 조합 5자에서 15자 내로 입력해 주세요.");
     } else {
-      setuserIDError();
+      setuserIDError("");
     }
   };
 
-  const userIDCheck = () => {
+  const userIDCheck = (e) => {
+    e.preventDefault();
+
     fetch("http://bitmoi.co.kr:5000/user/checkid?user_id=" + userID)
       .then((res) => {
         if (res.ok) {
@@ -48,41 +62,36 @@ function SignUp() {
       });
   };
 
-  const emailIDChange = (e) => {
-    setEmailID(e.target.value + "@");
-  };
-
-  const selectDomain = (e) => {
-    if (e.target.value === "1") {
-      setSelectDomainDisable(false);
-    } else {
-      setEmailDomain(e.target.value);
-      setSelectDomainDisable(true);
-    }
-  };
-  const typingDomain = (e) => {
-    setEmailDomain(e.target.value);
-  };
-
   const pwChange = (e) => {
     setPassword(e.target.value);
     if (!passwordPattern.test(e.target.value)) {
+      const firstInvalidChar = e.target.value
+        .split("")
+        .find((char) => !passwordPattern.test(char));
+      console.log(`Invalid character: ${firstInvalidChar}`);
       setPasswordError(
         "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
       );
     } else {
-      setPasswordError();
+      setPasswordError("");
     }
   };
 
   const pwChkChange = (e) => {
     setPasswordChk(e.target.value);
     if (!passwordPattern.test(e.target.value)) {
+      const firstInvalidChar = e.target.value
+        .split("")
+        .find((char) => !passwordPattern.test(char));
+      console.log(`Invalid character: ${firstInvalidChar}`);
       setPasswordCheckError(
         "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
       );
     } else {
-      setPasswordCheckError();
+      setPasswordCheckError("");
+      if (password !== e.target.value) {
+        setPasswordCheckError("재확인 비밀번호가 다릅니다.");
+      }
     }
   };
 
@@ -90,7 +99,8 @@ function SignUp() {
     setNickname(e.target.value);
   };
 
-  const nicknameCheck = () => {
+  const nicknameCheck = (e) => {
+    e.preventDefault();
     fetch("http://bitmoi.co.kr:5000/user/checknickname?nickname=" + nickname)
       .then((res) => {
         if (res.ok) {
@@ -101,6 +111,23 @@ function SignUp() {
       .catch((error) => {
         setNicknameCheckError(error);
       });
+  };
+
+  const emailIDChange = (e) => {
+    setEmailID(e.target.value);
+  };
+
+  const selectDomain = (e) => {
+    if (e.target.value === "직접입력") {
+      setEmailDomain("");
+      setSelectDomainDisable(false);
+    } else {
+      setEmailDomain(e.target.value);
+      setSelectDomainDisable(true);
+    }
+  };
+  const typingDomain = (e) => {
+    setEmailDomain(e.target.value);
   };
 
   useEffect(() => {
@@ -130,7 +157,6 @@ function SignUp() {
                 id="id"
                 type="text"
                 placeholder="ID"
-                pattern={userIDPattern}
                 value={userID}
                 onChange={userIDChange}
                 style={{
@@ -150,7 +176,6 @@ function SignUp() {
                 id="pw"
                 type="password"
                 placeholder="password"
-                pattern={passwordPattern}
                 value={password}
                 onChange={pwChange}
                 style={{ borderColor: passwordError === "" ? "" : "#ef5350" }}
@@ -163,7 +188,6 @@ function SignUp() {
                 id="pwcheck"
                 type="password"
                 placeholder="repeat password"
-                pattern={passwordPattern}
                 value={passwordChk}
                 onChange={pwChkChange}
                 style={{
@@ -207,7 +231,7 @@ function SignUp() {
                 value={emailDomain}
                 onChange={selectDomain}
               >
-                <option value="1">직접입력</option>
+                <option value="직접입력">직접입력</option>
                 <option value="naver.com" selected>
                   naver.com
                 </option>
@@ -232,9 +256,18 @@ function SignUp() {
                 ? passwordError
                 : passwordCheckError
                 ? passwordCheckError
-                : "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."}
+                : ""}
             </div>
-            <button className={styles.signup}>Sign up</button>
+            <button
+              disabled={
+                userIDError !== "" ||
+                passwordError !== "" ||
+                passwordCheckError !== ""
+              }
+              className={styles.signup}
+            >
+              Sign up
+            </button>
           </form>
         </div>
       )}
