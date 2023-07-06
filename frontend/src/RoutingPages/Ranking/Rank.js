@@ -40,7 +40,7 @@ function Rank() {
           return <RankDiv key={i} index={i + 1} obj={v} />;
         })}
         <div className={styles.footer}>
-          <div>Copyright &copy; 2022 IGSON All rights reserved.</div>
+          <div>Copyright &copy; 2023 IGSON All rights reserved.</div>
         </div>
       </div>
       <Topbutton />

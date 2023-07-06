@@ -3,6 +3,10 @@ import styles from "./SignUp.module.css";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import { LoadAccessToken } from "../../component/Token/Token";
 function SignUp() {
+  const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
+  const passwordPattern =
+    /^(?=.*[A-Za-z])(?=.*d)(?=.*[$@$!%*#?&])[A-Za-zd$@$!%*#?&]{8,16}$/;
+
   const [userID, setUserID] = useState("");
   const [userIDCheckError, setUserIDCheckError] = useState("");
   const [emailID, setEmailID] = useState("");
@@ -14,12 +18,21 @@ function SignUp() {
   const [isLogined, setIsLogined] = useState(false);
   const [nicknameCheckError, setNicknameCheckError] = useState("");
 
+  const [userIDError, setuserIDError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordCheckError, setPasswordCheckError] = useState("");
+
   const onSubmit = (e) => {
     e.preventDefault();
   };
 
   const userIDChange = (e) => {
     setUserID(e.target.value);
+    if (!userIDPattern.test(e.target.value)) {
+      setuserIDError("ID는 5자에서 15자 내로 입력해 주세요.");
+    } else {
+      setuserIDError();
+    }
   };
 
   const userIDCheck = () => {
@@ -53,10 +66,24 @@ function SignUp() {
 
   const pwChange = (e) => {
     setPassword(e.target.value);
+    if (!passwordPattern.test(e.target.value)) {
+      setPasswordError(
+        "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
+      );
+    } else {
+      setPasswordError();
+    }
   };
 
   const pwChkChange = (e) => {
     setPasswordChk(e.target.value);
+    if (!passwordPattern.test(e.target.value)) {
+      setPasswordCheckError(
+        "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
+      );
+    } else {
+      setPasswordCheckError();
+    }
   };
 
   const nicknameChange = (e) => {
@@ -77,14 +104,12 @@ function SignUp() {
   };
 
   useEffect(() => {
-    if (LoadAccessToken() !== "") {
+    if (LoadAccessToken()) {
       setIsLogined(true);
     }
   }, []);
-
   return (
     <div className={styles.signupdiv}>
-      <H_NavBar></H_NavBar>
       {isLogined ? (
         <div className={styles.warning}>
           <h1>잘못된 접근입니다!</h1>
@@ -92,22 +117,30 @@ function SignUp() {
         </div>
       ) : (
         <div className={styles.formdiv}>
+          <div className={styles.navbar}>
+            <H_NavBar />
+          </div>
+          <h3 className={styles.welcome}>
+            시뮬레이션 모의투자 비트모이에 오신 걸 환영합니다!
+          </h3>
           <form className={styles.forms} onSubmit={onSubmit}>
-            <h3 className={styles.welcome}>
-              시뮬레이션 모의투자 비트모이에 오신 걸 환영합니다!
-            </h3>
-
             <div className={styles.field}>
               <label htmlFor="id">아이디</label>
               <input
                 id="id"
                 type="text"
                 placeholder="ID"
-                pattern="^[a-zA-Z0-9]{5,15}$"
+                pattern={userIDPattern}
                 value={userID}
                 onChange={userIDChange}
+                style={{
+                  width: "60%",
+                  borderColor: userIDError === "" ? "" : "#ef5350",
+                }}
               ></input>
-              <button onClick={userIDCheck}>중복확인</button>
+              <button className={styles.duplication} onClick={userIDCheck}>
+                중복확인
+              </button>
             </div>
             {userIDCheckError ? <div>{userIDCheckError}</div> : null}
 
@@ -117,9 +150,10 @@ function SignUp() {
                 id="pw"
                 type="password"
                 placeholder="password"
-                pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$"
+                pattern={passwordPattern}
                 value={password}
                 onChange={pwChange}
+                style={{ borderColor: passwordError === "" ? "" : "#ef5350" }}
               ></input>
             </div>
 
@@ -128,10 +162,13 @@ function SignUp() {
               <input
                 id="pwcheck"
                 type="password"
-                placeholder="password"
-                pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$"
+                placeholder="repeat password"
+                pattern={passwordPattern}
                 value={passwordChk}
                 onChange={pwChkChange}
+                style={{
+                  borderColor: passwordCheckError === "" ? "" : "#ef5350",
+                }}
               ></input>
             </div>
 
@@ -142,24 +179,30 @@ function SignUp() {
                 type="text"
                 value={nickname}
                 onChange={nicknameChange}
+                style={{ width: "60%" }}
               ></input>
-              <button onClick={nicknameCheck}>중복확인</button>
+              <button className={styles.duplication} onClick={nicknameCheck}>
+                중복확인
+              </button>
             </div>
             {nicknameCheckError ? <div>{nicknameCheckError}</div> : null}
 
             <div className={styles.field}>
               <label htmlFor="emailID">이메일</label>
               <input
+                style={{ width: "25%" }}
                 id="emailID"
                 value={emailID}
                 onChange={emailIDChange}
               ></input>
               <input
+                style={{ width: "30%" }}
                 disabled={selectDomainDisable}
                 value={emailDomain}
                 onChange={typingDomain}
               ></input>
               <select
+                className={styles.selectBox}
                 id="selectEmailDomain"
                 value={emailDomain}
                 onChange={selectDomain}
@@ -182,7 +225,15 @@ function SignUp() {
                 <option value="paran.com">paran.com</option>
               </select>
             </div>
-
+            <div className={styles.errormessage}>
+              {userIDError
+                ? userIDError
+                : passwordError
+                ? passwordError
+                : passwordCheckError
+                ? passwordCheckError
+                : "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."}
+            </div>
             <button className={styles.signup}>Sign up</button>
           </form>
         </div>

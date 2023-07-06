@@ -27,9 +27,6 @@ function H_NavBar() {
           );
         }
       })}
-      <div className={styles.profile}>
-        <ProfileBox />
-      </div>
     </div>
   );
 }
