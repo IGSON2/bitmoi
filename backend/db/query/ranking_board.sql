@@ -2,7 +2,7 @@
 INSERT INTO ranking_board (
     user_id,
     score_id,
-    display_name,
+    nickname,
     photo_url,
     comment,
     final_balance
@@ -22,5 +22,5 @@ WHERE user_id = ?;
 
 -- name: UpdateUserRank :execresult
 UPDATE ranking_board 
-SET score_id = ?, final_balance = ?, comment = ?, display_name =?
+SET score_id = ?, final_balance = ?, comment = ?, nickname = ?
 WHERE user_id = ?;

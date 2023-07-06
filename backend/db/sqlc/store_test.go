@@ -156,7 +156,7 @@ func TestInsertUser(t *testing.T) {
 	testQueries.CreateUser(ctx, CreateUserParams{
 		UserID:         "user",
 		OauthUid:       sql.NullString{String: "1234", Valid: true},
-		FullName:       "user_full",
+		Nickname:       "user_nick",
 		HashedPassword: "392cdf",
 		Email:          "example@gmail.com",
 		PhotoUrl:       sql.NullString{String: "photh.url", Valid: true},
@@ -218,7 +218,7 @@ func TestExecTx(t *testing.T) {
 		_, err = q.CreateUser(ctx, CreateUserParams{
 			UserID:         "testTx",
 			OauthUid:       sql.NullString{String: "", Valid: false},
-			FullName:       "test_fullname",
+			Nickname:       "test_Nickname",
 			HashedPassword: "asdf",
 			Email:          "testemail@email.com",
 			PhotoUrl:       sql.NullString{String: "s3_url", Valid: true},

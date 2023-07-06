@@ -11,7 +11,7 @@ import (
 )
 
 const getAllRanks = `-- name: GetAllRanks :many
-SELECT user_id, photo_url, score_id, display_name, final_balance, comment FROM ranking_board
+SELECT user_id, photo_url, score_id, nickname, final_balance, comment FROM ranking_board
 ORDER BY balance DESC
 LIMIT ?
 OFFSET ?
@@ -35,7 +35,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 			&i.UserID,
 			&i.PhotoUrl,
 			&i.ScoreID,
-			&i.DisplayName,
+			&i.Nickname,
 			&i.FinalBalance,
 			&i.Comment,
 		); err != nil {
@@ -53,7 +53,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 }
 
 const getRankByUserID = `-- name: GetRankByUserID :one
-SELECT user_id, photo_url, score_id, display_name, final_balance, comment FROM ranking_board
+SELECT user_id, photo_url, score_id, nickname, final_balance, comment FROM ranking_board
 WHERE user_id = ?
 `
 
@@ -64,7 +64,7 @@ func (q *Queries) GetRankByUserID(ctx context.Context, userID string) (RankingBo
 		&i.UserID,
 		&i.PhotoUrl,
 		&i.ScoreID,
-		&i.DisplayName,
+		&i.Nickname,
 		&i.FinalBalance,
 		&i.Comment,
 	)
@@ -75,7 +75,7 @@ const insertRank = `-- name: InsertRank :execresult
 INSERT INTO ranking_board (
     user_id,
     score_id,
-    display_name,
+    nickname,
     photo_url,
     comment,
     final_balance
@@ -87,7 +87,7 @@ INSERT INTO ranking_board (
 type InsertRankParams struct {
 	UserID       string  `json:"user_id"`
 	ScoreID      string  `json:"score_id"`
-	DisplayName  string  `json:"display_name"`
+	Nickname     string  `json:"nickname"`
 	PhotoUrl     string  `json:"photo_url"`
 	Comment      string  `json:"comment"`
 	FinalBalance float64 `json:"final_balance"`
@@ -97,7 +97,7 @@ func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Res
 	return q.db.ExecContext(ctx, insertRank,
 		arg.UserID,
 		arg.ScoreID,
-		arg.DisplayName,
+		arg.Nickname,
 		arg.PhotoUrl,
 		arg.Comment,
 		arg.FinalBalance,
@@ -106,7 +106,7 @@ func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Res
 
 const updateUserRank = `-- name: UpdateUserRank :execresult
 UPDATE ranking_board 
-SET score_id = ?, final_balance = ?, comment = ?, display_name =?
+SET score_id = ?, final_balance = ?, comment = ?, nickname = ?
 WHERE user_id = ?
 `
 
@@ -114,7 +114,7 @@ type UpdateUserRankParams struct {
 	ScoreID      string  `json:"score_id"`
 	FinalBalance float64 `json:"final_balance"`
 	Comment      string  `json:"comment"`
-	DisplayName  string  `json:"display_name"`
+	Nickname     string  `json:"nickname"`
 	UserID       string  `json:"user_id"`
 }
 
@@ -123,7 +123,7 @@ func (q *Queries) UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) 
 		arg.ScoreID,
 		arg.FinalBalance,
 		arg.Comment,
-		arg.DisplayName,
+		arg.Nickname,
 		arg.UserID,
 	)
 }

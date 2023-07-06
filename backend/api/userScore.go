@@ -129,7 +129,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
 				UserID:       r.UserID,
 				ScoreID:      r.ScoreID,
-				DisplayName:  r.DisplayName,
+				Nickname:     r.Nickname,
 				Comment:      r.Comment,
 				FinalBalance: totalScore,
 			})
@@ -143,7 +143,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 		_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
 			UserID:       r.UserID,
 			ScoreID:      r.ScoreID,
-			DisplayName:  r.DisplayName,
+			Nickname:     r.Nickname,
 			Comment:      r.Comment,
 			FinalBalance: totalScore,
 		})

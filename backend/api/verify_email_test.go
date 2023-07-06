@@ -31,7 +31,7 @@ func TestAsyncWorker(t *testing.T) {
 		user := CreateUserRequest{
 			UserID:   utilities.MakeRanString(6),
 			Password: "secret",
-			FullName: utilities.MakeRanString(4),
+			Nickname: utilities.MakeRanString(4),
 			Email:    utilities.MakeRanEmail(),
 		}
 		b, err := json.Marshal(user)

@@ -54,10 +54,10 @@ func validateOrderRequest(o *ScoreRequest) error {
 }
 
 type RankInsertRequest struct {
-	UserId      string `json:"user_id" validate:"required,alpha"`
-	ScoreId     string `json:"score_id" validate:"required,numeric"`
-	Comment     string `json:"comment"`
-	DisplayName string `json:"display_name"`
+	UserId   string `json:"user_id" validate:"required,alphanum"`
+	ScoreId  string `json:"score_id" validate:"required,numeric"`
+	Comment  string `json:"comment"`
+	Nickname string `json:"nickname"`
 }
 
 type PageRequest struct {
@@ -65,7 +65,7 @@ type PageRequest struct {
 }
 
 type MoreInfoRequest struct {
-	UserId  string `json:"user_id" validate:"required,alpha" query:"userid"`
+	UserId  string `json:"user_id" validate:"required,alphanum" query:"userid"`
 	ScoreId string `json:"score_id" validate:"required,numeric" query:"scoreid"`
 }
 
@@ -77,14 +77,14 @@ type AnotherIntervalRequest struct {
 }
 
 type LoginUserRequest struct {
-	UserID   string `json:"user_id" validate:"required,alphanum"`
+	UserID   string `json:"user_id" validate:"required,alphanum,min=5,max=15"`
 	Password string `json:"password" validate:"required,min=8"`
 }
 
 type CreateUserRequest struct {
-	UserID   string `json:"user_id" validate:"required,alphanum"`
+	UserID   string `json:"user_id" validate:"required,alphanum,min=5,max=15"`
 	Password string `json:"password" validate:"required,min=8"`
-	FullName string `json:"full_name" validate:"required"`
+	Nickname string `json:"nickname" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
 	PhotoUrl string `json:"photo_url,omitempty"`
 	OauthUid string `json:"oauth_uid,omitempty"`
@@ -93,4 +93,9 @@ type CreateUserRequest struct {
 type VerifyEmailRequest struct {
 	EmailId    int64  `json:"email_id" validate:"required,min=1" query:"email_id"`
 	SecretCode string `json:"secret_code" validate:"required,min=32,max=128" query:"secret_code"`
+}
+
+type UpdateMetamaskAddrRequest struct {
+	UserID       string `json:"user_id" validate:"required,alphanum"`
+	MetamaskAddr string `json:"metamask_addr" validate:"required,eth_addr"`
 }

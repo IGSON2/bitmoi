@@ -14,7 +14,7 @@ const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
     user_id,
     oauth_uid,
-    full_name,
+    nickname,
     hashed_password,
     email,
     photo_url
@@ -26,7 +26,7 @@ INSERT INTO users (
 type CreateUserParams struct {
 	UserID         string         `json:"user_id"`
 	OauthUid       sql.NullString `json:"oauth_uid"`
-	FullName       string         `json:"full_name"`
+	Nickname       string         `json:"nickname"`
 	HashedPassword string         `json:"hashed_password"`
 	Email          string         `json:"email"`
 	PhotoUrl       sql.NullString `json:"photo_url"`
@@ -36,7 +36,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	return q.db.ExecContext(ctx, createUser,
 		arg.UserID,
 		arg.OauthUid,
-		arg.FullName,
+		arg.Nickname,
 		arg.HashedPassword,
 		arg.Email,
 		arg.PhotoUrl,
@@ -44,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const getLastUser = `-- name: GetLastUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
 ORDER BY created_at DESC
 LIMIT 1
 `
@@ -55,7 +55,7 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 	err := row.Scan(
 		&i.UserID,
 		&i.OauthUid,
-		&i.FullName,
+		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -68,7 +68,7 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 }
 
 const getRandomUser = `-- name: GetRandomUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
 ORDER BY RAND()
 LIMIT 1
 `
@@ -79,7 +79,7 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 	err := row.Scan(
 		&i.UserID,
 		&i.OauthUid,
-		&i.FullName,
+		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -92,7 +92,7 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
 WHERE user_id = ?
 `
 
@@ -102,7 +102,7 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	err := row.Scan(
 		&i.UserID,
 		&i.OauthUid,
-		&i.FullName,
+		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,
@@ -114,18 +114,18 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	return i, err
 }
 
-const getUserByFullName = `-- name: GetUserByFullName :one
-SELECT user_id, oauth_uid, full_name, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
-WHERE full_name = ?
+const getUserByNickName = `-- name: GetUserByNickName :one
+SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, metamask_address, is_email_verified FROM users
+WHERE nickname = ?
 `
 
-func (q *Queries) GetUserByFullName(ctx context.Context, fullName string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByFullName, fullName)
+func (q *Queries) GetUserByNickName(ctx context.Context, nickname string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByNickName, nickname)
 	var i User
 	err := row.Scan(
 		&i.UserID,
 		&i.OauthUid,
-		&i.FullName,
+		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
 		&i.PasswordChangedAt,

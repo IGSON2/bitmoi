@@ -16,7 +16,7 @@ import (
 
 type UserResponse struct {
 	UserID            string    `json:"user_id"`
-	FullName          string    `json:"full_name"`
+	Nickname          string    `json:"nickname"`
 	Email             string    `json:"email"`
 	PhotoURL          string    `json:"photo_url"`
 	MetamaskAddress   string    `json:"metamask_address"`
@@ -27,7 +27,7 @@ type UserResponse struct {
 func convertUserResponse(user db.User) UserResponse {
 	uR := UserResponse{
 		UserID:            user.UserID,
-		FullName:          user.FullName,
+		Nickname:          user.Nickname,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
@@ -50,13 +50,13 @@ func (s *Server) checkID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString(userID)
 }
 
-func (s *Server) checkFullName(c *fiber.Ctx) error {
-	fullName := c.Query("full_name")
-	user, _ := s.store.GetUserByFullName(c.Context(), fullName)
-	if user.FullName == fullName {
+func (s *Server) checkNickname(c *fiber.Ctx) error {
+	nickname := c.Query("nickname")
+	user, _ := s.store.GetUserByNickName(c.Context(), nickname)
+	if user.Nickname == nickname {
 		return c.Status(fiber.StatusBadRequest).SendString("full name already exist")
 	}
-	return c.Status(fiber.StatusOK).SendString(fullName)
+	return c.Status(fiber.StatusOK).SendString(nickname)
 }
 
 func (s *Server) createUser(c *fiber.Ctx) error {
@@ -77,7 +77,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
 		HashedPassword: hashedPassword,
-		FullName:       req.FullName,
+		Nickname:       req.Nickname,
 		Email:          req.Email,
 	}
 	if req.PhotoUrl != "" {
@@ -200,4 +200,21 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(rsp)
 
+}
+
+func (s *Server) updateMetamaskAddr(c *fiber.Ctx) error {
+	r := new(UpdateMetamaskAddrRequest)
+	err := c.BodyParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
+
+	_, err = s.store.UpdateUserMetamaskAddress(c.Context(), db.UpdateUserMetamaskAddressParams{
+		MetamaskAddress: sql.NullString{String: r.MetamaskAddr, Valid: true},
+		UserID:          r.UserID,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update metamask address: user:%s addr:%s", r.UserID, r.MetamaskAddr))
+	}
+	return c.SendStatus(fiber.StatusOK)
 }

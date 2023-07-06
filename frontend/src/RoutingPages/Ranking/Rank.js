@@ -11,7 +11,7 @@ function Rank() {
       {
         user_id: "",
         photo_url: "",
-        display_name: "",
+        nickname: "",
         score_id: "",
         final_balance: 0,
         comment: "",

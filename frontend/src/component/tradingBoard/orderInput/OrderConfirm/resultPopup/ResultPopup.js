@@ -12,7 +12,7 @@ const ResultPopup = (props) => {
         user_id: "",
         score_id: props.scoreid,
         comment: "",
-        display_name: "",
+        nickname: "",
       }),
     }).then(window.location.replace("/rank?page=1"));
   };

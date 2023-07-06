@@ -1,7 +1,7 @@
 CREATE TABLE `users` (
   `user_id` varchar(255) PRIMARY KEY,
   `oauth_uid` varchar(255),
-  `full_name` varchar(255) NOT NULL,
+  `nickname` varchar(255) NOT NULL,
   `hashed_password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),
@@ -29,12 +29,12 @@ CREATE TABLE `ranking_board` (
   `user_id` varchar(255) PRIMARY KEY,
   `photo_url` varchar(255) NOT NULL,
   `score_id` varchar(255) NOT NULL,
-  `display_name` varchar(255) NOT NULL,
+  `nickname` varchar(255) NOT NULL,
   `final_balance` double NOT NULL,
   `comment` varchar(255) NOT NULL
 );
 
-CREATE UNIQUE INDEX `users_index_0` ON `users` (`full_name`);
+CREATE UNIQUE INDEX `users_index_0` ON `users` (`nickname`);
 
 CREATE INDEX `score_index_1` ON `score` (`user_id`);
 

@@ -68,7 +68,7 @@ type RankingBoard struct {
 	UserID       string  `json:"user_id"`
 	PhotoUrl     string  `json:"photo_url"`
 	ScoreID      string  `json:"score_id"`
-	DisplayName  string  `json:"display_name"`
+	Nickname     string  `json:"nickname"`
 	FinalBalance float64 `json:"final_balance"`
 	Comment      string  `json:"comment"`
 }
@@ -102,7 +102,7 @@ type Session struct {
 type User struct {
 	UserID            string         `json:"user_id"`
 	OauthUid          sql.NullString `json:"oauth_uid"`
-	FullName          string         `json:"full_name"`
+	Nickname          string         `json:"nickname"`
 	HashedPassword    string         `json:"hashed_password"`
 	Email             string         `json:"email"`
 	PasswordChangedAt time.Time      `json:"password_changed_at"`

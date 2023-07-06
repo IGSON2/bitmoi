@@ -70,7 +70,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
 	router.Get("/user/checkid", server.checkID)
-	router.Get("/user/checkname", server.checkFullName)
+	router.Get("/user/checknickname", server.checkNickname)
 	router.Post("/token/reissue_access", server.reissueAccessToken)
 	router.Get("/verify_email", server.VerifyEmail)
 
@@ -78,6 +78,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
+	authGroup.Post("/updateaddr", server.updateMetamaskAddr)
 
 	server.router = router
 

@@ -6,6 +6,8 @@ import Practice from "./RoutingPages/practice/Practice";
 import MyScore from "./RoutingPages/myscore/MyScore";
 import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
+import Wallet from "./component/Wallet/Wallet";
+import SignUp from "./RoutingPages/SignUp/SignUp";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -38,6 +40,8 @@ function App() {
           />
           <Route path="/myscore" element={<MyScore />} />
           <Route path="/rank?page=1" element={<Rank />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/wallettest" element={<Wallet />} />
         </Routes>
       </BrowserRouter>
     </div>

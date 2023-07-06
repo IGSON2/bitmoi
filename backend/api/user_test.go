@@ -22,7 +22,7 @@ func randomUserRequest(t *testing.T) (*http.Request, string) {
 	b, err := json.Marshal(CreateUserRequest{
 		UserID:   utilities.MakeRanString(5),
 		Password: password,
-		FullName: utilities.MakeRanString(10),
+		Nickname: utilities.MakeRanString(10),
 		Email:    utilities.MakeRanEmail(),
 	})
 	require.NoError(t, err)

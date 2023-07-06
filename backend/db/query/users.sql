@@ -2,7 +2,7 @@
 INSERT INTO users (
     user_id,
     oauth_uid,
-    full_name,
+    nickname,
     hashed_password,
     email,
     photo_url
@@ -14,9 +14,9 @@ INSERT INTO users (
 SELECT * FROM users
 WHERE user_id = ?;
 
--- name: GetUserByFullName :one
+-- name: GetUserByNickName :one
 SELECT * FROM users
-WHERE full_name = ?;
+WHERE nickname = ?;
 
 -- name: GetRandomUser :one
 SELECT * FROM users

@@ -90,7 +90,7 @@ function RankDiv({ index, obj }) {
               : { color: "black" }
           }
         >
-          {obj.displayname}
+          {obj.nickname}
         </div>
         <div className={`${styles.score}  ${styles.field}`}>{obj.balance}</div>
         <button className={styles.openbutton} onClick={getMoreInfo}>
