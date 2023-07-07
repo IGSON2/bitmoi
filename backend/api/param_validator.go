@@ -84,7 +84,7 @@ type LoginUserRequest struct {
 type CreateUserRequest struct {
 	UserID   string `json:"user_id" validate:"required,alphanum,min=5,max=15"`
 	Password string `json:"password" validate:"required,min=8"`
-	Nickname string `json:"nickname" validate:"required"`
+	Nickname string `json:"nickname" validate:"required,min=1,max=10"`
 	Email    string `json:"email" validate:"required,email"`
 	PhotoUrl string `json:"photo_url,omitempty"`
 	OauthUid string `json:"oauth_uid,omitempty"`

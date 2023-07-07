@@ -6,9 +6,8 @@ function SignUp() {
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
     /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$@$!%*#?&])[a-zA-Z0-9$@$!%*#?&]{8,16}$/;
-
+  const nicknamePattern = /^[가-힣a-zA-Z0-9]{1,10}$/;
   const [userID, setUserID] = useState("");
-  const [userIDCheckError, setUserIDCheckError] = useState("");
   const [emailID, setEmailID] = useState("");
   const [emailDomain, setEmailDomain] = useState("");
   const [selectDomainDisable, setSelectDomainDisable] = useState(true);
@@ -16,13 +15,16 @@ function SignUp() {
   const [passwordChk, setPasswordChk] = useState("");
   const [nickname, setNickname] = useState("");
   const [isLogined, setIsLogined] = useState(false);
-  const [nicknameCheckError, setNicknameCheckError] = useState("");
-
+  const [userIdDuplicationText, setUserIdDuplicationText] =
+    useState("중복확인");
+  const [nicknameDuplicationText, setNicknameDuplicationText] =
+    useState("중복확인");
   const [userIDError, setuserIDError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordCheckError, setPasswordCheckError] = useState("");
+  const [nicknameError, setNicknameError] = useState("");
 
-  const onSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
     fetch("http://bitmoi.co.kr:5000/user", {
       method: "POST",
@@ -40,6 +42,7 @@ function SignUp() {
 
   const userIDChange = (e) => {
     setUserID(e.target.value);
+    setUserIdDuplicationText("중복확인");
     if (!userIDPattern.test(e.target.value)) {
       setuserIDError("ID는 영문 숫자 조합 5자에서 15자 내로 입력해 주세요.");
     } else {
@@ -49,41 +52,43 @@ function SignUp() {
 
   const userIDCheck = (e) => {
     e.preventDefault();
-
     fetch("http://bitmoi.co.kr:5000/user/checkid?user_id=" + userID)
       .then((res) => {
         if (res.ok) {
-          setUserIDCheckError("");
+          setUserIdDuplicationText("사용가능");
           return;
+        } else {
+          setUserIdDuplicationText("사용불가");
         }
       })
       .catch((error) => {
-        setUserIDCheckError(error);
+        console.error(error);
       });
   };
 
   const pwChange = (e) => {
     setPassword(e.target.value);
-    if (!passwordPattern.test(e.target.value)) {
-      const firstInvalidChar = e.target.value
-        .split("")
-        .find((char) => !passwordPattern.test(char));
-      console.log(`Invalid character: ${firstInvalidChar}`);
-      setPasswordError(
-        "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
-      );
+    if (e.target.value.length < 8) {
+      setPasswordError("비밀번호는 최소 8자리여야 합니다.");
     } else {
-      setPasswordError("");
+      if (!passwordPattern.test(e.target.value)) {
+        setPasswordError(
+          "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
+        );
+      } else {
+        setPasswordError("");
+        if (passwordChk !== "" && e.target.value !== passwordChk) {
+          setPasswordCheckError("재확인 비밀번호가 다릅니다.");
+        } else {
+          setPasswordCheckError("");
+        }
+      }
     }
   };
 
   const pwChkChange = (e) => {
     setPasswordChk(e.target.value);
     if (!passwordPattern.test(e.target.value)) {
-      const firstInvalidChar = e.target.value
-        .split("")
-        .find((char) => !passwordPattern.test(char));
-      console.log(`Invalid character: ${firstInvalidChar}`);
       setPasswordCheckError(
         "비밀번호는 영문, 숫자, 특수문자($, @, $, !, %, *, #, ?, &)가 모두 포함되어야 합니다."
       );
@@ -97,6 +102,14 @@ function SignUp() {
 
   const nicknameChange = (e) => {
     setNickname(e.target.value);
+    setNicknameDuplicationText("중복확인");
+    if (!nicknamePattern.test(e.target.value)) {
+      setNicknameError(
+        "닉네임은 특수문자를 제외하여 10자 이내로 입력해 주세요."
+      );
+    } else {
+      setNicknameError("");
+    }
   };
 
   const nicknameCheck = (e) => {
@@ -104,12 +117,14 @@ function SignUp() {
     fetch("http://bitmoi.co.kr:5000/user/checknickname?nickname=" + nickname)
       .then((res) => {
         if (res.ok) {
-          setNicknameCheckError("");
+          setNicknameDuplicationText("사용가능");
           return;
+        } else {
+          setNicknameDuplicationText("사용불가");
         }
       })
       .catch((error) => {
-        setNicknameCheckError(error);
+        console.error(error);
       });
   };
 
@@ -150,7 +165,7 @@ function SignUp() {
           <h3 className={styles.welcome}>
             시뮬레이션 모의투자 비트모이에 오신 걸 환영합니다!
           </h3>
-          <form className={styles.forms} onSubmit={onSubmit}>
+          <form className={styles.forms}>
             <div className={styles.field}>
               <label htmlFor="id">아이디</label>
               <input
@@ -161,14 +176,23 @@ function SignUp() {
                 onChange={userIDChange}
                 style={{
                   width: "60%",
-                  borderColor: userIDError === "" ? "" : "#ef5350",
+                  backgroundColor: userIDError === "" ? "" : "#f3ebeb",
                 }}
               ></input>
-              <button className={styles.duplication} onClick={userIDCheck}>
-                중복확인
+              <button
+                className={styles.duplication}
+                onClick={userIDCheck}
+                style={
+                  userIdDuplicationText === "사용가능"
+                    ? { backgroundColor: "#3e4da3" }
+                    : userIdDuplicationText === "사용불가"
+                    ? { backgroundColor: "#972523bd" }
+                    : { backgroundColor: "#5e5f66" }
+                }
+              >
+                {userIdDuplicationText}
               </button>
             </div>
-            {userIDCheckError ? <div>{userIDCheckError}</div> : null}
 
             <div className={styles.field}>
               <label htmlFor="pw">비밀번호</label>
@@ -178,7 +202,9 @@ function SignUp() {
                 placeholder="password"
                 value={password}
                 onChange={pwChange}
-                style={{ borderColor: passwordError === "" ? "" : "#ef5350" }}
+                style={{
+                  backgroundColor: passwordError === "" ? "" : "#f3ebeb",
+                }}
               ></input>
             </div>
 
@@ -191,7 +217,7 @@ function SignUp() {
                 value={passwordChk}
                 onChange={pwChkChange}
                 style={{
-                  borderColor: passwordCheckError === "" ? "" : "#ef5350",
+                  backgroundColor: passwordCheckError === "" ? "" : "#f3ebeb",
                 }}
               ></input>
             </div>
@@ -205,11 +231,20 @@ function SignUp() {
                 onChange={nicknameChange}
                 style={{ width: "60%" }}
               ></input>
-              <button className={styles.duplication} onClick={nicknameCheck}>
-                중복확인
+              <button
+                className={styles.duplication}
+                onClick={nicknameCheck}
+                style={
+                  nicknameDuplicationText === "사용가능"
+                    ? { backgroundColor: "#3e4da3" }
+                    : nicknameDuplicationText === "사용불가"
+                    ? { backgroundColor: "#972523bd" }
+                    : { backgroundColor: "#5e5f66" }
+                }
+              >
+                {nicknameDuplicationText}
               </button>
             </div>
-            {nicknameCheckError ? <div>{nicknameCheckError}</div> : null}
 
             <div className={styles.field}>
               <label htmlFor="emailID">이메일</label>
@@ -256,13 +291,25 @@ function SignUp() {
                 ? passwordError
                 : passwordCheckError
                 ? passwordCheckError
+                : nicknameError
+                ? nicknameError
                 : ""}
             </div>
             <button
+              onClick={submit}
               disabled={
+                userID === "" ||
+                password === "" ||
+                passwordChk === "" ||
+                nickname === "" ||
+                emailID === "" ||
+                emailDomain === "" ||
                 userIDError !== "" ||
                 passwordError !== "" ||
-                passwordCheckError !== ""
+                passwordCheckError !== "" ||
+                nicknameError !== "" ||
+                userIdDuplicationText !== "사용가능" ||
+                nicknameDuplicationText !== "사용가능"
               }
               className={styles.signup}
             >
