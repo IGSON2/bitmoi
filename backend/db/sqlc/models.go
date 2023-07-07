@@ -99,6 +99,13 @@ type Session struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
+type UsedToken struct {
+	ScoreID         string    `json:"score_id"`
+	UserID          string    `json:"user_id"`
+	MetamaskAddress string    `json:"metamask_address"`
+	CreatedAt       time.Time `json:"created_at"`
+}
+
 type User struct {
 	UserID            string         `json:"user_id"`
 	OauthUid          sql.NullString `json:"oauth_uid"`
@@ -108,7 +115,6 @@ type User struct {
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
 	CreatedAt         time.Time      `json:"created_at"`
 	PhotoUrl          sql.NullString `json:"photo_url"`
-	MetamaskAddress   sql.NullString `json:"metamask_address"`
 	IsEmailVerified   bool           `json:"is_email_verified"`
 }
 

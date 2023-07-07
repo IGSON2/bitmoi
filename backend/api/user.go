@@ -19,7 +19,6 @@ type UserResponse struct {
 	Nickname          string    `json:"nickname"`
 	Email             string    `json:"email"`
 	PhotoURL          string    `json:"photo_url"`
-	MetamaskAddress   string    `json:"metamask_address"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 }
@@ -34,9 +33,6 @@ func convertUserResponse(user db.User) UserResponse {
 	}
 	if user.PhotoUrl.String != "" {
 		uR.PhotoURL = user.PhotoUrl.String
-	}
-	if user.MetamaskAddress.String != "" {
-		uR.MetamaskAddress = user.MetamaskAddress.String
 	}
 
 	return uR
@@ -202,16 +198,17 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 
 }
 
-func (s *Server) updateMetamaskAddr(c *fiber.Ctx) error {
+func (s *Server) updateUsingToken(c *fiber.Ctx) error {
 	r := new(UpdateMetamaskAddrRequest)
 	err := c.BodyParser(r)
 	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
 
-	_, err = s.store.UpdateUserMetamaskAddress(c.Context(), db.UpdateUserMetamaskAddressParams{
-		MetamaskAddress: sql.NullString{String: r.MetamaskAddr, Valid: true},
+	_, err = s.store.CreateUsedToken(c.Context(), db.CreateUsedTokenParams{
+		ScoreID:         r.ScoreId,
 		UserID:          r.UserID,
+		MetamaskAddress: r.MetamaskAddr,
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update metamask address: user:%s addr:%s", r.UserID, r.MetamaskAddr))

@@ -78,7 +78,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
-	authGroup.Post("/updateaddr", server.updateMetamaskAddr)
+	authGroup.Post("/usetoken", server.updateUsingToken)
 
 	server.router = router
 

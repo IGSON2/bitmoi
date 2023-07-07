@@ -1,3 +1,4 @@
 DROP TABLE IF EXISTS score;
 DROP TABLE IF EXISTS ranking_board;
+DROP TABLE IF EXISTS used_token;
 DROP TABLE IF EXISTS users;

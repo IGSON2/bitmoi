@@ -97,5 +97,6 @@ type VerifyEmailRequest struct {
 
 type UpdateMetamaskAddrRequest struct {
 	UserID       string `json:"user_id" validate:"required,alphanum"`
+	ScoreId      string `json:"score_id" validate:"required,numeric"`
 	MetamaskAddr string `json:"metamask_addr" validate:"required,eth_addr"`
 }
