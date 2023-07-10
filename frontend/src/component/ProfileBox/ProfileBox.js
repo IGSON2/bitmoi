@@ -5,7 +5,7 @@ import { IoIosPerson } from "react-icons/io";
 import logo from "../images/logosmall.png";
 import styles from "./ProfileBox.module.css";
 import { Link } from "react-router-dom";
-import { RemoveTokens } from "../Token/Token";
+import { LoadAccessToken, RemoveTokens } from "../Token/Token";
 
 function ProfileBox() {
   const [loginClick, setLoginClick] = useState(false);
@@ -15,7 +15,12 @@ function ProfileBox() {
     setLoginClick(true);
   };
 
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState({
+    user_id: "",
+    nickname: "",
+    email: "",
+    photo_url: "",
+  });
   const [openProfile, setOpenProfile] = useState(false);
   const profileClick = () => {
     setOpenProfile((current) => !current);
@@ -25,6 +30,14 @@ function ProfileBox() {
     RemoveTokens();
   };
 
+  useEffect(() => {
+    console.log(LoadAccessToken());
+    if (LoadAccessToken() === "undefined") {
+      setIsLogined(false);
+    } else {
+      setIsLogined(true);
+    }
+  }, []);
   return (
     <div className={styles.profiebox}>
       {isLogined ? (

@@ -23,7 +23,6 @@ function OrderInput({
   balance,
   setBalance,
   setTitleaArray,
-  entryTime,
 }) {
   const [quantity, setQuantity] = useState();
   const [quantityRate, setQuantityRate] = useState(1);
@@ -612,7 +611,6 @@ function OrderInput({
       setLossPrice(Math.floor((entryPrice + entryPrice * 0.1) * 10000) / 10000);
     }
   };
-  console.log(quantity);
   return (
     <div
       className={`${opened ? styles.ordernavopened : styles.ordernavclosed}`}

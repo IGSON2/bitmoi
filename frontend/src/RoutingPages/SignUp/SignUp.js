@@ -146,7 +146,9 @@ function SignUp() {
   };
 
   useEffect(() => {
-    if (LoadAccessToken()) {
+    if (LoadAccessToken() === "undefined") {
+      setIsLogined(false);
+    } else {
       setIsLogined(true);
     }
   }, []);

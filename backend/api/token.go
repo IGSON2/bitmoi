@@ -18,6 +18,10 @@ type ReissueAccessTokenResponse struct {
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
+type VerifyTokenRequest struct {
+	Token string `json:"token" validate:"required"`
+}
+
 func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	r := new(ReissueAccessTokenRequest)
 	err := c.BodyParser(r)
@@ -69,4 +73,18 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+func (s *Server) verifyToken(c *fiber.Ctx) error {
+	r := new(VerifyTokenRequest)
+	err := c.BodyParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
+
+	_, err = s.tokenMaker.VerifyToken(r.Token)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("token varification failed.")
+	}
+	return c.SendStatus(fiber.StatusOK)
 }

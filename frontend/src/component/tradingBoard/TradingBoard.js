@@ -10,7 +10,7 @@ import {
 import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
 
-function TradingBoard({ modeHeight, mode, setAdshow }) {
+function TradingBoard({ modeHeight, mode }) {
   const [fiveMinutes, setFiveMinutes] = useState();
   const [fifteenMinutes, setFifteenMinutes] = useState();
   const [oneHour, setOneHour] = useState();
@@ -113,9 +113,6 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
         setBtcRatio(jsonData.btcratio);
         setEntryPrice(jsonData.entry_price);
         setEntryTime(jsonData.entrytime);
-        if (mode === "practice") {
-          setAdshow(true);
-        }
         setHeaderInterval("1h");
         break;
       case "5m":
@@ -204,6 +201,7 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
   useEffect(() => {
     getChartData("init");
   }, [index]);
+
   useEffect(() => {
     if (submitOrder) {
       setHeaderInterval("submit");
@@ -227,7 +225,6 @@ function TradingBoard({ modeHeight, mode, setAdshow }) {
   window.onkeyup = () => {
     setActive("");
   };
-  console.log(candles);
   return (
     <div className={styles.page}>
       {loaded ? (

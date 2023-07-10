@@ -8,6 +8,7 @@ import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
 import Wallet from "./component/Wallet/Wallet";
 import SignUp from "./RoutingPages/SignUp/SignUp";
+import Login from "./component/login/Login";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);

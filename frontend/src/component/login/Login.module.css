@@ -21,7 +21,7 @@
 
 .popupbody {
   width: 400px;
-  height: 280px;
+  height: 350px;
   padding-top: 20px;
   z-index: 8;
   display: flex;
@@ -77,13 +77,14 @@
 }
 
 .box {
+  padding-left: 3%;
   width: 60%;
   height: 20%;
 }
 
 .login {
   width: 40%;
-  height: 15%;
+  height: 18%;
   border-radius: 5px;
   border: none;
   font-size: small;

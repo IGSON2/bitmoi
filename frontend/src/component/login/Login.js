@@ -3,6 +3,7 @@ import styles from "./Login.module.css";
 import { BsXLg } from "react-icons/bs";
 import PostLogin from "../backendConn/PostLogin";
 import { SaveAccessToken, SaveRefreshToken } from "../Token/Token";
+import { Link } from "react-router-dom";
 
 function Login({ popupOpen, setUserInfo, setIsLogined }) {
   const [ID, setID] = useState("");
@@ -16,14 +17,17 @@ function Login({ popupOpen, setUserInfo, setIsLogined }) {
     setPassword(e.target.value);
   };
 
-  const login = () => {
+  const login = (e) => {
+    e.preventDefault(e);
     const loginPromise = PostLogin(
       "http://bitmoi.co.kr:5000/user/login",
       ID,
       password
     );
     loginPromise
-      .then((res) => {
+      .then((r) => {
+        const res = r.json();
+        console.log(res);
         SaveAccessToken(res.access_token);
         SaveRefreshToken(res.refresh_token);
         setUserInfo(res.user);
@@ -69,6 +73,9 @@ function Login({ popupOpen, setUserInfo, setIsLogined }) {
           </button>
         </form>
         <p>{errorMsg}</p>
+        <Link to={"/signup"}>
+          <button className={styles.signup}>Sign up</button>
+        </Link>
       </div>
     </div>
   );

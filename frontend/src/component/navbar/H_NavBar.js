@@ -1,6 +1,5 @@
 import styles from "./H_NavBar.module.css";
 import { Link } from "react-router-dom";
-import ProfileBox from "../ProfileBox/ProfileBox";
 
 function H_NavBar() {
   const menubutton = [

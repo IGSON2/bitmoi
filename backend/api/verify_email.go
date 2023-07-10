@@ -12,7 +12,7 @@ type VerifyEmailResponse struct {
 	IsVerified bool `json:"is_verified"`
 }
 
-func (s *Server) VerifyEmail(c *fiber.Ctx) error {
+func (s *Server) verifyEmail(c *fiber.Ctx) error {
 	r := new(VerifyEmailRequest)
 	err := c.QueryParser(r)
 	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
