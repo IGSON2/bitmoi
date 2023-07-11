@@ -49,7 +49,7 @@ function Home() {
         })}
       </div>
       <div className={styles.copyright}>
-        Copyright &copy; 2022 IGSON All rights reserved.
+        Copyright &copy; 2023 IGSON All rights reserved.
       </div>
     </div>
   );
