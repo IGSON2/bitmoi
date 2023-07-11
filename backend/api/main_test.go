@@ -3,6 +3,7 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/worker"
 	"database/sql"
 	"os"
 	"testing"
@@ -12,10 +13,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestServer(t *testing.T, store db.Store) *Server {
+func newTestServer(t *testing.T, store db.Store, taskDistributor worker.TaskDistributor) *Server {
 	c := utilities.GetConfig("../../.")
 	c.AccessTokenDuration = time.Minute
-	s, err := NewServer(c, store)
+	s, err := NewServer(c, store, taskDistributor)
 	s.taskDistributor = NewRedisTaskDistributor(asynq.RedisClientOpt{Addr: c.RedisAddress})
 	require.NoError(t, err)
 	return s

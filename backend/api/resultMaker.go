@@ -165,28 +165,28 @@ func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTe
 
 	switch info.Interval {
 	case db.OneD:
-		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneD, waitingTerm))})
+		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.OneD, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FourH, waitingTerm))})
+		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.FourH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.OneH, waitingTerm))})
+		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.OneH, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateTerm(db.FifM, waitingTerm))})
+		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.FifM, waitingTerm))})
 		if err != nil {
 			return nil, err
 		}

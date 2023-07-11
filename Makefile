@@ -25,6 +25,7 @@ migratedown1:
 
 mock:
 	mockgen -package mockdb -destination backend/db/mock/store.go bitmoi/backend/db/sqlc Store
+	mockgen -package mocktask -destination backend/worker/mock/distributor.go bitmoi/backend/worker TaskDistributor
 
 delete:
 	$(DELETE_COMMAND)

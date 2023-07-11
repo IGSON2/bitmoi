@@ -1,6 +1,9 @@
 package db
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 const (
 	FiveM = "5m"
@@ -37,7 +40,7 @@ func ParseInterval(interval string) (int, string) {
 	return time, string(unit)
 }
 
-func CalculateTerm(interval string, waitingTerm int) int {
+func CalculateWaitingTerm(interval string, waitingTerm int) int {
 	switch interval {
 	case OneD:
 		return waitingTerm
@@ -49,6 +52,24 @@ func CalculateTerm(interval string, waitingTerm int) int {
 		return waitingTerm * 96
 	case FiveM:
 		return waitingTerm * 288
+	default:
+		return 0
 	}
-	return 0
+}
+
+func CalculateSeconds(interval string) int64 {
+	switch interval {
+	case OneD:
+		return int64(24 * time.Hour.Seconds())
+	case FourH:
+		return int64(4 * time.Hour.Seconds())
+	case OneH:
+		return int64(1 * time.Hour.Seconds())
+	case FifM:
+		return int64(15 * time.Minute.Seconds())
+	case FiveM:
+		return int64(5 * time.Minute.Seconds())
+	default:
+		return 0
+	}
 }

@@ -71,7 +71,13 @@ func bitmoi(ctx *cli.Context) error {
 }
 
 func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
-	server, err := api.NewServer(config, store)
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+
+	server, err := api.NewServer(config, store, taskDistributor)
 	if err != nil {
 		log.Panic().Err(err).Msg("cannot create server")
 	}

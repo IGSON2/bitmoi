@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/hibiken/asynq"
 )
 
 const (
@@ -32,17 +31,11 @@ type Server struct {
 	taskDistributor worker.TaskDistributor
 }
 
-func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
+func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
-
-	redisOpt := asynq.RedisClientOpt{
-		Addr: c.RedisAddress,
-	}
-
-	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 
 	server := &Server{
 		config:          c,
