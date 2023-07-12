@@ -191,7 +191,7 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
 		if r.Mode == competition {
-			if err := authMiddleware(s.tokenMaker)(c); err != nil {
+			if err := checkAuthorization(c, s.tokenMaker); err != nil {
 				return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s err: %s", errNotAuthenticated, err))
 			}
 		}
@@ -250,7 +250,7 @@ func (s *Server) rank(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusOK).JSON(ranks)
 	case "POST":
-		if err := authMiddleware(s.tokenMaker)(c); err != nil {
+		if err := checkAuthorization(c, s.tokenMaker); err != nil {
 			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
 		}
 		var r RankInsertRequest

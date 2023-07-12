@@ -42,6 +42,8 @@ CREATE TABLE `used_token` (
 
 CREATE UNIQUE INDEX `users_index_0` ON `users` (`nickname`);
 
+CREATE UNIQUE INDEX `users_index_1` ON `users` (`email`);
+
 CREATE INDEX `score_index_1` ON `score` (`user_id`);
 
 CREATE INDEX `score_index_2` ON `score` (`score_id`);

@@ -62,3 +62,32 @@ func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 		return c.Next()
 	}
 }
+
+func checkAuthorization(c *fiber.Ctx, maker *token.PasetoMaker) error {
+
+	authorizationHeader := c.Get(authorizationHeaderKey)
+
+	if len(authorizationHeader) == 0 {
+		return fmt.Errorf("authorization header is not provided")
+	}
+
+	fields := strings.Fields(authorizationHeader)
+
+	if len(fields) < 2 {
+		return fmt.Errorf("invalid authorization header format")
+
+	}
+
+	authorizationType := strings.ToLower(fields[0])
+	if authorizationType != authorizationTypeBearer {
+		return fmt.Errorf("unsupported authorization type, %s", authorizationType)
+	}
+
+	accessToken := fields[1]
+	payload, err := maker.VerifyToken(accessToken)
+	if err != nil {
+		return err
+	}
+	c.Locals(authorizationPayloadKey, payload)
+	return nil
+}

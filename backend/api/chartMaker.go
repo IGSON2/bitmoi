@@ -236,6 +236,7 @@ func (o *OnePairChart) addIdentifier() {
 		VolumeFactor: o.volumeFactor,
 		TimeFactor:   o.timeFactor,
 	}
+	// url 파라미터로 인코딩 필요
 	o.Identifier = utilities.EncrtpByASE(&uniqueInfo)
 }
 
