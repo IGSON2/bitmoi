@@ -76,32 +76,45 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 	)
 
 	if backward {
-		endTime = getStartTime(min, interval, -1)
-		if min <= timestamp {
+		endTime = f.Yesterday
+		if min < timestamp {
 			if min <= 0 {
 				startTime = timestamp
-				endTime = f.Yesterday
 				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			} else {
-				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is equal or more futuristic than minimum timestamp.")
+				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is more futuristic than minimum timestamp.")
 				return nil
 			}
+		} else if min == timestamp {
+			startTime = max + 1
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+				Msg("given timestamp is equal with minimum timestamp. set to maximum timestamp + 1")
 		} else {
 			startTime = timestamp
-			log.Info().Msgf("start time has been set to given timestamp %s", utilities.TransMilli(startTime))
+			endTime = min - 1
+			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+				Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 		}
 	} else {
 		startTime = getStartTime(max, interval, 1)
-		if timestamp <= startTime {
+		if timestamp <= max {
 			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or more past than maximum timestamp.")
 			return nil
-		} else if timestamp > max {
-			endTime = timestamp
-			log.Info().Msgf("end time has been set to given timestamp %s", utilities.TransMilli(endTime))
-		} else if max < 0 {
-			startTime = getStartTime(f.Yesterday, interval, -1*LimitCandlesNum)
-			endTime = f.Yesterday
-			log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+		} else {
+			if max <= 0 {
+				startTime = getStartTime(f.Yesterday, interval, -1*LimitCandlesNum)
+				endTime = f.Yesterday
+				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+			} else {
+				if startTime > f.Yesterday {
+					log.Info().Any("Start time", utilities.TransMilli(startTime)).Any("Yesterday", utilities.TransMilli(f.Yesterday)).
+						Msg("start time is more futureistic than yesterday 9am")
+					return nil
+				}
+				endTime = f.Yesterday
+				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+					Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+			}
 		}
 	}
 

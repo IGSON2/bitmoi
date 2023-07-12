@@ -22,7 +22,7 @@ func TestGetCandles(t *testing.T) {
 	s := db.NewStore(conn)
 	require.NotNil(t, s)
 
-	server, err := NewServer(c, s)
+	server, err := NewServer(c, s, nil)
 	require.NoError(t, err)
 	require.NotNil(t, server)
 

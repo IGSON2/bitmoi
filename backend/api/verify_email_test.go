@@ -3,6 +3,7 @@ package api
 import (
 	"bitmoi/backend/mail"
 	"bitmoi/backend/utilities"
+	mocktask "bitmoi/backend/worker/mock"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +23,11 @@ func TestAsyncWorker(t *testing.T) {
 	}
 	config := utilities.GetConfig("../..")
 	store := newTestStore(t)
-	server := newTestServer(t, store)
+
+	taskCtrl := gomock.NewController(t)
+	mockTask := mocktask.NewMockTaskDistributor(taskCtrl)
+
+	server := newTestServer(t, store, mockTask)
 
 	processor := NewTestRedisTaskProcessor(asynq.RedisClientOpt{
 		Addr: config.RedisAddress,
@@ -56,7 +62,11 @@ func TestNotVerifiedLogin(t *testing.T) {
 	}
 	config := utilities.GetConfig("../..")
 	store := newTestStore(t)
-	server := newTestServer(t, store)
+
+	taskCtrl := gomock.NewController(t)
+	mockTask := mocktask.NewMockTaskDistributor(taskCtrl)
+
+	server := newTestServer(t, store, mockTask)
 
 	processor := NewTestRedisTaskProcessor(asynq.RedisClientOpt{
 		Addr: config.RedisAddress,

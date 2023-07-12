@@ -17,7 +17,7 @@ import (
 
 func TestMakeChart(t *testing.T) {
 	store := newTestStore(t)
-	s := newTestServer(t, store)
+	s := newTestServer(t, store, nil)
 
 	httpReq, _ := randomUserRequest(t)
 

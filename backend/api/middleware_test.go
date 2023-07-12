@@ -29,7 +29,7 @@ func addAuthrization(
 }
 
 func TestAuthMiddleware(t *testing.T) {
-	s := newTestServer(t, newTestStore(t))
+	s := newTestServer(t, newTestStore(t), nil)
 
 	httpReq, _ := randomUserRequest(t)
 	res, err := s.router.Test(httpReq)

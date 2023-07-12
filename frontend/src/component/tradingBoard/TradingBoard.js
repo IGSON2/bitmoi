@@ -89,6 +89,7 @@ function TradingBoard({ modeHeight, mode }) {
     var jsonData;
     setloaded(false);
     switch (interval) {
+      // interval query value에 삽입할 때 "+" 문자에 대한 encoding 필요 encodeURIComponent(identifier);
       case "init":
         jsonData = await (
           await fetch(

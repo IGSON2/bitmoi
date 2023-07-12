@@ -52,7 +52,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	router := fiber.New(fiber.Config{})
 
-	router.Use(allowOriginMiddleware, limiterMiddleware, server.createLoggerMiddleware())
+	router.Use(limiterMiddleware, server.createLoggerMiddleware())
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)

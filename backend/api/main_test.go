@@ -4,6 +4,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
+	"context"
 	"database/sql"
 	"os"
 	"testing"
@@ -28,6 +29,21 @@ func newTestStore(t *testing.T) db.Store {
 	require.NoError(t, err)
 	return db.NewStore(conn)
 }
+
+func testGetAllPairs(t *testing.T) []string {
+	store := newTestStore(t)
+	pairs, err := store.GetAllParisInDB(context.Background())
+	require.NoError(t, err)
+	return pairs
+}
+
+func testGetMinMaxTime(t *testing.T, interval, name string) (min, max int64) {
+	store := newTestStore(t)
+	min, max, err := store.SelectMinMaxTime(interval, name, context.Background())
+	require.NoError(t, err)
+	return min, max
+}
+
 func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }

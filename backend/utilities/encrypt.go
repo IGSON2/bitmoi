@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,6 +31,7 @@ func Base64Encode(b []byte) string {
 func Base64Decode(s string) []byte {
 	b, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
+		log.Err(err).Msgf("cannot decrypt by Base64. encrypted: %s", s)
 		return nil
 	}
 	return b
@@ -56,7 +58,10 @@ func EncrtpByASE[T any](data T) string {
 
 func DecryptByASE(encrypted string) []byte {
 	b := Base64Decode(encrypted)
-	block, _ := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
+	block, err := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
+	if err != nil {
+		log.Err(err).Msgf("cannot decrypt by ASE. encrypted: %s", encrypted)
+	}
 	iv := make([]byte, aes.BlockSize)
 
 	stream := cipher.NewCTR(block, iv)

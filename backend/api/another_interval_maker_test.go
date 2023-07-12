@@ -4,18 +4,20 @@ import (
 	mockdb "bitmoi/backend/db/mock"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	identifier = "gy+Itl5buecRyHZXGCMTDensSXQEvlUUmbL/64M8Yf5+KRd4KUp/jDfFV6jT8ZaoofQ9XNQ4Bh0EcmEDVXa71O8lTaGaAFMFva3t8Y4JD34Dvj4ZzWpAjk1rPFswaTOs7Cw7BcSOVM7EnbeYWg=="
-	requestURL = "http://bitmoi.co.kr:5000/interval"
+	apiAddress = "http://bitmoi.co.kr:5000/interval"
 )
 
 type getCandleParamsMatcher struct {
@@ -104,17 +106,18 @@ func newGetCandlesParamMatcher(arg db.GetCandlesInterface, interval string) getC
 }
 
 type candleMatcher struct {
-	Name     string
-	RefTime  int64
-	Interval string
+	Name        string
+	RefTime     int64
+	ReqInterval string
 }
 
 func (m candleMatcher) String() string {
-	return fmt.Sprintf("matches result of candle request in each intervals (%s)", m.Interval)
+	return fmt.Sprintf("matches result of candle request in each intervals (%s)", m.ReqInterval)
 }
 
 func (m candleMatcher) Matches(x interface{}) bool {
-	switch m.Interval {
+	fmt.Print(x)
+	switch m.ReqInterval {
 	case db.FiveM:
 		actualIn, ok := x.(*Candles5mSlice)
 		if !ok {
@@ -123,8 +126,8 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 		actualRefTime := actualIn.InitCandleData().PData[0].Time
 
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.Interval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.Interval)) && m.Interval == actualIn.Interval()
+		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
+			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
 	case db.FifM:
 		actualIn, ok := x.(*Candles15mSlice)
 		if !ok {
@@ -133,8 +136,8 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 		actualRefTime := actualIn.InitCandleData().PData[0].Time
 
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.Interval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.Interval)) && m.Interval == actualIn.Interval()
+		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
+			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
 	case db.OneH:
 		actualIn, ok := x.(*Candles1hSlice)
 		if !ok {
@@ -143,8 +146,8 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 		actualRefTime := actualIn.InitCandleData().PData[0].Time
 
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.Interval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.Interval)) && m.Interval == actualIn.Interval()
+		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
+			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
 	case db.FourH:
 		actualIn, ok := x.(*Candles4hSlice)
 		if !ok {
@@ -153,8 +156,8 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 		actualRefTime := actualIn.InitCandleData().PData[0].Time
 
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.Interval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.Interval)) && m.Interval == actualIn.Interval()
+		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
+			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
 	case db.OneD:
 		actualIn, ok := x.(*Candles1dSlice)
 		if !ok {
@@ -163,8 +166,8 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 		actualRefTime := actualIn.InitCandleData().PData[0].Time
 
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.Interval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.Interval)) && m.Interval == actualIn.Interval()
+		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
+			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
 	default:
 		return false
 	}
@@ -172,9 +175,9 @@ func (m candleMatcher) Matches(x interface{}) bool {
 
 func newCandleMatcher(info utilities.IdentificationData) candleMatcher {
 	return candleMatcher{
-		Name:     info.Name,
-		RefTime:  info.RefTimestamp,
-		Interval: info.Interval,
+		Name:        info.Name,
+		RefTime:     info.RefTimestamp,
+		ReqInterval: info.Interval,
 	}
 }
 
@@ -183,18 +186,27 @@ func TestSomePairs(t *testing.T) {
 	defer storeCtrl.Finish()
 	mockStore := mockdb.NewMockStore(storeCtrl)
 
+	mockStore.EXPECT().GetAllParisInDB(gomock.Any()).Times(1).Return([]string{}, nil)
+
 	server := newTestServer(t, mockStore, nil)
 
-	info := new(utilities.IdentificationData)
-	err := json.Unmarshal(utilities.DecryptByASE(identifier), info)
+	token, _, err := server.tokenMaker.CreateToken("igson", time.Minute)
 	require.NoError(t, err)
+	require.NotEmpty(t, token)
 
-	anotherIntervalParam := AnotherIntervalRequest{
-		ReqInterval: db.FourH,
-		Identifier:  identifier,
-		Mode:        practice,
-		Stage:       1,
+	name := utilities.FindDiffPair(testGetAllPairs(t), []string{})
+	min, max := testGetMinMaxTime(t, db.OneH, name)
+
+	info := utilities.IdentificationData{
+		Name:         name,
+		Interval:     db.OneH,
+		RefTimestamp: max - calculateRefTimestamp(max-min, name, db.OneH),
+		PriceFactor:  1,
+		VolumeFactor: 1,
+		TimeFactor:   int64(86400 * (utilities.MakeRanInt(10950, 19000))),
 	}
+
+	identifier := utilities.EncrtpByASE(&info)
 
 	// Test get another interval
 	arg := db.Get4hCandlesParams{
@@ -202,10 +214,28 @@ func TestSomePairs(t *testing.T) {
 		Time:  info.RefTimestamp,
 		Limit: oneTimeStageLoad,
 	}
-	mockStore.EXPECT().Get4hCandles(gomock.Any(), newGetCandlesParamMatcher(&arg, db.FourH)).
-		Times(1).Return(newCandleMatcher(*info), nil)
+	mockStore.EXPECT().Get4hCandles(gomock.Any(), newGetCandlesParamMatcher(&arg, db.FourH)).Times(1).
+		// Return(newCandleMatcher(info), nil)
+		Return([]db.Candles4h{}, nil)
 
-	req := http.NewRequest("GET", "/interval", body io.Reader)
-	server.router.Test()
+	reqURL := fmt.Sprintf("%s?%s", apiAddress, encodeParams(db.FourH, identifier, competition, 1))
+	req, err := http.NewRequest("GET", reqURL, nil)
+	require.NoError(t, err)
+	req.Header.Set(authorizationHeaderKey, token)
 
+	res, err := server.router.Test(req, int(time.Minute.Milliseconds()))
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	b, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err)
+	require.Equal(t, res.Status, http.StatusOK, string(b))
+}
+
+func encodeParams(interval, identifier, mode string, stage int) string {
+	params := url.Values{}
+	params.Set("reqinterval", interval)
+	params.Set("identifier", identifier)
+	params.Set("mode", mode)
+	params.Set("stage", strconv.Itoa(stage))
+	return params.Encode()
 }
