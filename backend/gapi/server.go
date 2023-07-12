@@ -38,8 +38,9 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
-
-	setMultiLogger(c)
+	if c.Environment == "production" {
+		setMultiLogger(c)
+	}
 
 	server := &Server{
 		config:     c,

@@ -52,7 +52,10 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	router := fiber.New(fiber.Config{})
 
-	router.Use(limiterMiddleware, server.createLoggerMiddleware())
+	router.Use(limiterMiddleware)
+	if c.Environment == "production" {
+		router.Use(server.createLoggerMiddleware())
+	}
 
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
@@ -180,39 +183,51 @@ func (s *Server) competition(c *fiber.Ctx) error {
 }
 
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
-	r := new(AnotherIntervalRequest)
-	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
-	}
-	if r.Mode == competition {
-		if err := authMiddleware(s.tokenMaker)(c); err != nil {
-			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
+	switch c.Method() {
+	case "GET":
+		r := new(AnotherIntervalRequest)
+		err := c.QueryParser(r)
+		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 		}
+		if r.Mode == competition {
+			if err := authMiddleware(s.tokenMaker)(c); err != nil {
+				return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s err: %s", errNotAuthenticated, err))
+			}
+		}
+		oc, err := s.sendAnotherInterval(r, c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		return c.Status(fiber.StatusOK).JSON(oc)
+
+	default:
+		return errors.New("Not allowed method : " + c.Method())
 	}
-	oc, err := s.sendAnotherInterval(r, c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	return c.Status(fiber.StatusOK).JSON(oc)
 }
 
 func (s *Server) myscore(c *fiber.Ctx) error {
-	u := c.Params("user")
-	r := new(PageRequest)
-	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	switch c.Method() {
+	case "GET":
+		u := c.Params("user")
+		r := new(PageRequest)
+		err := c.QueryParser(r)
+		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
+			if errs != nil {
+				return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+			}
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
 
-	scores, err := s.getMyscores(u, r.Page, c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		scores, err := s.getMyscores(u, r.Page, c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		return c.Status(fiber.StatusOK).JSON(scores)
+
+	default:
+		return errors.New("Not allowed method : " + c.Method())
 	}
-	return c.Status(fiber.StatusOK).JSON(scores)
 }
 
 func (s *Server) rank(c *fiber.Ctx) error {
@@ -256,17 +271,22 @@ func (s *Server) rank(c *fiber.Ctx) error {
 }
 
 func (s *Server) moreinfo(c *fiber.Ctx) error {
-	r := new(MoreInfoRequest)
-	if err := c.QueryParser(r); err != nil {
-		return err
+	switch c.Method() {
+	case "GET":
+		r := new(MoreInfoRequest)
+		if err := c.QueryParser(r); err != nil {
+			return err
+		}
+		errs := utilities.ValidateStruct(r)
+		if errs != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+		}
+		scores, err := s.sendMoreInfo(r.UserId, r.ScoreId, c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		return c.Status(fiber.StatusOK).JSON(scores)
+	default:
+		return errors.New("Not allowed method : " + c.Method())
 	}
-	errs := utilities.ValidateStruct(r)
-	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-	}
-	scores, err := s.sendMoreInfo(r.UserId, r.ScoreId, c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	return c.Status(fiber.StatusOK).JSON(scores)
 }

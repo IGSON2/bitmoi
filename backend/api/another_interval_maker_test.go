@@ -1,241 +1,232 @@
 package api
 
 import (
-	mockdb "bitmoi/backend/db/mock"
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
+	"sync"
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	apiAddress = "http://bitmoi.co.kr:5000/interval"
+	OKPractice4h           = "OK_Practice_4h"
+	OKPractice15m          = "OK_Practice_15m"
+	FailPracticeValidation = "Fail_Validation_Practice"
+	OKCompetition4h        = "OK_Competition_4h"
+	OKCompetition15m       = "OK_Competition_15m"
+	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
+	apiAddress             = "http://bitmoi.co.kr:5000"
 )
 
-type getCandleParamsMatcher struct {
-	arg      db.GetCandlesInterface
-	interval string
+type TestName struct {
+	Names string
 }
 
-func (m getCandleParamsMatcher) String() string {
-	return fmt.Sprintf("matches parameter for request candles in each intervals (%s)", m.interval)
-}
-
-func (m getCandleParamsMatcher) Matches(x interface{}) bool {
-	switch m.interval {
-	case db.FiveM:
-		actualIn, ok := x.(db.Get5mCandlesParams)
-		if !ok {
-			return false
-		}
-
-		actualExpected, ok := (m.arg).(*db.Get5mCandlesParams)
-		if !ok {
-			return false
-		}
-
-		return actualIn.Name == actualExpected.Name && actualIn.Limit == actualExpected.Limit &&
-			actualIn.Time == actualExpected.Time && m.interval == actualIn.GetInterval()
-	case db.FifM:
-		actualIn, ok := x.(db.Get15mCandlesParams)
-		if !ok {
-			return false
-		}
-
-		actualExpected, ok := (m.arg).(*db.Get15mCandlesParams)
-		if !ok {
-			return false
-		}
-
-		return actualIn.Name == actualExpected.Name && actualIn.Limit == actualExpected.Limit &&
-			actualIn.Time == actualExpected.Time && m.interval == actualIn.GetInterval()
-	case db.OneH:
-		actualIn, ok := x.(db.Get1hCandlesParams)
-		if !ok {
-			return false
-		}
-
-		actualExpected, ok := (m.arg).(*db.Get1hCandlesParams)
-		if !ok {
-			return false
-		}
-
-		return actualIn.Name == actualExpected.Name && actualIn.Limit == actualExpected.Limit &&
-			actualIn.Time == actualExpected.Time && m.interval == actualIn.GetInterval()
-	case db.FourH:
-		actualIn, ok := x.(db.Get4hCandlesParams)
-		if !ok {
-			return false
-		}
-
-		actualExpected, ok := (m.arg).(*db.Get4hCandlesParams)
-		if !ok {
-			return false
-		}
-
-		return actualIn.Name == actualExpected.Name && actualIn.Limit == actualExpected.Limit &&
-			actualIn.Time == actualExpected.Time && m.interval == actualIn.GetInterval()
-	case db.OneD:
-		actualIn, ok := x.(db.Get1dCandlesParams)
-		if !ok {
-			return false
-		}
-
-		actualExpected, ok := (m.arg).(*db.Get1dCandlesParams)
-		if !ok {
-			return false
-		}
-
-		return actualIn.Name == actualExpected.Name && actualIn.Limit == actualExpected.Limit &&
-			actualIn.Time == actualExpected.Time && m.interval == actualIn.GetInterval()
-	default:
-		return false
+func (t *TestName) append(pair string) {
+	if strings.Contains(strings.ToLower(pair), "stage") {
+		log.Error().Err(fmt.Errorf("cannot append competition pariname: pair=%s", pair))
+		return
 	}
-}
-
-func newGetCandlesParamMatcher(arg db.GetCandlesInterface, interval string) getCandleParamsMatcher {
-	return getCandleParamsMatcher{arg, interval}
-}
-
-type candleMatcher struct {
-	Name        string
-	RefTime     int64
-	ReqInterval string
-}
-
-func (m candleMatcher) String() string {
-	return fmt.Sprintf("matches result of candle request in each intervals (%s)", m.ReqInterval)
-}
-
-func (m candleMatcher) Matches(x interface{}) bool {
-	fmt.Print(x)
-	switch m.ReqInterval {
-	case db.FiveM:
-		actualIn, ok := x.(*Candles5mSlice)
-		if !ok {
-			return false
-		}
-
-		actualRefTime := actualIn.InitCandleData().PData[0].Time
-
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
-	case db.FifM:
-		actualIn, ok := x.(*Candles15mSlice)
-		if !ok {
-			return false
-		}
-
-		actualRefTime := actualIn.InitCandleData().PData[0].Time
-
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
-	case db.OneH:
-		actualIn, ok := x.(*Candles1hSlice)
-		if !ok {
-			return false
-		}
-
-		actualRefTime := actualIn.InitCandleData().PData[0].Time
-
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
-	case db.FourH:
-		actualIn, ok := x.(*Candles4hSlice)
-		if !ok {
-			return false
-		}
-
-		actualRefTime := actualIn.InitCandleData().PData[0].Time
-
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
-	case db.OneD:
-		actualIn, ok := x.(*Candles1dSlice)
-		if !ok {
-			return false
-		}
-
-		actualRefTime := actualIn.InitCandleData().PData[0].Time
-
-		return actualIn.Name() == m.Name && actualIn.Interval() == m.ReqInterval &&
-			(m.RefTime-actualRefTime < db.CalculateSeconds(m.ReqInterval)) && m.ReqInterval == actualIn.Interval()
-	default:
-		return false
+	if n := strings.Count(t.Names, ","); n == 9 {
+		t.Names += pair
+		return
+	} else if n > 9 {
+		log.Error().Err(fmt.Errorf("cannot append anymore: n=%d", n))
+		return
 	}
+	t.Names += pair + ","
 }
 
-func newCandleMatcher(info utilities.IdentificationData) candleMatcher {
-	return candleMatcher{
-		Name:        info.Name,
-		RefTime:     info.RefTimestamp,
-		ReqInterval: info.Interval,
-	}
+type testResult struct {
+	testName    string
+	candleRes   *OnePairChart
+	intervalRes *OnePairChart
+	intervalReq *AnotherIntervalRequest
 }
+
+var wg sync.WaitGroup
 
 func TestSomePairs(t *testing.T) {
-	storeCtrl := gomock.NewController(t)
-	defer storeCtrl.Finish()
-	mockStore := mockdb.NewMockStore(storeCtrl)
-
-	mockStore.EXPECT().GetAllParisInDB(gomock.Any()).Times(1).Return([]string{}, nil)
-
-	server := newTestServer(t, mockStore, nil)
-
-	token, _, err := server.tokenMaker.CreateToken("igson", time.Minute)
-	require.NoError(t, err)
-	require.NotEmpty(t, token)
-
-	name := utilities.FindDiffPair(testGetAllPairs(t), []string{})
-	min, max := testGetMinMaxTime(t, db.OneH, name)
-
-	info := utilities.IdentificationData{
-		Name:         name,
-		Interval:     db.OneH,
-		RefTimestamp: max - calculateRefTimestamp(max-min, name, db.OneH),
-		PriceFactor:  1,
-		VolumeFactor: 1,
-		TimeFactor:   int64(86400 * (utilities.MakeRanInt(10950, 19000))),
+	if testing.Short() {
+		t.Skip()
 	}
+	store := newTestStore(t)
+	server := newTestServer(t, store, nil)
 
-	identifier := utilities.EncrtpByASE(&info)
+	ch := make(chan testResult)
+	wg.Add(5)
 
-	// Test get another interval
-	arg := db.Get4hCandlesParams{
-		Name:  info.Name,
-		Time:  info.RefTimestamp,
-		Limit: oneTimeStageLoad,
+	for i := 0; i < 5; i++ {
+		go testAnotherInterval(t, store, server, ch)
 	}
-	mockStore.EXPECT().Get4hCandles(gomock.Any(), newGetCandlesParamMatcher(&arg, db.FourH)).Times(1).
-		// Return(newCandleMatcher(info), nil)
-		Return([]db.Candles4h{}, nil)
-
-	reqURL := fmt.Sprintf("%s?%s", apiAddress, encodeParams(db.FourH, identifier, competition, 1))
-	req, err := http.NewRequest("GET", reqURL, nil)
-	require.NoError(t, err)
-	req.Header.Set(authorizationHeaderKey, token)
-
-	res, err := server.router.Test(req, int(time.Minute.Milliseconds()))
-	require.NoError(t, err)
-	require.NotNil(t, res)
-	b, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err)
-	require.Equal(t, res.Status, http.StatusOK, string(b))
+	for i := 0; i < 5; i++ {
+		tr := <-ch
+		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq)
+	}
+	wg.Wait()
 }
 
-func encodeParams(interval, identifier, mode string, stage int) string {
+func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- testResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Log("Sender goroutine terminated with error:", r)
+			close(ch)
+		}
+	}()
+
+	tn := new(TestName)
+
+	testCases := []struct {
+		Name        string
+		Path        string
+		IntervalReq *AnotherIntervalRequest
+		SetUpAuth   func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker)
+	}{
+		{
+			Name: OKPractice4h,
+			Path: "/practice",
+			IntervalReq: &AnotherIntervalRequest{
+				ReqInterval: db.FourH,
+				Mode:        practice,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
+			},
+		},
+		{
+			Name: OKCompetition4h,
+			Path: "/auth/competition",
+			IntervalReq: &AnotherIntervalRequest{
+				ReqInterval: db.FourH,
+				Mode:        competition,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
+				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
+			},
+		},
+		// {
+		// 	Name: OKCompetition15m,
+		// 	Path: "/auth/competition",
+		// 	IntervalReq: &AnotherIntervalRequest{
+		// 		ReqInterval: db.FifM,
+		// 		Mode:        competition,
+		// 		Stage:       1,
+		// 	},
+		// 	SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
+		// 		addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
+		// 	},
+		// },
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			originOC := new(OnePairChart)
+			intervalOC := new(OnePairChart)
+
+			getCandleUrl := fmt.Sprintf("%s%s?names=%s", apiAddress, tc.Path, tn.Names)
+			candleReq, err := http.NewRequest("GET", getCandleUrl, nil)
+			candleReq.Header.Set("Content-Type", "application/json")
+			require.NoError(t, err)
+			tc.SetUpAuth(t, candleReq, *s.tokenMaker)
+
+			candleRes, err := http.DefaultClient.Do(candleReq)
+			require.NoError(t, err)
+
+			body, err := ioutil.ReadAll(candleRes.Body)
+
+			require.NotNil(t, body)
+			require.NoError(t, err)
+			require.NoError(t, json.Unmarshal(body, originOC), string(body))
+			require.NotNil(t, originOC.Identifier)
+
+			tc.IntervalReq.Identifier = originOC.Identifier
+
+			intervalReq, err := http.NewRequest("GET", apiAddress+encodeParams(tc.IntervalReq), nil)
+			intervalReq.Header.Set("Content-Type", "application/json")
+			require.NoError(t, err)
+			tc.SetUpAuth(t, intervalReq, *s.tokenMaker)
+
+			intervalRes, err := http.DefaultClient.Do(intervalReq)
+			require.NoError(t, err)
+
+			body, err = ioutil.ReadAll(intervalRes.Body)
+
+			require.NotNil(t, body)
+			require.NoError(t, err)
+			require.NoError(t, json.Unmarshal(body, intervalOC), string(body))
+			require.NotNil(t, intervalOC.Identifier)
+
+			tn.append(intervalOC.Name)
+			if len(utilities.SplitPairnames(tn.Names)) > 10 {
+				t.Log("The number of pairs has reached 10. End the test ")
+				return
+			}
+
+			ch <- testResult{
+				testName:    tc.Name,
+				candleRes:   originOC,
+				intervalRes: intervalOC,
+				intervalReq: tc.IntervalReq,
+			}
+		})
+	}
+
+}
+
+func testResponseWithRequest(t *testing.T, candleRes, res *OnePairChart, req *AnotherIntervalRequest) {
+	testIdentifier(t, res.Identifier, req.Identifier, req.ReqInterval)
+
+	require.NotNil(t, candleRes)
+	require.NotNil(t, candleRes.OneChart.PData)
+	require.NotNil(t, candleRes.OneChart.VData)
+	require.NotEmpty(t, candleRes.Identifier)
+	require.NotNil(t, res)
+	require.NotNil(t, res.OneChart.PData)
+	require.NotNil(t, res.OneChart.VData)
+	require.NotEmpty(t, res.Identifier)
+
+	resTime := res.OneChart.PData[0].Time
+	candleTime := candleRes.OneChart.PData[0].Time
+
+	require.Equal(t, res.Name, candleRes.Name)
+	require.LessOrEqual(t, candleTime-resTime, db.CalculateSeconds(req.ReqInterval))
+	wg.Done()
+}
+
+func testIdentifier(t *testing.T, resIden, reqIden, requestedInterval string) {
+	resInfo := new(utilities.IdentificationData)
+	json.Unmarshal(utilities.DecryptByASE(resIden), resInfo)
+
+	reqInfo := new(utilities.IdentificationData)
+	json.Unmarshal(utilities.DecryptByASE(reqIden), reqInfo)
+
+	require.Equal(t, reqInfo.Interval, db.OneH)
+	require.Equal(t, resInfo.Interval, requestedInterval)
+
+	require.Equal(t, resInfo.Name, reqInfo.Name)
+	require.Equal(t, resInfo.RefTimestamp, reqInfo.RefTimestamp)
+	require.Equal(t, resInfo.PriceFactor, reqInfo.PriceFactor)
+	require.Equal(t, resInfo.VolumeFactor, reqInfo.VolumeFactor)
+	require.Equal(t, resInfo.TimeFactor, reqInfo.TimeFactor)
+}
+
+func encodeParams(intervalReq *AnotherIntervalRequest) string {
 	params := url.Values{}
-	params.Set("reqinterval", interval)
-	params.Set("identifier", identifier)
-	params.Set("mode", mode)
-	params.Set("stage", strconv.Itoa(stage))
-	return params.Encode()
+	params.Set("reqinterval", intervalReq.ReqInterval)
+	params.Set("identifier", intervalReq.Identifier)
+	params.Set("mode", intervalReq.Mode)
+	params.Set("stage", strconv.Itoa(int(intervalReq.Stage)))
+	return fmt.Sprintf("/interval?%s", params.Encode())
 }

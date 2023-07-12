@@ -24,8 +24,8 @@ func addAuthrization(
 	require.Greater(t, token, "")
 	require.NotNil(t, payload)
 
-	authorizationHeader := fmt.Sprintf("%s %s", authType, token)
-	req.Header.Set(authorizationHeaderKey, authorizationHeader)
+	bearerToken := fmt.Sprintf("%s %s", authType, token)
+	req.Header.Set(authorizationHeaderKey, bearerToken)
 }
 
 func TestAuthMiddleware(t *testing.T) {

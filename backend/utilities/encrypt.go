@@ -40,7 +40,8 @@ func Base64Decode(s string) []byte {
 func EncrtpByASE[T any](data T) string {
 	bytesData, err := json.Marshal(data)
 	if err != nil {
-		panic(err.Error())
+		log.Err(err).Msgf("cannot encrypt by ASE. data: %v", data)
+		return ""
 	}
 
 	block, err := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
