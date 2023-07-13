@@ -6,7 +6,6 @@ import (
 	"bitmoi/backend/utilities/common"
 	"errors"
 	"fmt"
-	"net/url"
 	"sort"
 	"time"
 
@@ -238,7 +237,7 @@ func (o *OnePairChart) addIdentifier() {
 		TimeFactor:   o.timeFactor,
 	}
 
-	o.Identifier = url.QueryEscape(utilities.EncrtpByASE(&uniqueInfo))
+	o.Identifier = utilities.EncrtpByASE(&uniqueInfo)
 }
 
 func (c *CandleData) encodeChart(pFactor, vFactor float64, tFactor int64) {

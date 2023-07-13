@@ -79,7 +79,8 @@ func TestSomePairs(t *testing.T) {
 
 func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- testResult) {
 	defer func() {
-		if r := recover(); r != nil {
+		r := recover()
+		if r != nil {
 			t.Log("Sender goroutine terminated with error:", r)
 			close(ch)
 		}
