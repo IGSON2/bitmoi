@@ -16,9 +16,6 @@ import (
 )
 
 func TestMakeChart(t *testing.T) {
-	if testing.Short() {
-		t.Skip()
-	}
 	tm := newTestPasetoMaker(t)
 	client := newGRPCClient(t)
 

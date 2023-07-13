@@ -1,12 +1,10 @@
 package gapi
 
 import (
-	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"testing"
@@ -34,13 +32,6 @@ func newTestPasetoMaker(t *testing.T) *token.PasetoMaker {
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	require.NoError(t, err)
 	return tm
-}
-
-func newTestStore(t *testing.T) db.Store {
-	c := utilities.GetConfig("../../.")
-	conn, err := sql.Open(c.DBDriver, c.DBSource)
-	require.NoError(t, err)
-	return db.NewStore(conn)
 }
 
 func newGRPCClient(t *testing.T) pb.BitmoiClient {
