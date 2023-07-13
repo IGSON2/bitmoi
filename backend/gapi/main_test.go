@@ -19,12 +19,14 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+	gapiAddress = "bitmoi.co.kr:6000"
+	masterID    = "igson"
+)
+
 var (
-	user   = utilities.MakeRanString(6)
 	tm     *token.PasetoMaker
-	store  db.Store
 	client pb.BitmoiClient
-	pairs  []string
 )
 
 func newTestPasetoMaker(t *testing.T) *token.PasetoMaker {
@@ -42,7 +44,7 @@ func newTestStore(t *testing.T) db.Store {
 }
 
 func newGRPCClient(t *testing.T) pb.BitmoiClient {
-	conn, err := grpc.Dial("localhost:6000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(gapiAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
 	return pb.NewBitmoiClient(conn)
 }
@@ -52,7 +54,7 @@ func TestMain(m *testing.M) {
 }
 
 func generateTestAccessToken(t *testing.T, tm *token.PasetoMaker) string {
-	token, payload, err := tm.CreateToken(user, time.Minute)
+	token, payload, err := tm.CreateToken(masterID, time.Minute)
 	require.NoError(t, err)
 	require.NotNil(t, payload)
 	require.NotEqual(t, token, "")

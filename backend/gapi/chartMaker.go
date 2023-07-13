@@ -176,28 +176,23 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 }
 
 func (o *OnePairChart) setFactors() error {
-	var mins []float64
-	var vols []float64
 	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
-	for _, onebar := range o.OneChart.PData {
-		mins = append(mins, onebar.Low)
-	}
-	for _, onebar := range o.OneChart.VData {
-		vols = append(vols, onebar.Value)
-	}
-	sort.Slice(mins, func(i, j int) bool {
-		return mins[i] < mins[j]
+	pd, vd := o.OneChart.PData, o.OneChart.VData
+
+	sort.Slice(pd, func(i, j int) bool {
+		return pd[i].Low < pd[j].Low
 	})
-	sort.Slice(vols, func(i, j int) bool {
-		return vols[i] < vols[j]
+	sort.Slice(vd, func(i, j int) bool {
+		return vd[i].Value < vd[j].Value
 	})
+
 	rf, err := utilities.MakeRanFloat(0, 100)
 	if err != nil {
 		return err
 	}
 
-	o.priceFactor = common.FloorDecimal(rf / mins[0])
-	o.volumeFactor = common.FloorDecimal(rf / vols[0])
+	o.priceFactor = common.FloorDecimal(rf / pd[0].Low)
+	o.volumeFactor = common.FloorDecimal(rf / vd[0].Value)
 	o.timeFactor = timeFactor
 
 	return nil

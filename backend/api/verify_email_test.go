@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/mock/gomock"
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
@@ -36,7 +37,7 @@ func TestAsyncWorker(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		user := CreateUserRequest{
 			UserID:   utilities.MakeRanString(6),
-			Password: "secret",
+			Password: "secret123",
 			Nickname: utilities.MakeRanString(4),
 			Email:    utilities.MakeRanEmail(),
 		}

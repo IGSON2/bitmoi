@@ -24,7 +24,7 @@ type ScoreRequest struct {
 	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
 	Identifier  string  `json:"identifier"  validate:"required"`
 	ScoreId     string  `json:"score_id" validate:"required,numeric"`
-	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=30"`
+	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=1"`
 }
 
 func validateOrderRequest(o *ScoreRequest) error {

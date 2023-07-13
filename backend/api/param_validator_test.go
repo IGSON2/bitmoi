@@ -261,6 +261,7 @@ func TestMetamaskAddrFormat(t *testing.T) {
 		addr    string
 		success bool
 	}
+	r.ScoreId = "123"
 	tcs := []testcase{{"0x1234BF77D1De9eacf66FE81a09a86CfAb212a542", true}, {"0x1234BF77D1De9eacf66FE81a09a86CfAb212a54", false}, {"cx1234BF77D1De9eacf66FE81a09a86CfAb212a542", false}, {"fail", false}}
 	for _, tc := range tcs {
 		r.MetamaskAddr = tc.addr

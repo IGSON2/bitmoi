@@ -6,6 +6,8 @@ import (
 	"math/big"
 	mathrand "math/rand"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -14,6 +16,10 @@ const (
 
 func MakeRanInt(minimum, maximum int) int {
 	ranSeed := big.NewInt(int64(maximum - minimum))
+	if ranSeed.Cmp(big.NewInt(0)) <= 0 {
+		log.Error().Msgf("Random int seed is equal or smaller than 0. seed: %d", maximum-minimum)
+		return 0
+	}
 	ranBigNum, err := rand.Int(rand.Reader, ranSeed)
 	if err != nil {
 		return -1
@@ -22,8 +28,8 @@ func MakeRanInt(minimum, maximum int) int {
 }
 
 func MakeRanFloat(minimum, maximum int) (float64, error) {
-	if maximum < minimum {
-		return 0, fmt.Errorf("maximum number is smaller than minimum maxmimum: %d, minimum: %d", maximum, minimum)
+	if maximum <= minimum {
+		return 0, fmt.Errorf("maximum number is equal smaller than minimum maxmimum: %d, minimum: %d", maximum, minimum)
 	}
 
 	ranSeed := big.NewInt(int64(maximum - minimum))

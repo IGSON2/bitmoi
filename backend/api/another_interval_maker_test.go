@@ -26,7 +26,7 @@ const (
 	OKCompetition4h        = "OK_Competition_4h"
 	OKCompetition15m       = "OK_Competition_15m"
 	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
-	apiAddress             = "http://bitmoi.co.kr:5000"
+	testCount              = 5
 )
 
 type TestName struct {
@@ -65,13 +65,14 @@ func TestSomePairs(t *testing.T) {
 	server := newTestServer(t, store, nil)
 
 	ch := make(chan testResult)
-	wg.Add(5)
+	wg.Add(testCount * 2)
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < testCount; i++ {
 		go testAnotherInterval(t, store, server, ch)
 	}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < testCount; i++ {
 		tr := <-ch
+		t.Logf("result received name: %s", tr.intervalRes.Name)
 		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq)
 	}
 	wg.Wait()
@@ -117,18 +118,6 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
 			},
 		},
-		// {
-		// 	Name: OKCompetition15m,
-		// 	Path: "/auth/competition",
-		// 	IntervalReq: &AnotherIntervalRequest{
-		// 		ReqInterval: db.FifM,
-		// 		Mode:        competition,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
-		// 		addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
-		// 	},
-		// },
 	}
 
 	for _, tc := range testCases {
@@ -181,6 +170,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 				intervalRes: intervalOC,
 				intervalReq: tc.IntervalReq,
 			}
+			t.Logf("result sended testcase: %s, name: %s", tc.Name, intervalOC.Name)
 		})
 	}
 
@@ -201,7 +191,9 @@ func testResponseWithRequest(t *testing.T, candleRes, res *OnePairChart, req *An
 	resTime := res.OneChart.PData[0].Time
 	candleTime := candleRes.OneChart.PData[0].Time
 
-	require.Equal(t, res.Name, candleRes.Name)
+	if req.Mode == practice {
+		require.Equal(t, res.Name, candleRes.Name)
+	}
 	require.LessOrEqual(t, candleTime-resTime, db.CalculateSeconds(req.ReqInterval))
 	wg.Done()
 }

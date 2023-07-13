@@ -80,7 +80,7 @@ function ChartHeader(props) {
           title={"최근 한 달간 비트코인의 거래량 대비"}
         >
           <div className={styles.childname}>Lightness</div>
-          <div className={styles.childvalue}>{props.btcRatio}%</div>
+          <div className={styles.childvalue}>{props.btcRatio.toFixed(3)}%</div>
         </div>
       </div>
       <div className={styles.buttons}>

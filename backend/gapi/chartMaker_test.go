@@ -33,7 +33,7 @@ func TestMakeChart(t *testing.T) {
 			req: &pb.CandlesRequest{
 				Names:  "",
 				Mode:   practice,
-				UserId: user,
+				UserId: masterID,
 			},
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()
@@ -64,7 +64,7 @@ func TestMakeChart(t *testing.T) {
 			req: &pb.CandlesRequest{
 				Names:  "",
 				Mode:   competition,
-				UserId: user,
+				UserId: masterID,
 			},
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				token := generateTestAccessToken(t, tm)
@@ -110,7 +110,7 @@ func TestMakeChart(t *testing.T) {
 			req: &pb.CandlesRequest{
 				Names:  "",
 				Mode:   "Unsupported",
-				UserId: user,
+				UserId: masterID,
 			},
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				return context.Background()

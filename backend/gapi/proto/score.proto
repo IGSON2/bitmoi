@@ -21,7 +21,7 @@ message ScoreRequest {
 	double balance  = 12 [(validate.rules).double.gt = 0];
     string identifier = 13 [(validate.rules).string.min_bytes = 1];
     string score_id = 14 [(validate.rules).string.min_bytes = 1];
-    int32 waiting_term = 15 [(validate.rules).int32 = {gt: 0, lte: 30}];
+    int32 waiting_term = 15 [(validate.rules).int32 = {gt: 0, lte: 1}];
 }
 
 message ScoreResponse {

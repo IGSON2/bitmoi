@@ -14,6 +14,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	apiAddress = "http://bitmoi.co.kr:5000"
+	masterID   = "igson"
+)
+
 func newTestServer(t *testing.T, store db.Store, taskDistributor worker.TaskDistributor) *Server {
 	c := utilities.GetConfig("../../.")
 	c.AccessTokenDuration = time.Minute

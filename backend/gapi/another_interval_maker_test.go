@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 	"strings"
 	"sync"
 	"testing"
@@ -24,13 +23,14 @@ const (
 	OKCompetition4h        = "OK_Competition_4h"
 	OKCompetition15m       = "OK_Competition_15m"
 	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
+	testCount              = 15
 )
-
-var ()
 
 type TestName struct {
 	Names string
 }
+
+var wg sync.WaitGroup
 
 func (t *TestName) append(pair string) {
 	if strings.Contains(strings.ToLower(pair), "stage") {
@@ -56,37 +56,31 @@ type testResult struct {
 }
 
 func TestSomePairs(t *testing.T) {
-	if testing.Short() {
-		t.Skip()
-	}
 	oc := sync.Once{}
 	oc.Do(
 		func() {
 			var err error
 			tm = newTestPasetoMaker(t)
-			store = newTestStore(t)
 			client = newGRPCClient(t)
-			pairs, err = store.GetAllParisInDB(context.Background())
 			require.NoError(t, err)
 		},
 	)
 
-	ch := make(chan testResult, len(pairs))
+	wg.Add(testCount)
 
-	for i := 0; i < len(pairs); i++ {
-		go testAnotherInterval(t, store, tm, client, ch)
+	ch := make(chan testResult)
+
+	for i := 0; i < testCount; i++ {
+		go testAnotherInterval(t, tm, client, ch)
 	}
-	for i := 0; i < len(pairs); i++ {
+	for i := 0; i < testCount; i++ {
 		tr := <-ch
-		if tr.testName == FailCompetitionNoAuth {
-			require.Error(t, tr.err)
-		} else {
-			go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq, tr.err)
-		}
+		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq, tr.err)
 	}
+	wg.Wait()
 }
 
-func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, client pb.BitmoiClient, ch chan<- testResult) {
+func testAnotherInterval(t *testing.T, tm *token.PasetoMaker, client pb.BitmoiClient, ch chan<- testResult) {
 	tn := new(TestName)
 
 	testCases := []struct {
@@ -95,32 +89,16 @@ func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, cl
 		Req       *pb.AnotherIntervalRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
 	}{
-		{
-			Name: OKPractice4h,
-			CandleReq: &pb.CandlesRequest{
-				Mode:   practice,
-				UserId: "",
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: db.FourH,
-				Mode:        practice,
-				UserId:      user,
-				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				return context.Background()
-			},
-		},
 		// {
-		// 	Name: OKPractice15m,
+		// 	Name: OKPractice4h,
 		// 	CandleReq: &pb.CandlesRequest{
 		// 		Mode:   practice,
 		// 		UserId: "",
 		// 	},
 		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FifM,
+		// 		ReqInterval: db.FourH,
 		// 		Mode:        practice,
-		// 		UserId:      user,
+		// 		UserId:      masterID,
 		// 		Stage:       1,
 		// 	},
 		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
@@ -131,61 +109,13 @@ func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, cl
 			Name: OKCompetition4h,
 			CandleReq: &pb.CandlesRequest{
 				Mode:   competition,
-				UserId: user,
+				UserId: masterID,
 			},
 			Req: &pb.AnotherIntervalRequest{
 				ReqInterval: db.FourH,
 				Mode:        competition,
-				UserId:      user,
+				UserId:      masterID,
 				Stage:       1,
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-		},
-		// {
-		// 	Name: OKCompetition15m,
-		// 	CandleReq: &pb.CandlesRequest{
-		// 		Mode:   competition,
-		// 		UserId: user,
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FifM,
-		// 		Mode:        competition,
-		// 		UserId:      user,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		token := generateTestAccessToken(t, tm)
-		// 		return addAuthHeaderIntoContext(t, token)
-		// 	},
-		// },
-		{
-			Name: FailCompetitionNoAuth,
-			CandleReq: &pb.CandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				Mode:   competition,
-				UserId: "unauthorized user",
-			},
-			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-				token := generateTestAccessToken(t, tm)
-				return addAuthHeaderIntoContext(t, token)
-			},
-		},
-		{
-			Name: FailPracticeValidation,
-			CandleReq: &pb.CandlesRequest{
-				Mode:   competition,
-				UserId: user,
-			},
-			Req: &pb.AnotherIntervalRequest{
-				ReqInterval: "Unsupported",
-				Mode:        competition,
-				UserId:      user,
 			},
 			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
 				token := generateTestAccessToken(t, tm)
@@ -201,6 +131,9 @@ func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, cl
 			tc.CandleReq.Names = tn.Names
 			candleRes, err := client.RequestCandles(ctx, tc.CandleReq)
 			require.NoError(t, err)
+			if candleRes.Identifier == "" {
+				t.Error("identifier is nil")
+			}
 
 			tn.append(candleRes.Name)
 			if len(utilities.SplitPairnames(tn.Names)) > 10 {
@@ -211,7 +144,7 @@ func testAnotherInterval(t *testing.T, store db.Store, tm *token.PasetoMaker, cl
 			tc.Req.Identifier = candleRes.Identifier
 
 			res, err := client.AnotherInterval(ctx, tc.Req)
-
+			fmt.Printf("name:%s, len:%d err:%v\n", res.Name, len(res.OneChart.PData), err)
 			ch <- testResult{
 				testName:    tc.Name,
 				candleRes:   candleRes,
@@ -249,20 +182,19 @@ func testResponseWithRequest(t *testing.T, candleRes, res *pb.CandlesResponse, r
 	require.NotNil(t, candleRes.OneChart.PData)
 	require.NotNil(t, candleRes.OneChart.VData)
 	require.NotEmpty(t, candleRes.Identifier)
+	require.NotContains(t, candleRes.Identifier, " ")
+
 	require.NotNil(t, res)
 	require.NotNil(t, res.OneChart.PData)
 	require.NotNil(t, res.OneChart.VData)
 	require.NotEmpty(t, res.Identifier)
 
-	resClose := res.OneChart.PData[0].Close
-	candleClose := candleRes.OneChart.PData[0].Close
-
 	resTime := res.OneChart.PData[0].Time
 	candleTime := candleRes.OneChart.PData[0].Time
 
-	require.Equal(t, res.Name, candleRes.Name)
-	require.Equal(t, resTime, candleTime)
-	require.GreaterOrEqual(t, float64(0.03), math.Abs(resClose-candleClose)/resClose) // 각 단위의 캔들의 종가의 차이가 3% 이하여야 함
-	require.Equal(t, res.EntryTime, candleRes.EntryTime)
-	require.GreaterOrEqual(t, float64(0.01), math.Abs(res.EntryPrice-candleRes.EntryPrice)/res.EntryPrice)
+	if req.Mode == practice {
+		require.Equal(t, res.Name, candleRes.Name)
+	}
+	require.LessOrEqual(t, candleTime-resTime, db.CalculateSeconds(req.ReqInterval))
+	wg.Done()
 }

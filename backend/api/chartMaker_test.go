@@ -19,37 +19,17 @@ func TestMakeChart(t *testing.T) {
 	store := newTestStore(t)
 	s := newTestServer(t, store, nil)
 
-	httpReq, _ := randomUserRequest(t)
-
-	httpRes, err := s.router.Test(httpReq)
-	require.NoError(t, err)
-	require.NotNil(t, httpRes)
-	require.Equal(t, http.StatusOK, httpRes.StatusCode)
-
-	user := new(UserResponse)
-	body, err := ioutil.ReadAll(httpRes.Body)
-	require.NoError(t, err)
-
-	json.Unmarshal(body, user)
-	require.NotNil(t, user)
-
 	testCases := []struct {
 		Name      string
 		Path      string
-		Method    string
 		SetUpAuth func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker)
-		Body      interface{}
-		CheckResp func(resp *http.Response, pairs []string)
+		CheckResp func(resp *http.Response)
 	}{
 		{
-			Name:   "GetPracticeChart",
-			Path:   "/practice",
-			Method: http.MethodGet,
-			Body: CandlesRequest{
-				Names: "",
-			},
+			Name:      "GetPracticeChart",
+			Path:      "/practice",
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {},
-			CheckResp: func(resp *http.Response, pairs []string) {
+			CheckResp: func(resp *http.Response) {
 				oc := new(OnePairChart)
 
 				require.Equal(t, fiber.StatusOK, resp.StatusCode)
@@ -58,19 +38,20 @@ func TestMakeChart(t *testing.T) {
 				require.NotNil(t, b)
 				require.NoError(t, err)
 				require.NoError(t, json.Unmarshal(b, oc))
-				require.Greater(t, oc.Identifier, "")
+				require.NotEmpty(t, oc.Identifier)
+				require.NotContains(t, oc.Identifier, " ")
 
 				info := new(utilities.IdentificationData)
 				require.NoError(t, json.Unmarshal(utilities.DecryptByASE(oc.Identifier), info))
 
+				require.NotEmpty(t, oc.EntryTime)
 				require.Greater(t, info.RefTimestamp, int64(0))
 				require.Greater(t, oc.BtcRatio, float64(0))
-				require.Greater(t, oc.EntryTime, "")
 
 				require.NotNil(t, oc.OneChart.PData)
 				require.NotNil(t, oc.OneChart.VData)
 
-				require.Contains(t, pairs, info.Name)
+				require.Contains(t, info.Name, "USDT")
 				require.Equal(t, info.Interval, db.OneH)
 				require.Equal(t, info.PriceFactor, float64(0))
 				require.Equal(t, info.VolumeFactor, float64(0))
@@ -78,16 +59,12 @@ func TestMakeChart(t *testing.T) {
 			},
 		},
 		{
-			Name:   "GetCompetitonChart",
-			Path:   "/auth/competition",
-			Method: http.MethodGet,
-			Body: CandlesRequest{
-				Names: "",
-			},
+			Name: "GetCompetitonChart",
+			Path: "/auth/competition",
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
-				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, user.UserID, time.Minute)
+				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, masterID, time.Minute)
 			},
-			CheckResp: func(resp *http.Response, pairs []string) {
+			CheckResp: func(resp *http.Response) {
 				oc := new(OnePairChart)
 
 				require.Equal(t, fiber.StatusOK, resp.StatusCode)
@@ -96,19 +73,20 @@ func TestMakeChart(t *testing.T) {
 				require.NotNil(t, b)
 				require.NoError(t, err)
 				require.NoError(t, json.Unmarshal(b, oc))
-				require.Greater(t, oc.Identifier, "")
+				require.NotEmpty(t, oc.Identifier)
+				require.NotContains(t, oc.Identifier, " ")
 
 				info := new(utilities.IdentificationData)
 				require.NoError(t, json.Unmarshal(utilities.DecryptByASE(oc.Identifier), info))
 
 				require.Greater(t, info.RefTimestamp, int64(0))
 				require.Greater(t, oc.BtcRatio, float64(0))
-				require.Greater(t, oc.EntryTime, "")
+				require.NotEmpty(t, oc.EntryTime)
 
 				require.NotNil(t, oc.OneChart.PData)
 				require.NotNil(t, oc.OneChart.VData)
 
-				require.Contains(t, pairs, info.Name)
+				require.Contains(t, info.Name, "USDT")
 				require.Equal(t, info.Interval, db.OneH)
 				require.Greater(t, info.PriceFactor, float64(0))
 				require.Greater(t, info.VolumeFactor, float64(0))
@@ -116,15 +94,11 @@ func TestMakeChart(t *testing.T) {
 			},
 		},
 		{
-			Name:   "CompetitionUnAuthorized",
-			Path:   "/auth/competition",
-			Method: http.MethodGet,
-			Body: CandlesRequest{
-				Names: "",
-			},
+			Name: "CompetitionUnAuthorized",
+			Path: "/auth/competition",
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 			},
-			CheckResp: func(resp *http.Response, pairs []string) {
+			CheckResp: func(resp *http.Response) {
 				require.Equal(t, fiber.StatusUnauthorized, resp.StatusCode)
 			},
 		},
@@ -132,19 +106,18 @@ func TestMakeChart(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
+			client := http.DefaultClient
 
-			b, err := json.Marshal(tc.Body)
+			req, err := http.NewRequest("GET", apiAddress+tc.Path, nil)
 			require.NoError(t, err)
-
-			req, err := http.NewRequest(tc.Method, tc.Path, bytes.NewReader(b))
-			require.NoError(t, err)
+			req.Header.Set("Content-Type", "application/json")
 
 			tc.SetUpAuth(t, req, *s.tokenMaker)
 
-			res, err := s.router.Test(req)
+			res, err := client.Do(req)
 			require.NoError(t, err)
 
-			tc.CheckResp(res, s.pairs)
+			tc.CheckResp(res)
 		})
 	}
 
