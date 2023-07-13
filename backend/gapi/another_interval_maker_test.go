@@ -23,7 +23,7 @@ const (
 	OKCompetition4h        = "OK_Competition_4h"
 	OKCompetition15m       = "OK_Competition_15m"
 	FailCompetitionNoAuth  = "Fail_Competition_NoAuth"
-	testCount              = 15
+	testCount              = 5
 )
 
 type TestName struct {
@@ -66,14 +66,14 @@ func TestSomePairs(t *testing.T) {
 		},
 	)
 
-	wg.Add(testCount)
+	wg.Add(testCount * 2)
 
-	ch := make(chan testResult)
+	ch := make(chan testResult, 2)
 
 	for i := 0; i < testCount; i++ {
 		go testAnotherInterval(t, tm, client, ch)
 	}
-	for i := 0; i < testCount; i++ {
+	for i := 0; i < testCount*2; i++ {
 		tr := <-ch
 		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq, tr.err)
 	}
@@ -89,22 +89,22 @@ func testAnotherInterval(t *testing.T, tm *token.PasetoMaker, client pb.BitmoiCl
 		Req       *pb.AnotherIntervalRequest
 		SetUpAuth func(t *testing.T, tm *token.PasetoMaker) context.Context
 	}{
-		// {
-		// 	Name: OKPractice4h,
-		// 	CandleReq: &pb.CandlesRequest{
-		// 		Mode:   practice,
-		// 		UserId: "",
-		// 	},
-		// 	Req: &pb.AnotherIntervalRequest{
-		// 		ReqInterval: db.FourH,
-		// 		Mode:        practice,
-		// 		UserId:      masterID,
-		// 		Stage:       1,
-		// 	},
-		// 	SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
-		// 		return context.Background()
-		// 	},
-		// },
+		{
+			Name: OKPractice4h,
+			CandleReq: &pb.CandlesRequest{
+				Mode:   practice,
+				UserId: "",
+			},
+			Req: &pb.AnotherIntervalRequest{
+				ReqInterval: db.FourH,
+				Mode:        practice,
+				UserId:      masterID,
+				Stage:       1,
+			},
+			SetUpAuth: func(t *testing.T, tm *token.PasetoMaker) context.Context {
+				return context.Background()
+			},
+		},
 		{
 			Name: OKCompetition4h,
 			CandleReq: &pb.CandlesRequest{

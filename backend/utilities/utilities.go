@@ -81,7 +81,11 @@ func FindDiffPair(allPair, history []string) string {
 	var ranName string
 Outer:
 	for {
-		ranName = allPair[MakeRanInt(0, len(allPair))]
+		pairIdx := MakeRanInt(0, len(allPair))
+		if pairIdx == 0 {
+			return ""
+		}
+		ranName = allPair[pairIdx]
 		var sameHere bool = false
 		for _, name := range history {
 			if ranName == name {

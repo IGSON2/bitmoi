@@ -64,13 +64,13 @@ func TestSomePairs(t *testing.T) {
 	store := newTestStore(t)
 	server := newTestServer(t, store, nil)
 
-	ch := make(chan testResult)
+	ch := make(chan testResult, 2)
 	wg.Add(testCount * 2)
 
 	for i := 0; i < testCount; i++ {
 		go testAnotherInterval(t, store, server, ch)
 	}
-	for i := 0; i < testCount; i++ {
+	for i := 0; i < testCount*2; i++ {
 		tr := <-ch
 		t.Logf("result received name: %s", tr.intervalRes.Name)
 		go testResponseWithRequest(t, tr.candleRes, tr.intervalRes, tr.intervalReq)
