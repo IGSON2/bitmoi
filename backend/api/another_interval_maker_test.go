@@ -87,8 +87,6 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 		}
 	}()
 
-	tn := new(TestName)
-
 	testCases := []struct {
 		Name        string
 		Path        string
@@ -121,6 +119,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 	}
 
 	for _, tc := range testCases {
+		tn := new(TestName)
 		t.Run(tc.Name, func(t *testing.T) {
 			originOC := new(OnePairChart)
 			intervalOC := new(OnePairChart)

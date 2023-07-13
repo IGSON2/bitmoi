@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	zlog "github.com/rs/zerolog/log"
 )
 
 func Errchk(err error) {
@@ -81,11 +83,11 @@ func FindDiffPair(allPair, history []string) string {
 	var ranName string
 Outer:
 	for {
-		pairIdx := MakeRanInt(0, len(allPair))
-		if pairIdx == 0 {
+		if len(allPair) == 0 {
+			zlog.Error().Msgf("cannot find different pair. allPair:%d, history:%d", len(allPair), len(history))
 			return ""
 		}
-		ranName = allPair[pairIdx]
+		ranName = allPair[MakeRanInt(0, len(allPair))]
 		var sameHere bool = false
 		for _, name := range history {
 			if ranName == name {
