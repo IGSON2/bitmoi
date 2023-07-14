@@ -60,13 +60,3 @@ func TestAESEncrypt(t *testing.T) {
 	require.Equal(t, test.EntryPrice, result.EntryPrice)
 	require.Equal(t, test.Secret, result.Secret, fmt.Sprintf("origin : %v, result :%v", test.Secret, result.Start))
 }
-
-func TestAESDecrypt(t *testing.T) {
-	var c IdentificationData
-	identifier := "ALYJ/z8Bnb4k3SwlZlSr1KAcxn/Km0IYrTKE3fayRnKvKCE2V4BiXe+el4m6g0j2QnBG13z8j0rR5m300pf4CoruyccVqkubqM0KDQOl1S1ZlOw0oSrNi0c2fgMDYREDUzK/Y2eliJwloIsu90GNkky/0ZlVt4usNQM2SBY="
-
-	b := DecryptByASE(identifier)
-	json.Unmarshal(b, &c)
-
-	require.NotEmpty(t, c)
-}

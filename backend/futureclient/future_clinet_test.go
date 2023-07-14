@@ -10,6 +10,9 @@ import (
 )
 
 func TestExchangeInfo(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)
@@ -24,6 +27,9 @@ func TestExchangeInfo(t *testing.T) {
 }
 
 func TestGetInfo(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)

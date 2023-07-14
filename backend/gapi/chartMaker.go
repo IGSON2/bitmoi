@@ -177,7 +177,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 
 func (o *OnePairChart) setFactors() error {
 	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
-	pd, vd := o.OneChart.PData, o.OneChart.VData
+	pd, vd := o.OneChart.PData[:100], o.OneChart.VData[:100]
 
 	sort.Slice(pd, func(i, j int) bool {
 		return pd[i].Low < pd[j].Low
@@ -185,6 +185,10 @@ func (o *OnePairChart) setFactors() error {
 	sort.Slice(vd, func(i, j int) bool {
 		return vd[i].Value < vd[j].Value
 	})
+
+	if pd[0].Low == 0 || vd[0].Value == 0 {
+		return fmt.Errorf("error zero devision low:%f, value:%f", pd[0].Low, vd[0].Value)
+	}
 
 	rf, err := utilities.MakeRanFloat(0, 100)
 	if err != nil {

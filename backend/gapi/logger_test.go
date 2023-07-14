@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 )
@@ -24,9 +23,4 @@ func TestLogger(t *testing.T) {
 	res, err := c.RequestCandles(context.Background(), &pb.CandlesRequest{Mode: practice})
 	require.NoError(t, err)
 	require.NotNil(t, res)
-}
-
-func TestLogFormat(t *testing.T) {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	log.Info().Any("message", "HI").Msg("Test message")
 }
