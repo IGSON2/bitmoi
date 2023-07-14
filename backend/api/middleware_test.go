@@ -26,6 +26,9 @@ func addAuthrization(
 }
 
 func TestAuthMiddleware(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	s := newTestServer(t, newTestStore(t), nil)
 
 	testCases := []struct {

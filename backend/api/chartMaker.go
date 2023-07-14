@@ -6,6 +6,7 @@ import (
 	"bitmoi/backend/utilities/common"
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -206,14 +207,19 @@ func (o *OnePairChart) setFactors() error {
 		return vd[i].Value < vd[j].Value
 	})
 
-	rf, err := utilities.MakeRanFloat(0, 100)
+	rf, err := utilities.MakeRanFloat(1, 100)
 	if err != nil {
 		return err
 	}
 
-	o.priceFactor = common.FloorDecimal(rf / pd[0].Low)
-	o.volumeFactor = common.FloorDecimal(rf / vd[0].Value)
+	vrf, err := utilities.MakeRanFloat(10000, 10000000)
+	if err != nil {
+		return err
+	}
+
 	o.timeFactor = timeFactor
+	o.priceFactor = common.FloorDecimal(rf / pd[0].Low)
+	o.volumeFactor = math.Floor(vrf/vd[0].Value*100000000000) / 100000000000
 
 	return nil
 }

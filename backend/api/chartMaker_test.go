@@ -17,6 +17,9 @@ import (
 )
 
 func TestMakeChart(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	store := newTestStore(t)
 	s := newTestServer(t, store, nil)
 
