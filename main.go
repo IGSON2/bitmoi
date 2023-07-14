@@ -52,8 +52,6 @@ func bitmoi(ctx *cli.Context) error {
 
 	errCh := make(chan error)
 
-	go runTaskProcessor(config, dbStore)
-
 	if isGrpcRun := ctx.Bool(app.GRPCFlag.Name); isGrpcRun {
 		server, err := gapi.NewServer(config, dbStore)
 		if err != nil {
@@ -64,6 +62,7 @@ func bitmoi(ctx *cli.Context) error {
 	}
 
 	if isHTTPRun := ctx.Bool(app.HTTPFlag.Name); isHTTPRun {
+		go runTaskProcessor(config, dbStore)
 		go runHttpServer(config, dbStore, errCh)
 	}
 

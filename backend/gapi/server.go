@@ -124,7 +124,8 @@ func (s *Server) RequestCandles(c context.Context, r *pb.CandlesRequest) (*pb.Ca
 		}
 
 		if p.UserID != r.UserId {
-			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: err = %v", err)
+			log.Error().Msgf("payload: %s, request: %s", p.UserID, r.UserId)
+			return nil, status.Errorf(codes.Unauthenticated, "unauthorized user: %v", r.UserId)
 		}
 		oc, err := s.makeChartToRef(db.OneH, next, competition, prevStage, c)
 		if err != nil {
