@@ -33,14 +33,19 @@ func TestBase64(t *testing.T) {
 }
 
 func TestGenerateSymKey(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	key := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, key); err != nil {
 		t.Error(err)
 	}
-	t.Log(fmt.Printf("%s", key))
 }
 
 func TestAESEncrypt(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	test := testStruct{
 		Start:      time.Now().Add(-100 * time.Hour).UnixMilli(),
 		Candles:    500,
