@@ -4,13 +4,11 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
-	"context"
 	"database/sql"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +21,6 @@ func newTestServer(t *testing.T, store db.Store, taskDistributor worker.TaskDist
 	c := utilities.GetConfig("../../.")
 	c.AccessTokenDuration = time.Minute
 	s, err := NewServer(c, store, taskDistributor)
-	s.taskDistributor = NewRedisTaskDistributor(asynq.RedisClientOpt{Addr: c.RedisAddress})
 	require.NoError(t, err)
 	return s
 }
@@ -35,20 +32,23 @@ func newTestStore(t *testing.T) db.Store {
 	return db.NewStore(conn)
 }
 
-func testGetAllPairs(t *testing.T) []string {
-	store := newTestStore(t)
-	pairs, err := store.GetAllParisInDB(context.Background())
-	require.NoError(t, err)
-	return pairs
-}
-
-func testGetMinMaxTime(t *testing.T, interval, name string) (min, max int64) {
-	store := newTestStore(t)
-	min, max, err := store.SelectMinMaxTime(interval, name, context.Background())
-	require.NoError(t, err)
-	return min, max
-}
-
 func TestMain(m *testing.M) {
 	os.Exit(m.Run())
+}
+
+func randomUser(t *testing.T) (user db.User, password string) {
+	password = "secret123"
+	hashed, err := utilities.HashPassword(password)
+	require.NoError(t, err)
+	var defaultTime time.Time
+	user = db.User{
+		UserID:            utilities.MakeRanString(8),
+		HashedPassword:    hashed,
+		Nickname:          utilities.MakeRanString(10),
+		Email:             utilities.MakeRanEmail(),
+		PasswordChangedAt: defaultTime,
+		CreatedAt:         defaultTime,
+	}
+
+	return user, password
 }

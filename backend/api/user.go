@@ -37,6 +37,7 @@ func convertUserResponse(user db.User) UserResponse {
 
 	return uR
 }
+
 func (s *Server) checkID(c *fiber.Ctx) error {
 	userID := c.Query("user_id")
 	user, _ := s.store.GetUser(c.Context(), userID)

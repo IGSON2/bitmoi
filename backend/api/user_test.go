@@ -45,7 +45,7 @@ func (m *createuserMatcher) Matches(x interface{}) bool {
 }
 
 func (m *createuserMatcher) String() string {
-	return fmt.Sprintf("matches create user param. user:%v", m.user)
+	return fmt.Sprintf("matches create user param. param:%v", m.param)
 }
 
 func newCreateUserMatcher(p db.CreateUserTxParams, password string, user db.User) *createuserMatcher {
@@ -84,9 +84,9 @@ func TestCreateUser(t *testing.T) {
 	taskPayload := &worker.PayloadSendVerifyEmail{
 		UserID: user.UserID,
 	}
-	//TODO:test failed
 	mockTask.EXPECT().DistributeTaskSendVerifyEmail(gomock.Any(), taskPayload, gomock.Any()).Times(1).
 		Return(nil)
+
 	req := CreateUserRequest{
 		UserID:   user.UserID,
 		Password: password,
@@ -105,19 +105,4 @@ func TestCreateUser(t *testing.T) {
 	resBody, err := ioutil.ReadAll(res.Body)
 	require.NoError(t, err)
 	require.Contains(t, string(resBody), "@")
-}
-
-func randomUser(t *testing.T) (user db.User, password string) {
-	password = "secret123"
-	hashed, err := utilities.HashPassword(password)
-	require.NoError(t, err)
-
-	user = db.User{
-		UserID:         utilities.MakeRanString(8),
-		HashedPassword: hashed,
-		Nickname:       utilities.MakeRanString(10),
-		Email:          utilities.MakeRanEmail(),
-	}
-
-	return user, password
 }

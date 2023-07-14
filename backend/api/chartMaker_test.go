@@ -6,6 +6,7 @@ import (
 	"bitmoi/backend/utilities"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -89,7 +90,7 @@ func TestMakeChart(t *testing.T) {
 				require.Contains(t, info.Name, "USDT")
 				require.Equal(t, info.Interval, db.OneH)
 				require.Greater(t, info.PriceFactor, float64(0))
-				require.Greater(t, info.VolumeFactor, float64(0))
+				require.Greater(t, info.VolumeFactor, float64(0), fmt.Sprintf("name: %s, refTime: %d", info.Name, info.RefTimestamp))
 				require.Greater(t, info.TimeFactor, int64(0))
 			},
 		},

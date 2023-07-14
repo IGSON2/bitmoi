@@ -191,10 +191,10 @@ func (m *ScoreRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if val := m.GetWaitingTerm(); val <= 0 || val > 30 {
+	if val := m.GetWaitingTerm(); val <= 0 || val > 1 {
 		err := ScoreRequestValidationError{
 			field:  "WaitingTerm",
-			reason: "value must be inside range (0, 30]",
+			reason: "value must be inside range (0, 1]",
 		}
 		if !all {
 			return err
