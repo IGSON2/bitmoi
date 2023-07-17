@@ -113,7 +113,6 @@ func TestMakeChart(t *testing.T) {
 				return context.Background()
 			},
 			CheckResp: func(res *pb.CandlesResponse, err error) {
-				t.Log(err)
 				require.Error(t, err)
 			},
 		},

@@ -57,6 +57,9 @@ func newCreateUserMatcher(p db.CreateUserTxParams, password string, user db.User
 }
 
 func TestCreateUser(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	user, password := randomUser(t)
 	hashed, err := utilities.HashPassword(password)
 
