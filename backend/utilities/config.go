@@ -26,12 +26,17 @@ type Config struct {
 	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD"`
 	DataDir              string
+	PrivateKey           string
 }
 
 var C *Config
 
 func (c *Config) SetDataDir(path string) {
 	c.DataDir = path
+}
+
+func (c *Config) SetPrivateKey(privKey string) {
+	c.PrivateKey = privKey
 }
 
 func GetConfig(path string) *Config {

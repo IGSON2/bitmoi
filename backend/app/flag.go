@@ -49,4 +49,9 @@ var (
 		Usage: "If it's true, run http server.",
 		Value: false,
 	}
+	PrivateKeyFlag = &cli.StringFlag{
+		Name:  "private-key",
+		Usage: "Set sender's private key",
+		Value: "",
+	}
 )
