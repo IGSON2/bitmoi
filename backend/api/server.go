@@ -52,7 +52,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	router := fiber.New(fiber.Config{})
 
-	router.Use(limiterMiddleware)
+	router.Use(allowOriginMiddleware, limiterMiddleware)
 	if c.Environment == "production" {
 		router.Use(server.createLoggerMiddleware())
 	}

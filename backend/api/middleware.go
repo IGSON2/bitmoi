@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
@@ -18,6 +19,9 @@ const (
 )
 
 var (
+	allowOriginMiddleware = cors.New(cors.Config{
+		AllowOrigins: "*",
+	})
 	limiterMiddleware = limiter.New(limiter.Config{
 		Max:        30,
 		Expiration: 30 * time.Second,

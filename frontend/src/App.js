@@ -8,7 +8,8 @@ import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
 import Wallet from "./component/Wallet/Wallet";
 import SignUp from "./RoutingPages/SignUp/SignUp";
-import Login from "./component/login/Login";
+import AddBidding from "./RoutingPages/AdBidding/AdBidding";
+import Login from "./RoutingPages/Login/Login";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -24,23 +25,10 @@ function App() {
           <Route path="/competition" element={<Competition />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/community" element={<div>This is board page.</div>} />
-          <Route
-            path="/ad_bidding"
-            element={
-              <h1
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  textAlign: "center",
-                  marginTop: "20%",
-                }}
-              >
-                금방 준비해서 돌아오겠습니다!
-              </h1>
-            }
-          />
+          <Route path="/ad_bidding" element={<AddBidding />} />
           <Route path="/myscore" element={<MyScore />} />
           <Route path="/rank?page=1" element={<Rank />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/wallettest" element={<Wallet />} />
         </Routes>

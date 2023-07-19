@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
-import Login from "../login/Login";
 import { BsBoxArrowRight } from "react-icons/bs";
 import { IoIosPerson } from "react-icons/io";
 import logo from "../images/logosmall.png";
 import styles from "./ProfileBox.module.css";
 import { Link } from "react-router-dom";
-import { LoadAccessToken, RemoveTokens } from "../Token/Token";
+import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
 function ProfileBox() {
-  const [loginClick, setLoginClick] = useState(false);
   const [isLogined, setIsLogined] = useState(false);
-
-  const loginPopup = () => {
-    setLoginClick(true);
+  const routeLogin = () => {
+    window.location.href = "/login";
   };
-
   const [userInfo, setUserInfo] = useState({
     user_id: "",
     nickname: "",
@@ -27,16 +23,21 @@ function ProfileBox() {
   };
 
   const logOut = () => {
-    RemoveTokens();
+    localStorage.removeItem("accessToken");
   };
 
   useEffect(() => {
-    console.log(LoadAccessToken());
-    if (LoadAccessToken() === "undefined") {
-      setIsLogined(false);
-    } else {
-      setIsLogined(true);
-    }
+    const verifyToken = async () => {
+      const isValidToken = await checkAccessTokenValidity();
+
+      if (!isValidToken) {
+        setIsLogined(false);
+      } else {
+        setIsLogined(true);
+      }
+    };
+
+    verifyToken();
   }, []);
   return (
     <div className={styles.profiebox}>
@@ -68,17 +69,10 @@ function ProfileBox() {
           ></img>
         )
       ) : (
-        <button className={styles.loginbutton} onClick={loginPopup}>
+        <button className={styles.loginbutton} onClick={routeLogin}>
           login
         </button>
       )}
-      {loginClick ? (
-        <Login
-          popupOpen={setLoginClick}
-          setUserInfo={setUserInfo}
-          setIsLogined={setIsLogined}
-        />
-      ) : null}
     </div>
   );
 }

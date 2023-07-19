@@ -1,15 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Login.module.css";
 import { BsXLg } from "react-icons/bs";
-import PostLogin from "../backendConn/PostLogin";
-import { SaveAccessToken, SaveRefreshToken } from "../Token/Token";
 import { Link } from "react-router-dom";
+import axiosClient from "../../component/backendConn/axiosClient";
 
-function Login({ popupOpen, setUserInfo, setIsLogined }) {
+function Login() {
   const [ID, setID] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-
   const onIdChange = (e) => {
     setID(e.target.value);
   };
@@ -19,35 +17,34 @@ function Login({ popupOpen, setUserInfo, setIsLogined }) {
 
   const login = (e) => {
     e.preventDefault(e);
-    const loginPromise = PostLogin(
-      "http://bitmoi.co.kr:5000/user/login",
-      ID,
-      password
-    );
-    loginPromise
-      .then((r) => {
-        const res = r.json();
-        console.log(res);
-        SaveAccessToken(res.access_token);
-        SaveRefreshToken(res.refresh_token);
-        setUserInfo(res.user);
-        setErrorMsg("");
-        setIsLogined(true);
-      })
-      .catch((error) => {
-        setErrorMsg(error);
+    try {
+      const response = axiosClient.post("/user/login", {
+        user_id: ID,
+        password: password,
       });
-  };
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
 
-  const closePopup = () => {
-    popupOpen(false);
+    // loginPromise
+    //   .then((r) => {
+    //     const res = r.json();
+    //     console.log(res);
+    //     localStorage.setItem("access_token", res.access_token);
+    //     localStorage.setItem("access_token", res.refresh_token);
+    //     setErrorMsg("");
+    //     setIsLogined(true);
+    //   })
+    //   .catch((error) => {
+    //     setErrorMsg(error);
+    //   });
   };
-
   return (
     <div className={styles.loginwindow}>
-      <div className={styles.bg} onClick={closePopup}></div>
+      <div className={styles.bg}></div>
       <div className={styles.popupbody}>
-        <div className={styles.closebutton} onClick={closePopup}>
+        <div className={styles.closebutton}>
           <BsXLg />
         </div>
         <h1 className={styles.title}>로그인</h1>

@@ -8,7 +8,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/rs/zerolog/log"
 )
@@ -59,19 +58,19 @@ func NewEvmClient(s Signer) *EvmClient {
 
 // TODO: Contract 객체 생성 후 Contract 메서드 호출해야 함
 func (c *EvmClient) SendToken(address common.Address) (*common.Hash, error) {
-	c.LockNonce()
-	n, err := c.UnsafeNonce()
-	if err != nil {
-		c.UnlockNonce()
-		return &common.Hash{}, err
-	}
+	// c.LockNonce()
+	// n, err := c.UnsafeNonce()
+	// if err != nil {
+	// 	c.UnlockNonce()
+	// 	return &common.Hash{}, err
+	// }
 
-	types.NewTransaction(n, address)
-	types.SignTx()
-	eip155Signer := types.NewEIP155Signer(c.chainId)
+	// types.NewTransaction(n, address)
+	// types.SignTx()
+	// eip155Signer := types.NewEIP155Signer(c.chainId)
 
-	c.UnlockNonce()
-
+	// c.UnlockNonce()
+	return nil, nil
 }
 
 func (c *EvmClient) LockNonce() {

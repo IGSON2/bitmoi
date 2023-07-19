@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./SignUp.module.css";
 import H_NavBar from "../../component/navbar/H_NavBar";
-import { LoadAccessToken } from "../../component/Token/Token";
+import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
 function SignUp() {
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
@@ -146,11 +146,17 @@ function SignUp() {
   };
 
   useEffect(() => {
-    if (LoadAccessToken() === "undefined") {
-      setIsLogined(false);
-    } else {
-      setIsLogined(true);
-    }
+    const verifyToken = async () => {
+      const isValidToken = await checkAccessTokenValidity();
+
+      if (!isValidToken) {
+        setIsLogined(false);
+      } else {
+        setIsLogined(true);
+      }
+    };
+
+    verifyToken();
   }, []);
   return (
     <div className={styles.signupdiv}>
