@@ -54,6 +54,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lyft/protoc-gen-star/v2 v2.0.1 // indirect

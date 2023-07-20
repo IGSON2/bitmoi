@@ -4,9 +4,11 @@ CREATE TABLE `users` (
   `nickname` varchar(255) NOT NULL,
   `hashed_password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password_changed_at` timestamp NOT NULL DEFAULT (now()),
+  `metamask_address` varchar(255),
+  `photo_url` varchar(255),
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  `photo_url` varchar(255)
+  `password_changed_at` timestamp NOT NULL DEFAULT (now()),
+  `address_changed_at` timestamp
 );
 
 CREATE TABLE `score` (
@@ -21,7 +23,8 @@ CREATE TABLE `score` (
   `entryprice` double NOT NULL,
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
-  `roe` double NOT NULL
+  `roe` double NOT NULL,
+  `remain_balance` double NOT NULL
 );
 
 CREATE TABLE `ranking_board` (
@@ -44,6 +47,8 @@ CREATE UNIQUE INDEX `users_index_0` ON `users` (`nickname`);
 
 CREATE UNIQUE INDEX `users_index_1` ON `users` (`email`);
 
+CREATE UNIQUE INDEX `users_index_2` ON `users` (`metamask_address`);
+
 CREATE INDEX `score_index_1` ON `score` (`user_id`);
 
 CREATE INDEX `score_index_2` ON `score` (`score_id`);
@@ -61,5 +66,3 @@ ALTER TABLE `score` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 ALTER TABLE `ranking_board` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 ALTER TABLE `used_token` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
-ALTER TABLE `used_token` ADD FOREIGN KEY (`score_id`) REFERENCES `score` (`score_id`);

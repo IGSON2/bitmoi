@@ -255,16 +255,14 @@ func TestMoreInfoRequestValidation(t *testing.T) {
 }
 
 func TestMetamaskAddrFormat(t *testing.T) {
-	r := new(UpdateMetamaskAddrRequest)
-	r.UserID = "a1"
+	r := new(MetamaskAddressRequest)
 	type testcase struct {
 		addr    string
 		success bool
 	}
-	r.ScoreId = "123"
 	tcs := []testcase{{"0x1234BF77D1De9eacf66FE81a09a86CfAb212a542", true}, {"0x1234BF77D1De9eacf66FE81a09a86CfAb212a54", false}, {"cx1234BF77D1De9eacf66FE81a09a86CfAb212a542", false}, {"fail", false}}
 	for _, tc := range tcs {
-		r.MetamaskAddr = tc.addr
+		r.Addr = tc.addr
 		errs := utilities.ValidateStruct(r)
 		if tc.success {
 			require.Nil(t, errs)

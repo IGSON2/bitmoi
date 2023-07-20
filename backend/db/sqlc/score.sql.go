@@ -11,7 +11,7 @@ import (
 )
 
 const getScore = `-- name: GetScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM score
 WHERE score_id = ? AND stage = ?
 `
 
@@ -36,6 +36,7 @@ func (q *Queries) GetScore(ctx context.Context, arg GetScoreParams) (Score, erro
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
+		&i.RemainBalance,
 	)
 	return i, err
 }
@@ -59,7 +60,7 @@ func (q *Queries) GetScoreToStage(ctx context.Context, arg GetScoreToStageParams
 }
 
 const getScoresByScoreID = `-- name: GetScoresByScoreID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM score
 WHERE score_id = ? AND user_id = ?
 `
 
@@ -90,6 +91,7 @@ func (q *Queries) GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreID
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
+			&i.RemainBalance,
 		); err != nil {
 			return nil, err
 		}
@@ -105,7 +107,7 @@ func (q *Queries) GetScoresByScoreID(ctx context.Context, arg GetScoresByScoreID
 }
 
 const getScoresByUserID = `-- name: GetScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe FROM score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -140,6 +142,7 @@ func (q *Queries) GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDPa
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
+			&i.RemainBalance,
 		); err != nil {
 			return nil, err
 		}
@@ -184,25 +187,27 @@ INSERT INTO score (
     entryprice,
     endprice,
     pnl,
-    roe
+    roe,
+    remain_balance
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
 type InsertScoreParams struct {
-	ScoreID    string  `json:"score_id"`
-	UserID     string  `json:"user_id"`
-	Stage      int32   `json:"stage"`
-	Pairname   string  `json:"pairname"`
-	Entrytime  string  `json:"entrytime"`
-	Position   string  `json:"position"`
-	Leverage   int32   `json:"leverage"`
-	Outtime    int32   `json:"outtime"`
-	Entryprice float64 `json:"entryprice"`
-	Endprice   float64 `json:"endprice"`
-	Pnl        float64 `json:"pnl"`
-	Roe        float64 `json:"roe"`
+	ScoreID       string  `json:"score_id"`
+	UserID        string  `json:"user_id"`
+	Stage         int32   `json:"stage"`
+	Pairname      string  `json:"pairname"`
+	Entrytime     string  `json:"entrytime"`
+	Position      string  `json:"position"`
+	Leverage      int32   `json:"leverage"`
+	Outtime       int32   `json:"outtime"`
+	Entryprice    float64 `json:"entryprice"`
+	Endprice      float64 `json:"endprice"`
+	Pnl           float64 `json:"pnl"`
+	Roe           float64 `json:"roe"`
+	RemainBalance float64 `json:"remain_balance"`
 }
 
 func (q *Queries) InsertScore(ctx context.Context, arg InsertScoreParams) (sql.Result, error) {
@@ -219,5 +224,6 @@ func (q *Queries) InsertScore(ctx context.Context, arg InsertScoreParams) (sql.R
 		arg.Endprice,
 		arg.Pnl,
 		arg.Roe,
+		arg.RemainBalance,
 	)
 }

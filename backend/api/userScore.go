@@ -33,18 +33,19 @@ func (s *Server) insertUserScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) 
 	}
 
 	_, err := s.store.InsertScore(c.Context(), db.InsertScoreParams{
-		ScoreID:    o.ScoreId,
-		UserID:     o.UserId,
-		Stage:      o.Stage,
-		Pairname:   r.Name,
-		Entrytime:  r.Entrytime,
-		Position:   position,
-		Leverage:   o.Leverage,
-		Outtime:    r.OutTime,
-		Entryprice: r.EntryPrice,
-		Endprice:   r.EndPrice,
-		Pnl:        r.Pnl,
-		Roe:        r.Roe,
+		ScoreID:       o.ScoreId,
+		UserID:        o.UserId,
+		Stage:         o.Stage,
+		Pairname:      r.Name,
+		Entrytime:     r.Entrytime,
+		Position:      position,
+		Leverage:      o.Leverage,
+		Outtime:       r.OutTime,
+		Entryprice:    r.EntryPrice,
+		Endprice:      r.EndPrice,
+		Pnl:           r.Pnl,
+		Roe:           r.Roe,
+		RemainBalance: o.Balance + r.Pnl,
 	})
 	if err != nil {
 		return fmt.Errorf("cannot insert score, err: %w", err)

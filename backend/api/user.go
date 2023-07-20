@@ -2,12 +2,14 @@ package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
 	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
@@ -199,20 +201,37 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 
 }
 
-func (s *Server) updateUsingToken(c *fiber.Ctx) error {
-	r := new(UpdateMetamaskAddrRequest)
+func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
+	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)
 	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
 
-	_, err = s.store.CreateUsedToken(c.Context(), db.CreateUsedTokenParams{
-		ScoreID:         r.ScoreId,
-		UserID:          r.UserID,
-		MetamaskAddress: r.MetamaskAddr,
-	})
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update metamask address: user:%s addr:%s", r.UserID, r.MetamaskAddr))
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
 	}
+
+	user, err := s.store.GetUser(c.Context(), payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get user by authorization payload")
+	}
+
+	timeout := user.AddressChangedAt.Time.Add(24 * time.Hour)
+	if time.Now().Before(timeout) {
+		return c.Status(fiber.StatusUnprocessableEntity).SendString(fmt.Errorf("%s left until next allowance", common.PrettyDuration(time.Until(timeout))).Error())
+	}
+
+	_, err = s.store.UpdateUserMetamaskAddress(c.Context(), db.UpdateUserMetamaskAddressParams{
+		MetamaskAddress:  sql.NullString{String: r.Addr, Valid: true},
+		UserID:           payload.UserID,
+		AddressChangedAt: sql.NullTime{Time: time.Now(), Valid: true},
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot update address err:" + err.Error())
+	}
+
 	return c.SendStatus(fiber.StatusOK)
 }

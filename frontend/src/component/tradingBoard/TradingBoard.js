@@ -300,6 +300,7 @@ function TradingBoard({ modeHeight, mode }) {
                 opened ? styles.navshow_orderInput : styles.navclose_orderInput
               }`}
             >
+              {/*Web3.js를 통해 BalanceOf를 조회하고, 보유 토큰이 1개 미만인 경우 Block 설치*/}
               <OrderInput
                 mode={mode}
                 name={name}

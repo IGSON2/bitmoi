@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bitmoi/backend/contract"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
@@ -8,7 +9,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -29,6 +32,7 @@ type Server struct {
 	tokenMaker      *token.PasetoMaker
 	pairs           []string
 	taskDistributor worker.TaskDistributor
+	erc20Contract   *contract.ERC20Contract
 }
 
 func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
@@ -37,11 +41,17 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
 
+	erc20, err := contract.InitErc20Contract(c.PrivateKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot init erc20 contract : %w", err)
+	}
+
 	server := &Server{
 		config:          c,
 		store:           s,
 		tokenMaker:      tm,
 		taskDistributor: taskDistributor,
+		erc20Contract:   erc20,
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())
@@ -75,7 +85,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
-	authGroup.Post("/usetoken", server.updateUsingToken)
+	authGroup.Get("/freetoken", server.sendFreeErc20)
+	authGroup.Post("/updateaddress", server.updateMetamaskAddress)
 
 	server.router = router
 
@@ -163,6 +174,33 @@ func (s *Server) competition(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 
+		var hash *common.Hash
+		switch {
+		case CompetitionOrder.Stage == 1:
+			if CompetitionOrder.Balance != defaultBalance {
+				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("default balance must be %.0f", defaultBalance))
+			}
+			hash, err = s.spendErc20OnComp(c, CompetitionOrder.ScoreId)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+			}
+		case CompetitionOrder.Stage > 1:
+			prevScore, err := s.store.GetScore(c.Context(), db.GetScoreParams{
+				ScoreID: CompetitionOrder.ScoreId,
+				Stage:   CompetitionOrder.Stage - 1,
+			})
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get stage %02d. err: %w", CompetitionOrder.Stage-1, err).Error())
+			}
+			if prevScore.Stage != CompetitionOrder.Stage-1 {
+				return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
+			}
+			// TODO: Test Balance decimal
+			if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*100) / 100) {
+				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
+			}
+		}
+
 		err = validateOrderRequest(&CompetitionOrder)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
@@ -176,6 +214,11 @@ func (s *Server) competition(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
+
+		if hash != nil {
+			return c.Status(fiber.StatusOK).JSON(ScoreResponseWithHash{ScoreResponse: *compResult, TxHash: hash})
+		}
+
 		return c.Status(fiber.StatusOK).JSON(compResult)
 	default:
 		return errors.New("Not allowed method : " + c.Method())

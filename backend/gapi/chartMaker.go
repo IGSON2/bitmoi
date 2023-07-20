@@ -133,7 +133,7 @@ func calculateRefTimestamp(section int64, name, interval string) int64 {
 	if fiveMonth > float64(section) {
 		fmt.Printf("%s is Shorter than fiveMonth.", name)
 	}
-	return int64(utilities.MakeRanInt(int(waitingTime), int(section)))
+	return int64(utilities.MakeRanInt(0, int(section-int64(waitingTime))))
 }
 
 func (s *Server) makeChartToRef(interval, name string, mode string, prevStage int, c context.Context) (*OnePairChart, error) {
@@ -178,7 +178,8 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 
 func (o *OnePairChart) setFactors() error {
 	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
-	pd, vd := o.OneChart.PData[:100], o.OneChart.VData[:100]
+	head := int(float64(len(o.OneChart.PData)) * 0.1)
+	pd, vd := o.OneChart.PData[:head], o.OneChart.VData[:head]
 
 	sort.Slice(pd, func(i, j int) bool {
 		return pd[i].Low < pd[j].Low

@@ -127,7 +127,7 @@ func SplitAndTrim(input string) (ret []string) {
 }
 
 func GenerateEmailMessage(user, url string) string {
-	return fmt.Sprintf(`<h3>%s</h3>님 안녕하세요! </br>
+	return fmt.Sprintf(`<h3>%s 님 안녕하세요!</h3>
 	바로 시작하는 모의투자 비트모이에 가입하신 것을 환영합니다!<br/>
 	아래의 인증 링크를 클릭하여 인증을 완료해주세요.<br/>
 	<h3><a href="%s" style="color:black">인증하기</a></h3>

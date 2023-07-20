@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -32,6 +34,11 @@ type ScoreResponse struct {
 	OriginChart *CandleData  `json:"origin_chart"`
 	ResultChart *CandleData  `json:"result_chart"`
 	Score       *OrderResult `json:"score"`
+}
+
+type ScoreResponseWithHash struct {
+	ScoreResponse
+	TxHash *ethcommon.Hash `json:"tx_hash"`
 }
 
 func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResponse, error) {

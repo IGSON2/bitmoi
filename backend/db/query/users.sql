@@ -35,3 +35,10 @@ WHERE user_id = ?;
 -- name: UpdateUserEmailVerified :execresult
 UPDATE users SET is_email_verified = ?
 WHERE user_id = ?;
+
+-- name: UpdateUserMetamaskAddress :execresult
+UPDATE users 
+SET 
+    metamask_address = ?,
+    address_changed_at = ?
+WHERE user_id = ?;

@@ -74,18 +74,19 @@ type RankingBoard struct {
 }
 
 type Score struct {
-	ScoreID    string  `json:"score_id"`
-	UserID     string  `json:"user_id"`
-	Stage      int32   `json:"stage"`
-	Pairname   string  `json:"pairname"`
-	Entrytime  string  `json:"entrytime"`
-	Position   string  `json:"position"`
-	Leverage   int32   `json:"leverage"`
-	Outtime    int32   `json:"outtime"`
-	Entryprice float64 `json:"entryprice"`
-	Endprice   float64 `json:"endprice"`
-	Pnl        float64 `json:"pnl"`
-	Roe        float64 `json:"roe"`
+	ScoreID       string  `json:"score_id"`
+	UserID        string  `json:"user_id"`
+	Stage         int32   `json:"stage"`
+	Pairname      string  `json:"pairname"`
+	Entrytime     string  `json:"entrytime"`
+	Position      string  `json:"position"`
+	Leverage      int32   `json:"leverage"`
+	Outtime       int32   `json:"outtime"`
+	Entryprice    float64 `json:"entryprice"`
+	Endprice      float64 `json:"endprice"`
+	Pnl           float64 `json:"pnl"`
+	Roe           float64 `json:"roe"`
+	RemainBalance float64 `json:"remain_balance"`
 }
 
 type Session struct {
@@ -112,9 +113,11 @@ type User struct {
 	Nickname          string         `json:"nickname"`
 	HashedPassword    string         `json:"hashed_password"`
 	Email             string         `json:"email"`
-	PasswordChangedAt time.Time      `json:"password_changed_at"`
-	CreatedAt         time.Time      `json:"created_at"`
+	MetamaskAddress   sql.NullString `json:"metamask_address"`
 	PhotoUrl          sql.NullString `json:"photo_url"`
+	CreatedAt         time.Time      `json:"created_at"`
+	PasswordChangedAt time.Time      `json:"password_changed_at"`
+	AddressChangedAt  sql.NullTime   `json:"address_changed_at"`
 	IsEmailVerified   bool           `json:"is_email_verified"`
 }
 

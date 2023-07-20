@@ -44,7 +44,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 }
 
 const getLastUser = `-- name: GetLastUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
 ORDER BY created_at DESC
 LIMIT 1
 `
@@ -58,16 +58,18 @@ func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
 		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
-		&i.PasswordChangedAt,
-		&i.CreatedAt,
+		&i.MetamaskAddress,
 		&i.PhotoUrl,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+		&i.AddressChangedAt,
 		&i.IsEmailVerified,
 	)
 	return i, err
 }
 
 const getRandomUser = `-- name: GetRandomUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
 ORDER BY RAND()
 LIMIT 1
 `
@@ -81,16 +83,18 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
-		&i.PasswordChangedAt,
-		&i.CreatedAt,
+		&i.MetamaskAddress,
 		&i.PhotoUrl,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+		&i.AddressChangedAt,
 		&i.IsEmailVerified,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
 WHERE user_id = ?
 `
 
@@ -103,16 +107,18 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
-		&i.PasswordChangedAt,
-		&i.CreatedAt,
+		&i.MetamaskAddress,
 		&i.PhotoUrl,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+		&i.AddressChangedAt,
 		&i.IsEmailVerified,
 	)
 	return i, err
 }
 
 const getUserByNickName = `-- name: GetUserByNickName :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, password_changed_at, created_at, photo_url, is_email_verified FROM users
+SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
 WHERE nickname = ?
 `
 
@@ -125,9 +131,11 @@ func (q *Queries) GetUserByNickName(ctx context.Context, nickname string) (User,
 		&i.Nickname,
 		&i.HashedPassword,
 		&i.Email,
-		&i.PasswordChangedAt,
-		&i.CreatedAt,
+		&i.MetamaskAddress,
 		&i.PhotoUrl,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+		&i.AddressChangedAt,
 		&i.IsEmailVerified,
 	)
 	return i, err
@@ -145,6 +153,24 @@ type UpdateUserEmailVerifiedParams struct {
 
 func (q *Queries) UpdateUserEmailVerified(ctx context.Context, arg UpdateUserEmailVerifiedParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateUserEmailVerified, arg.IsEmailVerified, arg.UserID)
+}
+
+const updateUserMetamaskAddress = `-- name: UpdateUserMetamaskAddress :execresult
+UPDATE users 
+SET 
+    metamask_address = ?,
+    address_changed_at = ?
+WHERE user_id = ?
+`
+
+type UpdateUserMetamaskAddressParams struct {
+	MetamaskAddress  sql.NullString `json:"metamask_address"`
+	AddressChangedAt sql.NullTime   `json:"address_changed_at"`
+	UserID           string         `json:"user_id"`
+}
+
+func (q *Queries) UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateUserMetamaskAddress, arg.MetamaskAddress, arg.AddressChangedAt, arg.UserID)
 }
 
 const updateUserPhotoURL = `-- name: UpdateUserPhotoURL :execresult

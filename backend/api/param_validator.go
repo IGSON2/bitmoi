@@ -95,8 +95,10 @@ type VerifyEmailRequest struct {
 	SecretCode string `json:"secret_code" validate:"required,min=32,max=128" query:"secret_code"`
 }
 
-type UpdateMetamaskAddrRequest struct {
-	UserID       string `json:"user_id" validate:"required,alphanum"`
-	ScoreId      string `json:"score_id" validate:"required,numeric"`
-	MetamaskAddr string `json:"metamask_addr" validate:"required,eth_addr"`
+type UpdateUsingTokenRequest struct {
+	ScoreId string `json:"score_id" validate:"required,numeric"`
+}
+
+type MetamaskAddressRequest struct {
+	Addr string `json:"addr" validate:"required,eth_addr"`
 }
