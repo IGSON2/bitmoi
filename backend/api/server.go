@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
@@ -23,6 +24,7 @@ const (
 
 var (
 	errNotAuthenticated = errors.New("this service requires authentication in competition mode")
+	biddingDuration     = time.Hour * 24 //time.Minute
 )
 
 type Server struct {
@@ -33,6 +35,9 @@ type Server struct {
 	pairs           []string
 	taskDistributor worker.TaskDistributor
 	erc20Contract   *contract.ERC20Contract
+	biddingDuration time.Duration
+	nextUnlockDate  time.Time
+	exitCh          chan struct{}
 }
 
 func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
@@ -52,6 +57,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		tokenMaker:      tm,
 		taskDistributor: taskDistributor,
 		erc20Contract:   erc20,
+		biddingDuration: biddingDuration,
+		exitCh:          make(chan struct{}),
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())
@@ -90,10 +97,15 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	server.router = router
 
+	go server.BiddingLoop()
+
 	return server, nil
 }
 
 func (s *Server) Listen() error {
+	defer func() {
+		s.exitCh <- struct{}{}
+	}()
 	return s.router.Listen(s.config.HTTPAddress)
 }
 
@@ -174,6 +186,11 @@ func (s *Server) competition(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 
+		err = validateOrderRequest(&CompetitionOrder)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+
 		var hash *common.Hash
 		switch {
 		case CompetitionOrder.Stage == 1:
@@ -196,14 +213,9 @@ func (s *Server) competition(c *fiber.Ctx) error {
 				return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
 			}
 			// TODO: Test Balance decimal
-			if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*100) / 100) {
+			if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
 				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
 			}
-		}
-
-		err = validateOrderRequest(&CompetitionOrder)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
 		compResult, err := s.createCompResult(&CompetitionOrder, c)

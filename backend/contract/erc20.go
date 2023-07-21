@@ -8,6 +8,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,6 +28,10 @@ func NewERC20Contract(
 		Contract: NewContract(erc20ContractAddress, a, b, client, transactor),
 		Timeouts: make(map[string]time.Time),
 	}
+}
+
+func (c *ERC20Contract) WaitAndReturnTxReceipt(hash *common.Hash) (*types.Receipt, error) {
+	return c.Contract.client.WaitAndReturnTxReceipt(*hash)
 }
 
 func (c *ERC20Contract) GetBalance(address common.Address) (*big.Int, error) {
@@ -55,4 +60,21 @@ func (c *ERC20Contract) SendFreeTokens(
 ) (*common.Hash, error) {
 	log.Debug().Msgf("Sending %s tokens to %s", amount.String(), to.String())
 	return c.ExecuteTransaction("sendFreeToken", opts, to, amount)
+}
+
+func (c *ERC20Contract) LockTokens(
+	from common.Address,
+	amount *big.Int,
+	adLocation string,
+	opts TransactOptions,
+) (*common.Hash, error) {
+	log.Debug().Msgf("Locked %s tokens from %s for bidding location %s", amount.String(), from.String(), adLocation)
+	return c.ExecuteTransaction("lockTokens", opts, from, amount, adLocation)
+}
+
+func (c *ERC20Contract) UnLockTokens(
+	opts TransactOptions,
+) (*common.Hash, error) {
+	log.Debug().Msgf("UnLock all tokens")
+	return c.ExecuteTransaction("unlockTokens", opts)
 }

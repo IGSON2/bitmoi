@@ -18,25 +18,17 @@ type Config struct {
 	GRPCHTTPAddress      string        `mapstructure:"GRPC_GATEWAY_ADDRESS"`
 	GRPCAddress          string        `mapstructure:"GRPC_ADDRESS"`
 	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
-	apikey               string        `mapstructure:"API_KEY"`
-	srckey               string        `mapstructure:"SRC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
-	EmailSenderName      string        `mapstructure:"EMAIL_SENDER_NAME"`
-	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS"`
 	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD"`
+	PrivateKey           string        `mapstructure:"PRIVATE_KEY"`
 	DataDir              string
-	PrivateKey           string
 }
 
 var C *Config
 
 func (c *Config) SetDataDir(path string) {
 	c.DataDir = path
-}
-
-func (c *Config) SetPrivateKey(privKey string) {
-	c.PrivateKey = privKey
 }
 
 func GetConfig(path string) *Config {
@@ -59,9 +51,4 @@ func GetConfig(path string) *Config {
 		C.SetDataDir(DefaultDataDir())
 	}
 	return C
-}
-
-func GetAPIKeys() (apikey, srckey string) {
-	cfg := GetConfig("../../.")
-	return cfg.apikey, cfg.srckey
 }

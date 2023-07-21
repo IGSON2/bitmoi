@@ -2,6 +2,7 @@ package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/utilities/common"
 	"context"
 	"database/sql"
 	"errors"
@@ -45,7 +46,7 @@ func (s *Server) insertUserScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) 
 		Endprice:      r.EndPrice,
 		Pnl:           r.Pnl,
 		Roe:           r.Roe,
-		RemainBalance: o.Balance + r.Pnl,
+		RemainBalance: common.FloorDecimal(o.Balance + r.Pnl),
 	})
 	if err != nil {
 		return fmt.Errorf("cannot insert score, err: %w", err)

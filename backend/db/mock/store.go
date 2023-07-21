@@ -757,6 +757,21 @@ func (mr *MockStoreMockRecorder) SelectMinMaxTime(arg0, arg1, arg2 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectMinMaxTime", reflect.TypeOf((*MockStore)(nil).SelectMinMaxTime), arg0, arg1, arg2)
 }
 
+// SpendTokenTx mocks base method.
+func (m *MockStore) SpendTokenTx(arg0 context.Context, arg1 db.SpendTokenTxParams) (db.SpendTokenTxResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SpendTokenTx", arg0, arg1)
+	ret0, _ := ret[0].(db.SpendTokenTxResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SpendTokenTx indicates an expected call of SpendTokenTx.
+func (mr *MockStoreMockRecorder) SpendTokenTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendTokenTx", reflect.TypeOf((*MockStore)(nil).SpendTokenTx), arg0, arg1)
+}
+
 // UpdateUserEmailVerified mocks base method.
 func (m *MockStore) UpdateUserEmailVerified(arg0 context.Context, arg1 db.UpdateUserEmailVerifiedParams) (sql.Result, error) {
 	m.ctrl.T.Helper()

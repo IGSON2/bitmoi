@@ -177,9 +177,13 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 }
 
 func (o *OnePairChart) setFactors() error {
-	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
 	head := int(float64(len(o.OneChart.PData)) * 0.1)
-	pd, vd := o.OneChart.PData[:head], o.OneChart.VData[:head]
+	pd := make([]*pb.PriceData, head)
+	vd := make([]*pb.VolumeData, head)
+
+	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
+	copy(pd, o.OneChart.PData[:head])
+	copy(vd, o.OneChart.VData[:head])
 
 	sort.Slice(pd, func(i, j int) bool {
 		return pd[i].Low < pd[j].Low

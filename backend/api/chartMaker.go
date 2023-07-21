@@ -181,7 +181,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		interval:     interval,
 		refTimestamp: refTimestamp,
-		BtcRatio:     ratio,
+		BtcRatio:     common.CeilDecimal(ratio) * 100,
 	}
 
 	if mode == competition {
@@ -197,9 +197,13 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 }
 
 func (o *OnePairChart) setFactors() error {
-	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
 	head := int(float64(len(o.OneChart.PData)) * 0.1)
-	pd, vd := o.OneChart.PData[:head], o.OneChart.VData[:head]
+	pd := make([]PriceData, head)
+	vd := make([]VolumeData, head)
+
+	var timeFactor int64 = int64(86400 * (utilities.MakeRanInt(10950, 19000)))
+	copy(pd, o.OneChart.PData[:head])
+	copy(vd, o.OneChart.VData[:head])
 
 	sort.Slice(pd, func(i, j int) bool {
 		return pd[i].Low < pd[j].Low
@@ -284,5 +288,5 @@ func convTypeAndCalcRatio(btcP, btcV, reqP, reqV interface{}) (float64, error) {
 		return -1, fmt.Errorf("cannot conver type into float64, bp,pv,rp,rv : %t,%t,%t,%t", ok1, ok2, ok3, ok4)
 	}
 
-	return common.CeilDecimal(10*(rp*rv)/(bp*bv)) * 100, nil
+	return (rp * rv) / (bp * bv), nil
 }

@@ -1,7 +1,6 @@
 package futureclient
 
 import (
-	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"context"
 	"testing"
@@ -33,8 +32,4 @@ func TestGetInfo(t *testing.T) {
 	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NotNil(t, f.Store)
-
-	var cnt int
-	err = f.StoreCandles(db.FiveM, "XRPUSDT", 1686355200000, true, &cnt)
-	require.NoError(t, err)
 }

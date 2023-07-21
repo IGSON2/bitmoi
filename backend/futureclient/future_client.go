@@ -34,7 +34,7 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 	}
 
 	f := &FutureClient{
-		Client:    futures.NewClient(utilities.GetAPIKeys()),
+		Client:    futures.NewClient("", ""),
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
 	}

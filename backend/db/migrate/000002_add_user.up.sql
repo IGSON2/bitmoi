@@ -55,6 +55,8 @@ CREATE INDEX `score_index_2` ON `score` (`score_id`);
 
 CREATE UNIQUE INDEX `score_index_3` ON `score` (`user_id`, `score_id`, `stage`);
 
+CREATE UNIQUE INDEX `score_index_4` ON `score` (`user_id`, `score_id`, `pairname`);
+
 CREATE INDEX `ranking_board_index_4` ON `ranking_board` (`score_id`);
 
 CREATE UNIQUE INDEX `ranking_board_index_5` ON `ranking_board` (`user_id`, `score_id`);

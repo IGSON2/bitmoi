@@ -3,6 +3,7 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/utilities/common"
 	"encoding/json"
 	"fmt"
 
@@ -36,7 +37,7 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 		Name:         originInfo.Name,
 		OneChart:     cdd,
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
-		BtcRatio:     ratio,
+		BtcRatio:     common.CeilDecimal(ratio) * 100,
 		refTimestamp: originInfo.RefTimestamp,
 		interval:     a.ReqInterval,
 	}

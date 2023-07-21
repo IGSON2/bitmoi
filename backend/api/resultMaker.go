@@ -110,38 +110,38 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 	for idx, candle := range resultchart.PData {
 		if *order.IsLong {
 			if candle.High >= order.ProfitPrice {
-				roe = levQuanRate * (order.ProfitPrice - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * ((order.ProfitPrice - order.EntryPrice) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if candle.Low <= order.LossPrice {
-				roe = levQuanRate * (order.LossPrice - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * ((order.LossPrice - order.EntryPrice) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
-				roe = levQuanRate * (candle.Close - order.EntryPrice) / order.EntryPrice
+				roe = levQuanRate * ((candle.Close - order.EntryPrice) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.Close
 				break
 			}
 		} else {
 			if candle.Low <= order.ProfitPrice {
-				roe = levQuanRate * (order.EntryPrice - order.ProfitPrice) / order.EntryPrice
+				roe = levQuanRate * ((order.EntryPrice - order.ProfitPrice) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.Low
 				break
 			}
 			if candle.High >= order.LossPrice {
-				roe = levQuanRate * (order.EntryPrice - order.LossPrice) / order.EntryPrice
+				roe = levQuanRate * ((order.EntryPrice - order.LossPrice) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.High
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
-				roe = levQuanRate * (order.EntryPrice - candle.Close) / order.EntryPrice
+				roe = levQuanRate * ((order.EntryPrice - candle.Close) / order.EntryPrice)
 				endIdx = idx + 1
 				endPrice = candle.Close
 				break

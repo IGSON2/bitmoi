@@ -27,7 +27,6 @@ func init() {
 		app.DatadirFlag,
 		app.GRPCFlag,
 		app.HTTPFlag,
-		app.PrivateKeyFlag,
 	}
 	bApp.Action = bitmoi
 }
@@ -44,10 +43,6 @@ func bitmoi(ctx *cli.Context) error {
 
 	if path := ctx.String(app.DatadirFlag.Name); path != "" {
 		config.SetDataDir(path)
-	}
-
-	if privKey := ctx.String(app.PrivateKeyFlag.Name); privKey != "" {
-		config.SetPrivateKey(privKey)
 	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)

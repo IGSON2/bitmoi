@@ -3,7 +3,7 @@ package common
 import "math"
 
 const (
-	Decimal = 10000
+	Decimal = 100000
 )
 
 func FloorDecimal(f float64) float64 {

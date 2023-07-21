@@ -1,9 +1,13 @@
 package db
 
 import (
+	"bitmoi/backend/contract"
 	"context"
 	"fmt"
+	"math/big"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type CreateUserTxParams struct {
@@ -80,6 +84,33 @@ func (store *SqlStore) VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParam
 		}
 
 		result.User, err = q.GetUser(ctx, result.VerifyEmail.UserID)
+		return err
+	})
+
+	return result, err
+}
+
+type SpendTokenTxParams struct {
+	CreateUsedTokenParams
+	Contract *contract.ERC20Contract
+	FromAddr common.Address
+	Amount   *big.Int
+}
+
+type SpendTokenTxResult struct {
+	TxHash *common.Hash
+}
+
+func (store *SqlStore) SpendTokenTx(ctx context.Context, arg SpendTokenTxParams) (SpendTokenTxResult, error) {
+	var result SpendTokenTxResult
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		_, err := q.CreateUsedToken(ctx, arg.CreateUsedTokenParams)
+		if err != nil {
+			return err
+		}
+		hash, err := arg.Contract.SpendTokens(arg.FromAddr, arg.Amount, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
+		result.TxHash = hash
 		return err
 	})
 

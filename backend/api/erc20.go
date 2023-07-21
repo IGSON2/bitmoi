@@ -70,18 +70,20 @@ func (s *Server) spendErc20OnComp(c *fiber.Ctx, scoreId string) (*common.Hash, e
 		return nil, fmt.Errorf("insufficient balance. Addr: %s, %d MOI", fromAddr.Hex(), balance.Int64())
 	}
 
-	hash, err := s.erc20Contract.SpendTokens(fromAddr, FreeAmt, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
-	if err != nil {
-		return nil, err
+	spendTxArg := db.SpendTokenTxParams{
+		CreateUsedTokenParams: db.CreateUsedTokenParams{
+			ScoreID:         scoreId,
+			UserID:          user.UserID,
+			MetamaskAddress: user.MetamaskAddress.String,
+		},
+		Contract: s.erc20Contract,
+		FromAddr: fromAddr,
+		Amount:   FreeAmt,
 	}
+	txResult, err := s.store.SpendTokenTx(c.Context(), spendTxArg)
 
-	_, err = s.store.CreateUsedToken(c.Context(), db.CreateUsedTokenParams{
-		ScoreID:         scoreId,
-		UserID:          user.UserID,
-		MetamaskAddress: user.MetamaskAddress.String,
-	})
 	if err != nil {
-		return nil, fmt.Errorf("cannot update metamask address. err: %s", err.Error())
+		return nil, fmt.Errorf("cannot update token ledger. err: %s", err.Error())
 	}
-	return hash, nil
+	return txResult.TxHash, nil
 }

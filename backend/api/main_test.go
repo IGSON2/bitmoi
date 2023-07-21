@@ -19,7 +19,6 @@ const (
 
 func newTestServer(t *testing.T, store db.Store, taskDistributor worker.TaskDistributor) *Server {
 	c := utilities.GetConfig("../../.")
-	c.AccessTokenDuration = time.Minute
 	s, err := NewServer(c, store, taskDistributor)
 	require.NoError(t, err)
 	return s

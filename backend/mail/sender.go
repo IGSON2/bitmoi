@@ -20,8 +20,10 @@ type EmailSender interface {
 }
 
 const (
-	smtpAuthAddress   = "smtp.gmail.com"
-	smtpServerAddress = "smtp.gmail.com:587"
+	smtpAuthAddress    = "smtp.gmail.com"
+	smtpServerAddress  = "smtp.gmail.com:587"
+	emailSenderName    = "Bitmoi"
+	emailSenderAddress = "bitmoiigson@gmail.com"
 )
 
 type GmailSender struct {
@@ -32,8 +34,8 @@ type GmailSender struct {
 
 func NewGmailSender(c *utilities.Config) *GmailSender {
 	return &GmailSender{
-		c.EmailSenderName,
-		c.EmailSenderAddress,
+		emailSenderName,
+		emailSenderAddress,
 		c.EmailSenderPassword,
 	}
 }
