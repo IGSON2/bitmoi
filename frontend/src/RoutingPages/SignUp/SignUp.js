@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./SignUp.module.css";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
+import axiosClient from "../../component/backendConn/axiosClient";
 function SignUp() {
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
@@ -24,20 +25,27 @@ function SignUp() {
   const [passwordCheckError, setPasswordCheckError] = useState("");
   const [nicknameError, setNicknameError] = useState("");
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    fetch("http://bitmoi.co.kr:5000/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const response = await axiosClient.post("/user", {
         user_id: userID,
         password: password,
         nickname: nickname,
         email: emailID + "@" + emailDomain,
         photo_url: "",
         oauth_uid: "",
-      }),
-    });
+      });
+      if (response.status == 200) {
+        window.location.href = `/email/${emailDomain}`;
+      } else {
+        throw new Error(response.data);
+      }
+    } catch (error) {
+      if (error.response.data.includes(emailID + "@")) {
+        alert(`${emailID + "@" + emailDomain}은 이미 가입된 email입니다.`);
+      }
+    }
   };
 
   const userIDChange = (e) => {
@@ -160,6 +168,9 @@ function SignUp() {
   }, []);
   return (
     <div className={styles.signupdiv}>
+      <div className={styles.navbar}>
+        <H_NavBar />
+      </div>
       {isLogined ? (
         <div className={styles.warning}>
           <h1>잘못된 접근입니다!</h1>
@@ -167,13 +178,11 @@ function SignUp() {
         </div>
       ) : (
         <div className={styles.formdiv}>
-          <div className={styles.navbar}>
-            <H_NavBar />
-          </div>
-          <h3 className={styles.welcome}>
-            시뮬레이션 모의투자 비트모이에 오신 걸 환영합니다!
-          </h3>
           <form className={styles.forms}>
+            <h1 className={styles.signuptext}>회원가입</h1>
+            <h3 className={styles.welcome}>
+              시뮬레이션 모의투자 비트모이에 오신 걸 환영합니다!
+            </h3>
             <div className={styles.field}>
               <label htmlFor="id">아이디</label>
               <input
@@ -235,6 +244,7 @@ function SignUp() {
               <input
                 id="nickname"
                 type="text"
+                placeholder="nickname"
                 value={nickname}
                 onChange={nicknameChange}
                 style={{ width: "60%" }}
@@ -260,10 +270,11 @@ function SignUp() {
                 style={{ width: "25%" }}
                 id="emailID"
                 value={emailID}
+                placeholder="ID"
                 onChange={emailIDChange}
               ></input>
               <input
-                style={{ width: "30%" }}
+                style={{ width: "30%", color: "black" }}
                 disabled={selectDomainDisable}
                 value={emailDomain}
                 onChange={typingDomain}

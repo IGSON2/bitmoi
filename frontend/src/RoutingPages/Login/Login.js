@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import styles from "./Login.module.css";
-import { BsXLg } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import axiosClient from "../../component/backendConn/axiosClient";
+import H_NavBar from "../../component/navbar/H_NavBar";
 
 function Login() {
   const [ID, setID] = useState("");
@@ -15,39 +15,31 @@ function Login() {
     setPassword(e.target.value);
   };
 
-  const login = (e) => {
+  const login = async (e) => {
     e.preventDefault(e);
     try {
-      const response = axiosClient.post("/user/login", {
+      const response = await axiosClient.post("/user/login", {
         user_id: ID,
         password: password,
       });
-      console.log(response);
+      localStorage.setItem("accessToken", response.data.access_token);
+      localStorage.setItem("refreshToken", response.data.refresh_token);
+      setErrorMsg("");
+      window.location.replace("/competition");
     } catch (error) {
       console.error(error);
+      setErrorMsg("ID 또는 PW를 확인해 주세요");
     }
-
-    // loginPromise
-    //   .then((r) => {
-    //     const res = r.json();
-    //     console.log(res);
-    //     localStorage.setItem("access_token", res.access_token);
-    //     localStorage.setItem("access_token", res.refresh_token);
-    //     setErrorMsg("");
-    //     setIsLogined(true);
-    //   })
-    //   .catch((error) => {
-    //     setErrorMsg(error);
-    //   });
   };
+
   return (
     <div className={styles.loginwindow}>
-      <div className={styles.bg}></div>
+      <div className={styles.navbar}>
+        <H_NavBar />
+      </div>
       <div className={styles.popupbody}>
-        <div className={styles.closebutton}>
-          <BsXLg />
-        </div>
-        <h1 className={styles.title}>로그인</h1>
+        <p className={styles.subtitle}>바로 시작하는 모의투자</p>
+        <h1 className={styles.title}>BITMOI</h1>
         <h5 className={styles.message}>
           비트모이에 로그인하여 경쟁에 참여해 보세요.
         </h5>
@@ -68,11 +60,11 @@ function Login() {
           <button className={styles.login} onClick={login}>
             Login
           </button>
+          {errorMsg ? <p className={styles.errormessage}>{errorMsg}</p> : null}
         </form>
-        <p>{errorMsg}</p>
-        <Link to={"/signup"}>
-          <button className={styles.signup}>Sign up</button>
-        </Link>
+        <div className={styles.signup}>
+          <Link to={"/signup"}>Sign up</Link>
+        </div>
       </div>
     </div>
   );

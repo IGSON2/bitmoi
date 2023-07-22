@@ -9,8 +9,11 @@ import {
 } from "react-icons/bs";
 import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
+import axiosClient from "../backendConn/axiosClient";
+import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
 function TradingBoard({ modeHeight, mode }) {
+  const [isLogined, setIsLogined] = useState(false);
   const [fiveMinutes, setFiveMinutes] = useState();
   const [fifteenMinutes, setFifteenMinutes] = useState();
   const [oneHour, setOneHour] = useState();
@@ -85,57 +88,52 @@ function TradingBoard({ modeHeight, mode }) {
   const closeButtonDiv = useRef(null);
   const openclosebuttonClick = () => setOpened((current) => !current);
   const [active, setActive] = useState("");
+
+  const reqinterval = async (reqinterval, identifier, stage) => {
+    const fIdentifier = encodeURIComponent(identifier);
+    const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}&stage=${stage}`;
+    const response = await axiosClient.get(reqURL);
+    return response.data;
+  };
+
   const getChartData = async (interval) => {
-    var jsonData;
+    var response;
     setloaded(false);
     switch (interval) {
       // interval query value에 삽입할 때 "+" 문자에 대한 encoding 필요 encodeURIComponent(identifier);
       case "init":
-        jsonData = await (
-          await fetch(
-            "http://bitmoi.co.kr:5000/" +
-              mode +
-              "?names=" +
-              titleaArray.join("")
-          )
-        ).json();
-        jsonData.onechart.pdata.reverse();
-        jsonData.onechart.vdata.reverse();
+        var response;
+
+        if (mode === "competition") {
+          response = await axiosClient.get("/auth/competition");
+        } else {
+          response = await axiosClient.get("/practice");
+        }
+
+        response.data.onechart.pdata.reverse();
+        response.data.onechart.vdata.reverse();
         setFiveMinutes();
         setFifteenMinutes();
         setFourHour();
-        setOneHour(jsonData.onechart);
-        setCandles(jsonData.onechart);
-        setIdentifier(jsonData.identifier);
-        setName(jsonData.name);
-        if (!jsonData.name.includes("STAGE")) {
-          setTitleaArray((current) => [...current, jsonData.name + ","]);
+        setOneHour(response.data.onechart);
+        setCandles(response.data.onechart);
+        setIdentifier(response.data.identifier);
+        setName(response.data.name);
+        if (!response.data.name.includes("STAGE")) {
+          setTitleaArray((current) => [...current, response.data.name + ","]);
         }
-        setBtcRatio(jsonData.btcratio);
-        setEntryPrice(jsonData.entry_price);
-        setEntryTime(jsonData.entrytime);
+        setBtcRatio(response.data.btcratio);
+        setEntryPrice(response.data.entry_price);
+        setEntryTime(response.data.entrytime);
         setHeaderInterval("1h");
         break;
       case "5m":
         if (fiveMinutes === undefined) {
-          jsonData = await (
-            await fetch("http://bitmoi.co.kr:5000/interval", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                reqinterval: "5m",
-                identifier: identifier,
-                mode: mode,
-                stage: titleaArray.length,
-              }),
-            })
-          ).json();
-          jsonData.onechart.pdata.reverse();
-          jsonData.onechart.vdata.reverse();
-          setFiveMinutes(jsonData.onechart);
-          setCandles(jsonData.onechart);
+          const data = reqinterval("5m", identifier, titleaArray.length);
+          data.onechart.pdata.reverse();
+          data.onechart.vdata.reverse();
+          setFiveMinutes(data.onechart);
+          setCandles(data.onechart);
         } else {
           setCandles(fiveMinutes);
         }
@@ -143,24 +141,11 @@ function TradingBoard({ modeHeight, mode }) {
         break;
       case "15m":
         if (fifteenMinutes === undefined) {
-          jsonData = await (
-            await fetch("http://bitmoi.co.kr:5000/interval", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                reqinterval: "15m",
-                identifier: identifier,
-                mode: mode,
-                stage: titleaArray.length,
-              }),
-            })
-          ).json();
-          jsonData.onechart.pdata.reverse();
-          jsonData.onechart.vdata.reverse();
-          setFifteenMinutes(jsonData.onechart);
-          setCandles(jsonData.onechart);
+          const data = reqinterval("15m", identifier, titleaArray.length);
+          data.onechart.pdata.reverse();
+          data.onechart.vdata.reverse();
+          setFifteenMinutes(data.onechart);
+          setCandles(data.onechart);
         } else {
           setCandles(fifteenMinutes);
         }
@@ -172,24 +157,11 @@ function TradingBoard({ modeHeight, mode }) {
         break;
       case "4h":
         if (fourHour === undefined) {
-          jsonData = await (
-            await fetch("http://bitmoi.co.kr:5000/interval", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                reqinterval: "4h",
-                identifier: identifier,
-                mode: mode,
-                stage: titleaArray.length,
-              }),
-            })
-          ).json();
-          jsonData.onechart.pdata.reverse();
-          jsonData.onechart.vdata.reverse();
-          setFourHour(jsonData.onechart);
-          setCandles(jsonData.onechart);
+          const data = reqinterval("4h", identifier, titleaArray.length);
+          data.onechart.pdata.reverse();
+          data.onechart.vdata.reverse();
+          setFourHour(data.onechart);
+          setCandles(data.onechart);
         } else {
           setCandles(fourHour);
         }
@@ -208,6 +180,19 @@ function TradingBoard({ modeHeight, mode }) {
       setHeaderInterval("submit");
     }
   }, [submitOrder]);
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const isValidToken = await checkAccessTokenValidity();
+
+      if (!isValidToken) {
+        setIsLogined(false);
+      } else {
+        setIsLogined(true);
+      }
+    };
+    verifyToken();
+  }, []);
 
   window.onkeydown = (e) => {
     setToolBar("NonSelected");
@@ -300,6 +285,9 @@ function TradingBoard({ modeHeight, mode }) {
                 opened ? styles.navshow_orderInput : styles.navclose_orderInput
               }`}
             >
+              {mode === "competition" && setIsLogined ? null : (
+                <div className={styles.shutter}>로그인 후 이용해 주세요!</div>
+              )}
               {/*Web3.js를 통해 BalanceOf를 조회하고, 보유 토큰이 1개 미만인 경우 Block 설치*/}
               <OrderInput
                 mode={mode}
@@ -331,4 +319,5 @@ function TradingBoard({ modeHeight, mode }) {
     </div>
   );
 }
+
 export default TradingBoard;

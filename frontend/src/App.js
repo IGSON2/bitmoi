@@ -10,6 +10,7 @@ import Wallet from "./component/Wallet/Wallet";
 import SignUp from "./RoutingPages/SignUp/SignUp";
 import AddBidding from "./RoutingPages/AdBidding/AdBidding";
 import Login from "./RoutingPages/Login/Login";
+import EmailLocate from "./RoutingPages/SignUp/EmailLocate";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -30,6 +31,7 @@ function App() {
           <Route path="/rank?page=1" element={<Rank />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/email/:domain" element={<EmailLocate />} />
           <Route path="/wallettest" element={<Wallet />} />
         </Routes>
       </BrowserRouter>

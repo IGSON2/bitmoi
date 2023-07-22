@@ -84,7 +84,8 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 
 	_, err = s.tokenMaker.VerifyToken(r.Token)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("token varification failed.")
+		return c.Status(fiber.StatusUnauthorized).SendString("token verification failed.")
 	}
+	// TODO: Return user info
 	return c.SendStatus(fiber.StatusOK)
 }

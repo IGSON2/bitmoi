@@ -1,90 +1,82 @@
 .loginwindow {
   width: 100%;
   height: 100%;
-  position: fixed;
-  top: 0%;
-  left: 0%;
-  z-index: 6;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #555860;
 }
 
-.bg {
+.navbar {
   width: 100%;
-  height: 100%;
+  height: 10%;
   position: fixed;
-  z-index: 7;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0%;
+  z-index: 10;
 }
 
 .popupbody {
   width: 400px;
-  height: 350px;
-  padding-top: 20px;
-  z-index: 8;
+  height: 500px;
+  padding: 2%;
   display: flex;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
   flex-direction: column;
   border-radius: 10px;
   background-color: #fff;
 }
 
-.closebutton {
-  width: 100%;
-  height: 20px;
-  padding-right: 7%;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  font-weight: 700;
-  font-size: larger;
-}
-
-.closebutton:hover,
 .boxinput label:hover {
   cursor: pointer;
   color: #838791;
 }
 
+.subtitle,
 .title,
 .message {
-  width: 90%;
-  padding-left: 5%;
-  display: flex;
-  justify-content: start;
+  text-align: center;
+}
+
+.subtitle {
+  margin-bottom: -10px;
+  font-size: small;
+  font-weight: 800;
+}
+
+.title {
+  letter-spacing: 5px;
+  font-size: xxx-large;
+  padding-bottom: 5px;
 }
 
 .message {
-  margin-top: 2%;
-  height: 30px;
-  display: flex;
-  justify-content: start;
-  align-items: center;
+  font-size: small;
   color: #3e4da3;
 }
 
 .inputform {
-  width: 90%;
-  height: 80%;
+  width: 100%;
+  height: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
-  row-gap: 5%;
+  padding-top: 5%;
 }
 
 .box {
-  padding-left: 3%;
-  width: 60%;
+  width: 90%;
   height: 20%;
+  padding-left: 2%;
+}
+
+.box::placeholder {
+  text-align: left;
 }
 
 .login {
-  width: 40%;
-  height: 18%;
+  width: 50%;
+  height: 15%;
   border-radius: 5px;
   border: none;
   font-size: small;
@@ -109,10 +101,33 @@
   cursor: pointer;
 }
 
-.warning {
+.errormessage {
   width: 90%;
-  margin-top: 5%;
   text-align: center;
   color: #ef5350;
+  font-size: xx-small;
+  font-weight: 800;
+}
+
+.signup {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup a {
   font-size: small;
+  background-color: transparent;
+}
+
+.signup a,
+.signup a:visited {
+  color: #5c4e4e;
+}
+
+.signup a:hover {
+  cursor: pointer;
+  color: black;
 }
