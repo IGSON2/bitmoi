@@ -100,7 +100,6 @@ function TradingBoard({ modeHeight, mode }) {
     var response;
     setloaded(false);
     switch (interval) {
-      // interval query value에 삽입할 때 "+" 문자에 대한 encoding 필요 encodeURIComponent(identifier);
       case "init":
         var response;
 
@@ -181,19 +180,6 @@ function TradingBoard({ modeHeight, mode }) {
     }
   }, [submitOrder]);
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      const isValidToken = await checkAccessTokenValidity();
-
-      if (!isValidToken) {
-        setIsLogined(false);
-      } else {
-        setIsLogined(true);
-      }
-    };
-    verifyToken();
-  }, []);
-
   window.onkeydown = (e) => {
     setToolBar("NonSelected");
     switch (e.key) {
@@ -227,6 +213,7 @@ function TradingBoard({ modeHeight, mode }) {
               setActive={setActive}
               setToolBar={setToolBar}
               toolBar={toolBar}
+              setIsLogined={setIsLogined}
             />
           </div>
 

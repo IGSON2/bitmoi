@@ -26,19 +26,6 @@ function ProfileBox() {
     localStorage.removeItem("accessToken");
   };
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      const isValidToken = await checkAccessTokenValidity();
-
-      if (!isValidToken) {
-        setIsLogined(false);
-      } else {
-        setIsLogined(true);
-      }
-    };
-
-    verifyToken();
-  }, []);
   return (
     <div className={styles.profiebox}>
       {isLogined ? (

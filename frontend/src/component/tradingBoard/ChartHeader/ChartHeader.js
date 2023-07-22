@@ -6,6 +6,7 @@ import keyboardImg from "../../images/keyboard.png";
 import mouseImg from "../../images/mouse.png";
 import markImg from "../../images/marker.png";
 import ProfileBox from "../../ProfileBox/ProfileBox";
+import checkAccessTokenValidity from "../../backendConn/checkAccessTokenValidity";
 
 function ChartHeader(props) {
   const fiveMinute = () => {
@@ -64,6 +65,20 @@ function ChartHeader(props) {
       `Hotkey Manual\n=================\nRuler : Shift + Click\nMakrer : Ctrl + Click\nPriceLine : Alt + Click\nEraseAll : Click Chart`
     );
   };
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const isValidToken = await checkAccessTokenValidity();
+
+      if (!isValidToken) {
+        props.setIsLogined(false);
+      } else {
+        props.setIsLogined(true);
+      }
+    };
+
+    verifyToken();
+  }, []);
 
   return (
     <div className={styles.ChartHeader}>

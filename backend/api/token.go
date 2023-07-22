@@ -14,8 +14,9 @@ type ReissueAccessTokenRequest struct {
 }
 
 type ReissueAccessTokenResponse struct {
-	AccessToken          string    `json:"access_token"`
-	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
+	AccessToken          string       `json:"access_token"`
+	AccessTokenExpiresAt time.Time    `json:"access_token_expires_at"`
+	User                 UserResponse `json:"user"`
 }
 
 type VerifyTokenRequest struct {
@@ -43,20 +44,20 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	}
 
 	if session.IsBlocked {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("session is blocked"))
+		return c.Status(fiber.StatusUnauthorized).SendString("session is blocked")
 	}
 
 	if session.UserID != refreshPayload.UserID {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("user is incorrect"))
+		return c.Status(fiber.StatusUnauthorized).SendString("user is incorrect")
 
 	}
 
 	if session.RefreshToken != r.RefreshToken {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("mismatched session token"))
+		return c.Status(fiber.StatusUnauthorized).SendString("mismatched session token")
 	}
 
 	if time.Now().After(session.ExpiresAt) {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprint("expired session"))
+		return c.Status(fiber.StatusUnauthorized).SendString("expired session")
 	}
 
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
@@ -82,10 +83,15 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
 
-	_, err = s.tokenMaker.VerifyToken(r.Token)
+	payload, err := s.tokenMaker.VerifyToken(r.Token)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString("token verification failed.")
 	}
-	// TODO: Return user info
-	return c.SendStatus(fiber.StatusOK)
+
+	user, err := s.store.GetUser(c.Context(), payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("cannot find user")
+	}
+	userRes := convertUserResponse(user)
+	return c.Status(fiber.StatusOK).JSON(userRes)
 }
