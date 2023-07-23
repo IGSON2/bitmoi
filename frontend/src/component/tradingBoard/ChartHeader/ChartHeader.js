@@ -7,6 +7,7 @@ import mouseImg from "../../images/mouse.png";
 import markImg from "../../images/marker.png";
 import ProfileBox from "../../ProfileBox/ProfileBox";
 import checkAccessTokenValidity from "../../backendConn/checkAccessTokenValidity";
+import { useEffect, useState } from "react";
 
 function ChartHeader(props) {
   const fiveMinute = () => {
@@ -66,13 +67,16 @@ function ChartHeader(props) {
     );
   };
 
+  const [userInfo, setUserinfo] = useState();
+
   useEffect(() => {
     const verifyToken = async () => {
-      const isValidToken = await checkAccessTokenValidity();
+      const userInfo = await checkAccessTokenValidity();
 
-      if (!isValidToken) {
+      if (!userInfo) {
         props.setIsLogined(false);
       } else {
+        setUserinfo(userInfo);
         props.setIsLogined(true);
       }
     };
@@ -227,7 +231,7 @@ function ChartHeader(props) {
         <div className={styles.blank}></div>
       )}
       <div className={styles.profilediv}>
-        <ProfileBox />
+        <ProfileBox userInfo={userInfo} />
       </div>
     </div>
   );

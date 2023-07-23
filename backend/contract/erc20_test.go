@@ -9,6 +9,9 @@ import (
 )
 
 func TestLockToken(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	contract := newTestErc20Contract(t)
 
 	addrString := "0xB2851696045E2097C6abb8af074eee432e42aEf7"

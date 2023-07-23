@@ -6,14 +6,14 @@ const checkAccessTokenValidity = async () => {
   const refreshToken = localStorage.getItem("refreshToken");
 
   if (!accessToken) {
-    return false;
+    return null;
   }
   try {
     const response = await axiosClient.post("/verify_token", {
       token: accessToken,
     });
     if (response.status === 200) {
-      return true;
+      return response.data;
     }
   } catch {
     const refResponse = await axiosClient.post("/token/reissue_access", {
@@ -22,9 +22,9 @@ const checkAccessTokenValidity = async () => {
     if (refResponse.status === 200) {
       localStorage.removeItem("accessToken");
       localStorage.setItem("accessToken", refResponse.data.access_token);
-      return true;
+      return refResponse.data.user;
     } else {
-      return false;
+      return null;
     }
   }
 };

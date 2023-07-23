@@ -4,10 +4,8 @@ import { IoIosPerson } from "react-icons/io";
 import logo from "../images/logosmall.png";
 import styles from "./ProfileBox.module.css";
 import { Link } from "react-router-dom";
-import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
-function ProfileBox() {
-  const [isLogined, setIsLogined] = useState(false);
+function ProfileBox(props) {
   const routeLogin = () => {
     window.location.href = "/login";
   };
@@ -25,10 +23,9 @@ function ProfileBox() {
   const logOut = () => {
     localStorage.removeItem("accessToken");
   };
-
   return (
     <div className={styles.profiebox}>
-      {isLogined ? (
+      {props.userInfo ? (
         openProfile ? (
           <div className={styles.openedProfile}>
             <img

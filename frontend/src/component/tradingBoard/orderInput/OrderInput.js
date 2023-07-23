@@ -23,6 +23,7 @@ function OrderInput({
   balance,
   setBalance,
   setTitleaArray,
+  isLogined,
 }) {
   const [quantity, setQuantity] = useState();
   const [quantityRate, setQuantityRate] = useState(1);
@@ -544,9 +545,9 @@ function OrderInput({
   }, [quantity, leverage, profitPrice, lossPrice]);
 
   useEffect(() => {
-    if (mode == "competition") {
+    if (mode == "competition" && !isLogined) {
       setLoginWarning("경쟁모드는 로그인이 필요한 서비스입니다.");
-    } else if (mode === "practice") {
+    } else {
       setCompLoginErr(false);
       setLoginWarning("");
     }

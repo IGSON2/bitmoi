@@ -10,7 +10,6 @@ import {
 import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
 import axiosClient from "../backendConn/axiosClient";
-import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
 function TradingBoard({ modeHeight, mode }) {
   const [isLogined, setIsLogined] = useState(false);
@@ -97,13 +96,13 @@ function TradingBoard({ modeHeight, mode }) {
   };
 
   const getChartData = async (interval) => {
+    //TODO: Login이 된 이후 차트를 불러오고 싶음
     var response;
     setloaded(false);
     switch (interval) {
       case "init":
         var response;
-
-        if (mode === "competition") {
+        if (mode === "competition" && isLogined) {
           response = await axiosClient.get("/auth/competition");
         } else {
           response = await axiosClient.get("/practice");
@@ -272,10 +271,6 @@ function TradingBoard({ modeHeight, mode }) {
                 opened ? styles.navshow_orderInput : styles.navclose_orderInput
               }`}
             >
-              {mode === "competition" && setIsLogined ? null : (
-                <div className={styles.shutter}>로그인 후 이용해 주세요!</div>
-              )}
-              {/*Web3.js를 통해 BalanceOf를 조회하고, 보유 토큰이 1개 미만인 경우 Block 설치*/}
               <OrderInput
                 mode={mode}
                 name={name}
@@ -296,6 +291,7 @@ function TradingBoard({ modeHeight, mode }) {
                 setBalance={setBalance}
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
+                isLogined={isLogined}
               />
             </div>
           </div>
