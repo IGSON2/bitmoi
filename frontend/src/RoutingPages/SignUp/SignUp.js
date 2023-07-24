@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./SignUp.module.css";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
+import axios from "axios";
 function SignUp() {
+  const fileInputRef = useRef(null);
+
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
     /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$@$!%*#?&])[a-zA-Z0-9$@$!%*#?&]{8,16}$/;
@@ -29,6 +32,13 @@ function SignUp() {
   const [imageFileError, setImageFileError] = useState("");
 
   const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+  const axiosClient = axios.create({
+    baseURL: "http://bitmoi.co.kr:5000",
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
   const submit = async (e) => {
     e.preventDefault();
 
@@ -40,11 +50,7 @@ function SignUp() {
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post("/api/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosClient.post("/api/upload", formData);
 
       if (response.status == 200) {
         window.location.href = `/email/${emailDomain}`;
@@ -163,10 +169,13 @@ function SignUp() {
     setEmailDomain(e.target.value);
   };
 
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
   const handleFileChange = (event) => {
     const selected = event.target.files[0];
     const fileExtension = selected.name.split(".").pop().toLowerCase();
-
     if (!allowedExtensions.includes(fileExtension)) {
       setImageFileError(
         "이미지 파일 확장자가 잘못되었습니다. JPG, JPEG, PNG, GIF 중에서 업로드 해주세요."
@@ -175,12 +184,12 @@ function SignUp() {
     }
 
     const maxSize = 8 * 1024 * 1024;
-    if (selectedFile.size > maxSize) {
+    if (selected.size > maxSize) {
       setImageFileError("이미지 파일은 8 MB 이내로 업로드 해주세요.");
       return;
     }
 
-    setSelectedFile(selected);
+    setSelectedFile(URL.createObjectURL(selected));
     setImageFileError("");
   };
 
@@ -297,7 +306,24 @@ function SignUp() {
             </div>
 
             <div className={styles.field}>
-              <input type="file" onChange={handleFileChange} />
+              <label htmlFor="image">프로필</label>
+              <button
+                className={styles.selectimg}
+                type="button"
+                onClick={handleButtonClick}
+              >
+                Select Image
+              </button>
+              <input
+                id="image"
+                type="file"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                accept="image/*"
+              />
+              {selectedFile && (
+                <img className={styles.profile} src={selectedFile} />
+              )}
             </div>
 
             <div className={styles.field}>

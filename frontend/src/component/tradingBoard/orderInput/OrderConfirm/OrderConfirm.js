@@ -2,6 +2,7 @@ import { useState } from "react";
 import PostOrderJson from "../../../backendConn/PostOrderJson";
 import ResultPopup from "./resultPopup/ResultPopup";
 import styles from "./OrderConfirm.module.css";
+import axiosClient from "../../../backendConn/axiosClient";
 
 function Orderconfirm({
   order,
@@ -57,38 +58,39 @@ function Orderconfirm({
     back((current) => !current);
     setIndex((current) => current + 1);
   };
-  const finalConfirm = () => {
-    const resultPromise = PostOrderJson(
-      "http://bitmoi.co.kr:5000/" + order.mode,
-      order
-    );
-    resultPromise
-      .then((rchart) => {
-        if (order.mode === "competition") {
-          setPairtitle(rchart.score.name);
-          setTitleaArray((current) => [
-            ...current,
-            rchart.resultscore.name + ",",
-          ]);
-          setCandles(rchart.origin_chart);
-        }
-        setResultChart(rchart.result_chart);
-        setResultScore(rchart.score);
-        setBalance(
-          (current) => current + rchart.score.pnl - rchart.score.commission
-        );
-        setReceivedScore(rchart.score);
-      })
-      .catch((error) => {
-        console.log(error);
-        setinvalidOrder(true);
-        return;
-      })
-      .then(() => {
-        setSubmitOrder(true);
-        setModalOpen(true);
-        setinvalidOrder(false);
-      });
+  const finalConfirm = async () => {
+    var path;
+    if (order.mode === "competition") {
+      path = "auth/competition";
+    } else if (order.mode === "practice") {
+      path = "practice";
+    }
+    try {
+      const response = await axiosClient.post(path, order);
+      if (order.mode === "competition") {
+        setPairtitle(response.data.name);
+        setTitleaArray((current) => [
+          ...current,
+          response.data.resultscore.name + ",",
+        ]);
+        setCandles(response.data.origin_chart);
+      }
+      setResultChart(response.data.result_chart);
+      setResultScore(response.data.score);
+      setBalance(
+        (current) =>
+          current + response.data.score.pnl - response.data.score.commission
+      );
+      setReceivedScore(response.data.score);
+      setSubmitOrder(true);
+      setModalOpen(true);
+      setinvalidOrder(false);
+    } catch (error) {
+      console.error(error);
+      setinvalidOrder(true);
+      return;
+    }
+
     setTimeout(() => {
       orderInit();
     }, 2390);
