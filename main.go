@@ -7,6 +7,7 @@ import (
 	"bitmoi/backend/gapi"
 	"bitmoi/backend/mail"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
 	"database/sql"
 	"fmt"
@@ -63,7 +64,9 @@ func bitmoi(ctx *cli.Context) error {
 	}
 
 	if isHTTPRun := ctx.Bool(app.HTTPFlag.Name); isHTTPRun {
-		go runTaskProcessor(config, dbStore)
+		if config.Environment == common.EnvProduction {
+			go runTaskProcessor(config, dbStore)
+		}
 		go runHttpServer(config, dbStore, errCh)
 	}
 
@@ -75,7 +78,11 @@ func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 		Addr: config.RedisAddress,
 	}
 
-	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	var taskDistributor worker.TaskDistributor
+
+	if config.Environment == common.EnvProduction {
+		taskDistributor = worker.NewRedisTaskDistributor(redisOpt)
+	}
 
 	server, err := api.NewServer(config, store, taskDistributor)
 	if err != nil {

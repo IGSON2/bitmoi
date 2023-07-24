@@ -59,7 +59,13 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 }
 
 func (s *Server) createUser(c *fiber.Ctx) error {
-	req := new(CreateUserRequest)
+	req := &CreateUserRequest{
+		UserID:   c.FormValue(userIdKey),
+		Password: c.FormValue("password"),
+		Nickname: c.FormValue("nickname"),
+		Email:    c.FormValue("email"),
+		OauthUid: c.FormValue("oauth_uid"),
+	}
 	err := c.BodyParser(req)
 	if errs := utilities.ValidateStruct(*req); err != nil || errs != nil {
 		if errs != nil {
@@ -73,14 +79,16 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	fileURL, uploadErr := s.uploadImageToS3(c)
+
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
 		HashedPassword: hashedPassword,
 		Nickname:       req.Nickname,
 		Email:          req.Email,
 	}
-	if req.PhotoUrl != "" {
-		arg.PhotoUrl = sql.NullString{String: req.PhotoUrl, Valid: true}
+	if uploadErr == nil {
+		arg.PhotoUrl = sql.NullString{String: fileURL, Valid: true}
 	}
 	if req.OauthUid != "" {
 		arg.OauthUid = sql.NullString{String: req.OauthUid, Valid: true}
@@ -103,6 +111,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 
 	txResult, err := s.store.CreateUserTx(c.Context(), txArg)
 	if err != nil {
+		s.deleteImage(req.UserID)
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "unique_violation":

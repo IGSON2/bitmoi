@@ -5,6 +5,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
+	bitmoicommon "bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
 	"context"
 	"errors"
@@ -12,6 +13,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,6 +39,7 @@ type Server struct {
 	erc20Contract   *contract.ERC20Contract
 	biddingDuration time.Duration
 	nextUnlockDate  time.Time
+	s3Uploader      *s3.S3
 	exitCh          chan struct{}
 }
 
@@ -51,6 +54,11 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		return nil, fmt.Errorf("cannot init erc20 contract : %w", err)
 	}
 
+	s3Uploader, err := NewS3Uploader(c)
+	if err != nil {
+		return nil, fmt.Errorf("cannot init s3 uploader : %w", err)
+	}
+
 	server := &Server{
 		config:          c,
 		store:           s,
@@ -58,6 +66,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		taskDistributor: taskDistributor,
 		erc20Contract:   erc20,
 		biddingDuration: biddingDuration,
+		s3Uploader:      s3Uploader,
 		exitCh:          make(chan struct{}),
 	}
 
@@ -70,7 +79,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router := fiber.New(fiber.Config{})
 
 	router.Use(allowOriginMiddleware, limiterMiddleware)
-	if c.Environment == "production" {
+	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(server.createLoggerMiddleware())
 	}
 
@@ -87,6 +96,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Post("/token/reissue_access", server.reissueAccessToken)
 	router.Get("/verify_email", server.verifyEmail)
 	router.Post("/verify_token", server.verifyToken)
+	router.Post("/testphoto", server.testUpload)
 
 	authGroup := router.Group("/auth", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)

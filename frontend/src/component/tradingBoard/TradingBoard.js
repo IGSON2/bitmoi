@@ -96,14 +96,17 @@ function TradingBoard({ modeHeight, mode }) {
   };
 
   const getChartData = async (interval) => {
-    //TODO: Login이 된 이후 차트를 불러오고 싶음
     var response;
     setloaded(false);
     switch (interval) {
       case "init":
         var response;
-        if (mode === "competition" && isLogined) {
-          response = await axiosClient.get("/auth/competition");
+        if (mode === "competition") {
+          if (isLogined) {
+            response = await axiosClient.get("/auth/competition");
+          } else {
+            return;
+          }
         } else {
           response = await axiosClient.get("/practice");
         }
@@ -171,7 +174,7 @@ function TradingBoard({ modeHeight, mode }) {
   };
   useEffect(() => {
     getChartData("init");
-  }, [index]);
+  }, [index, isLogined]);
 
   useEffect(() => {
     if (submitOrder) {

@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import styles from "./SignUp.module.css";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
-import axiosClient from "../../component/backendConn/axiosClient";
 function SignUp() {
   const userIDPattern = /^[a-zA-Z0-9]{5,15}$/;
   const passwordPattern =
     /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[$@$!%*#?&])[a-zA-Z0-9$@$!%*#?&]{8,16}$/;
   const nicknamePattern = /^[가-힣a-zA-Z0-9]{1,10}$/;
+
   const [userID, setUserID] = useState("");
   const [emailID, setEmailID] = useState("");
   const [emailDomain, setEmailDomain] = useState("");
@@ -15,6 +15,8 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [passwordChk, setPasswordChk] = useState("");
   const [nickname, setNickname] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const [isLogined, setIsLogined] = useState(false);
   const [userIdDuplicationText, setUserIdDuplicationText] =
     useState("중복확인");
@@ -24,18 +26,26 @@ function SignUp() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordCheckError, setPasswordCheckError] = useState("");
   const [nicknameError, setNicknameError] = useState("");
+  const [imageFileError, setImageFileError] = useState("");
 
+  const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
   const submit = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("user_id", userID);
+    formData.append("nickname", nickname);
+    formData.append("password", password);
+    formData.append("email", emailID + "@" + emailDomain);
+    formData.append("file", selectedFile);
+
     try {
-      const response = await axiosClient.post("/user", {
-        user_id: userID,
-        password: password,
-        nickname: nickname,
-        email: emailID + "@" + emailDomain,
-        photo_url: "",
-        oauth_uid: "",
+      const response = await axios.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
+
       if (response.status == 200) {
         window.location.href = `/email/${emailDomain}`;
       } else {
@@ -153,6 +163,27 @@ function SignUp() {
     setEmailDomain(e.target.value);
   };
 
+  const handleFileChange = (event) => {
+    const selected = event.target.files[0];
+    const fileExtension = selected.name.split(".").pop().toLowerCase();
+
+    if (!allowedExtensions.includes(fileExtension)) {
+      setImageFileError(
+        "이미지 파일 확장자가 잘못되었습니다. JPG, JPEG, PNG, GIF 중에서 업로드 해주세요."
+      );
+      return;
+    }
+
+    const maxSize = 8 * 1024 * 1024;
+    if (selectedFile.size > maxSize) {
+      setImageFileError("이미지 파일은 8 MB 이내로 업로드 해주세요.");
+      return;
+    }
+
+    setSelectedFile(selected);
+    setImageFileError("");
+  };
+
   useEffect(() => {
     const verifyToken = async () => {
       const isValidToken = await checkAccessTokenValidity();
@@ -166,6 +197,7 @@ function SignUp() {
 
     verifyToken();
   }, []);
+
   return (
     <div className={styles.signupdiv}>
       <div className={styles.navbar}>
@@ -265,6 +297,10 @@ function SignUp() {
             </div>
 
             <div className={styles.field}>
+              <input type="file" onChange={handleFileChange} />
+            </div>
+
+            <div className={styles.field}>
               <label htmlFor="emailID">이메일</label>
               <input
                 style={{ width: "25%" }}
@@ -312,6 +348,8 @@ function SignUp() {
                 ? passwordCheckError
                 : nicknameError
                 ? nicknameError
+                : imageFileError
+                ? imageFileError
                 : ""}
             </div>
             <button
@@ -327,6 +365,7 @@ function SignUp() {
                 passwordError !== "" ||
                 passwordCheckError !== "" ||
                 nicknameError !== "" ||
+                imageFileError !== "" ||
                 userIdDuplicationText !== "사용가능" ||
                 nicknameDuplicationText !== "사용가능"
               }

@@ -5,6 +5,7 @@ import (
 	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/utilities/common"
 	"context"
 	"fmt"
 	"net"
@@ -38,7 +39,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
 	}
-	if c.Environment == "production" {
+	if c.Environment == common.EnvProduction {
 		setMultiLogger(c)
 	}
 

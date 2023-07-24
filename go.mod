@@ -5,10 +5,12 @@ go 1.18
 require (
 	github.com/adshao/go-binance/v2 v2.4.2
 	github.com/aead/chacha20poly1305 v0.0.0-20170617001512-233f39982aeb
+	github.com/aws/aws-sdk-go v1.44.306
 	github.com/envoyproxy/protoc-gen-validate v0.10.0
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
@@ -49,12 +51,16 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/gofiber/utils v0.0.10 // indirect
 	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/h2non/filetype v1.1.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/holiman/uint256 v1.2.2-0.20230321075855-87b91420868c // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lyft/protoc-gen-star/v2 v2.0.1 // indirect

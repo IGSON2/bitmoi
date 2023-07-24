@@ -3,7 +3,9 @@ package common
 import "math"
 
 const (
-	Decimal = 100000
+	Decimal       = 100000
+	EnvProduction = "production"
+	EnvDevelop    = "develop"
 )
 
 func FloorDecimal(f float64) float64 {

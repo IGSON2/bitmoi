@@ -22,6 +22,8 @@ type Config struct {
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD"`
 	PrivateKey           string        `mapstructure:"PRIVATE_KEY"`
+	S3AccessKey          string        `mapstructure:"S3_ACCESS_KEY"`
+	S3SecretKey          string        `mapstructure:"S3_SECRET_KEY"`
 	DataDir              string
 }
 

@@ -551,7 +551,7 @@ function OrderInput({
       setCompLoginErr(false);
       setLoginWarning("");
     }
-  }, []);
+  }, [isLogined]);
 
   const quanClose = () => {
     setQuantityRate(100);
