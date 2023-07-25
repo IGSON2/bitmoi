@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Login.module.css";
 import { Link } from "react-router-dom";
 import axiosClient from "../../component/backendConn/axiosClient";
@@ -8,6 +8,7 @@ function Login() {
   const [ID, setID] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const inputButtonRef = useRef(null);
   const onIdChange = (e) => {
     setID(e.target.value);
   };
@@ -31,6 +32,8 @@ function Login() {
       setErrorMsg("ID 또는 PW를 확인해 주세요");
     }
   };
+
+  const pressEnter = () => {};
 
   return (
     <div className={styles.loginwindow}>
@@ -57,11 +60,12 @@ function Login() {
             value={password}
             placeholder="password"
           />
-          <button className={styles.login} onClick={login}>
-            Login
-          </button>
+          <button style={{ display: "none" }}></button>
           {errorMsg ? <p className={styles.errormessage}>{errorMsg}</p> : null}
         </form>
+        <button className={styles.login} onClick={login}>
+          Login
+        </button>
         <div className={styles.signup}>
           <Link to={"/signup"}>Sign up</Link>
         </div>

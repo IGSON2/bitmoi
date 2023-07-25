@@ -10,9 +10,12 @@ import {
 import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
 import axiosClient from "../backendConn/axiosClient";
+import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
 function TradingBoard({ modeHeight, mode }) {
   const [isLogined, setIsLogined] = useState(false);
+  const [userInfo, setUserinfo] = useState();
+
   const [fiveMinutes, setFiveMinutes] = useState();
   const [fifteenMinutes, setFifteenMinutes] = useState();
   const [oneHour, setOneHour] = useState();
@@ -97,6 +100,7 @@ function TradingBoard({ modeHeight, mode }) {
 
   const getChartData = async (interval) => {
     var response;
+    console.log(isLogined);
     setloaded(false);
     switch (interval) {
       case "init":
@@ -182,6 +186,21 @@ function TradingBoard({ modeHeight, mode }) {
     }
   }, [submitOrder]);
 
+  useEffect(() => {
+    const verifyToken = async () => {
+      const userInfo = await checkAccessTokenValidity();
+
+      if (!userInfo) {
+        setIsLogined(false);
+      } else {
+        setUserinfo(userInfo);
+        setIsLogined(true);
+      }
+    };
+
+    verifyToken();
+  }, []);
+
   window.onkeydown = (e) => {
     setToolBar("NonSelected");
     switch (e.key) {
@@ -215,7 +234,7 @@ function TradingBoard({ modeHeight, mode }) {
               setActive={setActive}
               setToolBar={setToolBar}
               toolBar={toolBar}
-              setIsLogined={setIsLogined}
+              userInfo={userInfo}
             />
           </div>
 

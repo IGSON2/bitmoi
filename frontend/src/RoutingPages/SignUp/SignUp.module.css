@@ -4,8 +4,8 @@
 }
 
 .warning {
+  height: 90%;
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,24 +13,16 @@
 }
 
 .warning h1 {
-  font-size: 8vw;
+  font-size: xxx-large;
 }
 
 .warning a {
-  font-size: 5vw;
-  color: #faebef;
-  background-color: #333d79;
-  border-radius: 10%;
-}
-
-.warning a:hover {
-  color: #333d79;
-  background-color: #faebef;
+  font-size: xx-large;
 }
 
 .navbar {
   width: 100%;
-  height: 7%;
+  height: 9%;
 }
 
 .formdiv {
@@ -51,15 +43,18 @@
   font-size: x-small;
   color: #3e4da3;
 }
+
 .signuptext,
 .welcome {
   width: 90%;
   height: 10%;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .forms {
-  width: 500px;
+  width: 400px;
   height: 80%;
   display: flex;
   justify-content: center;
@@ -102,9 +97,11 @@
 }
 
 .selectimg {
-  width: 30%;
+  width: 60%;
   height: 50%;
+  padding: 0% 3%;
   border: none;
+  font-size: x-small;
   border-radius: 5px;
   background-color: #3e4da3;
   color: #fff;

@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 type UserResponse struct {
@@ -79,12 +80,15 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	var uploadErr error
+	var fileURL string
+
 	f, err := c.FormFile(fileKey)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get photo image file from context. err: %w", err).Error())
+		log.Debug().Msgf("%s dosen't upload profile image.", req.UserID)
+	} else {
+		fileURL, uploadErr = s.uploadImageToS3(f, req.UserID)
 	}
-
-	fileURL, uploadErr := s.uploadImageToS3(f, req.UserID)
 
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
@@ -94,7 +98,10 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 	}
 	if uploadErr == nil {
 		arg.PhotoUrl = sql.NullString{String: fileURL, Valid: true}
+	} else {
+		log.Err(uploadErr).Msgf("cannot upload image to S3. user: %s", req.UserID)
 	}
+
 	if req.OauthUid != "" {
 		arg.OauthUid = sql.NullString{String: req.OauthUid, Valid: true}
 	}
