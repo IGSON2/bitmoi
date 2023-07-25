@@ -103,7 +103,7 @@ function TradingBoard({ modeHeight, mode }) {
         var response;
         if (mode === "competition") {
           if (isLogined) {
-            response = await axiosClient.get("/auth/competition");
+            response = await axiosClient.get("/competition");
           } else {
             return;
           }

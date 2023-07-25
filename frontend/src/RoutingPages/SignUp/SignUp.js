@@ -183,9 +183,9 @@ function SignUp() {
       return;
     }
 
-    const maxSize = 8 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (selected.size > maxSize) {
-      setImageFileError("이미지 파일은 8 MB 이내로 업로드 해주세요.");
+      setImageFileError("이미지 파일은 5 MB 이내로 업로드 해주세요.");
       return;
     }
 

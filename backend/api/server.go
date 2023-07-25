@@ -96,14 +96,14 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Post("/token/reissue_access", server.reissueAccessToken)
 	router.Get("/verify_email", server.verifyEmail)
 	router.Post("/verify_token", server.verifyToken)
-	router.Post("/testphoto", server.testUpload)
 
-	authGroup := router.Group("/auth", authMiddleware(server.tokenMaker))
+	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
 	authGroup.Get("/myscore/:user", server.myscore)
 	authGroup.Get("/freetoken", server.sendFreeErc20)
-	authGroup.Post("/updateaddress", server.updateMetamaskAddress)
+	authGroup.Post("/user/address", server.updateMetamaskAddress)
+	authGroup.Post("/user/profile", server.updateProfileImg)
 
 	server.router = router
 

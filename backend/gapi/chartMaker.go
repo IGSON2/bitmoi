@@ -129,10 +129,7 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c c
 }
 
 func calculateRefTimestamp(section int64, name, interval string) int64 {
-	fiveMonth, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
-	if fiveMonth > float64(section) {
-		fmt.Printf("%s is Shorter than fiveMonth.", name)
-	}
+	_, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
 	return int64(utilities.MakeRanInt(0, int(section-int64(waitingTime))))
 }
 

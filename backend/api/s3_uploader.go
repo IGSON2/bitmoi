@@ -4,6 +4,8 @@ import (
 	"bitmoi/backend/utilities"
 	"errors"
 	"fmt"
+	"mime"
+	"mime/multipart"
 	"strings"
 	"time"
 
@@ -13,7 +15,6 @@ import (
 
 	"github.com/h2non/filetype"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog/log"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -35,10 +36,10 @@ var (
 
 const (
 	region       = "ap-northeast-2"
-	cloudFront   = "https://d3qqltqqisxphn.cloudfront.net"
+	cloudFront   = "https://cdn.bitmoi.co.kr"
 	fileKey      = "image"
 	userIdKey    = "user_id"
-	maxImageSize = 10 * 1024 * 1024
+	maxImageSize = 5 * 1024 * 1024
 )
 
 var bucketName = "bitmoi-photo"
@@ -56,29 +57,22 @@ func NewS3Uploader(c *utilities.Config) (*s3.S3, error) {
 	return svc, nil
 }
 
-func (s *Server) uploadImageToS3(c *fiber.Ctx) (string, error) {
-	f, err := c.FormFile(fileKey)
-	if err != nil {
-		return "", fmt.Errorf("cannot get photo image file from context. err: %w", err)
-	}
-	userId := c.FormValue(userIdKey)
-	if userId == "" {
-		return "", fmt.Errorf("cannot get user id from context")
-	}
+func (s *Server) uploadImageToS3(f *multipart.FileHeader, userId string) (string, error) {
 
-	openedF, err := f.Open()
+	openedFile, err := f.Open()
 	if err != nil {
 		return "", err
 	}
-	defer openedF.Close()
+	defer openedFile.Close()
 
 	buf := make([]byte, 261)
-	if _, err := openedF.Read(buf); err != nil {
+	if _, err := openedFile.Read(buf); err != nil {
 		return "", fmt.Errorf("failed to read the file")
 	}
 
 	kind, _ := filetype.Match(buf)
 	ext := strings.ToLower(kind.Extension)
+
 	if !allowedImageExtensions[ext] {
 		return "", fmt.Errorf("invalid image format. Only JPEG, PNG, and GIF are allowed")
 	}
@@ -87,21 +81,26 @@ func (s *Server) uploadImageToS3(c *fiber.Ctx) (string, error) {
 		return "", fmt.Errorf("image size must be less than %dMB", maxImageSize/1024/1024)
 	}
 
-	contentType := fmt.Sprintf("image/%s", ext)
-	fileKey := fmt.Sprintf("%s.%s", userId, ext)
-	fileUrl := fmt.Sprintf("%s/%s", cloudFront, fileKey)
+	// buf에 261바이트를 기록하기 위해 진전한 read pointer를 다시 초기화 해야함.
+	_, err = openedFile.Seek(0, 0)
+	if err != nil {
+		return "", fmt.Errorf("failed to reset file pointer")
+	}
+
+	contentType := mime.TypeByExtension("." + kind.Extension)
+	fileUrl := fmt.Sprintf("%s/%s", cloudFront, userId)
 
 	resp, err := s.s3Uploader.GetObject(&s3.GetObjectInput{
 		Bucket: &bucketName,
-		Key:    &fileKey,
+		Key:    &userId,
 	})
 
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchKey {
 			_, createErr := s.s3Uploader.PutObject(&s3.PutObjectInput{
 				Bucket:      &bucketName,
-				Key:         &fileKey,
-				Body:        openedF,
+				Key:         &userId,
+				Body:        openedFile,
 				ContentType: &contentType,
 			})
 			if createErr == nil {
@@ -121,8 +120,8 @@ func (s *Server) uploadImageToS3(c *fiber.Ctx) (string, error) {
 
 	_, updateErr := s.s3Uploader.PutObject(&s3.PutObjectInput{
 		Bucket:      &bucketName,
-		Key:         &fileKey,
-		Body:        openedF,
+		Key:         &userId,
+		Body:        openedFile,
 		ContentType: &contentType,
 	})
 
@@ -138,13 +137,4 @@ func (s *Server) deleteImage(key string) {
 	if err != nil {
 		log.Err(err).Msgf("cannot delete object. key: %s", key)
 	}
-}
-
-func (s *Server) testUpload(c *fiber.Ctx) error {
-	url, err := s.uploadImageToS3(c)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-
-	return c.Status(fiber.StatusOK).SendString(url)
 }

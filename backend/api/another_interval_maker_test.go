@@ -106,7 +106,7 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 		},
 		{
 			Name: OKCompetition4h,
-			Path: "/auth/competition",
+			Path: "/competition",
 			IntervalReq: &AnotherIntervalRequest{
 				ReqInterval: db.FourH,
 				Mode:        competition,

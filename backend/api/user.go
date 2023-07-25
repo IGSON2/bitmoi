@@ -79,7 +79,12 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	fileURL, uploadErr := s.uploadImageToS3(c)
+	f, err := c.FormFile(fileKey)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get photo image file from context. err: %w", err).Error())
+	}
+
+	fileURL, uploadErr := s.uploadImageToS3(f, req.UserID)
 
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
@@ -243,4 +248,28 @@ func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *Server) updateProfileImg(c *fiber.Ctx) error {
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
+	}
+
+	user, err := s.store.GetUser(c.Context(), payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get user by authorization payload")
+	}
+
+	f, err := c.FormFile(fileKey)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get photo image file from context. err: %w", err).Error())
+	}
+
+	url, err := s.uploadImageToS3(f, user.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).SendString(url)
 }

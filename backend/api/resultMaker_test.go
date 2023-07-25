@@ -24,7 +24,7 @@ func TestEntryPrice(t *testing.T) {
 	s := newTestServer(t, newTestStore(t), nil)
 	client := http.DefaultClient
 
-	req, err := http.NewRequest("GET", localAPI+"/auth/competition", nil)
+	req, err := http.NewRequest("GET", localAPI+"/competition", nil)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -65,7 +65,7 @@ func TestEntryPrice(t *testing.T) {
 	reqByte, err := json.Marshal(compPostParam)
 	require.NoError(t, err)
 
-	req2, err := http.NewRequest("POST", localAPI+"/auth/competition", bytes.NewReader(reqByte))
+	req2, err := http.NewRequest("POST", localAPI+"/competition", bytes.NewReader(reqByte))
 	require.NoError(t, err)
 	req2.Header.Set("Content-Type", "application/json")
 	addAuthrization(t, req2, s.tokenMaker, authorizationTypeBearer, masterID, 24*time.Hour)

@@ -64,7 +64,7 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name: "GetCompetitonChart",
-			Path: "/auth/competition",
+			Path: "/competition",
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, masterID, time.Minute)
 			},
@@ -99,7 +99,7 @@ func TestMakeChart(t *testing.T) {
 		},
 		{
 			Name: "CompetitionUnAuthorized",
-			Path: "/auth/competition",
+			Path: "/competition",
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 			},
 			CheckResp: func(resp *http.Response) {

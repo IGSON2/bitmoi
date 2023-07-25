@@ -77,7 +77,7 @@ func TestAuthMiddleware(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			client := http.DefaultClient
-			myscoreReq, err := http.NewRequest(http.MethodGet, apiAddress+"/auth/competition", nil)
+			myscoreReq, err := http.NewRequest(http.MethodGet, apiAddress+"/competition", nil)
 			require.NoError(t, err)
 			tc.setupAuth(t, myscoreReq, *s.tokenMaker)
 			myscoreRes, err := client.Do(myscoreReq)
