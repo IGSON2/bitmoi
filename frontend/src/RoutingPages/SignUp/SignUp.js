@@ -19,6 +19,7 @@ function SignUp() {
   const [passwordChk, setPasswordChk] = useState("");
   const [nickname, setNickname] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
 
   const [isLogined, setIsLogined] = useState(false);
   const [userIdDuplicationText, setUserIdDuplicationText] =
@@ -47,13 +48,13 @@ function SignUp() {
     formData.append("nickname", nickname);
     formData.append("password", password);
     formData.append("email", emailID + "@" + emailDomain);
-    formData.append("file", selectedFile);
+    formData.append("image", selectedFile);
 
     try {
-      const response = await axiosClient.post("/api/upload", formData);
+      const response = await axiosClient.post("/user", formData);
 
       if (response.status == 200) {
-        window.location.href = `/email/${emailDomain}`;
+        window.location.replace(`/goto/${emailDomain}`);
       } else {
         throw new Error(response.data);
       }
@@ -189,7 +190,8 @@ function SignUp() {
       return;
     }
 
-    setSelectedFile(URL.createObjectURL(selected));
+    setSelectedFile(selected);
+    setProfilePreview(URL.createObjectURL(selected));
     setImageFileError("");
   };
 
@@ -312,7 +314,7 @@ function SignUp() {
                 type="button"
                 onClick={handleButtonClick}
               >
-                Select Image
+                찾아보기
               </button>
               <input
                 id="image"
@@ -321,9 +323,7 @@ function SignUp() {
                 ref={fileInputRef}
                 accept="image/*"
               />
-              {selectedFile && (
-                <img className={styles.profile} src={selectedFile} />
-              )}
+              <img className={styles.profile} src={profilePreview} />
             </div>
 
             <div className={styles.field}>

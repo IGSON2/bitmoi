@@ -1,6 +1,5 @@
 import axiosClient from "./axiosClient";
 
-// SetUserInfo 를 props로 받아서 token과 함께 전달되는 userinfo 초기화하기
 const checkAccessTokenValidity = async () => {
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
@@ -14,8 +13,10 @@ const checkAccessTokenValidity = async () => {
     });
     if (response.status === 200) {
       return response.data;
+    } else {
+      throw response.data;
     }
-  } catch {
+  } catch (error) {
     const refResponse = await axiosClient.post("/token/reissue_access", {
       refresh_token: refreshToken,
     });
@@ -24,6 +25,7 @@ const checkAccessTokenValidity = async () => {
       localStorage.setItem("accessToken", refResponse.data.access_token);
       return refResponse.data.user;
     } else {
+      console.error(error);
       return null;
     }
   }

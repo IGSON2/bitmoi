@@ -31,7 +31,7 @@ function App() {
           <Route path="/rank?page=1" element={<Rank />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/email/:domain" element={<EmailLocate />} />
+          <Route path="/goto/:domain" element={<EmailLocate />} />
           <Route path="/wallettest" element={<Wallet />} />
         </Routes>
       </BrowserRouter>

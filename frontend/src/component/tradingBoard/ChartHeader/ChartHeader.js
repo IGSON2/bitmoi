@@ -6,8 +6,6 @@ import keyboardImg from "../../images/keyboard.png";
 import mouseImg from "../../images/mouse.png";
 import markImg from "../../images/marker.png";
 import ProfileBox from "../../ProfileBox/ProfileBox";
-import checkAccessTokenValidity from "../../backendConn/checkAccessTokenValidity";
-import { useEffect, useState } from "react";
 
 function ChartHeader(props) {
   const fiveMinute = () => {
@@ -66,23 +64,6 @@ function ChartHeader(props) {
       `Hotkey Manual\n=================\nRuler : Shift + Click\nMakrer : Ctrl + Click\nPriceLine : Alt + Click\nEraseAll : Click Chart`
     );
   };
-
-  const [userInfo, setUserinfo] = useState();
-
-  useEffect(() => {
-    const verifyToken = async () => {
-      const userInfo = await checkAccessTokenValidity();
-
-      if (!userInfo) {
-        props.setIsLogined(false);
-      } else {
-        setUserinfo(userInfo);
-        props.setIsLogined(true);
-      }
-    };
-
-    verifyToken();
-  }, []);
 
   return (
     <div className={styles.ChartHeader}>
@@ -231,7 +212,7 @@ function ChartHeader(props) {
         <div className={styles.blank}></div>
       )}
       <div className={styles.profilediv}>
-        <ProfileBox userInfo={userInfo} />
+        <ProfileBox userInfo={props.userInfo} />
       </div>
     </div>
   );
