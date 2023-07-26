@@ -30,5 +30,4 @@ func (s *Server) verifyEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("user not verified")
 	}
 	return c.Status(fiber.StatusOK).SendFile("./welcome.html", false)
-	// return c.Status(fiber.StatusOK).JSON(&VerifyEmailResponse{IsVerified: txResult.User.IsEmailVerified})
 }
