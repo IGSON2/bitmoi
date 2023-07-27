@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsBoxArrowRight } from "react-icons/bs";
 import { IoIosPerson } from "react-icons/io";
 import logo from "../images/logosmall.png";
@@ -9,12 +9,7 @@ function ProfileBox(props) {
   const routeLogin = () => {
     window.location.href = "/login";
   };
-  const [userInfo, setUserInfo] = useState({
-    user_id: "",
-    nickname: "",
-    email: "",
-    photo_url: "",
-  });
+
   const [openProfile, setOpenProfile] = useState(false);
   const profileClick = () => {
     setOpenProfile((current) => !current);
@@ -23,6 +18,9 @@ function ProfileBox(props) {
   const logOut = () => {
     localStorage.removeItem("accessToken");
   };
+
+  console.log(props.userInfo);
+
   return (
     <div className={styles.profiebox}>
       {props.userInfo ? (
@@ -30,7 +28,7 @@ function ProfileBox(props) {
           <div className={styles.openedProfile}>
             <img
               className={styles.profileImg}
-              src={userInfo.photo_url ? userInfo.photo_url : logo}
+              src={props.userInfo.photo_url ? props.userInfo.photo_url : logo}
               onClick={profileClick}
             ></img>
             <div className={styles.nameoptions}>
@@ -48,7 +46,7 @@ function ProfileBox(props) {
         ) : (
           <img
             className={styles.profileImg}
-            src={userInfo.photo_url ? userInfo.photo_url : logo}
+            src={props.userInfo.photo_url ? props.userInfo.photo_url : logo}
             onClick={profileClick}
           ></img>
         )

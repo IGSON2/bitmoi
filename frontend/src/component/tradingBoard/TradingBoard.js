@@ -189,7 +189,6 @@ function TradingBoard({ modeHeight, mode }) {
   useEffect(() => {
     const verifyToken = async () => {
       const userInfo = await checkAccessTokenValidity();
-
       if (!userInfo) {
         setIsLogined(false);
       } else {
@@ -218,6 +217,7 @@ function TradingBoard({ modeHeight, mode }) {
   window.onkeyup = () => {
     setActive("");
   };
+
   return (
     <div className={styles.page}>
       {loaded ? (
