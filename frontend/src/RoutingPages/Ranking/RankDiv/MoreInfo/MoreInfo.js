@@ -1,5 +1,4 @@
 import styles from "./MoreInfo.module.css";
-import { BsCaretUpFill } from "react-icons/bs";
 import { useState } from "react";
 import Timeformatter from "../../../../component/Timeformatter/Timeformatter";
 import WordConfirm from "./WordConfirm/WordConfirm";

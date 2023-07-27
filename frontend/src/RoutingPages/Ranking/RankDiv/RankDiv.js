@@ -2,11 +2,9 @@ import styles from "./RankDiv.module.css";
 import { BsChatQuote } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import MoreInfo from "./MoreInfo/MoreInfo";
-import { BsForward } from "react-icons/bs";
 
 function RankDiv({ index, obj }) {
   const [moreInfo, setMoreInfo] = useState(false);
-  const [thisUser, setThisUser] = useState("");
   const [certified, setCertified] = useState(false);
   const colorchanger = (num) => {
     var color = "";
@@ -59,16 +57,8 @@ function RankDiv({ index, obj }) {
     setMoreInfo((current) => !current);
   };
 
-  useEffect(() => {
-    if (thisUser && obj) {
-      obj.user === thisUser ? setCertified(true) : setCertified(false);
-    }
-  }, [thisUser, obj]);
   return (
-    <div
-      className={styles.userdiv}
-      style={obj.user === thisUser ? { backgroundColor: "#faebef" } : null}
-    >
+    <div className={styles.userdiv}>
       <div className={styles.onlyinfo}>
         <div
           className={`${styles.no} ${styles.field}`}
@@ -79,19 +69,7 @@ function RankDiv({ index, obj }) {
         <div className={`${styles.pic} ${styles.field}`}>
           <img className={styles.photo} src={obj.photourl} />
         </div>
-        <div
-          className={`${styles.name} ${styles.field}`}
-          style={
-            obj.user === thisUser
-              ? {
-                  color: "#333d79",
-                  fontSize: "x-large",
-                }
-              : { color: "black" }
-          }
-        >
-          {obj.nickname}
-        </div>
+        <div className={`${styles.name} ${styles.field}`}>{obj.nickname}</div>
         <div className={`${styles.score}  ${styles.field}`}>{obj.balance}</div>
         <button className={styles.openbutton} onClick={getMoreInfo}>
           <BsChatQuote />

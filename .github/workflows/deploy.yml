@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            rm -rf /home/${{ secrets.EC2_USERNAME }}/bitmoi
+            sudo rm -rf /home/${{ secrets.EC2_USERNAME }}/bitmoi
 
       - name: Deploy file
         uses: appleboy/scp-action@v0.1.4

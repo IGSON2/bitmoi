@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react";
 import styles from "./WordConfirm.module.css";
 function WordConfirm({ popupOpen, comment }) {
-  const [thisUser, setThisUser] = useState("");
-
   const closePopup = () => {
     popupOpen(false);
   };
@@ -14,7 +11,7 @@ function WordConfirm({ popupOpen, comment }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             comment: comment,
-            user: thisUser,
+            user: "temporary_user",
           }),
         }).then(window.location.reload());
         break;

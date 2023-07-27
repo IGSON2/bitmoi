@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import styles from "./Rank.module.css";
 import RankDiv from "./RankDiv/RankDiv";
 import Topbutton from "../../component/Topbutton/Topbutton";
-import Footer from "../../component/Footer/Footer";
 import H_NavBar from "../../component/navbar/H_NavBar";
 
 function Rank() {

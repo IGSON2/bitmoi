@@ -21,7 +21,6 @@ jobs:
         run: |
           cd frontend&&npm install
           npm run build
-          chown -R root:root frontend/build
 
       - name: Deploy file
         uses: appleboy/scp-action@v0.1.4
@@ -39,4 +38,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
+            chown -R root:root /home/${{ secrets.EC2_USERNAME }}/bitmoi/build
+            pm2 kill
             authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/bitmoi/server.js --name app -p 80
