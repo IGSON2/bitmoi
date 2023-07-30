@@ -59,14 +59,8 @@ function Orderconfirm({
     setIndex((current) => current + 1);
   };
   const finalConfirm = async () => {
-    var path;
-    if (order.mode === "competition") {
-      path = "auth/competition";
-    } else if (order.mode === "practice") {
-      path = "practice";
-    }
     try {
-      const response = await axiosClient.post(path, order);
+      const response = await axiosClient.post(order.mode, order);
       if (order.mode === "competition") {
         setPairtitle(response.data.name);
         setTitleaArray((current) => [

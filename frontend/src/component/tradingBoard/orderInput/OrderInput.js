@@ -23,7 +23,7 @@ function OrderInput({
   balance,
   setBalance,
   setTitleaArray,
-  isLogined,
+  user_id,
 }) {
   const [quantity, setQuantity] = useState();
   const [quantityRate, setQuantityRate] = useState(1);
@@ -84,7 +84,7 @@ function OrderInput({
     event.preventDefault();
     var tempObject = {
       mode: mode,
-      user_id: "test",
+      user_id: user_id,
       name: name,
       stage: index + 1,
       is_long: isLong,
@@ -98,10 +98,6 @@ function OrderInput({
       score_id: Date.now().toString(),
       waiting_Term: 1,
     };
-    // Update userid for firebase
-    if (mode === "competition") {
-      tempObject.user_id = "";
-    }
     setOrderObject(tempObject);
     setConfirm((current) => !current);
     setLossMarker(lossPrice);
@@ -545,13 +541,13 @@ function OrderInput({
   }, [quantity, leverage, profitPrice, lossPrice]);
 
   useEffect(() => {
-    if (mode == "competition" && !isLogined) {
+    if (mode == "competition" && !user_id) {
       setLoginWarning("경쟁모드는 로그인이 필요한 서비스입니다.");
     } else {
       setCompLoginErr(false);
       setLoginWarning("");
     }
-  }, [isLogined]);
+  }, [user_id]);
 
   const quanClose = () => {
     setQuantityRate(100);

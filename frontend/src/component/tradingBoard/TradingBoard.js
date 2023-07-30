@@ -100,7 +100,6 @@ function TradingBoard({ modeHeight, mode }) {
 
   const getChartData = async (interval) => {
     var response;
-    console.log(isLogined);
     setloaded(false);
     switch (interval) {
       case "init":
@@ -176,6 +175,7 @@ function TradingBoard({ modeHeight, mode }) {
 
     setloaded(true);
   };
+
   useEffect(() => {
     getChartData("init");
   }, [index, isLogined]);
@@ -189,8 +189,13 @@ function TradingBoard({ modeHeight, mode }) {
   useEffect(() => {
     const verifyToken = async () => {
       const userInfo = await checkAccessTokenValidity();
+      console.log(userInfo);
       if (!userInfo) {
         setIsLogined(false);
+        if (mode === "competition") {
+          alert("로그인이 필요합니다.");
+          window.location.replace("/login");
+        }
       } else {
         setUserinfo(userInfo);
         setIsLogined(true);
@@ -313,7 +318,7 @@ function TradingBoard({ modeHeight, mode }) {
                 setBalance={setBalance}
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
-                isLogined={isLogined}
+                user_id={userInfo.user_id}
               />
             </div>
           </div>
