@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logo from "../images/logosmall.png";
+import logo from "../images/new_logo.png";
 import mypage from "../images/my_page.png";
 import logout from "../images/logout.png";
 import styles from "./ProfileBox.module.css";
@@ -23,12 +23,17 @@ function ProfileBox(props) {
     setOpenProfile(false);
   };
 
+  const gotoMypage = () => {
+    window.location.href = "/mypage";
+  };
   const logOut = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.reload();
   };
   return (
     <div className={styles.profiebox}>
-      {props.userInfo ? (
+      {props.userInfo && props.userInfo.user_id !== "" ? (
         <img
           className={styles.profileImg}
           src={props.userInfo.photo_url ? props.userInfo.photo_url : logo}
@@ -57,10 +62,10 @@ function ProfileBox(props) {
             </div>
             <VerticalLine />
             <div className={styles.mypage}>
-              <img src={mypage}></img>
+              <img src={mypage} onClick={gotoMypage}></img>
             </div>
             <div className={styles.logout}>
-              <img src={logout}></img>
+              <img src={logout} onClick={logOut}></img>
             </div>
           </div>
         </div>

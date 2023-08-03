@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Web3 from "web3";
 import styles from "./Wallet.module.css";
 import ContractABI from "../../contract/moiABI.json";
-import moilogo from "../images/logosmall.png";
+import moilogo from "../images/new_logo.png";
 
 function Wallet() {
   const baobabTestNetID = 1001;
@@ -113,7 +113,16 @@ function Wallet() {
           <div className={styles.number}>{tokenBalance} MOI</div>
         </div>
       ) : (
-        <div className={styles.warning}>Metamask를 설치해 주세요!</div>
+        <div className={styles.warning}>
+          <div className={styles.warningtext}>
+            Metamask가 설치되어 있지 않습니다.
+          </div>
+          <div className={styles.linkbox}>
+            <a href="https://metamask.io/" target="_blank">
+              설치하기
+            </a>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -160,7 +160,7 @@ function TradingBoard({ modeHeight, mode }) {
         setHeaderInterval("1h");
         break;
       case "4h":
-        if (fourHour === undefined) {
+        if (!fourHour) {
           const data = reqinterval("4h", identifier, titleaArray.length);
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
@@ -188,18 +188,19 @@ function TradingBoard({ modeHeight, mode }) {
 
   useEffect(() => {
     const verifyToken = async () => {
-      try {
-        const userInfo = await checkAccessTokenValidity();
-        console.log(userInfo);
-        setUserinfo(userInfo);
-        setIsLogined(true);
-      } catch (error) {
+      const userInfo = await checkAccessTokenValidity();
+      if (!userInfo) {
         setIsLogined(false);
         if (mode === "competition") {
           alert("로그인이 필요합니다.");
           window.location.replace("/login");
         }
+        setUserinfo({ user_id: "" });
+        return;
       }
+      console.log(userInfo);
+      setUserinfo(userInfo);
+      setIsLogined(true);
     };
 
     verifyToken();

@@ -61,7 +61,7 @@ function ChartHeader(props) {
 
   const helppopup = () => {
     alert(
-      `Hotkey Manual\n=================\nRuler : Shift + Click\nMakrer : Ctrl + Click\nPriceLine : Alt + Click\nEraseAll : Click Chart`
+      `\n단축키 사용법\n\n- Ruler : Shift + Click\n- Makrer : Ctrl + Click\n- PriceLine : Alt + Click\n- EraseAll : Click Chart`
     );
   };
 
