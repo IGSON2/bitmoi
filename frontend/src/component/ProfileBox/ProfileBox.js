@@ -1,8 +1,12 @@
 import { useState } from "react";
 import logo from "../images/logosmall.png";
+import mypage from "../images/my_page.png";
+import logout from "../images/logout.png";
 import styles from "./ProfileBox.module.css";
 import HorizontalLine from "../lines/HorizontalLine";
+import VerticalLine from "../lines/VerticalLine";
 import { BsXLg } from "react-icons/bs";
+import Wallet from "../Wallet/Wallet";
 
 function ProfileBox(props) {
   const routeLogin = () => {
@@ -47,7 +51,18 @@ function ProfileBox(props) {
             </div>
           </div>
           <HorizontalLine />
-          <div className={styles.middle}></div>
+          <div className={styles.middle}>
+            <div className={styles.moitoken}>
+              <Wallet />
+            </div>
+            <VerticalLine />
+            <div className={styles.mypage}>
+              <img src={mypage}></img>
+            </div>
+            <div className={styles.logout}>
+              <img src={logout}></img>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>

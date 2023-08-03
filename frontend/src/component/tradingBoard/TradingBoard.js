@@ -188,17 +188,17 @@ function TradingBoard({ modeHeight, mode }) {
 
   useEffect(() => {
     const verifyToken = async () => {
-      const userInfo = await checkAccessTokenValidity();
-      console.log(userInfo);
-      if (!userInfo) {
+      try {
+        const userInfo = await checkAccessTokenValidity();
+        console.log(userInfo);
+        setUserinfo(userInfo);
+        setIsLogined(true);
+      } catch (error) {
         setIsLogined(false);
         if (mode === "competition") {
           alert("로그인이 필요합니다.");
           window.location.replace("/login");
         }
-      } else {
-        setUserinfo(userInfo);
-        setIsLogined(true);
       }
     };
 

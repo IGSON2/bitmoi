@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Web3 from "web3";
+import styles from "./Wallet.module.css";
 import ContractABI from "../../contract/moiABI.json";
+import moilogo from "../images/logosmall.png";
 
 function Wallet() {
   const baobabTestNetID = 1001;
@@ -65,7 +67,6 @@ function Wallet() {
             method: "wallet_switchEthereumChain",
             params: [{ chainId: `0x${baobabTestNetID.toString(16)}` }],
           });
-          //console.log(res);
         } else {
           console.log("Already connected to chain ID:", baobabTestNetID);
         }
@@ -100,16 +101,19 @@ function Wallet() {
   }, [contractInstance]);
 
   return (
-    <div>
+    <div className={styles.wallet}>
       {hasProvider ? (
-        <div>
-          {wallet.accounts.length > 0 && (
-            <div>Wallet Accounts: {wallet.accounts[0]}</div>
-          )}
-          <div>Token Balance: {tokenBalance}</div>
+        <div className={styles.balance}>
+          <div
+            className={styles.logo}
+            title={wallet.accounts.length > 0 ? wallet.accounts[0] : ""}
+          >
+            <img src={moilogo}></img>
+          </div>
+          <div className={styles.number}>{tokenBalance} MOI</div>
         </div>
       ) : (
-        <div>Metamask를 설치해 주세요!</div>
+        <div className={styles.warning}>Metamask를 설치해 주세요!</div>
       )}
     </div>
   );

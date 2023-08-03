@@ -23,6 +23,7 @@ const checkAccessTokenValidity = async () => {
     if (refResponse.status === 200) {
       localStorage.removeItem("accessToken");
       localStorage.setItem("accessToken", refResponse.data.access_token);
+      console.log("access token updated by refresh token.");
       return refResponse.data.user;
     } else {
       console.error(error);
