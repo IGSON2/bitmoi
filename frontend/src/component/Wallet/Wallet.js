@@ -7,11 +7,12 @@ import moilogo from "../images/new_logo.png";
 function Wallet() {
   const baobabTestNetID = 1001;
 
-  const [buttonDisabled, setButtonDisabled] = useState(false);
   const [hasProvider, setHasProvider] = useState(false);
   const [wallet, setWallet] = useState({ accounts: [] });
   const [contractInstance, setContractInstance] = useState(null);
   const [tokenBalance, setTokenBalance] = useState(0);
+  const [warning, setWarning] = useState("");
+  const [needsToConn, setNeedsToConn] = useState(false);
 
   const callBalanceOf = async (accountAddress) => {
     await contractInstance.methods
@@ -39,11 +40,9 @@ function Wallet() {
   const handleChainChange = (chainId) => {
     if (chainId !== `0x${baobabTestNetID.toString(16)}`) {
       console.log(chainId, `0x${baobabTestNetID.toString(16)}`);
-      setButtonDisabled(true);
       setTokenBalance(0);
       alert("only can use token at baobab network.");
     } else {
-      setButtonDisabled(false);
       callBalanceOf(wallet.accounts[0]);
     }
     console.log("Chain changed:", chainId);
@@ -58,17 +57,16 @@ function Wallet() {
   useEffect(() => {
     const initwallet = async () => {
       if (window.ethereum) {
-        setHasProvider(true);
+        setWarning("Metamask에 로그인되어 있지 않습니다.");
+        setNeedsToConn(true);
         await handleConnect();
         const web3 = new Web3(window.ethereum);
         const currentChainId = await web3.eth.net.getId();
         if (Number(currentChainId) !== baobabTestNetID) {
-          const res = await window.ethereum.request({
+          await window.ethereum.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: `0x${baobabTestNetID.toString(16)}` }],
           });
-        } else {
-          console.log("Already connected to chain ID:", baobabTestNetID);
         }
 
         const contract = new web3.eth.Contract(
@@ -79,7 +77,11 @@ function Wallet() {
 
         window.ethereum.on("chainChanged", handleChainChange);
         window.ethereum.on("accountsChanged", handleAccountsChange);
+        setHasProvider(true);
+        setWarning("");
+        setNeedsToConn(false);
       } else {
+        setWarning("Metamask가 설치되어 있지 않습니다.");
         setHasProvider(false);
       }
     };
@@ -114,13 +116,13 @@ function Wallet() {
         </div>
       ) : (
         <div className={styles.warning}>
-          <div className={styles.warningtext}>
-            Metamask가 설치되어 있지 않습니다.
-          </div>
+          <div className={styles.warningtext}>{warning}</div>
           <div className={styles.linkbox}>
-            <a href="https://metamask.io/" target="_blank">
-              설치하기
-            </a>
+            {needsToConn ? null : (
+              <a href="https://metamask.io/" target="_blank">
+                설치하기
+              </a>
+            )}
           </div>
         </div>
       )}

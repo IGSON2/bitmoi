@@ -14,9 +14,9 @@
   background-color: transparent;
 }
 
-.loginbutton:disabled:hover {
-  cursor: default;
-  color: #555860;
+.loginbutton:hover {
+  cursor: pointer;
+  color: #585a60;
 }
 
 .profileImg {
