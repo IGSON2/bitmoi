@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Web3 from "web3";
 import styles from "./Wallet.module.css";
 import ContractABI from "../../contract/moiABI.json";
-import moilogo from "../images/new_logo.png";
+import moilogo from "../images/logo.png";
 
 function Wallet() {
   const baobabTestNetID = 1001;

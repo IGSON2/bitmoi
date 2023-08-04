@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logo from "../images/new_logo.png";
+import logo from "../images/logo.png";
 import mypage from "../images/my_page.png";
 import logout from "../images/logout.png";
 import styles from "./ProfileBox.module.css";

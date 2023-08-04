@@ -3,6 +3,7 @@ import styles from "./OrderInput.module.css";
 import Warning from "./Warning";
 import OrderConfirm from "./OrderConfirm/OrderConfirm";
 import { AiOutlineCloseCircle, AiOutlinePlusCircle } from "react-icons/ai";
+import getBalance from "../../../contract/contract";
 
 function OrderInput({
   mode,
@@ -38,8 +39,8 @@ function OrderInput({
   const [levInputMode, setLevInputMode] = useState(false);
   const [profitLossErr, setProfitLossErr] = useState(true);
   const [quanErr, setQuanErr] = useState(true);
-  const [compLoginErr, setCompLoginErr] = useState(true);
-  const [loginWarning, setLoginWarning] = useState("");
+  const [tokenErr, setTokenErr] = useState(true);
+  const [tokenWarning, setTokenWarning] = useState("");
   const [quanWarning, setQuanWarning] = useState("");
   const [profitWarning, setProfitWarning] = useState("");
   const [lossWarning, setLossWarning] = useState("");
@@ -541,11 +542,11 @@ function OrderInput({
   }, [quantity, leverage, profitPrice, lossPrice]);
 
   useEffect(() => {
-    if (mode == "competition" && !user_id) {
-      setLoginWarning("경쟁모드는 로그인이 필요한 서비스입니다.");
+    if (mode === "competition" && getBalance() <= 0) {
+      setTokenWarning("도전에 사용할 MOI 토큰이 부족합니다.");
     } else {
-      setCompLoginErr(false);
-      setLoginWarning("");
+      setTokenErr(false);
+      setTokenWarning("");
     }
   }, [user_id]);
 
@@ -885,7 +886,7 @@ function OrderInput({
               </div>
               <div className={styles.submitdiv}>
                 <Warning
-                  loginWarning={loginWarning}
+                  tokenWarning={tokenWarning}
                   profitWarning={profitWarning}
                   lossWarning={lossWarning}
                   levWarning={levWarning}
@@ -895,7 +896,7 @@ function OrderInput({
                   className={`${styles.submitbutton} ${
                     isLong ? styles.longsubmit : styles.shortsubmit
                   } ${profitLossErr ? "" : styles.abledbutton}`}
-                  disabled={profitLossErr || quanErr || compLoginErr}
+                  disabled={profitLossErr || quanErr || tokenErr}
                 >
                   Submit order
                 </button>

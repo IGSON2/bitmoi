@@ -11,6 +11,7 @@ import SignUp from "./RoutingPages/SignUp/SignUp";
 import AddBidding from "./RoutingPages/AdBidding/AdBidding";
 import Login from "./RoutingPages/Login/Login";
 import EmailLocate from "./RoutingPages/SignUp/EmailLocate";
+import Freetoken from "./RoutingPages/freetoken/freetoken";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -32,6 +33,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/goto/:domain" element={<EmailLocate />} />
+          <Route path="/freetoken" element={<Freetoken />} />
         </Routes>
       </BrowserRouter>
     </div>

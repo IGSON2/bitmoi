@@ -198,7 +198,6 @@ function TradingBoard({ modeHeight, mode }) {
         setUserinfo({ user_id: "" });
         return;
       }
-      console.log(userInfo);
       setUserinfo(userInfo);
       setIsLogined(true);
     };

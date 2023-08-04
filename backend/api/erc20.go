@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -100,6 +101,9 @@ func (s *Server) spendErc20OnComp(c *fiber.Ctx, scoreId string) (*common.Hash, e
 	txResult, err := s.store.SpendTokenTx(c.Context(), spendTxArg)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "nonce") {
+
+		}
 		return nil, fmt.Errorf("cannot update token ledger. err: %s", err.Error())
 	}
 	return txResult.TxHash, nil

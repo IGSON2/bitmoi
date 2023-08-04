@@ -4,11 +4,11 @@ function Warning({
   lossWarning,
   levWarning,
   quanWarning,
-  loginWarning,
+  tokenWarning,
 }) {
   var warningTxt = "";
-  if (loginWarning !== "") {
-    warningTxt = loginWarning;
+  if (tokenWarning !== "") {
+    warningTxt = tokenWarning;
   } else {
     if (profitWarning !== "") {
       warningTxt = profitWarning;

@@ -65,7 +65,7 @@ function Orderconfirm({
         setPairtitle(response.data.name);
         setTitleaArray((current) => [
           ...current,
-          response.data.resultscore.name + ",",
+          response.data.resultscore.pairname + ",",
         ]);
         setCandles(response.data.origin_chart);
       }
