@@ -128,6 +128,10 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 		if err != nil {
 			return fmt.Errorf("cannot get kilnes, err :%w", err)
 		}
+		if len(klines) == 0 {
+			startTime = getStartTime(startTime, interval, LimitCandlesNum)
+			continue
+		}
 
 		for _, k := range klines {
 			var color string

@@ -20,6 +20,7 @@ function Orderconfirm({
   setTitleaArray,
   color,
 }) {
+  const [isChecked, setIsChecked] = useState(false);
   const [receivedScore, setReceivedScore] = useState({
     stage: 0,
     name: "",
@@ -162,8 +163,22 @@ function Orderconfirm({
           </div>
 
           <div className={styles.submitbutton}>
+            {order.stage === 1 ? (
+              <label className={styles.checkbox}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  style={{ width: "15px", height: "15px" }}
+                  onChange={(e) => setIsChecked(e.target.checked)}
+                />{" "}
+                주문을 제출하면 MOI 토큰이 1개 차감되고 도전이 시작됩니다.
+                <br />
+              </label>
+            ) : null}
+
             <button
               onClick={finalConfirm}
+              disabled={order.stage === 1 ? !isChecked : false}
               className={
                 order.isLong
                   ? `${styles.confirmlong}`
