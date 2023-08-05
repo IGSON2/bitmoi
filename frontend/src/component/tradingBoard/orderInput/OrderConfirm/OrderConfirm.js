@@ -19,6 +19,7 @@ function Orderconfirm({
   setBalance,
   setTitleaArray,
   color,
+  userInfo,
 }) {
   const [isChecked, setIsChecked] = useState(false);
   const [receivedScore, setReceivedScore] = useState({
@@ -59,10 +60,10 @@ function Orderconfirm({
     back((current) => !current);
     setIndex((current) => current + 1);
   };
+
   const finalConfirm = async () => {
     try {
       const response = await axiosClient.post(order.mode, order);
-      console.log(response.data);
       if (order.mode === "competition") {
         setPairtitle(response.data.score.name);
         setTitleaArray((current) => [
@@ -100,12 +101,11 @@ function Orderconfirm({
         <ResultPopup
           close={closeModal}
           result={receivedScore}
-          mode={order.mode}
+          order={order}
           submitOrder={submitOrder}
           color={color}
           balance={balance}
-          scoreid={order.score_id}
-          leverage={order.leverage}
+          userInfo={userInfo}
         />
       ) : (
         <div className={styles.orderconfirm}>
@@ -180,7 +180,7 @@ function Orderconfirm({
               onClick={finalConfirm}
               disabled={order.stage === 1 ? !isChecked : false}
               className={
-                order.isLong
+                order.is_long
                   ? `${styles.confirmlong}`
                   : `${styles.confirmshort}`
               }

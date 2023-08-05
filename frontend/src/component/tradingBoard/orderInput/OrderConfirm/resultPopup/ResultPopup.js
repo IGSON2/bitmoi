@@ -2,19 +2,24 @@ import React, { useState } from "react";
 import styles from "./ResultPopup.module.css";
 import VerticalLine from "../../../../lines/VerticalLine";
 import HorizontalLine from "../../../../lines/HorizontalLine";
+import axiosClient from "../../../../backendConn/axiosClient";
 
 const ResultPopup = (props) => {
-  const goRanking = () => {
-    fetch("http://bitmoi.co.kr:5000/rank", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: "",
-        score_id: props.scoreid,
-        comment: "",
-        nickname: "",
-      }),
-    }).then(window.location.replace("/rank?page=1"));
+  const goRanking = async () => {
+    try {
+      const response = await axiosClient.post("/rank", {
+        user_id: props.userInfo.user_id,
+        score_id: props.order.score_id,
+        nickname: props.userInfo.nickname,
+      });
+      if (response.status === 200) {
+        // window.location.replace("/rank/1");
+      } else {
+        throw new Error(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
   const retry = () => {
     window.location.reload();
@@ -34,7 +39,7 @@ const ResultPopup = (props) => {
               className={styles.headerlev}
               style={{ color: `${props.color}` }}
             >
-              X{props.result.leverage}
+              X{props.order.leverage}
             </div>
           </div>
           <HorizontalLine />
@@ -44,7 +49,9 @@ const ResultPopup = (props) => {
               props.result.roe > 0 ? { color: "#26a69a" } : { color: "#ef5350" }
             }
           >
-            {Math.floor(100 * (props.result.roe - props.leverage * 0.02)) / 100}{" "}
+            {Math.floor(
+              100 * (props.result.roe - props.order.leverage * 0.02)
+            ) / 100}{" "}
             %
           </div>
           <div className={styles.horizontalfield}>
@@ -69,7 +76,7 @@ const ResultPopup = (props) => {
                 NEXT
               </button>
             ) : props.result.stage === 10 ? (
-              props.mode === "competition" ? (
+              props.order.mode === "competition" ? (
                 <button
                   onClick={goRanking}
                   disabled={props.submitOrder ? true : false}
@@ -95,6 +102,7 @@ const ResultPopup = (props) => {
           </div>
         </div>
       )}
+      <button onClick={goRanking}>test</button>
     </div>
   );
 };

@@ -222,7 +222,6 @@ func (s *Server) competition(c *fiber.Ctx) error {
 			if prevScore.Stage != CompetitionOrder.Stage-1 {
 				return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
 			}
-			// TODO: Test Balance decimal
 			if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
 				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
 			}
@@ -328,8 +327,12 @@ func (s *Server) rank(c *fiber.Ctx) error {
 		if errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
-		s.insertScoreToRankBoard(&r, c)
-		return nil
+
+		err = s.insertScoreToRankBoard(&r, c)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		return c.SendStatus(fiber.StatusOK)
 	default:
 		return errors.New("Not allowed method : " + c.Method())
 	}

@@ -321,7 +321,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
                 setBalance={setBalance}
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
-                user_id={userInfo.user_id}
+                userInfo={userInfo}
                 score_id={score_id}
               />
             </div>

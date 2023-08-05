@@ -24,7 +24,7 @@ function OrderInput({
   balance,
   setBalance,
   setTitleaArray,
-  user_id,
+  userInfo,
   score_id,
 }) {
   const [quantity, setQuantity] = useState();
@@ -86,7 +86,7 @@ function OrderInput({
     event.preventDefault();
     var tempObject = {
       mode: mode,
-      user_id: user_id,
+      user_id: userInfo.user_id,
       name: name,
       stage: index + 1,
       is_long: isLong,
@@ -555,7 +555,7 @@ function OrderInput({
     };
 
     checkTokenBalance();
-  }, [user_id]);
+  }, [userInfo]);
 
   const quanClose = () => {
     setQuantityRate(100);
@@ -637,6 +637,7 @@ function OrderInput({
             setBalance={setBalance}
             setTitleaArray={setTitleaArray}
             color={color}
+            userInfo={userInfo}
           />
         </div>
       ) : (
