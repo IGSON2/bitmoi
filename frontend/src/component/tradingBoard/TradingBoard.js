@@ -12,7 +12,7 @@ import Loader from "../loader/Loader";
 import axiosClient from "../backendConn/axiosClient";
 import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
-function TradingBoard({ modeHeight, mode }) {
+function TradingBoard({ modeHeight, mode, score_id }) {
   const [isLogined, setIsLogined] = useState(false);
   const [userInfo, setUserinfo] = useState();
 
@@ -65,12 +65,13 @@ function TradingBoard({ modeHeight, mode }) {
     stage: 0,
     name: "",
     leverage: 0,
-    entryprice: 0,
-    outtime: 0,
+    entry_price: 0,
+    end_price: 0,
+    out_time: 0,
     roe: 0,
     pnl: 0,
     commission: 0,
-    isliquidated: false,
+    is_liquidated: false,
   });
   const [toolBar, setToolBar] = useState("NonSelected");
   const [loaded, setloaded] = useState(false);
@@ -88,9 +89,9 @@ function TradingBoard({ modeHeight, mode }) {
   const [submitOrder, setSubmitOrder] = useState(false);
   const [opened, setOpened] = useState(false);
   const closeButtonDiv = useRef(null);
-  const openclosebuttonClick = () => setOpened((current) => !current);
   const [active, setActive] = useState("");
 
+  const openclosebuttonClick = () => setOpened((current) => !current);
   const reqinterval = async (reqinterval, identifier, stage) => {
     const fIdentifier = encodeURIComponent(identifier);
     const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}&stage=${stage}`;
@@ -106,12 +107,14 @@ function TradingBoard({ modeHeight, mode }) {
         var response;
         if (mode === "competition") {
           if (isLogined) {
-            response = await axiosClient.get("/competition");
+            response = await axiosClient.get(
+              `/competition?names=${titleaArray}`
+            );
           } else {
             return;
           }
         } else {
-          response = await axiosClient.get("/practice");
+          response = await axiosClient.get(`/practice?names=${titleaArray}`);
         }
 
         response.data.onechart.pdata.reverse();
@@ -319,6 +322,7 @@ function TradingBoard({ modeHeight, mode }) {
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
                 user_id={userInfo.user_id}
+                score_id={score_id}
               />
             </div>
           </div>

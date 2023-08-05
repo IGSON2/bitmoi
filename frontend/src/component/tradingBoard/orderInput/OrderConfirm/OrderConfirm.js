@@ -61,12 +61,15 @@ function Orderconfirm({
   const finalConfirm = async () => {
     try {
       const response = await axiosClient.post(order.mode, order);
+      console.log(response.data);
       if (order.mode === "competition") {
-        setPairtitle(response.data.name);
+        setPairtitle(response.data.score.name);
         setTitleaArray((current) => [
           ...current,
-          response.data.resultscore.pairname + ",",
+          response.data.score.name + ",",
         ]);
+        response.data.origin_chart.pdata.reverse();
+        response.data.origin_chart.vdata.reverse();
         setCandles(response.data.origin_chart);
       }
       setResultChart(response.data.result_chart);

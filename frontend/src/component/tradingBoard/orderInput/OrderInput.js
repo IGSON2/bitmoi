@@ -25,6 +25,7 @@ function OrderInput({
   setBalance,
   setTitleaArray,
   user_id,
+  score_id,
 }) {
   const [quantity, setQuantity] = useState();
   const [quantityRate, setQuantityRate] = useState(1);
@@ -96,7 +97,7 @@ function OrderInput({
       leverage: leverage,
       balance: balance,
       identifier: identifier,
-      score_id: Date.now().toString(),
+      score_id: score_id,
       waiting_Term: 1,
     };
     setOrderObject(tempObject);
@@ -542,12 +543,18 @@ function OrderInput({
   }, [quantity, leverage, profitPrice, lossPrice]);
 
   useEffect(() => {
-    if (mode === "competition" && getBalance() <= 0) {
-      setTokenWarning("도전에 사용할 MOI 토큰이 부족합니다.");
-    } else {
-      setTokenErr(false);
-      setTokenWarning("");
-    }
+    const checkTokenBalance = async () => {
+      setTokenWarning("Metamask에 로그인 해주세요.");
+      var balance = await getBalance();
+      if (mode === "competition" && balance <= 0) {
+        setTokenWarning("도전에 사용할 MOI 토큰이 부족합니다.");
+      } else {
+        setTokenErr(false);
+        setTokenWarning("");
+      }
+    };
+
+    checkTokenBalance();
   }, [user_id]);
 
   const quanClose = () => {
