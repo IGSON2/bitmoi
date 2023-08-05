@@ -148,8 +148,8 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 }
 
 func calculateRefTimestamp(section int64, name, interval string) int64 {
-	_, waitingTime := 150*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
-	return int64(utilities.MakeRanInt(0, int(section-int64(waitingTime))))
+	oneMonth, waitingTime := 30*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
+	return int64(utilities.MakeRanInt(int(oneMonth), int(section-int64(waitingTime))))
 }
 
 func (s *Server) makeChartToRef(interval, name string, mode string, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
