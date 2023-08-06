@@ -12,6 +12,7 @@ const ResultPopup = (props) => {
         score_id: props.order.score_id,
         nickname: props.userInfo.nickname,
       });
+      console.log(response);
       if (response.status === 200) {
         // window.location.replace("/rank/1");
       } else {

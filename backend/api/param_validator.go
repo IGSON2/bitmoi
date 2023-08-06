@@ -54,10 +54,8 @@ func validateOrderRequest(o *ScoreRequest) error {
 }
 
 type RankInsertRequest struct {
-	UserId   string `json:"user_id" validate:"required,alphanum"`
-	ScoreId  string `json:"score_id" validate:"required,numeric"`
-	Comment  string `json:"comment"`
-	Nickname string `json:"nickname"`
+	ScoreId string `json:"score_id" validate:"required,numeric"`
+	Comment string `json:"comment"`
 }
 
 type PageRequest struct {

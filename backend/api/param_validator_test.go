@@ -117,10 +117,8 @@ func TestRankInsertRequestValidation(t *testing.T) {
 		{
 			name: "OK",
 			params: RankInsertRequest{
-				UserId:   "user",
-				ScoreId:  "123",
-				Comment:  "comment",
-				Nickname: "name",
+				ScoreId: "123",
+				Comment: "comment",
 			},
 			expected: func(t *testing.T, es *utilities.ErrorResponse, req RankInsertRequest, i int) {
 				r := reflect.TypeOf(req).Field(i)
@@ -133,10 +131,8 @@ func TestRankInsertRequestValidation(t *testing.T) {
 		{
 			name: "Fail_Missing_Fields",
 			params: RankInsertRequest{
-				UserId:   "",
-				ScoreId:  "score",
-				Comment:  "",
-				Nickname: "name",
+				ScoreId: "score",
+				Comment: "",
 			},
 			expected: func(t *testing.T, es *utilities.ErrorResponse, req RankInsertRequest, i int) {
 				r := reflect.TypeOf(req).Field(i)

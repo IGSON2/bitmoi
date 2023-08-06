@@ -101,10 +101,10 @@ func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
 	return s.store.GetRankByUserID(context.Background(), userId)
 }
 
-func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) error {
+func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c *fiber.Ctx) error {
 	length, err := s.store.GetStageLenByScoreID(c.Context(), db.GetStageLenByScoreIDParams{
 		ScoreID: req.ScoreId,
-		UserID:  req.UserId,
+		UserID:  user.UserID,
 	})
 	if err != nil {
 		return err
@@ -114,7 +114,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 
 	t, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
 		ScoreID: req.ScoreId,
-		UserID:  req.UserId,
+		UserID:  user.UserID,
 		Stage:   finalstage,
 	})
 	if err != nil {
@@ -125,14 +125,14 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 		return fmt.Errorf("cannot assign totalscore")
 	}
 
-	r, err := s.getRankByUserID(req.UserId)
+	r, err := s.getRankByUserID(user.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
-				UserID:       r.UserID,
-				ScoreID:      r.ScoreID,
-				Nickname:     r.Nickname,
-				Comment:      r.Comment,
+				UserID:       user.UserID,
+				ScoreID:      req.ScoreId,
+				Nickname:     user.Nickname,
+				Comment:      req.Comment,
 				FinalBalance: totalScore,
 			})
 		}
@@ -141,14 +141,13 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 
 	if r.FinalBalance > totalScore {
 		return ErrNotUpdatedScore
-	} else {
-		_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
-			UserID:       r.UserID,
-			ScoreID:      r.ScoreID,
-			Nickname:     r.Nickname,
-			Comment:      r.Comment,
-			FinalBalance: totalScore,
-		})
 	}
+	_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
+		UserID:       user.UserID,
+		ScoreID:      req.ScoreId,
+		Nickname:     user.Nickname,
+		Comment:      req.Comment,
+		FinalBalance: totalScore,
+	})
 	return err
 }

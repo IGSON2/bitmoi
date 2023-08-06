@@ -317,8 +317,15 @@ func (s *Server) rank(c *fiber.Ctx) error {
 		if err := checkAuthorization(c, s.tokenMaker); err != nil {
 			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
 		}
+
+		payload := c.Locals(authorizationPayloadKey).(*token.Payload)
+		user, err := s.store.GetUser(c.Context(), payload.UserID)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())
+		}
+
 		var r RankInsertRequest
-		err := c.BodyParser(&r)
+		err = c.BodyParser(&r)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
@@ -328,7 +335,7 @@ func (s *Server) rank(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
 
-		err = s.insertScoreToRankBoard(&r, c)
+		err = s.insertScoreToRankBoard(&r, &user, c)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
