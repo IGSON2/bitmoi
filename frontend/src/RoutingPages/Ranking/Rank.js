@@ -3,8 +3,11 @@ import styles from "./Rank.module.css";
 import RankDiv from "./RankDiv/RankDiv";
 import Topbutton from "../../component/Topbutton/Topbutton";
 import H_NavBar from "../../component/navbar/H_NavBar";
+import axiosClient from "../../component/backendConn/axiosClient";
 
 function Rank() {
+  const [pageNum, setPageNum] = useState(1);
+
   const [data, setData] = useState({
     rankingBoard: [
       {
@@ -18,9 +21,9 @@ function Rank() {
     ],
   });
   const getUserScore = async () => {
-    const result = await fetch("http://bitmoi.co.kr:5000/rank");
-    const json = await result.json();
-    setData(json);
+    const response = await axiosClient.get(`/rank/${pageNum}`);
+    console.log(response.data);
+    setData(response.data);
   };
 
   useEffect(() => {

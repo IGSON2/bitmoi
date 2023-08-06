@@ -132,6 +132,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 				UserID:       user.UserID,
 				ScoreID:      req.ScoreId,
 				Nickname:     user.Nickname,
+				PhotoUrl:     user.PhotoUrl.String,
 				Comment:      req.Comment,
 				FinalBalance: totalScore,
 			})

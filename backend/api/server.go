@@ -86,7 +86,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/practice", server.practice)
 	router.Post("/practice", server.practice)
 	router.Get("/interval", server.getAnotherInterval)
-	router.Get("/rank", server.rank)
+	router.Get("/rank/:page", server.rank)
 	router.Post("/rank", server.rank)
 	router.Get("/moreinfo", server.moreinfo)
 	router.Post("/user", server.createUser)
@@ -297,18 +297,14 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 func (s *Server) rank(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		r := new(PageRequest)
-		err := c.QueryParser(r)
-		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-			if errs != nil {
-				return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-			}
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		pageNum, err := c.ParamsInt("page")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("invalid page number: %d", pageNum))
 		}
-		if r.Page == 0 {
-			r.Page = 1
+		if pageNum == 0 {
+			pageNum = 1
 		}
-		ranks, err := s.getAllRanks(r.Page, c)
+		ranks, err := s.getAllRanks(int32(pageNum), c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
