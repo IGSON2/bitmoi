@@ -12,7 +12,7 @@ import (
 
 const getAllRanks = `-- name: GetAllRanks :many
 SELECT user_id, photo_url, score_id, nickname, final_balance, comment FROM ranking_board
-ORDER BY balance DESC
+ORDER BY final_balance DESC
 LIMIT ?
 OFFSET ?
 `

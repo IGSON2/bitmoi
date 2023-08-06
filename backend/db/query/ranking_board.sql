@@ -12,7 +12,7 @@ INSERT INTO ranking_board (
 
 -- name: GetAllRanks :many
 SELECT * FROM ranking_board
-ORDER BY balance DESC
+ORDER BY final_balance DESC
 LIMIT ?
 OFFSET ?;
 
