@@ -2,6 +2,7 @@ import styles from "./RankDiv.module.css";
 import { BsChatQuote } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import MoreInfo from "./MoreInfo/MoreInfo";
+import axiosClient from "../../../component/backendConn/axiosClient";
 
 function RankDiv({ index, obj }) {
   const [moreInfo, setMoreInfo] = useState(false);
@@ -39,19 +40,11 @@ function RankDiv({ index, obj }) {
   });
   const getMoreInfo = () => {
     if (!moreInfo) {
-      fetch(
-        "http://bitmoi.co.kr:5000/moreinfo/?user=" +
-          obj.user +
-          "&index=0&scoreid=" +
-          obj.scoreid
-      )
-        .then((data) => {
-          const json = data.json();
-          return json;
-        })
-        .then((json) => {
-          setData(json);
-        });
+      const response = axiosClient.get(
+        `http://bitmoi.co.kr:5000/moreinfo?userid=${obj.user_id}&scoreid=${obj.score_id}`
+      );
+      console.log(response.data);
+      setData(response.data);
     }
 
     setMoreInfo((current) => !current);
@@ -67,10 +60,12 @@ function RankDiv({ index, obj }) {
           {index}
         </div>
         <div className={`${styles.pic} ${styles.field}`}>
-          <img className={styles.photo} src={obj.photourl} />
+          <img className={styles.photo} src={obj.photo_url} />
         </div>
         <div className={`${styles.name} ${styles.field}`}>{obj.nickname}</div>
-        <div className={`${styles.score}  ${styles.field}`}>{obj.balance}</div>
+        <div className={`${styles.score}  ${styles.field}`}>
+          {obj.final_balance}
+        </div>
         <button className={styles.openbutton} onClick={getMoreInfo}>
           <BsChatQuote />
         </button>

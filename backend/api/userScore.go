@@ -83,8 +83,8 @@ func (s *Server) getMyscores(userId string, pages int32, c *fiber.Ctx) ([]db.Sco
 	})
 }
 
-func (s *Server) sendMoreInfo(scoreId, userId string, c *fiber.Ctx) ([]db.Score, error) {
-	return s.store.GetScoresByScoreID(c.Context(), db.GetScoresByScoreIDParams{
+func (s *Server) getScoresByScoreID(scoreId, userId string, c context.Context) ([]db.Score, error) {
+	return s.store.GetScoresByScoreID(c, db.GetScoresByScoreIDParams{
 		ScoreID: scoreId,
 		UserID:  userId,
 	})

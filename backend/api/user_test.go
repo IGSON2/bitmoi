@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"testing"
@@ -105,7 +105,28 @@ func TestCreateUser(t *testing.T) {
 	res, err := s.router.Test(httpReq)
 	require.NoError(t, err)
 
-	resBody, err := ioutil.ReadAll(res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	require.NoError(t, err)
 	require.Contains(t, string(resBody), "@")
+}
+
+func TestMoreInfo(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	userID, scoreID := "igson", "1691324536647"
+
+	s := newTestServer(t, newTestStore(t), nil)
+
+	url := fmt.Sprintf("/moreinfo?userid=%s&scoreid=%s", userID, scoreID)
+
+	httpReq, err := http.NewRequest("GET", url, nil)
+	require.NoError(t, err)
+	res, err := s.router.Test(httpReq, 10000)
+	require.NoError(t, err)
+	b, err := io.ReadAll(res.Body)
+	require.NoError(t, err)
+
+	fmt.Println(string(b))
 }

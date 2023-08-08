@@ -8,27 +8,15 @@ import axiosClient from "../../component/backendConn/axiosClient";
 function Rank() {
   const [pageNum, setPageNum] = useState(1);
 
-  const [data, setData] = useState({
-    rankingBoard: [
-      {
-        user_id: "",
-        photo_url: "",
-        nickname: "",
-        score_id: "",
-        final_balance: 0,
-        comment: "",
-      },
-    ],
-  });
+  const [data, setData] = useState([{}]);
   const getUserScore = async () => {
     const response = await axiosClient.get(`/rank/${pageNum}`);
-    console.log(response.data);
     setData(response.data);
   };
 
   useEffect(() => {
     getUserScore();
-  }, []);
+  }, [pageNum]);
   return (
     <div className={styles.scorediv}>
       <div className={styles.navbar}>
@@ -38,7 +26,7 @@ function Rank() {
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
         </div>
-        {data.rankingBoard.map((v, i) => {
+        {data.map((v, i) => {
           return <RankDiv key={i} index={i + 1} obj={v} />;
         })}
         <div className={styles.footer}>

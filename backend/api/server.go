@@ -352,7 +352,7 @@ func (s *Server) moreinfo(c *fiber.Ctx) error {
 		if errs != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 		}
-		scores, err := s.sendMoreInfo(r.UserId, r.ScoreId, c)
+		scores, err := s.getScoresByScoreID(r.ScoreId, r.UserId, c.Context())
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
