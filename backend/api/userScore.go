@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +16,7 @@ const (
 	long                   = "LONG"
 	short                  = "SHORT"
 	defaultBalance float64 = 1000
-	rankRows               = 10
+	rankRows               = 100
 	myscoreRows            = 15
 )
 
@@ -134,7 +135,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 				Nickname:     user.Nickname,
 				PhotoUrl:     user.PhotoUrl.String,
 				Comment:      req.Comment,
-				FinalBalance: totalScore + defaultBalance,
+				FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 			})
 		}
 		return err
@@ -148,7 +149,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 		ScoreID:      req.ScoreId,
 		Nickname:     user.Nickname,
 		Comment:      req.Comment,
-		FinalBalance: totalScore + defaultBalance,
+		FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 	})
 	return err
 }

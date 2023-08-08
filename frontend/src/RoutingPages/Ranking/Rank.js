@@ -17,6 +17,7 @@ function Rank() {
   useEffect(() => {
     getUserScore();
   }, [pageNum]);
+
   return (
     <div className={styles.scorediv}>
       <div className={styles.navbar}>
@@ -26,9 +27,11 @@ function Rank() {
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
         </div>
-        {data.map((v, i) => {
-          return <RankDiv key={i} index={i + 1} obj={v} />;
-        })}
+        {data
+          ? data.map((v, i) => {
+              return <RankDiv key={i} index={i + 1} obj={v} />;
+            })
+          : null}
         <div className={styles.footer}>
           <div>Copyright &copy; 2023 IGSON All rights reserved.</div>
         </div>

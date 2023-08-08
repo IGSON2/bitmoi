@@ -1,12 +1,11 @@
 import styles from "./RankDiv.module.css";
 import { BsChatQuote } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MoreInfo from "./MoreInfo/MoreInfo";
 import axiosClient from "../../../component/backendConn/axiosClient";
 
 function RankDiv({ index, obj }) {
   const [moreInfo, setMoreInfo] = useState(false);
-  const [certified, setCertified] = useState(false);
   const colorchanger = (num) => {
     var color = "";
     switch (num) {
@@ -24,26 +23,12 @@ function RankDiv({ index, obj }) {
     }
     return color;
   };
-  const [data, setData] = useState({
-    comment: "",
-    scoreid: "",
-    avglev: 0,
-    avgpnl: 0,
-    avgroe: 0,
-    stagearray: [
-      {
-        name: "",
-        date: "",
-        roe: 0,
-      },
-    ],
-  });
-  const getMoreInfo = () => {
+  const [data, setData] = useState({});
+  const getMoreInfo = async () => {
     if (!moreInfo) {
-      const response = axiosClient.get(
+      const response = await axiosClient.get(
         `http://bitmoi.co.kr:5000/moreinfo?userid=${obj.user_id}&scoreid=${obj.score_id}`
       );
-      console.log(response.data);
       setData(response.data);
     }
 
@@ -70,14 +55,9 @@ function RankDiv({ index, obj }) {
           <BsChatQuote />
         </button>
       </div>
+
       <div className={styles.moreinfo}>
-        {moreInfo ? (
-          <MoreInfo
-            setMoreInfo={setMoreInfo}
-            data={data}
-            certified={certified}
-          />
-        ) : null}
+        {moreInfo ? <MoreInfo data={data} obj={obj} /> : null}
       </div>
     </div>
   );

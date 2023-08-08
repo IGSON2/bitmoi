@@ -6,7 +6,7 @@ import HomeInformation from "./HomeInformation/HomeInformation";
 import Footer from "../../component/Footer/Footer";
 
 function Home() {
-  const menu = ["practice", "competition", "ranking", "ad_bidding"];
+  const menu = ["practice", "competition", "rank", "ad_bidding"];
   const [modetitle, setModetitle] = useState("BITMOI");
   const onMouseEnter = (event) => {
     const selected = event.target.outerText.toLowerCase();

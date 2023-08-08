@@ -29,7 +29,7 @@ function App() {
           <Route path="/community" element={<div>This is board page.</div>} />
           <Route path="/ad_bidding" element={<AddBidding />} />
           <Route path="/mypage" element={<MyPage />} />
-          <Route path="/rank/:page" element={<Rank />} />
+          <Route path="/rank" element={<Rank />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/goto/:domain" element={<EmailLocate />} />
