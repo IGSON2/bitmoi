@@ -5,27 +5,48 @@ import styles from "./mypage.module.css";
 import Header from "./Header/Header";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
 import axiosClient from "../../component/backendConn/axiosClient";
+import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
 
 function MyPage() {
   const [index, setIndex] = useState(1);
-  const [userLoaded, setUserLoaded] = useState(false);
   const [data, setData] = useState([{}]);
   const getUserScore = async (i) => {
-    const response = await axiosClient.get(`/myscore/${index}`);
-    setData(response.data);
+    try {
+      const response = await axiosClient.get(`/myscore/${index}`);
+      if (response.status === 200) {
+        setData(response.data);
+      }
+    } catch (error) {
+      setData(null);
+      console.error(error);
+    }
   };
 
   const increaseIdx = () => {
     setIndex((current) => current + 1);
   };
   const decreaseIdx = () => {
+    if (index <= 1) {
+      return;
+    }
     setIndex((current) => current - 1);
   };
 
   useEffect(() => {
-    if (userLoaded) {
-      getUserScore(index);
-    }
+    const verifyToken = async () => {
+      const userInfo = await checkAccessTokenValidity();
+      if (!userInfo) {
+        alert("로그인이 필요합니다.");
+        window.location.replace("/login");
+        return;
+      }
+    };
+
+    verifyToken();
+  }, []);
+
+  useEffect(() => {
+    getUserScore(index);
   }, [index]);
 
   return (
@@ -38,14 +59,14 @@ function MyPage() {
       </div>
       <div className={styles.graphbody}>
         <Header />
-        {data.scorelist ? (
-          data.scorelist.map((v, i) => {
+        {data.length >= 1 ? (
+          data.map((v, i) => {
             return (
               <ScoreGraph key={i} index={i + 1 + 15 * (index - 1)} obj={v} />
             );
           })
         ) : (
-          <h3>아직 기록이 없어요!</h3>
+          <h3 className={styles.norecord}>아직 기록이 없어요!</h3>
         )}
       </div>
       <div className={styles.indexnav}>
@@ -58,7 +79,7 @@ function MyPage() {
         </div>
       </div>
       <div className={styles.footer}>
-        <div>Copyright &copy; 2022 IGSON All rights reserved.</div>
+        <div>Copyright &copy; 2023 IGSON All rights reserved.</div>
       </div>
     </div>
   );

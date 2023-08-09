@@ -2,7 +2,7 @@ import Timeformatter from "../../../component/Timeformatter/Timeformatter";
 import styles from "./ScoreGraph.module.css";
 
 function ScoreGraph({ obj, index }) {
-  const formattedID = Timeformatter(obj.scoreid, false);
+  const formattedID = Timeformatter(obj.score_id, false);
   return (
     <div className={styles.wholegraph}>
       <div className={styles.fieldshort}>{index}</div>
@@ -10,9 +10,7 @@ function ScoreGraph({ obj, index }) {
       <div
         className={styles.fieldlong}
         style={
-          obj.pairname.includes("(Liq.)")
-            ? { color: "#ef5350" }
-            : { color: "black" }
+          obj.remain_balance < 0 ? { color: "#ef5350" } : { color: "black" }
         }
       >
         {obj.pairname}
@@ -23,7 +21,7 @@ function ScoreGraph({ obj, index }) {
       <div className={styles.fieldshort}>X{obj.leverage}</div>
       <div className={styles.field}>{obj.entryprice}</div>
       <div className={styles.field}>{obj.endprice}</div>
-      <div className={styles.fieldshort}>{obj.outtime}H</div>
+      <div className={styles.fieldshort}>{obj.out_time}H</div>
       <div className={styles.field}>{Math.floor(obj.pnl * 100) / 100}</div>
       <div className={styles.field}>{obj.roe} %</div>
     </div>
