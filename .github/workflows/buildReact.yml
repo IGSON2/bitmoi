@@ -41,4 +41,4 @@ jobs:
           script: |
             chown -R root:root /home/${{ secrets.EC2_USERNAME }}/bitmoi/build
             pm2 kill
-            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/bitmoi/server.js --name app -p 80
+            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/server.js --name app -p 80
