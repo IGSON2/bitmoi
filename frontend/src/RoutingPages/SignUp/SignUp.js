@@ -34,7 +34,7 @@ function SignUp() {
 
   const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
   const axiosClient = axios.create({
-    baseURL: "http://bitmoi.co.kr:5000",
+    baseURL: "http://api.bitmoi.co.kr",
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -77,7 +77,7 @@ function SignUp() {
 
   const userIDCheck = (e) => {
     e.preventDefault();
-    fetch("http://bitmoi.co.kr:5000/user/checkid?user_id=" + userID)
+    fetch("http://api.bitmoi.co.kr/user/checkid?user_id=" + userID)
       .then((res) => {
         if (res.ok) {
           setUserIdDuplicationText("사용가능");
@@ -139,7 +139,7 @@ function SignUp() {
 
   const nicknameCheck = (e) => {
     e.preventDefault();
-    fetch("http://bitmoi.co.kr:5000/user/checknickname?nickname=" + nickname)
+    fetch("http://api.bitmoi.co.kr/user/checknickname?nickname=" + nickname)
       .then((res) => {
         if (res.ok) {
           setNicknameDuplicationText("사용가능");

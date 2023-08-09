@@ -29,8 +29,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
-          source: frontend/build
-          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi
+          source: frontend/build/*
+          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi/build/
 
       - name: Restart server
         uses: appleboy/ssh-action@master

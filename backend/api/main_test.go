@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	apiAddress = "http://bitmoi.co.kr:5000"
+	apiAddress = "http://api.bitmoi.co.kr"
 	masterID   = "igson"
 )
 
