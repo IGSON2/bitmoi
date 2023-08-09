@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy-API
     runs-on: ubuntu-latest
 
     steps:
@@ -47,33 +47,6 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-      - name: Remove pervious directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          script: |
-            rm -rf /home/${{ secrets.EC2_USERNAME }}/bitmoi
-
-      - name: Deploy file
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          source: docker-compose.yaml,backend/db/migrate/*,frontend/build
-          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi
-
-      - name: Restart server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          script: |
-            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/bitmoi/server.js --name app -p 80
-            cd /home/${{ secrets.EC2_USERNAME }}&&./stop.sh
-            sleep 1s
-            cd /home/${{ secrets.EC2_USERNAME }}&&./login.sh
-            cd /home/${{ secrets.EC2_USERNAME }}&&./start.sh
+      - name: Restart autoscaling group
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name api-auto-scaling --preferences '{"InstanceWarmup":60}'
