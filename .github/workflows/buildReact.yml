@@ -19,7 +19,8 @@ jobs:
 
       - name: build react app
         run: |
-          cd frontend&&npm install
+          cd frontend
+          npm install
           npm run build
 
       - name: Deploy file
