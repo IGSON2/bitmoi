@@ -19,7 +19,9 @@ function Orderconfirm({
   setBalance,
   setTitleaArray,
   color,
+  userInfo,
 }) {
+  const [isChecked, setIsChecked] = useState(false);
   const [receivedScore, setReceivedScore] = useState({
     stage: 0,
     name: "",
@@ -58,21 +60,18 @@ function Orderconfirm({
     back((current) => !current);
     setIndex((current) => current + 1);
   };
+
   const finalConfirm = async () => {
-    var path;
-    if (order.mode === "competition") {
-      path = "auth/competition";
-    } else if (order.mode === "practice") {
-      path = "practice";
-    }
     try {
-      const response = await axiosClient.post(path, order);
+      const response = await axiosClient.post(order.mode, order);
       if (order.mode === "competition") {
-        setPairtitle(response.data.name);
+        setPairtitle(response.data.score.name);
         setTitleaArray((current) => [
           ...current,
-          response.data.resultscore.name + ",",
+          response.data.score.name + ",",
         ]);
+        response.data.origin_chart.pdata.reverse();
+        response.data.origin_chart.vdata.reverse();
         setCandles(response.data.origin_chart);
       }
       setResultChart(response.data.result_chart);
@@ -102,12 +101,11 @@ function Orderconfirm({
         <ResultPopup
           close={closeModal}
           result={receivedScore}
-          mode={order.mode}
+          order={order}
           submitOrder={submitOrder}
           color={color}
           balance={balance}
-          scoreid={order.score_id}
-          leverage={order.leverage}
+          userInfo={userInfo}
         />
       ) : (
         <div className={styles.orderconfirm}>
@@ -165,10 +163,24 @@ function Orderconfirm({
           </div>
 
           <div className={styles.submitbutton}>
+            {order.stage === 1 ? (
+              <label className={styles.checkbox}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  style={{ width: "15px", height: "15px" }}
+                  onChange={(e) => setIsChecked(e.target.checked)}
+                />{" "}
+                주문을 제출하면 MOI 토큰이 1개 차감되고 도전이 시작됩니다.
+                <br />
+              </label>
+            ) : null}
+
             <button
               onClick={finalConfirm}
+              disabled={order.stage === 1 ? !isChecked : false}
               className={
-                order.isLong
+                order.is_long
                   ? `${styles.confirmlong}`
                   : `${styles.confirmshort}`
               }

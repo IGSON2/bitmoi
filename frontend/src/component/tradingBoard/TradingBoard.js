@@ -12,7 +12,7 @@ import Loader from "../loader/Loader";
 import axiosClient from "../backendConn/axiosClient";
 import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
-function TradingBoard({ modeHeight, mode }) {
+function TradingBoard({ modeHeight, mode, score_id }) {
   const [isLogined, setIsLogined] = useState(false);
   const [userInfo, setUserinfo] = useState();
 
@@ -65,12 +65,13 @@ function TradingBoard({ modeHeight, mode }) {
     stage: 0,
     name: "",
     leverage: 0,
-    entryprice: 0,
-    outtime: 0,
+    entry_price: 0,
+    end_price: 0,
+    out_time: 0,
     roe: 0,
     pnl: 0,
     commission: 0,
-    isliquidated: false,
+    is_liquidated: false,
   });
   const [toolBar, setToolBar] = useState("NonSelected");
   const [loaded, setloaded] = useState(false);
@@ -88,9 +89,9 @@ function TradingBoard({ modeHeight, mode }) {
   const [submitOrder, setSubmitOrder] = useState(false);
   const [opened, setOpened] = useState(false);
   const closeButtonDiv = useRef(null);
-  const openclosebuttonClick = () => setOpened((current) => !current);
   const [active, setActive] = useState("");
 
+  const openclosebuttonClick = () => setOpened((current) => !current);
   const reqinterval = async (reqinterval, identifier, stage) => {
     const fIdentifier = encodeURIComponent(identifier);
     const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}&stage=${stage}`;
@@ -100,19 +101,20 @@ function TradingBoard({ modeHeight, mode }) {
 
   const getChartData = async (interval) => {
     var response;
-    console.log(isLogined);
     setloaded(false);
     switch (interval) {
       case "init":
         var response;
         if (mode === "competition") {
           if (isLogined) {
-            response = await axiosClient.get("/competition");
+            response = await axiosClient.get(
+              `/competition?names=${titleaArray}`
+            );
           } else {
             return;
           }
         } else {
-          response = await axiosClient.get("/practice");
+          response = await axiosClient.get(`/practice?names=${titleaArray}`);
         }
 
         response.data.onechart.pdata.reverse();
@@ -161,7 +163,7 @@ function TradingBoard({ modeHeight, mode }) {
         setHeaderInterval("1h");
         break;
       case "4h":
-        if (fourHour === undefined) {
+        if (!fourHour) {
           const data = reqinterval("4h", identifier, titleaArray.length);
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
@@ -176,6 +178,7 @@ function TradingBoard({ modeHeight, mode }) {
 
     setloaded(true);
   };
+
   useEffect(() => {
     getChartData("init");
   }, [index, isLogined]);
@@ -189,13 +192,17 @@ function TradingBoard({ modeHeight, mode }) {
   useEffect(() => {
     const verifyToken = async () => {
       const userInfo = await checkAccessTokenValidity();
-
       if (!userInfo) {
         setIsLogined(false);
-      } else {
-        setUserinfo(userInfo);
-        setIsLogined(true);
+        if (mode === "competition") {
+          alert("로그인이 필요합니다.");
+          window.location.replace("/login");
+        }
+        setUserinfo({ user_id: "" });
+        return;
       }
+      setUserinfo(userInfo);
+      setIsLogined(true);
     };
 
     verifyToken();
@@ -218,6 +225,7 @@ function TradingBoard({ modeHeight, mode }) {
   window.onkeyup = () => {
     setActive("");
   };
+
   return (
     <div className={styles.page}>
       {loaded ? (
@@ -313,7 +321,8 @@ function TradingBoard({ modeHeight, mode }) {
                 setBalance={setBalance}
                 setTitleaArray={setTitleaArray}
                 entryTime={entryTime}
-                isLogined={isLogined}
+                userInfo={userInfo}
+                score_id={score_id}
               />
             </div>
           </div>

@@ -2,23 +2,41 @@ import React, { useState } from "react";
 import styles from "./ResultPopup.module.css";
 import VerticalLine from "../../../../lines/VerticalLine";
 import HorizontalLine from "../../../../lines/HorizontalLine";
+import axiosClient from "../../../../backendConn/axiosClient";
+import { BsXLg } from "react-icons/bs";
 
 const ResultPopup = (props) => {
-  const goRanking = () => {
-    fetch("http://bitmoi.co.kr:5000/rank", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: "",
-        score_id: props.scoreid,
-        comment: "",
-        nickname: "",
-      }),
-    }).then(window.location.replace("/rank?page=1"));
+  const [comment, setComment] = useState("");
+  const [openComment, setOpenComment] = useState(false);
+
+  const goRanking = async () => {
+    try {
+      const response = await axiosClient.post("/rank", {
+        comment: comment,
+        score_id: props.order.score_id,
+      });
+      if (response.status === 200) {
+        window.location.replace("/rank/1");
+      } else {
+        throw new Error(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+
   const retry = () => {
     window.location.reload();
   };
+
+  const closePopup = () => {
+    setOpenComment(false);
+  };
+
+  const openPopup = () => {
+    setOpenComment(true);
+  };
+
   return (
     <div className={styles.modal}>
       {props.submitOrder ? (
@@ -34,7 +52,7 @@ const ResultPopup = (props) => {
               className={styles.headerlev}
               style={{ color: `${props.color}` }}
             >
-              X{props.result.leverage}
+              X{props.order.leverage}
             </div>
           </div>
           <HorizontalLine />
@@ -44,7 +62,9 @@ const ResultPopup = (props) => {
               props.result.roe > 0 ? { color: "#26a69a" } : { color: "#ef5350" }
             }
           >
-            {Math.floor(100 * (props.result.roe - props.leverage * 0.02)) / 100}{" "}
+            {Math.floor(
+              100 * (props.result.roe - props.order.leverage * 0.02)
+            ) / 100}{" "}
             %
           </div>
           <div className={styles.horizontalfield}>
@@ -69,9 +89,9 @@ const ResultPopup = (props) => {
                 NEXT
               </button>
             ) : props.result.stage === 10 ? (
-              props.mode === "competition" ? (
+              props.order.mode === "competition" ? (
                 <button
-                  onClick={goRanking}
+                  onClick={openPopup}
                   disabled={props.submitOrder ? true : false}
                 >
                   스코어 등재하기
@@ -95,6 +115,34 @@ const ResultPopup = (props) => {
           </div>
         </div>
       )}
+      {openComment ? (
+        <div className={styles.comment}>
+          <div className={styles.background} onClick={closePopup}></div>
+          <div className={styles.inner}>
+            <div className={styles.closebutton}>
+              <span>
+                <BsXLg onClick={closePopup} />
+              </span>
+            </div>
+            <div className={styles.title}>당신의 총 스코어</div>
+            <div className={styles.score}>
+              {props.balance.toFixed(2)}
+              <span>USDT</span>
+            </div>
+            <input
+              className={styles.textinput}
+              type="text"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="소감을 입력해주세요."
+              maxLength={100}
+            />
+            <button className={styles.sendbutton} onClick={goRanking}>
+              등록하기
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

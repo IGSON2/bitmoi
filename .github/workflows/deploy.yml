@@ -17,12 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: build react app
-        run: |
-          cd frontend&&npm install
-          npm run build
-          chown -R root:root frontend/build
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:

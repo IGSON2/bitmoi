@@ -3,7 +3,7 @@ import { Route, BrowserRouter, Routes, Link } from "react-router-dom";
 import Home from "./RoutingPages/home/Home";
 import Competition from "./RoutingPages/competition/Competition";
 import Practice from "./RoutingPages/practice/Practice";
-import MyScore from "./RoutingPages/myscore/MyScore";
+import MyPage from "./RoutingPages/mypage/MyPage";
 import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
 import Wallet from "./component/Wallet/Wallet";
@@ -11,6 +11,7 @@ import SignUp from "./RoutingPages/SignUp/SignUp";
 import AddBidding from "./RoutingPages/AdBidding/AdBidding";
 import Login from "./RoutingPages/Login/Login";
 import EmailLocate from "./RoutingPages/SignUp/EmailLocate";
+import Freetoken from "./RoutingPages/freetoken/freetoken";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -27,12 +28,12 @@ function App() {
           <Route path="/practice" element={<Practice />} />
           <Route path="/community" element={<div>This is board page.</div>} />
           <Route path="/ad_bidding" element={<AddBidding />} />
-          <Route path="/myscore" element={<MyScore />} />
-          <Route path="/rank?page=1" element={<Rank />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/rank" element={<Rank />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/goto/:domain" element={<EmailLocate />} />
-          <Route path="/wallettest" element={<Wallet />} />
+          <Route path="/freetoken" element={<Freetoken />} />
         </Routes>
       </BrowserRouter>
     </div>

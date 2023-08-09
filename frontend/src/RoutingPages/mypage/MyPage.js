@@ -1,11 +1,11 @@
 import H_NavBar from "../../component/navbar/H_NavBar";
 import ScoreGraph from "./ScoreGraph/ScoreGraph";
 import { useEffect, useState } from "react";
-import styles from "./myscore.module.css";
+import styles from "./mypage.module.css";
 import Header from "./Header/Header";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
 
-function UserScore() {
+function MyPage() {
   const [index, setIndex] = useState(1);
   const [userLoaded, setUserLoaded] = useState(false);
   const [data, setData] = useState({
@@ -88,4 +88,4 @@ function UserScore() {
   );
 }
 
-export default UserScore;
+export default MyPage;

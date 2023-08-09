@@ -278,5 +278,17 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
+	_, err = s.store.UpdateUserPhotoURL(c.Context(), db.UpdateUserPhotoURLParams{
+		PhotoUrl: sql.NullString{Valid: true, String: url},
+		UserID:   user.UserID,
+	})
+
+	if err != nil {
+		s.deleteImage(user.UserID)
+		errmsg := fmt.Sprintf("cannot update photo url. user: %s", user.UserID)
+		log.Err(err).Msg(errmsg)
+		return c.Status(fiber.StatusInternalServerError).SendString(errmsg)
+	}
+
 	return c.Status(fiber.StatusOK).SendString(url)
 }

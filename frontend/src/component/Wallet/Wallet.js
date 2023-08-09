@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import Web3 from "web3";
+import styles from "./Wallet.module.css";
 import ContractABI from "../../contract/moiABI.json";
+import moilogo from "../images/logo.png";
 
 function Wallet() {
   const baobabTestNetID = 1001;
 
-  const [buttonDisabled, setButtonDisabled] = useState(false);
   const [hasProvider, setHasProvider] = useState(false);
   const [wallet, setWallet] = useState({ accounts: [] });
   const [contractInstance, setContractInstance] = useState(null);
   const [tokenBalance, setTokenBalance] = useState(0);
+  const [warning, setWarning] = useState("");
+  const [needsToConn, setNeedsToConn] = useState(false);
 
   const callBalanceOf = async (accountAddress) => {
     await contractInstance.methods
@@ -23,7 +26,7 @@ function Wallet() {
       });
   };
 
-  const updateWallet = async (accounts) => {
+  const updateWallet = (accounts) => {
     setWallet({ accounts });
   };
 
@@ -37,89 +40,91 @@ function Wallet() {
   const handleChainChange = (chainId) => {
     if (chainId !== `0x${baobabTestNetID.toString(16)}`) {
       console.log(chainId, `0x${baobabTestNetID.toString(16)}`);
-      setButtonDisabled(true);
       setTokenBalance(0);
       alert("only can use token at baobab network.");
     } else {
-      setButtonDisabled(false);
       callBalanceOf(wallet.accounts[0]);
     }
     console.log("Chain changed:", chainId);
   };
 
   const handleAccountsChange = async (accounts) => {
-    await updateWallet(accounts);
+    updateWallet(accounts);
     callBalanceOf(accounts[0]);
     console.log("Accounts changed:", accounts);
   };
 
   useEffect(() => {
-    if (window.ethereum) {
-      setHasProvider(true);
-      handleConnect();
-      const web3 = new Web3(window.ethereum);
-      web3.eth.net
-        .getId()
-        .then((currentChainId) => {
-          if (currentChainId !== baobabTestNetID) {
-            window.ethereum
-              .request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: `0x${baobabTestNetID.toString(16)}` }],
-              })
-              .then(() => {
-                console.log("Connected to chain ID:", baobabTestNetID);
-              })
-              .catch((error) => {
-                console.error("Failed to switch chain ID:", error);
-              });
-          } else {
-            console.log("Already connected to chain ID:", baobabTestNetID);
-          }
-        })
-        .catch((error) => {
-          console.error("Error retrieving current chain ID:", error);
-        })
-        .then(() => {
-          callBalanceOf(wallet.accounts[0]);
-          console.log(wallet.accounts[0], tokenBalance);
-        });
-      const contract = new web3.eth.Contract(
-        ContractABI,
-        "0xf4CFFdF8032B7C59d8254538Cc9F3f20BF2a03fF"
-      );
-      setContractInstance(contract);
-
-      window.ethereum.on("chainChanged", handleChainChange);
-      window.ethereum.on("accountsChanged", handleAccountsChange);
-
-      return () => {
-        if (window.ethereum) {
-          window.ethereum.removeListener("chainChanged", handleChainChange);
-          window.ethereum.removeListener(
-            "accountsChanged",
-            handleAccountsChange
-          );
+    const initwallet = async () => {
+      if (window.ethereum) {
+        setWarning("Metamask에 로그인되어 있지 않습니다.");
+        setNeedsToConn(true);
+        await handleConnect();
+        const web3 = new Web3(window.ethereum);
+        const currentChainId = await web3.eth.net.getId();
+        if (Number(currentChainId) !== baobabTestNetID) {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: `0x${baobabTestNetID.toString(16)}` }],
+          });
         }
-      };
-    } else {
-      setHasProvider(false);
-      alert("install metamask extension!!");
-    }
+
+        const contract = new web3.eth.Contract(
+          ContractABI,
+          "0xf4CFFdF8032B7C59d8254538Cc9F3f20BF2a03fF"
+        );
+        setContractInstance(contract);
+
+        window.ethereum.on("chainChanged", handleChainChange);
+        window.ethereum.on("accountsChanged", handleAccountsChange);
+        setHasProvider(true);
+        setWarning("");
+        setNeedsToConn(false);
+      } else {
+        setWarning("Metamask가 설치되어 있지 않습니다.");
+        setHasProvider(false);
+      }
+    };
+
+    initwallet();
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener("chainChanged", handleChainChange);
+        window.ethereum.removeListener("accountsChanged", handleAccountsChange);
+      }
+    };
   }, []);
 
+  useEffect(() => {
+    if (wallet.accounts[0]) {
+      callBalanceOf(wallet.accounts[0]);
+    }
+  }, [contractInstance]);
+
   return (
-    <div>
+    <div className={styles.wallet}>
       {hasProvider ? (
-        <div>
-          {wallet.accounts.length > 0 && (
-            <div>Wallet Accounts: {wallet.accounts[0]}</div>
-          )}
-          <div>Token Balance: {tokenBalance}</div>
-          <button></button>
+        <div className={styles.balance}>
+          <div
+            className={styles.logo}
+            title={wallet.accounts.length > 0 ? wallet.accounts[0] : ""}
+          >
+            <img src={moilogo}></img>
+          </div>
+          <div className={styles.number}>{tokenBalance} MOI</div>
         </div>
       ) : (
-        <div></div>
+        <div className={styles.warning}>
+          <div className={styles.warningtext}>{warning}</div>
+          <div className={styles.linkbox}>
+            {needsToConn ? null : (
+              <a href="https://metamask.io/" target="_blank">
+                설치하기
+              </a>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

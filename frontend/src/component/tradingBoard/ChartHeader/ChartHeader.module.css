@@ -125,7 +125,6 @@
 .helpbutton {
   width: 20px;
   height: 20%;
-  position: relative;
   top: 10%;
   font-size: small;
   font-weight: 700;
@@ -134,7 +133,7 @@
   align-items: center;
   border-radius: 10px;
   border: none;
-  background-color: #dddee9;
+  background: none;
   color: #555860;
   transition: 0.5s;
 }

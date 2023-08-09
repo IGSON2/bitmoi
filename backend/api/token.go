@@ -68,9 +68,16 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot reissue access token: %s", err))
 	}
 
+	user, err := s.store.GetUser(c.Context(), refreshPayload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("cannot find user")
+	}
+	userRes := convertUserResponse(user)
+
 	rsp := ReissueAccessTokenResponse{
 		AccessToken:          accessToken,
 		AccessTokenExpiresAt: accessPayload.ExpiredAt,
+		User:                 userRes,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(rsp)

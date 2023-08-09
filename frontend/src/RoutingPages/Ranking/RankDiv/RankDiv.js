@@ -1,13 +1,11 @@
 import styles from "./RankDiv.module.css";
 import { BsChatQuote } from "react-icons/bs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MoreInfo from "./MoreInfo/MoreInfo";
-import { BsForward } from "react-icons/bs";
+import axiosClient from "../../../component/backendConn/axiosClient";
 
 function RankDiv({ index, obj }) {
   const [moreInfo, setMoreInfo] = useState(false);
-  const [thisUser, setThisUser] = useState("");
-  const [certified, setCertified] = useState(false);
   const colorchanger = (num) => {
     var color = "";
     switch (num) {
@@ -25,50 +23,20 @@ function RankDiv({ index, obj }) {
     }
     return color;
   };
-  const [data, setData] = useState({
-    comment: "",
-    scoreid: "",
-    avglev: 0,
-    avgpnl: 0,
-    avgroe: 0,
-    stagearray: [
-      {
-        name: "",
-        date: "",
-        roe: 0,
-      },
-    ],
-  });
-  const getMoreInfo = () => {
+  const [data, setData] = useState({});
+  const getMoreInfo = async () => {
     if (!moreInfo) {
-      fetch(
-        "http://bitmoi.co.kr:5000/moreinfo/?user=" +
-          obj.user +
-          "&index=0&scoreid=" +
-          obj.scoreid
-      )
-        .then((data) => {
-          const json = data.json();
-          return json;
-        })
-        .then((json) => {
-          setData(json);
-        });
+      const response = await axiosClient.get(
+        `http://bitmoi.co.kr:5000/moreinfo?userid=${obj.user_id}&scoreid=${obj.score_id}`
+      );
+      setData(response.data);
     }
 
     setMoreInfo((current) => !current);
   };
 
-  useEffect(() => {
-    if (thisUser && obj) {
-      obj.user === thisUser ? setCertified(true) : setCertified(false);
-    }
-  }, [thisUser, obj]);
   return (
-    <div
-      className={styles.userdiv}
-      style={obj.user === thisUser ? { backgroundColor: "#faebef" } : null}
-    >
+    <div className={styles.userdiv}>
       <div className={styles.onlyinfo}>
         <div
           className={`${styles.no} ${styles.field}`}
@@ -77,34 +45,19 @@ function RankDiv({ index, obj }) {
           {index}
         </div>
         <div className={`${styles.pic} ${styles.field}`}>
-          <img className={styles.photo} src={obj.photourl} />
+          <img className={styles.photo} src={obj.photo_url} />
         </div>
-        <div
-          className={`${styles.name} ${styles.field}`}
-          style={
-            obj.user === thisUser
-              ? {
-                  color: "#333d79",
-                  fontSize: "x-large",
-                }
-              : { color: "black" }
-          }
-        >
-          {obj.nickname}
+        <div className={`${styles.name} ${styles.field}`}>{obj.nickname}</div>
+        <div className={`${styles.score}  ${styles.field}`}>
+          {obj.final_balance}
         </div>
-        <div className={`${styles.score}  ${styles.field}`}>{obj.balance}</div>
         <button className={styles.openbutton} onClick={getMoreInfo}>
           <BsChatQuote />
         </button>
       </div>
+
       <div className={styles.moreinfo}>
-        {moreInfo ? (
-          <MoreInfo
-            setMoreInfo={setMoreInfo}
-            data={data}
-            certified={certified}
-          />
-        ) : null}
+        {moreInfo ? <MoreInfo data={data} obj={obj} /> : null}
       </div>
     </div>
   );

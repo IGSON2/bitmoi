@@ -2,31 +2,22 @@ import { useEffect, useState } from "react";
 import styles from "./Rank.module.css";
 import RankDiv from "./RankDiv/RankDiv";
 import Topbutton from "../../component/Topbutton/Topbutton";
-import Footer from "../../component/Footer/Footer";
 import H_NavBar from "../../component/navbar/H_NavBar";
+import axiosClient from "../../component/backendConn/axiosClient";
 
 function Rank() {
-  const [data, setData] = useState({
-    rankingBoard: [
-      {
-        user_id: "",
-        photo_url: "",
-        nickname: "",
-        score_id: "",
-        final_balance: 0,
-        comment: "",
-      },
-    ],
-  });
+  const [pageNum, setPageNum] = useState(1);
+
+  const [data, setData] = useState([{}]);
   const getUserScore = async () => {
-    const result = await fetch("http://bitmoi.co.kr:5000/rank");
-    const json = await result.json();
-    setData(json);
+    const response = await axiosClient.get(`/rank/${pageNum}`);
+    setData(response.data);
   };
 
   useEffect(() => {
     getUserScore();
-  }, []);
+  }, [pageNum]);
+
   return (
     <div className={styles.scorediv}>
       <div className={styles.navbar}>
@@ -36,9 +27,11 @@ function Rank() {
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
         </div>
-        {data.rankingBoard.map((v, i) => {
-          return <RankDiv key={i} index={i + 1} obj={v} />;
-        })}
+        {data
+          ? data.map((v, i) => {
+              return <RankDiv key={i} index={i + 1} obj={v} />;
+            })
+          : null}
         <div className={styles.footer}>
           <div>Copyright &copy; 2023 IGSON All rights reserved.</div>
         </div>

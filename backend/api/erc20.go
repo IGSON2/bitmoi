@@ -4,12 +4,16 @@ import (
 	"bitmoi/backend/contract"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/token"
+	"bitmoi/backend/utilities"
+	"database/sql"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -22,6 +26,11 @@ type TransactionResponse struct {
 }
 
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
+	r := new(MetamaskAddressRequest)
+	err := c.BodyParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 	user, err := s.store.GetUser(c.Context(), payload.UserID)
@@ -30,7 +39,16 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 	}
 
 	if !user.MetamaskAddress.Valid {
-		return c.Status(fiber.StatusForbidden).SendString("cannot get metamask address by user")
+		log.Info().Msgf("%s dosen't have account, init new account.", user.UserID)
+		_, err = s.store.UpdateUserMetamaskAddress(c.Context(), db.UpdateUserMetamaskAddressParams{
+			MetamaskAddress:  sql.NullString{String: r.Addr, Valid: true},
+			UserID:           payload.UserID,
+			AddressChangedAt: sql.NullTime{Time: time.Now(), Valid: true},
+		})
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot update user address. err: %w", err).Error())
+		}
+		user.MetamaskAddress.String = r.Addr
 	}
 
 	if timeout := s.erc20Contract.Timeouts[user.MetamaskAddress.String]; time.Now().After(timeout) {
@@ -83,6 +101,9 @@ func (s *Server) spendErc20OnComp(c *fiber.Ctx, scoreId string) (*common.Hash, e
 	txResult, err := s.store.SpendTokenTx(c.Context(), spendTxArg)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "nonce") {
+
+		}
 		return nil, fmt.Errorf("cannot update token ledger. err: %s", err.Error())
 	}
 	return txResult.TxHash, nil

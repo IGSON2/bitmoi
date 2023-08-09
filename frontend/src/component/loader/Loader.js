@@ -1,5 +1,5 @@
 import styles from "./Loader.module.css";
-import bgimg from "../images/moilogo.png";
+import bgimg from "../images/logo.png";
 function Loader() {
   return (
     <div className={styles.loaderpage}>

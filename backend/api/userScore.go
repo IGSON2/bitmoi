@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +16,7 @@ const (
 	long                   = "LONG"
 	short                  = "SHORT"
 	defaultBalance float64 = 1000
-	rankRows               = 10
+	rankRows               = 100
 	myscoreRows            = 15
 )
 
@@ -83,8 +84,8 @@ func (s *Server) getMyscores(userId string, pages int32, c *fiber.Ctx) ([]db.Sco
 	})
 }
 
-func (s *Server) sendMoreInfo(scoreId, userId string, c *fiber.Ctx) ([]db.Score, error) {
-	return s.store.GetScoresByScoreID(c.Context(), db.GetScoresByScoreIDParams{
+func (s *Server) getScoresByScoreID(scoreId, userId string, c context.Context) ([]db.Score, error) {
+	return s.store.GetScoresByScoreID(c, db.GetScoresByScoreIDParams{
 		ScoreID: scoreId,
 		UserID:  userId,
 	})
@@ -101,10 +102,10 @@ func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
 	return s.store.GetRankByUserID(context.Background(), userId)
 }
 
-func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) error {
+func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c *fiber.Ctx) error {
 	length, err := s.store.GetStageLenByScoreID(c.Context(), db.GetStageLenByScoreIDParams{
 		ScoreID: req.ScoreId,
-		UserID:  req.UserId,
+		UserID:  user.UserID,
 	})
 	if err != nil {
 		return err
@@ -114,7 +115,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 
 	t, err := s.store.GetScoreToStage(c.Context(), db.GetScoreToStageParams{
 		ScoreID: req.ScoreId,
-		UserID:  req.UserId,
+		UserID:  user.UserID,
 		Stage:   finalstage,
 	})
 	if err != nil {
@@ -125,15 +126,16 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 		return fmt.Errorf("cannot assign totalscore")
 	}
 
-	r, err := s.getRankByUserID(req.UserId)
+	r, err := s.getRankByUserID(user.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
-				UserID:       r.UserID,
-				ScoreID:      r.ScoreID,
-				Nickname:     r.Nickname,
-				Comment:      r.Comment,
-				FinalBalance: totalScore,
+				UserID:       user.UserID,
+				ScoreID:      req.ScoreId,
+				Nickname:     user.Nickname,
+				PhotoUrl:     user.PhotoUrl.String,
+				Comment:      req.Comment,
+				FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 			})
 		}
 		return err
@@ -141,14 +143,13 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, c *fiber.Ctx) er
 
 	if r.FinalBalance > totalScore {
 		return ErrNotUpdatedScore
-	} else {
-		_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
-			UserID:       r.UserID,
-			ScoreID:      r.ScoreID,
-			Nickname:     r.Nickname,
-			Comment:      r.Comment,
-			FinalBalance: totalScore,
-		})
 	}
+	_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
+		UserID:       user.UserID,
+		ScoreID:      req.ScoreId,
+		Nickname:     user.Nickname,
+		Comment:      req.Comment,
+		FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
+	})
 	return err
 }

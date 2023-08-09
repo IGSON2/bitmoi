@@ -17,15 +17,20 @@ const checkAccessTokenValidity = async () => {
       throw response.data;
     }
   } catch (error) {
-    const refResponse = await axiosClient.post("/token/reissue_access", {
-      refresh_token: refreshToken,
-    });
-    if (refResponse.status === 200) {
-      localStorage.removeItem("accessToken");
-      localStorage.setItem("accessToken", refResponse.data.access_token);
-      return refResponse.data.user;
-    } else {
-      console.error(error);
+    try {
+      const refResponse = await axiosClient.post("/token/reissue_access", {
+        refresh_token: refreshToken,
+      });
+      if (refResponse.status === 200) {
+        localStorage.removeItem("accessToken");
+        localStorage.setItem("accessToken", refResponse.data.access_token);
+        console.log("access token updated by refresh token.");
+        return refResponse.data.user;
+      } else {
+        return null;
+      }
+    } catch (reissueError) {
+      console.error("Error while reissuing access token:", reissueError);
       return null;
     }
   }
