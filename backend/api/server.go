@@ -100,7 +100,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.competition)
 	authGroup.Post("/competition", server.competition)
-	authGroup.Get("/myscore/:user", server.myscore)
+	authGroup.Get("/myscore/:page", server.myscore)
 	authGroup.Post("/freetoken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
@@ -273,17 +273,14 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 func (s *Server) myscore(c *fiber.Ctx) error {
 	switch c.Method() {
 	case "GET":
-		u := c.Params("user")
-		r := new(PageRequest)
-		err := c.QueryParser(r)
-		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-			if errs != nil {
-				return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-			}
+		page, err := c.ParamsInt("page")
+		if err != nil {
 			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 		}
 
-		scores, err := s.getMyscores(u, r.Page, c)
+		payload := c.Locals(authorizationPayloadKey).(*token.Payload)
+
+		scores, err := s.getMyscores(payload.UserID, int32(page), c)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}

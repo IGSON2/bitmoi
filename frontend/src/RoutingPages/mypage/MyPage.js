@@ -4,39 +4,15 @@ import { useEffect, useState } from "react";
 import styles from "./mypage.module.css";
 import Header from "./Header/Header";
 import { BsCaretLeftFill, BsCaretRightFill } from "react-icons/bs";
+import axiosClient from "../../component/backendConn/axiosClient";
 
 function MyPage() {
   const [index, setIndex] = useState(1);
   const [userLoaded, setUserLoaded] = useState(false);
-  const [data, setData] = useState({
-    scorelist: [
-      {
-        endprice: 0,
-        entryprice: 0,
-        entrytime: "",
-        leverage: 0,
-        outtime: 0,
-        pairname: "",
-        pnl: 0,
-        position: "",
-        roe: 0,
-        scoreid: "",
-        stage: 0,
-        user: "",
-      },
-    ],
-  });
+  const [data, setData] = useState([{}]);
   const getUserScore = async (i) => {
-    // TODO: update userid for firebase
-    const result = await fetch(
-      "http://api.bitmoi.co.kr/myscore/?user=" +
-        "[USERNAME]" +
-        "&index=" +
-        `${i}` +
-        "&scoreid="
-    );
-    const json = await result.json();
-    setData(json);
+    const response = await axiosClient.get(`/myscore/${index}`);
+    setData(response.data);
   };
 
   const increaseIdx = () => {

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import styles from "./Home.module.css";
 import HorizontalLine from "../../component/lines/HorizontalLine";
 import HomeInformation from "./HomeInformation/HomeInformation";
-import Footer from "../../component/Footer/Footer";
 
 function Home() {
   const menu = ["practice", "competition", "rank", "ad_bidding"];
