@@ -24,15 +24,15 @@ jobs:
           CI=false npm run build
           sudo chown -R root:root build
 
-      - name: Deploy file
+      - name: Upload build file
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           rm: true
-          source: ./frontend/build/*
-          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi/build/
+          source: ./frontend/build
+          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi
 
       - name: Restart server
         uses: appleboy/ssh-action@master
@@ -42,4 +42,4 @@ jobs:
           key: ${{ secrets.EC2_PRIV }}
           script: |
             pm2 kill
-            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/server.js --name app -p 80
+            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/server.js --name app
