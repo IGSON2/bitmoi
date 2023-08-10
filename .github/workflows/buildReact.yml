@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            cd /home/${{ secrets.EC2_USERNAME }
+            cd /home/${{ secrets.EC2_USERNAME }}
             ./stop.sh
             ./login.sh
             ./start.sh
