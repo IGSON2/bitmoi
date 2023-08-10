@@ -17,22 +17,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+
       - name: build react app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: bitmoi-client
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           cd frontend
-          npm install
-          CI=false npm run build
-          sudo chown -R root:root build
-
-      - name: Upload build file
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          rm: true
-          source: ./frontend/build
-          target: /home/${{ secrets.EC2_USERNAME }}/bitmoi
+          npm run build
+          cd server
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
       - name: Restart server
         uses: appleboy/ssh-action@master
@@ -41,5 +41,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIV }}
           script: |
-            pm2 kill
-            authbind --deep pm2 start /home/${{ secrets.EC2_USERNAME }}/server.js --name app
+            cd /home/${{ secrets.EC2_USERNAME }
+            ./stop.sh
+            ./login.sh
+            ./start.sh

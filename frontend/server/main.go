@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	port = ":5001"
+	port = ":80"
 )
 
 var (
@@ -32,16 +32,16 @@ var (
 func main() {
 	app := fiber.New()
 	app.Use(allowOriginMiddleware, limiterMiddleware)
-	app.Static("*", "../build")
-	// app.Static("/competition", "../build")
-	// app.Static("/practice", "../build")
-	// app.Static("/community", "../build")
-	// app.Static("/ad_bidding", "../build")
-	// app.Static("/mypage", "../build")
-	// app.Static("/rank", "../build")
-	// app.Static("/login", "../build")
-	// app.Static("/signup", "../build")
-	// app.Static("/goto/:domain", "../build")
-	// app.Static("/freetoken", "../build")
+	app.Static("/", "./build")
+	app.Static("/competition", "./build")
+	app.Static("/practice", "./build")
+	app.Static("/community", "./build")
+	app.Static("/ad_bidding", "./build")
+	app.Static("/mypage", "./build")
+	app.Static("/rank", "./build")
+	app.Static("/login", "./build")
+	app.Static("/signup", "./build")
+	app.Static("/goto/:domain", "./build")
+	app.Static("/freetoken", "./build")
 	log.Fatalln(app.Listen(port))
 }
