@@ -546,7 +546,7 @@ function OrderInput({
     const checkTokenBalance = async () => {
       setTokenWarning("Metamask에 로그인 해주세요.");
       var balance = await getBalance();
-      if (mode === "competition" && balance <= 0) {
+      if (balance <= 0) {
         setTokenWarning("도전에 사용할 MOI 토큰이 부족합니다.");
       } else {
         setTokenErr(false);
@@ -554,7 +554,12 @@ function OrderInput({
       }
     };
 
-    checkTokenBalance();
+    if (mode === "competition") {
+      checkTokenBalance();
+    } else {
+      setTokenErr(false);
+      setTokenWarning("");
+    }
   }, [userInfo]);
 
   const quanClose = () => {

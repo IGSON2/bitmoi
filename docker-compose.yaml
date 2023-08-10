@@ -9,3 +9,14 @@ services:
       - 5000:5000
     command: "--datadir=/bitmoi/logs
       --http"
+
+  gapi:
+    image: 122786534921.dkr.ecr.ap-northeast-2.amazonaws.com/bitmoi:latest
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /home/ubuntu/logs:/bitmoi/logs
+    ports:
+      - 6000:6000
+      - 7000:7000
+    command: "--datadir=/bitmoi/logs
+      --grpc"

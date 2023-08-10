@@ -21,7 +21,7 @@ function Orderconfirm({
   color,
   userInfo,
 }) {
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(true);
   const [receivedScore, setReceivedScore] = useState({
     stage: 0,
     name: "",
@@ -163,7 +163,7 @@ function Orderconfirm({
           </div>
 
           <div className={styles.submitbutton}>
-            {order.stage === 1 ? (
+            {order.mode === "competition" && order.stage === 1 ? (
               <label className={styles.checkbox}>
                 <input
                   type="checkbox"
