@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	port = ":80"
+	port = ":443"
 )
 
 var (
@@ -43,5 +43,5 @@ func main() {
 	app.Static("/signup", "./build")
 	app.Static("/goto/:domain", "./build")
 	app.Static("/freetoken", "./build")
-	log.Fatalln(app.Listen(port))
+	log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
 }

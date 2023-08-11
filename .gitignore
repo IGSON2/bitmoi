@@ -12,3 +12,6 @@ data
 react
 *.env
 backend/db/keys
+frontend/server/server.crt
+frontend/server/server.csr
+frontend/server/server.key
