@@ -38,7 +38,11 @@ func main() {
 	app := fiber.New()
 	app.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 
-	app.Static("/.well-known/acme-challenge", "./acme-challenge")
+	app.Get("/.well-known/acme-challenge", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).SendFile("./acme-challenge")
+	})
+
+	// app.Static("/.well-known/acme-challenge", "./acme-challenge")
 
 	app.Static("/", "./build")
 	app.Static("/competition", "./build")
