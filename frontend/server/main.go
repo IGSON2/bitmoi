@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 const (
@@ -27,11 +28,15 @@ var (
 			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
 		},
 	})
+	loggerMiddleware = logger.New(logger.Config{
+		Format:     "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n",
+		TimeFormat: "2006-01-02T15:04:05",
+	})
 )
 
 func main() {
 	app := fiber.New()
-	app.Use(allowOriginMiddleware, limiterMiddleware)
+	app.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 
 	app.Static("/.well-known/acme-challenge", "./acme-challenge")
 
