@@ -9,7 +9,7 @@ FROM  alpine:latest
 USER root
 WORKDIR /bitmoi-client
 COPY --from=builder /bitmoi-client/bitmoi-client .
-COPY ./acme-challenge ./acme-challenge
+COPY ./acme-challenge/* ./build/.well-known/acme-challenge/
 COPY ./build ./build
 
 ENTRYPOINT ["./bitmoi-client"]
