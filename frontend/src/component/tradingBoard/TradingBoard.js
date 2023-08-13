@@ -11,6 +11,7 @@ import ChartHeader from "./ChartHeader/ChartHeader";
 import Loader from "../loader/Loader";
 import axiosClient from "../backendConn/axiosClient";
 import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
+import { HttpStatusCode } from "axios";
 
 function TradingBoard({ modeHeight, mode, score_id }) {
   const [isLogined, setIsLogined] = useState(false);
@@ -110,6 +111,12 @@ function TradingBoard({ modeHeight, mode, score_id }) {
             response = await axiosClient.get(
               `/competition?names=${titleaArray}`
             );
+            if (response.status === HttpStatusCode.Unauthorized) {
+              await checkAccessTokenValidity();
+              response = await axiosClient.get(
+                `/competition?names=${titleaArray}`
+              );
+            }
           } else {
             return;
           }
