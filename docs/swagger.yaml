@@ -1,0 +1,295 @@
+basePath: /
+definitions:
+  api.CandleData:
+    properties:
+      pdata:
+        items:
+          $ref: '#/definitions/api.PriceData'
+        type: array
+      vdata:
+        items:
+          $ref: '#/definitions/api.VolumeData'
+        type: array
+    type: object
+  api.OnePairChart:
+    properties:
+      btcratio:
+        type: number
+      entry_price:
+        type: number
+      entrytime:
+        type: string
+      identifier:
+        type: string
+      name:
+        type: string
+      onechart:
+        $ref: '#/definitions/api.CandleData'
+    type: object
+  api.OrderResult:
+    properties:
+      commission:
+        type: number
+      end_price:
+        type: number
+      entry_price:
+        type: number
+      entry_time:
+        type: string
+      is_liquidated:
+        type: boolean
+      leverage:
+        type: integer
+      name:
+        type: string
+      out_time:
+        type: integer
+      pnl:
+        type: number
+      roe:
+        type: number
+      stage:
+        type: integer
+    type: object
+  api.PriceData:
+    properties:
+      close:
+        type: number
+      high:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
+      time:
+        type: integer
+    type: object
+  api.RankInsertRequest:
+    properties:
+      comment:
+        type: string
+      score_id:
+        type: string
+    required:
+    - score_id
+    type: object
+  api.ScoreRequest:
+    properties:
+      balance:
+        type: number
+      entry_price:
+        type: number
+      identifier:
+        type: string
+      is_long:
+        type: boolean
+      leverage:
+        maximum: 100
+        minimum: 1
+        type: integer
+      loss_price:
+        minimum: 0
+        type: number
+      mode:
+        enum:
+        - competition
+        - practice
+        type: string
+      name:
+        type: string
+      profit_price:
+        minimum: 0
+        type: number
+      quantity:
+        type: number
+      score_id:
+        type: string
+      stage:
+        maximum: 10
+        minimum: 1
+        type: integer
+      user_id:
+        type: string
+      waiting_term:
+        maximum: 1
+        minimum: 1
+        type: integer
+    required:
+    - balance
+    - entry_price
+    - identifier
+    - is_long
+    - leverage
+    - loss_price
+    - mode
+    - name
+    - profit_price
+    - quantity
+    - score_id
+    - stage
+    - user_id
+    - waiting_term
+    type: object
+  api.ScoreResponse:
+    properties:
+      origin_chart:
+        $ref: '#/definitions/api.CandleData'
+      result_chart:
+        $ref: '#/definitions/api.CandleData'
+      score:
+        $ref: '#/definitions/api.OrderResult'
+    type: object
+  api.VolumeData:
+    properties:
+      color:
+        type: string
+      time:
+        type: integer
+      value:
+        type: number
+    type: object
+  db.RankingBoard:
+    properties:
+      comment:
+        type: string
+      final_balance:
+        type: number
+      nickname:
+        type: string
+      photo_url:
+        type: string
+      score_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost
+info:
+  contact:
+    email: bitmoiigson@gmail.com
+    name: API Support
+  description: API for Bitmoi service
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  title: Bitmoi API
+  version: "1.0"
+paths:
+  /competition:
+    get:
+      description: Get encrypted chart for competition
+      parameters:
+      - description: Comma-separated list of pair names
+        in: query
+        name: names
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.OnePairChart'
+      summary: Get competition chart
+      tags:
+      - chart
+    post:
+      consumes:
+      - application/json
+      description: Post score of competition mode
+      parameters:
+      - description: order inforamtion
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/api.ScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ScoreResponse'
+      summary: Post score
+      tags:
+      - score
+  /practice:
+    get:
+      description: Get non encrypted chart for practice
+      parameters:
+      - description: Comma-separated list of pair names
+        in: query
+        name: names
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.OnePairChart'
+      summary: Get practice chart
+      tags:
+      - chart
+    post:
+      consumes:
+      - application/json
+      description: Post score of practice mode
+      parameters:
+      - description: order inforamtion
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/api.ScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ScoreResponse'
+      summary: Post score
+      tags:
+      - score
+  /rank:
+    post:
+      description: Post rank to ranking chart
+      parameters:
+      - description: socre id and comment
+        in: body
+        name: rankInsertRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.RankInsertRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Post rank
+      tags:
+      - rank
+  /rank/{page}:
+    get:
+      description: Get ranking chart
+      parameters:
+      - description: Page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.RankingBoard'
+            type: array
+      summary: Get rank
+      tags:
+      - rank
+swagger: "2.0"

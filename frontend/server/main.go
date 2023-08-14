@@ -2,12 +2,15 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/rs/zerolog"
+	zlog "github.com/rs/zerolog/log"
 )
 
 const (
@@ -32,9 +35,24 @@ var (
 		Format:     "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n",
 		TimeFormat: "2006-01-02T15:04:05",
 	})
+
+	redirectMiddleware = func(c *fiber.Ctx) error {
+		zlog.Info().Msgf(`[%s]:%s Redirected from "%s://%s%s" to https`, c.IP(), c.Port(), c.Protocol(), c.Hostname(), c.OriginalURL())
+		return c.Redirect("https://"+c.Hostname()+c.OriginalURL(), fiber.StatusMovedPermanently)
+	}
 )
 
+func init() {
+	zlog.Logger = zlog.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+}
+
 func main() {
+	noTLSApp := fiber.New()
+	noTLSApp.Use(redirectMiddleware, loggerMiddleware)
+	go func() {
+		log.Fatalln(noTLSApp.Listen(":80"))
+	}()
+
 	app := fiber.New()
 	app.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
 

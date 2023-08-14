@@ -23,7 +23,7 @@ function OrderInput({
   setResultScore,
   balance,
   setBalance,
-  setTitleaArray,
+  setTitleArray,
   userInfo,
   score_id,
 }) {
@@ -640,7 +640,7 @@ function OrderInput({
             setIndex={setIndex}
             balance={balance}
             setBalance={setBalance}
-            setTitleaArray={setTitleaArray}
+            setTitleArray={setTitleArray}
             color={color}
             userInfo={userInfo}
           />

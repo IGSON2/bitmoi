@@ -7,6 +7,8 @@ import (
 	"bitmoi/backend/utilities"
 	bitmoicommon "bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
+	_ "bitmoi/docs"
+
 	"context"
 	"errors"
 	"fmt"
@@ -16,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 const (
@@ -83,12 +86,13 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		router.Use(server.createLoggerMiddleware())
 	}
 
-	router.Get("/practice", server.practice)
-	router.Post("/practice", server.practice)
+	router.Get("/swagger/*", swagger.HandlerDefault)
+
+	router.Get("/practice", server.getPracticeChart)
+	router.Post("/practice", server.postPracticeScore)
 	router.Get("/interval", server.getAnotherInterval)
-	router.Get("/rank/:page", server.rank)
-	router.Post("/rank", server.rank)
 	router.Get("/moreinfo", server.moreinfo)
+	router.Get("/rank/:page", server.getRank)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
 	router.Get("/user/checkid", server.checkID)
@@ -98,8 +102,9 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Post("/verify_token", server.verifyToken)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Get("/competition", server.competition)
-	authGroup.Post("/competition", server.competition)
+	authGroup.Get("/competition", server.getCompetitionChart)
+	authGroup.Post("/competition", server.postCompetitionScore)
+	authGroup.Post("/rank", server.postRank)
 	authGroup.Get("/myscore/:page", server.myscore)
 	authGroup.Post("/freetoken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
@@ -119,242 +124,265 @@ func (s *Server) Listen() error {
 	return s.router.Listen(s.config.HTTPAddress)
 }
 
-func (s *Server) practice(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		r := new(CandlesRequest)
-		err := c.QueryParser(r)
-		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
-		}
-
-		history := utilities.SplitPairnames(r.Names)
-		if len(history) >= finalstage {
-			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
-		}
-		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err := s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(oc)
-	case "POST":
-		var PracticeOrder ScoreRequest
-		err := c.BodyParser(&PracticeOrder)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-
-		errs := utilities.ValidateStruct(PracticeOrder)
-		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-		}
-
-		err = validateOrderRequest(&PracticeOrder)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-
-		r, err := s.createPracResult(&PracticeOrder, c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(r)
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+// getPracticeChart godoc
+// @Summary      Get practice chart
+// @Description  Get non encrypted chart for practice
+// @Tags         chart
+// @Param names query string false "Comma-separated list of pair names"
+// @Produce      json
+// @Success      200  {object}  api.OnePairChart
+// @Router       /practice [get]
+func (s *Server) getPracticeChart(c *fiber.Ctx) error {
+	r := new(CandlesRequest)
+	err := c.QueryParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
+
+	history := utilities.SplitPairnames(r.Names)
+	if len(history) >= finalstage {
+		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
+	}
+	nextPair := utilities.FindDiffPair(s.pairs, history)
+	oc, err := s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(oc)
 }
 
-func (s *Server) competition(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		r := new(CandlesRequest)
-		err := c.QueryParser(r)
-		if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
-		}
-		history := utilities.SplitPairnames(r.Names)
-
-		if len(history) >= finalstage {
-			return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
-		}
-		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err := s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(oc)
-	case "POST":
-		var CompetitionOrder ScoreRequest
-		err := c.BodyParser(&CompetitionOrder)
-		if err != nil || CompetitionOrder.Mode != competition {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%s, mode : %s", err, CompetitionOrder.Mode))
-		}
-
-		errs := utilities.ValidateStruct(CompetitionOrder)
-		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-		}
-
-		err = validateOrderRequest(&CompetitionOrder)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-
-		var hash *common.Hash
-		switch {
-		case CompetitionOrder.Stage == 1:
-			if CompetitionOrder.Balance != defaultBalance {
-				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("default balance must be %.0f", defaultBalance))
-			}
-			hash, err = s.spendErc20OnComp(c, CompetitionOrder.ScoreId)
-			if err != nil {
-				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-			}
-		case CompetitionOrder.Stage > 1:
-			prevScore, err := s.store.GetScore(c.Context(), db.GetScoreParams{
-				ScoreID: CompetitionOrder.ScoreId,
-				Stage:   CompetitionOrder.Stage - 1,
-			})
-			if err != nil {
-				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get stage %02d. err: %w", CompetitionOrder.Stage-1, err).Error())
-			}
-			if prevScore.Stage != CompetitionOrder.Stage-1 {
-				return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
-			}
-			if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
-				return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
-			}
-		}
-
-		compResult, err := s.createCompResult(&CompetitionOrder, c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		err = s.insertUserScore(&CompetitionOrder, compResult.Score, c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-
-		if hash != nil {
-			return c.Status(fiber.StatusOK).JSON(ScoreResponseWithHash{ScoreResponse: *compResult, TxHash: hash})
-		}
-
-		return c.Status(fiber.StatusOK).JSON(compResult)
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+// postPracticeScore godoc
+//
+//		@Summary		Post score
+//		@Description	Post score of practice mode
+//		@Tags			score
+//		@Accept			json
+//		@Produce		json
+//		@Param			order	body		api.ScoreRequest	true	"order inforamtion"
+//		@Success		200		{object}	api.ScoreResponse
+//	 @Router       /practice [post]
+func (s *Server) postPracticeScore(c *fiber.Ctx) error {
+	var PracticeOrder ScoreRequest
+	err := c.BodyParser(&PracticeOrder)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
+
+	errs := utilities.ValidateStruct(PracticeOrder)
+	if errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	}
+
+	err = validateOrderRequest(&PracticeOrder)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	r, err := s.createPracResult(&PracticeOrder, c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(r)
+}
+
+// getCompetitionChart godoc
+// @Summary      Get competition chart
+// @Description  Get encrypted chart for competition
+// @Tags         chart
+// @Param names query string false "Comma-separated list of pair names"
+// @Produce      json
+// @Success      200  {object}  api.OnePairChart
+// @Router       /competition [get]
+func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
+	r := new(CandlesRequest)
+	err := c.QueryParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
+	history := utilities.SplitPairnames(r.Names)
+
+	if len(history) >= finalstage {
+		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
+	}
+	nextPair := utilities.FindDiffPair(s.pairs, history)
+	oc, err := s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(oc)
+}
+
+// postCompetitionScore godoc
+//
+//	@Summary		Post score
+//	@Description	Post score of competition mode
+//	@Tags			score
+//	@Accept			json
+//	@Produce		json
+//	@Param			order	body		api.ScoreRequest	true	"order inforamtion"
+//	@Success		200		{object}	api.ScoreResponse
+//	@Router       /competition [post]
+func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
+	var CompetitionOrder ScoreRequest
+	err := c.BodyParser(&CompetitionOrder)
+	if err != nil || CompetitionOrder.Mode != competition {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("%s, mode : %s", err, CompetitionOrder.Mode))
+	}
+
+	errs := utilities.ValidateStruct(CompetitionOrder)
+	if errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	}
+
+	err = validateOrderRequest(&CompetitionOrder)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	var hash *common.Hash
+	switch {
+	case CompetitionOrder.Stage == 1:
+		if CompetitionOrder.Balance != defaultBalance {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("default balance must be %.0f", defaultBalance))
+		}
+		hash, err = s.spendErc20OnComp(c, CompetitionOrder.ScoreId)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+	case CompetitionOrder.Stage > 1:
+		prevScore, err := s.store.GetScore(c.Context(), db.GetScoreParams{
+			ScoreID: CompetitionOrder.ScoreId,
+			Stage:   CompetitionOrder.Stage - 1,
+		})
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get stage %02d. err: %w", CompetitionOrder.Stage-1, err).Error())
+		}
+		if prevScore.Stage != CompetitionOrder.Stage-1 {
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
+		}
+		if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
+		}
+	}
+
+	compResult, err := s.createCompResult(&CompetitionOrder, c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	err = s.insertUserScore(&CompetitionOrder, compResult.Score, c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	if hash != nil {
+		return c.Status(fiber.StatusOK).JSON(ScoreResponseWithHash{ScoreResponse: *compResult, TxHash: hash})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(compResult)
 }
 
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		r := new(AnotherIntervalRequest)
-		err := c.QueryParser(r)
-		if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
-		}
-		if r.Mode == competition {
-			if err := checkAuthorization(c, s.tokenMaker); err != nil {
-				return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s err: %s", errNotAuthenticated, err))
-			}
-		}
-		oc, err := s.sendAnotherInterval(r, c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(oc)
-
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+	r := new(AnotherIntervalRequest)
+	err := c.QueryParser(r)
+	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
+	if r.Mode == competition {
+		if err := checkAuthorization(c, s.tokenMaker); err != nil {
+			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s err: %s", errNotAuthenticated, err))
+		}
+	}
+	oc, err := s.sendAnotherInterval(r, c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(oc)
+
 }
 
 func (s *Server) myscore(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		page, err := c.ParamsInt("page")
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-
-		payload := c.Locals(authorizationPayloadKey).(*token.Payload)
-
-		scores, err := s.getMyscores(payload.UserID, int32(page), c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(scores)
-
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+	page, err := c.ParamsInt("page")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
+
+	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
+
+	scores, err := s.getMyscores(payload.UserID, int32(page), c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(scores)
 }
 
-func (s *Server) rank(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		pageNum, err := c.ParamsInt("page")
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("invalid page number: %d", pageNum))
-		}
-		if pageNum == 0 {
-			pageNum = 1
-		}
-		ranks, err := s.getAllRanks(int32(pageNum), c)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(ranks)
-	case "POST":
-		if err := checkAuthorization(c, s.tokenMaker); err != nil {
-			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("%s %s", errNotAuthenticated, err))
-		}
-
-		payload := c.Locals(authorizationPayloadKey).(*token.Payload)
-		user, err := s.store.GetUser(c.Context(), payload.UserID)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())
-		}
-
-		var r RankInsertRequest
-		err = c.BodyParser(&r)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-
-		errs := utilities.ValidateStruct(r)
-		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-		}
-
-		err = s.insertScoreToRankBoard(&r, &user, c)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-		return c.SendStatus(fiber.StatusOK)
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+// getRank godoc
+// @Summary      Get rank
+// @Description  Get ranking chart
+// @Tags         rank
+// @Param page path int true "Page number"
+// @Produce      json
+// @Success      200  {array}  db.RankingBoard
+// @Router       /rank/{page} [get]
+func (s *Server) getRank(c *fiber.Ctx) error {
+	pageNum, err := c.ParamsInt("page")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("invalid page number: %d", pageNum))
 	}
+	if pageNum == 0 {
+		pageNum = 1
+	}
+	ranks, err := s.getAllRanks(int32(pageNum), c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(ranks)
+}
+
+// postRank godoc
+// @Summary      Post rank
+// @Description  Post rank to ranking chart
+// @Tags         rank
+// @Param rankInsertRequest body api.RankInsertRequest true "socre id and comment"
+// @Produce      json
+// @Success      200
+// @Router       /rank [post]
+func (s *Server) postRank(c *fiber.Ctx) error {
+	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
+	user, err := s.store.GetUser(c.Context(), payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())
+	}
+
+	var r RankInsertRequest
+	err = c.BodyParser(&r)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	errs := utilities.ValidateStruct(r)
+	if errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	}
+
+	err = s.insertScoreToRankBoard(&r, &user, c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func (s *Server) moreinfo(c *fiber.Ctx) error {
-	switch c.Method() {
-	case "GET":
-		r := new(MoreInfoRequest)
-		if err := c.QueryParser(r); err != nil {
-			return err
-		}
-		errs := utilities.ValidateStruct(r)
-		if errs != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-		}
-		scores, err := s.getScoresByScoreID(r.ScoreId, r.UserId, c.Context())
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-		return c.Status(fiber.StatusOK).JSON(scores)
-	default:
-		return errors.New("Not allowed method : " + c.Method())
+	r := new(MoreInfoRequest)
+	if err := c.QueryParser(r); err != nil {
+		return err
 	}
+	errs := utilities.ValidateStruct(r)
+	if errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	}
+	scores, err := s.getScoresByScoreID(r.ScoreId, r.UserId, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(scores)
 }

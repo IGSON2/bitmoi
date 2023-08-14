@@ -84,7 +84,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
   const [lossMarker, setLossMarker] = useState(0);
   const [balance, setBalance] = useState(1000);
   const [name, setName] = useState("");
-  const [titleaArray, setTitleaArray] = useState([]);
+  const [titleArray, setTitleArray] = useState([]);
   const [btcRatio, setBtcRatio] = useState(0);
   const [entryTime, setEntryTime] = useState("");
   const [submitOrder, setSubmitOrder] = useState(false);
@@ -109,19 +109,19 @@ function TradingBoard({ modeHeight, mode, score_id }) {
         if (mode === "competition") {
           if (isLogined) {
             response = await axiosClient.get(
-              `/competition?names=${titleaArray}`
+              `/competition?names=${titleArray}`
             );
             if (response.status === HttpStatusCode.Unauthorized) {
               await checkAccessTokenValidity();
               response = await axiosClient.get(
-                `/competition?names=${titleaArray}`
+                `/competition?names=${titleArray}`
               );
             }
           } else {
             return;
           }
         } else {
-          response = await axiosClient.get(`/practice?names=${titleaArray}`);
+          response = await axiosClient.get(`/practice?names=${titleArray}`);
         }
 
         response.data.onechart.pdata.reverse();
@@ -134,7 +134,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
         setIdentifier(response.data.identifier);
         setName(response.data.name);
         if (!response.data.name.includes("STAGE")) {
-          setTitleaArray((current) => [...current, response.data.name + ","]);
+          setTitleArray((current) => [...current, response.data.name + ","]);
         }
         setBtcRatio(response.data.btcratio);
         setEntryPrice(response.data.entry_price);
@@ -143,7 +143,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
         break;
       case "5m":
         if (fiveMinutes === undefined) {
-          const data = reqinterval("5m", identifier, titleaArray.length);
+          const data = reqinterval("5m", identifier, titleArray.length);
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFiveMinutes(data.onechart);
@@ -155,7 +155,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
         break;
       case "15m":
         if (fifteenMinutes === undefined) {
-          const data = reqinterval("15m", identifier, titleaArray.length);
+          const data = reqinterval("15m", identifier, titleArray.length);
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFifteenMinutes(data.onechart);
@@ -171,7 +171,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
         break;
       case "4h":
         if (!fourHour) {
-          const data = reqinterval("4h", identifier, titleaArray.length);
+          const data = reqinterval("4h", identifier, titleArray.length);
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFourHour(data.onechart);
@@ -326,7 +326,7 @@ function TradingBoard({ modeHeight, mode, score_id }) {
                 setResultScore={setResultScore}
                 balance={balance}
                 setBalance={setBalance}
-                setTitleaArray={setTitleaArray}
+                setTitleArray={setTitleArray}
                 entryTime={entryTime}
                 userInfo={userInfo}
                 score_id={score_id}

@@ -32,6 +32,15 @@ func init() {
 	bApp.Action = bitmoi
 }
 
+// @title Bitmoi API
+// @version 1.0
+// @description API for Bitmoi service
+// @contact.name API Support
+// @contact.email bitmoiigson@gmail.com
+// @license.name CC BY-NC-SA 4.0
+// @license.url https://creativecommons.org/licenses/by-nc-sa/4.0/
+// @host localhost
+// @BasePath /
 func main() {
 	if err := bApp.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)

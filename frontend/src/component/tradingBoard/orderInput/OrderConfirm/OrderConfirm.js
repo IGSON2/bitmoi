@@ -17,7 +17,7 @@ function Orderconfirm({
   setIndex,
   balance,
   setBalance,
-  setTitleaArray,
+  setTitleArray,
   color,
   userInfo,
 }) {
@@ -66,7 +66,7 @@ function Orderconfirm({
       const response = await axiosClient.post(order.mode, order);
       if (order.mode === "competition") {
         setPairtitle(response.data.score.name);
-        setTitleaArray((current) => [
+        setTitleArray((current) => [
           ...current,
           response.data.score.name + ",",
         ]);

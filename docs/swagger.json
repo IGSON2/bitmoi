@@ -1,0 +1,440 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for Bitmoi service",
+        "title": "Bitmoi API",
+        "contact": {
+            "name": "API Support",
+            "email": "bitmoiigson@gmail.com"
+        },
+        "license": {
+            "name": "CC BY-NC-SA 4.0",
+            "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost",
+    "basePath": "/",
+    "paths": {
+        "/competition": {
+            "get": {
+                "description": "Get encrypted chart for competition",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chart"
+                ],
+                "summary": "Get competition chart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comma-separated list of pair names",
+                        "name": "names",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.OnePairChart"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Post score of competition mode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "score"
+                ],
+                "summary": "Post score",
+                "parameters": [
+                    {
+                        "description": "order inforamtion",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ScoreResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/practice": {
+            "get": {
+                "description": "Get non encrypted chart for practice",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chart"
+                ],
+                "summary": "Get practice chart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Comma-separated list of pair names",
+                        "name": "names",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.OnePairChart"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Post score of practice mode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "score"
+                ],
+                "summary": "Post score",
+                "parameters": [
+                    {
+                        "description": "order inforamtion",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ScoreResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/rank": {
+            "post": {
+                "description": "Post rank to ranking chart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "summary": "Post rank",
+                "parameters": [
+                    {
+                        "description": "socre id and comment",
+                        "name": "rankInsertRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.RankInsertRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/rank/{page}": {
+            "get": {
+                "description": "Get ranking chart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "summary": "Get rank",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.RankingBoard"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.CandleData": {
+            "type": "object",
+            "properties": {
+                "pdata": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PriceData"
+                    }
+                },
+                "vdata": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.VolumeData"
+                    }
+                }
+            }
+        },
+        "api.OnePairChart": {
+            "type": "object",
+            "properties": {
+                "btcratio": {
+                    "type": "number"
+                },
+                "entry_price": {
+                    "type": "number"
+                },
+                "entrytime": {
+                    "type": "string"
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "onechart": {
+                    "$ref": "#/definitions/api.CandleData"
+                }
+            }
+        },
+        "api.OrderResult": {
+            "type": "object",
+            "properties": {
+                "commission": {
+                    "type": "number"
+                },
+                "end_price": {
+                    "type": "number"
+                },
+                "entry_price": {
+                    "type": "number"
+                },
+                "entry_time": {
+                    "type": "string"
+                },
+                "is_liquidated": {
+                    "type": "boolean"
+                },
+                "leverage": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "out_time": {
+                    "type": "integer"
+                },
+                "pnl": {
+                    "type": "number"
+                },
+                "roe": {
+                    "type": "number"
+                },
+                "stage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.PriceData": {
+            "type": "object",
+            "properties": {
+                "close": {
+                    "type": "number"
+                },
+                "high": {
+                    "type": "number"
+                },
+                "low": {
+                    "type": "number"
+                },
+                "open": {
+                    "type": "number"
+                },
+                "time": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.RankInsertRequest": {
+            "type": "object",
+            "required": [
+                "score_id"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "score_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ScoreRequest": {
+            "type": "object",
+            "required": [
+                "balance",
+                "entry_price",
+                "identifier",
+                "is_long",
+                "leverage",
+                "loss_price",
+                "mode",
+                "name",
+                "profit_price",
+                "quantity",
+                "score_id",
+                "stage",
+                "user_id",
+                "waiting_term"
+            ],
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "entry_price": {
+                    "type": "number"
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "is_long": {
+                    "type": "boolean"
+                },
+                "leverage": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "loss_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "mode": {
+                    "type": "string",
+                    "enum": [
+                        "competition",
+                        "practice"
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profit_price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "score_id": {
+                    "type": "string"
+                },
+                "stage": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "waiting_term": {
+                    "type": "integer",
+                    "maximum": 1,
+                    "minimum": 1
+                }
+            }
+        },
+        "api.ScoreResponse": {
+            "type": "object",
+            "properties": {
+                "origin_chart": {
+                    "$ref": "#/definitions/api.CandleData"
+                },
+                "result_chart": {
+                    "$ref": "#/definitions/api.CandleData"
+                },
+                "score": {
+                    "$ref": "#/definitions/api.OrderResult"
+                }
+            }
+        },
+        "api.VolumeData": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "db.RankingBoard": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "final_balance": {
+                    "type": "number"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "score_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

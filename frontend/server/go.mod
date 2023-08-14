@@ -2,7 +2,10 @@ module bitmoi-client
 
 go 1.20
 
-require github.com/gofiber/fiber/v2 v2.48.0
+require (
+	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/rs/zerolog v1.30.0
+)
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
