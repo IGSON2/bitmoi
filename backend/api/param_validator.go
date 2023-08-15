@@ -18,8 +18,8 @@ type ScoreRequest struct {
 	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
 	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
 	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
-	ProfitPrice float64 `json:"profit_price" validate:"required,number,min=0"`
-	LossPrice   float64 `json:"loss_price" validate:"required,number,min=0"`
+	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
+	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
 	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
 	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
 	Identifier  string  `json:"identifier"  validate:"required"`

@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "bitmoi/frontend/server/docs"
 	"log"
 	"os"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/swagger"
 	"github.com/rs/zerolog"
 	zlog "github.com/rs/zerolog/log"
 )
@@ -52,9 +54,10 @@ func main() {
 	go func() {
 		log.Fatalln(noTLSApp.Listen(":80"))
 	}()
-
 	app := fiber.New()
+
 	app.Use(allowOriginMiddleware, limiterMiddleware, loggerMiddleware)
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Static("/", "./build")
 	app.Static("/competition", "./build")
@@ -68,4 +71,5 @@ func main() {
 	app.Static("/goto/:domain", "./build")
 	app.Static("/freetoken", "./build")
 	log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
+	// log.Fatalln(app.Listen(port))
 }

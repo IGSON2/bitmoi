@@ -4,8 +4,8 @@ import (
 	"context"
 	"math/big"
 
+	"dario.cat/mergo"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/imdario/mergo"
 	"github.com/rs/zerolog/log"
 )
 

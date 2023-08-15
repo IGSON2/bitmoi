@@ -13,7 +13,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost",
+    "host": "api.bitmoi.co.kr",
     "basePath": "/",
     "paths": {
         "/competition": {
@@ -318,10 +318,8 @@
                 "identifier",
                 "is_long",
                 "leverage",
-                "loss_price",
                 "mode",
                 "name",
-                "profit_price",
                 "quantity",
                 "score_id",
                 "stage",

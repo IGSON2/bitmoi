@@ -39,7 +39,7 @@ func init() {
 // @contact.email bitmoiigson@gmail.com
 // @license.name CC BY-NC-SA 4.0
 // @license.url https://creativecommons.org/licenses/by-nc-sa/4.0/
-// @host localhost
+// @host api.bitmoi.co.kr
 // @BasePath /
 func main() {
 	if err := bApp.Run(os.Args); err != nil {

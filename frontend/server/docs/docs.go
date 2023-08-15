@@ -325,10 +325,8 @@ const docTemplate = `{
                 "identifier",
                 "is_long",
                 "leverage",
-                "loss_price",
                 "mode",
                 "name",
-                "profit_price",
                 "quantity",
                 "score_id",
                 "stage",
@@ -449,7 +447,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost",
+	Host:             "api.bitmoi.co.kr",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Bitmoi API",

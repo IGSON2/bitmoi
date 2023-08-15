@@ -7,7 +7,6 @@ import (
 	"bitmoi/backend/utilities"
 	bitmoicommon "bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
-	_ "bitmoi/docs"
 
 	"context"
 	"errors"
@@ -18,7 +17,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
 )
 
 const (
@@ -85,8 +83,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(server.createLoggerMiddleware())
 	}
-
-	router.Get("/swagger/*", swagger.HandlerDefault)
 
 	router.Get("/practice", server.getPracticeChart)
 	router.Post("/practice", server.postPracticeScore)

@@ -120,10 +120,8 @@ definitions:
     - identifier
     - is_long
     - leverage
-    - loss_price
     - mode
     - name
-    - profit_price
     - quantity
     - score_id
     - stage
@@ -163,7 +161,7 @@ definitions:
       user_id:
         type: string
     type: object
-host: localhost
+host: api.bitmoi.co.kr
 info:
   contact:
     email: bitmoiigson@gmail.com
