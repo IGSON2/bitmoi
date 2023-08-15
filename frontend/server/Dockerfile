@@ -4,7 +4,7 @@ COPY . .
 
 RUN go mod init bitmoi/frontend/server
 RUN go mod tidy
-RUN go build
+RUN go build -o bitmoi-client
 
 FROM  alpine:latest
 USER root

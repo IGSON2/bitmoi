@@ -25,6 +25,17 @@ type TransactionResponse struct {
 	Hash *common.Hash `json:"hash"`
 }
 
+// sendFreeErc20 godoc
+//
+//	@Summary		Post sendFreeErc20
+//	@Description	request for free token
+//	@Tags			erc20
+//	@Accept			json
+//	@Produce		json
+//	@Param			MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"eth address"
+//	@param Authorization header string true "Authorization"
+//	@Success		200		{object}	api.TransactionResponse
+//	@Router       /freetoken [post]
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)
@@ -102,7 +113,7 @@ func (s *Server) spendErc20OnComp(c *fiber.Ctx, scoreId string) (*common.Hash, e
 
 	if err != nil {
 		if strings.Contains(err.Error(), "nonce") {
-
+			//TODO
 		}
 		return nil, fmt.Errorf("cannot update token ledger. err: %s", err.Error())
 	}

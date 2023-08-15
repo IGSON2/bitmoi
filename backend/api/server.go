@@ -186,6 +186,7 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 // @Description  Get encrypted chart for competition
 // @Tags         chart
 // @Param names query string false "Comma-separated list of pair names"
+// @param Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
 // @Router       /competition [get]
@@ -216,6 +217,7 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order	body		api.ScoreRequest	true	"order inforamtion"
+//	@param Authorization header string true "Authorization"
 //	@Success		200		{object}	api.ScoreResponse
 //	@Router       /competition [post]
 func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
@@ -277,6 +279,15 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(compResult)
 }
 
+// getAnotherInterval godoc
+// @Summary      Get another interval chart
+// @Description  Get another interval chart for both of practice and competition
+// @Tags         chart
+// @Param anotherIntervalRequest query api.AnotherIntervalRequest true ""
+// @param Authorization header string false "Authorization"
+// @Produce      json
+// @Success      200  {object}  api.OnePairChart
+// @Router       /interval [get]
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 	r := new(AnotherIntervalRequest)
 	err := c.QueryParser(r)
@@ -293,9 +304,17 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.Status(fiber.StatusOK).JSON(oc)
-
 }
 
+// myscore godoc
+// @Summary      Get myscore
+// @Description  Get history of my score
+// @Tags         score
+// @Param page path int true "page number"
+// @param Authorization header string true "Authorization"
+// @Produce      json
+// @Success      200  {array}  db.Score
+// @Router       /myscore/{page} [get]
 func (s *Server) myscore(c *fiber.Ctx) error {
 	page, err := c.ParamsInt("page")
 	if err != nil {
@@ -367,6 +386,14 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// moreinfo godoc
+// @Summary      Get moreInfo
+// @Description  Get more infomation of rank
+// @Tags         rank
+// @Param moreInfoRequest query api.MoreInfoRequest true ""
+// @Produce      json
+// @Success      200  {array}  db.Score
+// @Router       /moreinfo [get]
 func (s *Server) moreinfo(c *fiber.Ctx) error {
 	r := new(MoreInfoRequest)
 	if err := c.QueryParser(r); err != nil {
