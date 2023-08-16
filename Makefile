@@ -59,6 +59,10 @@ benchmark:
 	go-wrk -c 80 -d 5 -H Content-Type:application/json -M GET http://43.202.77.76:5000/practice
 
 swag:
+	rm -rf ./frontend/server/docs
 	swag init --output ./frontend/server/docs
 
-.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto installgrpcweb reactproto rmi test benchmark swag
+client:
+	cd ./frontend/server&&go run main.go
+
+.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto installgrpcweb reactproto rmi test benchmark swag client

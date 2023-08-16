@@ -11,6 +11,64 @@ definitions:
           $ref: '#/definitions/api.VolumeData'
         type: array
     type: object
+  api.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        maxLength: 10
+        minLength: 1
+        type: string
+      oauth_uid:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      user_id:
+        maxLength: 15
+        minLength: 5
+        type: string
+    required:
+    - email
+    - nickname
+    - password
+    - user_id
+    type: object
+  api.LoginUserRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      user_id:
+        maxLength: 15
+        minLength: 5
+        type: string
+    required:
+    - password
+    - user_id
+    type: object
+  api.LoginUserResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      session_id:
+        type: string
+      user:
+        $ref: '#/definitions/api.UserResponse'
+    type: object
+  api.MetamaskAddressRequest:
+    properties:
+      addr:
+        type: string
+    required:
+    - addr
+    type: object
   api.OnePairChart:
     properties:
       btcratio:
@@ -137,6 +195,21 @@ definitions:
       score:
         $ref: '#/definitions/api.OrderResult'
     type: object
+  api.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      nickname:
+        type: string
+      password_changed_at:
+        type: string
+      photo_url:
+        type: string
+      user_id:
+        type: string
+    type: object
   api.VolumeData:
     properties:
       color:
@@ -161,6 +234,35 @@ definitions:
       user_id:
         type: string
     type: object
+  db.Score:
+    properties:
+      endprice:
+        type: number
+      entryprice:
+        type: number
+      entrytime:
+        type: string
+      leverage:
+        type: integer
+      outtime:
+        type: integer
+      pairname:
+        type: string
+      pnl:
+        type: number
+      position:
+        type: string
+      remain_balance:
+        type: number
+      roe:
+        type: number
+      score_id:
+        type: string
+      stage:
+        type: integer
+      user_id:
+        type: string
+    type: object
 host: api.bitmoi.co.kr
 info:
   contact:
@@ -180,6 +282,11 @@ paths:
       - description: Comma-separated list of pair names
         in: query
         name: names
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
         type: string
       produces:
       - application/json
@@ -202,6 +309,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/api.ScoreRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -210,6 +322,128 @@ paths:
           schema:
             $ref: '#/definitions/api.ScoreResponse'
       summary: Post score
+      tags:
+      - score
+  /freetoken:
+    post:
+      consumes:
+      - application/json
+      description: request for free token
+      parameters:
+      - description: eth address
+        in: body
+        name: MetamaskAddressRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.MetamaskAddressRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Post sendFreeErc20
+      tags:
+      - erc20
+  /interval:
+    get:
+      description: Get another interval chart for both of practice and competition
+      parameters:
+      - in: query
+        name: identifier
+        required: true
+        type: string
+      - enum:
+        - competition
+        - practice
+        in: query
+        name: mode
+        required: true
+        type: string
+      - enum:
+        - 5m
+        - 15m
+        - 1h
+        - 4h
+        - 1d
+        in: query
+        name: reqinterval
+        required: true
+        type: string
+      - in: query
+        maximum: 10
+        minimum: 1
+        name: stage
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.OnePairChart'
+      summary: Get another interval chart
+      tags:
+      - chart
+  /moreinfo:
+    get:
+      description: Get more infomation of rank
+      parameters:
+      - in: query
+        name: score_id
+        required: true
+        type: string
+      - in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Score'
+            type: array
+      summary: Get moreInfo
+      tags:
+      - rank
+  /myscore/{page}:
+    get:
+      description: Get history of my score
+      parameters:
+      - description: page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Score'
+            type: array
+      summary: Get myscore
       tags:
       - score
   /practice:
@@ -261,6 +495,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/api.RankInsertRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -290,4 +529,97 @@ paths:
       summary: Get rank
       tags:
       - rank
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create user api
+      parameters:
+      - description: request contains id,pw,nickname,email ...
+        in: body
+        name: CreateUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Create user
+      tags:
+      - user
+  /user/address:
+    post:
+      consumes:
+      - application/json
+      description: Update metamask address api
+      parameters:
+      - description: request contains metamask address
+        in: body
+        name: LoginUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.MetamaskAddressRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update metamask address
+      tags:
+      - user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user api
+      parameters:
+      - description: request contains id and pw
+        in: body
+        name: LoginUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginUserResponse'
+      summary: Login user
+      tags:
+      - user
+  /user/profile:
+    post:
+      consumes:
+      - application/json
+      description: Update profile image api
+      parameters:
+      - description: profile image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update profile image
+      tags:
+      - user
 swagger: "2.0"

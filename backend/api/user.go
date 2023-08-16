@@ -59,6 +59,16 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString(nickname)
 }
 
+// createUser godoc
+//
+//		@Summary		Create user
+//		@Description	Create user api
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			CreateUserRequest	body		api.CreateUserRequest	true	"request contains id,pw,nickname,email ..."
+//		@Success		200		string	string
+//	 @Router       /user [post]
 func (s *Server) createUser(c *fiber.Ctx) error {
 	req := &CreateUserRequest{
 		UserID:   c.FormValue(userIdKey),
@@ -145,6 +155,16 @@ type LoginUserResponse struct {
 	User                  UserResponse `json:"user"`
 }
 
+// loginUser godoc
+//
+//		@Summary		Login user
+//		@Description	Login user api
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			LoginUserRequest	body		api.LoginUserRequest	true	"request contains id and pw"
+//		@Success		200		{object}	api.LoginUserResponse
+//	 @Router       /user/login [post]
 func (s *Server) loginUser(c *fiber.Ctx) error {
 	loginReq := new(LoginUserRequest)
 	err := c.BodyParser(&loginReq)
@@ -222,6 +242,17 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 
 }
 
+// updateMetamaskAddress godoc
+//
+//	@Summary		Update metamask address
+//	@Description	Update metamask address api
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			LoginUserRequest	body		api.MetamaskAddressRequest	true	"request contains metamask address"
+//	@param Authorization header string true "Authorization"
+//	@Success		200
+//	@Router       /user/address [post]
 func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)
@@ -257,6 +288,17 @@ func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// updateProfileImg godoc
+//
+//		@Summary		Update profile image
+//		@Description	Update profile image api
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			image	formData		file	true	"profile image"
+//	@param Authorization header string true "Authorization"
+//		@Success		200
+//	 @Router       /user/profile [post]
 func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
 	if !ok {

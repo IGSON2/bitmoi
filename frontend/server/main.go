@@ -68,7 +68,7 @@ func main() {
 	app.Static("/rank", "./build")
 	app.Static("/login", "./build")
 	app.Static("/signup", "./build")
-	app.Static("/goto/:domain", "./build")
+	app.Static("/goto/*", "./build")
 	app.Static("/freetoken", "./build")
 	log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
 	// log.Fatalln(app.Listen(port))

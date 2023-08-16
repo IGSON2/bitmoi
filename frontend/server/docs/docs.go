@@ -39,6 +39,13 @@ const docTemplate = `{
                         "description": "Comma-separated list of pair names",
                         "name": "names",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -71,6 +78,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/api.ScoreRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -78,6 +92,188 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/api.ScoreResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/freetoken": {
+            "post": {
+                "description": "request for free token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "erc20"
+                ],
+                "summary": "Post sendFreeErc20",
+                "parameters": [
+                    {
+                        "description": "eth address",
+                        "name": "MetamaskAddressRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.MetamaskAddressRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/interval": {
+            "get": {
+                "description": "Get another interval chart for both of practice and competition",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chart"
+                ],
+                "summary": "Get another interval chart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "identifier",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "competition",
+                            "practice"
+                        ],
+                        "type": "string",
+                        "name": "mode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "5m",
+                            "15m",
+                            "1h",
+                            "4h",
+                            "1d"
+                        ],
+                        "type": "string",
+                        "name": "reqinterval",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 10,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "stage",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.OnePairChart"
+                        }
+                    }
+                }
+            }
+        },
+        "/moreinfo": {
+            "get": {
+                "description": "Get more infomation of rank",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "summary": "Get moreInfo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "score_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Score"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/myscore/{page}": {
+            "get": {
+                "description": "Get history of my score",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "score"
+                ],
+                "summary": "Get myscore",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Score"
+                            }
                         }
                     }
                 }
@@ -162,6 +358,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/api.RankInsertRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -202,6 +405,148 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user": {
+            "post": {
+                "description": "Create user api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create user",
+                "parameters": [
+                    {
+                        "description": "request contains id,pw,nickname,email ...",
+                        "name": "CreateUserRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/address": {
+            "post": {
+                "description": "Update metamask address api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update metamask address",
+                "parameters": [
+                    {
+                        "description": "request contains metamask address",
+                        "name": "LoginUserRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.MetamaskAddressRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "Login user api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "request contains id and pw",
+                        "name": "LoginUserRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.LoginUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.LoginUserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile": {
+            "post": {
+                "description": "Update profile image api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update profile image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "profile image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -219,6 +564,89 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/api.VolumeData"
                     }
+                }
+            }
+        },
+        "api.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "nickname",
+                "password",
+                "user_id"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 1
+                },
+                "oauth_uid": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "user_id": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 5
+                }
+            }
+        },
+        "api.LoginUserRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "user_id"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "user_id": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 5
+                }
+            }
+        },
+        "api.LoginUserResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "access_token_expires_at": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "refresh_token_expires_at": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/api.UserResponse"
+                }
+            }
+        },
+        "api.MetamaskAddressRequest": {
+            "type": "object",
+            "required": [
+                "addr"
+            ],
+            "properties": {
+                "addr": {
+                    "type": "string"
                 }
             }
         },
@@ -404,6 +832,29 @@ const docTemplate = `{
                 }
             }
         },
+        "api.UserResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "password_changed_at": {
+                    "type": "string"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "api.VolumeData": {
             "type": "object",
             "properties": {
@@ -435,6 +886,50 @@ const docTemplate = `{
                 },
                 "score_id": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Score": {
+            "type": "object",
+            "properties": {
+                "endprice": {
+                    "type": "number"
+                },
+                "entryprice": {
+                    "type": "number"
+                },
+                "entrytime": {
+                    "type": "string"
+                },
+                "leverage": {
+                    "type": "integer"
+                },
+                "outtime": {
+                    "type": "integer"
+                },
+                "pairname": {
+                    "type": "string"
+                },
+                "pnl": {
+                    "type": "number"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "remain_balance": {
+                    "type": "number"
+                },
+                "roe": {
+                    "type": "number"
+                },
+                "score_id": {
+                    "type": "string"
+                },
+                "stage": {
+                    "type": "integer"
                 },
                 "user_id": {
                     "type": "string"

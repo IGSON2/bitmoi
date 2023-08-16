@@ -283,7 +283,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 // @Summary      Get another interval chart
 // @Description  Get another interval chart for both of practice and competition
 // @Tags         chart
-// @Param anotherIntervalRequest query api.AnotherIntervalRequest true ""
+// @Param anotherIntervalRequest query api.AnotherIntervalRequest true "query has interval,identifier,mode,stage"
 // @param Authorization header string false "Authorization"
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
@@ -358,6 +358,7 @@ func (s *Server) getRank(c *fiber.Ctx) error {
 // @Description  Post rank to ranking chart
 // @Tags         rank
 // @Param rankInsertRequest body api.RankInsertRequest true "socre id and comment"
+// @param Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200
 // @Router       /rank [post]
@@ -390,7 +391,7 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 // @Summary      Get moreInfo
 // @Description  Get more infomation of rank
 // @Tags         rank
-// @Param moreInfoRequest query api.MoreInfoRequest true ""
+// @Param moreInfoRequest query api.MoreInfoRequest true "query contains user id and score id"
 // @Produce      json
 // @Success      200  {array}  db.Score
 // @Router       /moreinfo [get]

@@ -34,7 +34,7 @@ type TransactionResponse struct {
 //	@Produce		json
 //	@Param			MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"eth address"
 //	@param Authorization header string true "Authorization"
-//	@Success		200		{object}	api.TransactionResponse
+//	@Success		200		{object}	string
 //	@Router       /freetoken [post]
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
