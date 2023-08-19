@@ -68,6 +68,11 @@
   color: #73757a;
 }
 
+.openbutton:focus,
+.closebutton:focus {
+  outline: none;
+}
+
 .chartinterface {
   width: 75%;
   height: 100%;

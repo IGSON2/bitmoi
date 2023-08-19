@@ -15,12 +15,13 @@ var (
 )
 
 type NextUnlockResponse struct {
-	NextUnlock int64 `json:"next_unlock"`
+	NextUnlock string `json:"next_unlock"`
 }
 
 func (s *Server) BiddingLoop() error {
 
 	for {
+		s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)
 		biddingTimer := time.NewTimer(s.config.BiddingDuration)
 		select {
 		case <-biddingTimer.C:
@@ -44,7 +45,6 @@ func (s *Server) BiddingLoop() error {
 				}
 				continue
 			}
-			s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)
 			log.Info().Msgf("Unlock token successfully. hash: %s, next unlock date: %s", hash.Hex(), s.nextUnlockDate.Format("2006-01-02 15:04:05"))
 		case <-s.exitCh:
 			return ErrClosedBiddingLoop
@@ -60,5 +60,5 @@ func (s *Server) BiddingLoop() error {
 // @Router       /nextBidUnlock [get]
 func (s *Server) getNextUnlockDate(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(NextUnlockResponse{
-		NextUnlock: s.nextUnlockDate.Unix()})
+		NextUnlock: s.nextUnlockDate.Format("2006-01-02 15:04:05")})
 }

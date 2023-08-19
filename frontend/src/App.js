@@ -27,7 +27,7 @@ function App() {
           <Route path="/competition" element={<Competition />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/community" element={<div>This is board page.</div>} />
-          <Route path="/ad_bidding" element={<AddBidding />} />
+          <Route path="/ad-bidding" element={<AddBidding />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/rank" element={<Rank />} />
           <Route path="/login" element={<Login />} />
