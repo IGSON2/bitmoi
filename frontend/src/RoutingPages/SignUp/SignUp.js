@@ -77,7 +77,7 @@ function SignUp() {
 
   const userIDCheck = (e) => {
     e.preventDefault();
-    fetch("https://api.bitmoi.co.kr/user/checkid?user_id=" + userID)
+    fetch("https://api.bitmoi.co.kr/user/checkId?user_id=" + userID)
       .then((res) => {
         if (res.ok) {
           setUserIdDuplicationText("사용가능");
@@ -139,7 +139,7 @@ function SignUp() {
 
   const nicknameCheck = (e) => {
     e.preventDefault();
-    fetch("https://api.bitmoi.co.kr/user/checknickname?nickname=" + nickname)
+    fetch("https://api.bitmoi.co.kr/user/checkNickname?nickname=" + nickname)
       .then((res) => {
         if (res.ok) {
           setNicknameDuplicationText("사용가능");

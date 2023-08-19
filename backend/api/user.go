@@ -41,6 +41,14 @@ func convertUserResponse(user db.User) UserResponse {
 	return uR
 }
 
+// checkID godoc
+// @Summary      Check ID
+// @Description  Check ID duplication
+// @Tags         user
+// @Param user_id query string true "user id"
+// @Produce      json
+// @Success      200
+// @Router       /user/checkId [get]
 func (s *Server) checkID(c *fiber.Ctx) error {
 	userID := c.Query("user_id")
 	user, _ := s.store.GetUser(c.Context(), userID)
@@ -50,6 +58,14 @@ func (s *Server) checkID(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString(userID)
 }
 
+// checkNickname godoc
+// @Summary      Check nickname
+// @Description  Check nickname duplication
+// @Tags         user
+// @Param nickname query string true "nickname"
+// @Produce      json
+// @Success      200
+// @Router       /user/checkNickname [get]
 func (s *Server) checkNickname(c *fiber.Ctx) error {
 	nickname := c.Query("nickname")
 	user, _ := s.store.GetUserByNickName(c.Context(), nickname)
@@ -67,7 +83,7 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 //		@Accept			json
 //		@Produce		json
 //		@Param			CreateUserRequest	body		api.CreateUserRequest	true	"request contains id,pw,nickname,email ..."
-//		@Success		200		string	string
+//		@Success		200
 //	 @Router       /user [post]
 func (s *Server) createUser(c *fiber.Ctx) error {
 	req := &CreateUserRequest{

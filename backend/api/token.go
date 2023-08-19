@@ -23,6 +23,16 @@ type VerifyTokenRequest struct {
 	Token string `json:"token" validate:"required"`
 }
 
+// reissueAccessToken godoc
+//
+//		@Summary		Reissue access token
+//		@Description	Reissue access token
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			ReissueAccessTokenRequest	body		api.ReissueAccessTokenRequest	true	"refresh token"
+//		@Success		200		{object}	api.ReissueAccessTokenResponse
+//	 @Router       /reissueAccess [post]
 func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	r := new(ReissueAccessTokenRequest)
 	err := c.BodyParser(r)
@@ -83,6 +93,16 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
+// verifyToken godoc
+//
+//		@Summary		Reissue access token
+//		@Description	Reissue access token
+//		@Tags			user
+//		@Accept			json
+//		@Produce		json
+//		@Param			VerifyTokenRequest	body		api.VerifyTokenRequest	true	"access token"
+//		@Success		200		{object}	api.UserResponse
+//	 @Router       /verifyToken [post]
 func (s *Server) verifyToken(c *fiber.Ctx) error {
 	r := new(VerifyTokenRequest)
 	err := c.BodyParser(r)

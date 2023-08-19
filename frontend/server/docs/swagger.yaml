@@ -69,6 +69,11 @@ definitions:
     required:
     - addr
     type: object
+  api.NextUnlockResponse:
+    properties:
+      next_unlock:
+        type: integer
+    type: object
   api.OnePairChart:
     properties:
       btcratio:
@@ -130,6 +135,22 @@ definitions:
         type: string
     required:
     - score_id
+    type: object
+  api.ReissueAccessTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  api.ReissueAccessTokenResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      user:
+        $ref: '#/definitions/api.UserResponse'
     type: object
   api.ScoreRequest:
     properties:
@@ -209,6 +230,13 @@ definitions:
         type: string
       user_id:
         type: string
+    type: object
+  api.VerifyTokenRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
     type: object
   api.VolumeData:
     properties:
@@ -324,7 +352,7 @@ paths:
       summary: Post score
       tags:
       - score
-  /freetoken:
+  /freeToken:
     post:
       consumes:
       - application/json
@@ -446,6 +474,17 @@ paths:
       summary: Get myscore
       tags:
       - score
+  /nextBidUnlock:
+    get:
+      description: Get next date of unlock ad bidding
+      responses:
+        "200":
+          description: unix timestamp
+          schema:
+            $ref: '#/definitions/api.NextUnlockResponse'
+      summary: Get next unlock date
+      tags:
+      - erc20
   /practice:
     get:
       description: Get non encrypted chart for practice
@@ -529,6 +568,28 @@ paths:
       summary: Get rank
       tags:
       - rank
+  /reissueAccess:
+    post:
+      consumes:
+      - application/json
+      description: Reissue access token
+      parameters:
+      - description: refresh token
+        in: body
+        name: ReissueAccessTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.ReissueAccessTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ReissueAccessTokenResponse'
+      summary: Reissue access token
+      tags:
+      - user
   /user:
     post:
       consumes:
@@ -546,8 +607,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            type: string
       summary: Create user
       tags:
       - user
@@ -574,6 +633,40 @@ paths:
         "200":
           description: OK
       summary: Update metamask address
+      tags:
+      - user
+  /user/checkId:
+    get:
+      description: Check ID duplication
+      parameters:
+      - description: user id
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Check ID
+      tags:
+      - user
+  /user/checkNickname:
+    get:
+      description: Check nickname duplication
+      parameters:
+      - description: nickname
+        in: query
+        name: nickname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Check nickname
       tags:
       - user
   /user/login:
@@ -620,6 +713,45 @@ paths:
         "200":
           description: OK
       summary: Update profile image
+      tags:
+      - user
+  /user/verifyEmail:
+    get:
+      description: Check nickname duplication
+      parameters:
+      - description: nickname
+        in: query
+        name: nickname
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Check nickname
+      tags:
+      - user
+  /verifyToken:
+    post:
+      consumes:
+      - application/json
+      description: Reissue access token
+      parameters:
+      - description: access token
+        in: body
+        name: VerifyTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.VerifyTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+      summary: Reissue access token
       tags:
       - user
 swagger: "2.0"

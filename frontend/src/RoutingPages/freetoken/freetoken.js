@@ -2,7 +2,7 @@ import axiosClient from "../../component/backendConn/axiosClient";
 
 function Freetoken() {
   const getFreeToken = async () => {
-    await axiosClient.post("/freetoken", {
+    await axiosClient.post("/freeToken", {
       addr: "0x6655992CEDa8A8Faf070208A96a1051144D77E3D",
     });
   };

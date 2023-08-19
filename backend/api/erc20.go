@@ -35,7 +35,7 @@ type TransactionResponse struct {
 //	@Param			MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"eth address"
 //	@param Authorization header string true "Authorization"
 //	@Success		200		{object}	string
-//	@Router       /freetoken [post]
+//	@Router       /freeToken [post]
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)
@@ -62,7 +62,7 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 		user.MetamaskAddress.String = r.Addr
 	}
 
-	if timeout := s.erc20Contract.Timeouts[user.MetamaskAddress.String]; time.Now().After(timeout) {
+	if timeout := s.erc20Contract.Timeouts[user.UserID]; time.Now().After(timeout) {
 		ToAddr := common.HexToAddress(user.MetamaskAddress.String)
 
 		hash, err := s.erc20Contract.SendFreeTokens(ToAddr, FreeAmt, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
@@ -113,7 +113,12 @@ func (s *Server) spendErc20OnComp(c *fiber.Ctx, scoreId string) (*common.Hash, e
 
 	if err != nil {
 		if strings.Contains(err.Error(), "nonce") {
-			//TODO
+			erc20, reGenErc20Err := contract.InitErc20Contract(s.config.PrivateKey)
+			if reGenErc20Err != nil {
+				return nil, fmt.Errorf("cannot init erc20 contract : %w", reGenErc20Err)
+			}
+			log.Warn().Msgf("Erc20 instance was regenerated caused by this err: %s", err.Error())
+			s.erc20Contract = erc20
 		}
 		return nil, fmt.Errorf("cannot update token ledger. err: %s", err.Error())
 	}

@@ -12,6 +12,14 @@ type VerifyEmailResponse struct {
 	IsVerified bool `json:"is_verified"`
 }
 
+// verifyEmail godoc
+// @Summary      Check nickname
+// @Description  Check nickname duplication
+// @Tags         user
+// @Param nickname query string true "nickname"
+// @Produce      json
+// @Success      200
+// @Router       /user/verifyEmail [get]
 func (s *Server) verifyEmail(c *fiber.Ctx) error {
 	r := new(VerifyEmailRequest)
 	err := c.QueryParser(r)

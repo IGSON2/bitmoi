@@ -24,6 +24,7 @@ type Config struct {
 	PrivateKey           string        `mapstructure:"PRIVATE_KEY"`
 	S3AccessKey          string        `mapstructure:"S3_ACCESS_KEY"`
 	S3SecretKey          string        `mapstructure:"S3_SECRET_KEY"`
+	BiddingDuration      time.Duration `mapstructure:"BIDDING_DURATION"`
 	DataDir              string
 }
 

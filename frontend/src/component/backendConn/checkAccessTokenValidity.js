@@ -8,7 +8,7 @@ const checkAccessTokenValidity = async () => {
     return null;
   }
   try {
-    const response = await axiosClient.post("/verify_token", {
+    const response = await axiosClient.post("/verifyToken", {
       token: accessToken,
     });
     if (response.status === 200) {
@@ -18,7 +18,7 @@ const checkAccessTokenValidity = async () => {
     }
   } catch (error) {
     try {
-      const refResponse = await axiosClient.post("/token/reissue_access", {
+      const refResponse = await axiosClient.post("/reissueAccess", {
         refresh_token: refreshToken,
       });
       if (refResponse.status === 200) {

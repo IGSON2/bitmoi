@@ -94,7 +94,7 @@ func (processor *TestRedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.
 		return fmt.Errorf("cannot get verifyEmail by specified data: %w", err)
 	}
 
-	verifyUrl := fmt.Sprintf("http://localhost:5001/verify_email?email_id=%d&secret_code=%s",
+	verifyUrl := fmt.Sprintf("http://localhost:5001/user/verifyEmail?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
 
 	client := &http.Client{}

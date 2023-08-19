@@ -25,7 +25,7 @@ function HomeInformation({ mode }) {
           결과를 뽐내어 보세요.
         </p>
       );
-    case "ranking":
+    case "rank":
       return <p>경쟁모드 순위를 확인해 볼 수 있습니다.</p>;
     case "ad bidding":
       return (

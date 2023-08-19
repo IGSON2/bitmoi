@@ -97,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/freetoken": {
+        "/freeToken": {
             "post": {
                 "description": "request for free token",
                 "consumes": [
@@ -279,6 +279,23 @@ const docTemplate = `{
                 }
             }
         },
+        "/nextBidUnlock": {
+            "get": {
+                "description": "Get next date of unlock ad bidding",
+                "tags": [
+                    "erc20"
+                ],
+                "summary": "Get next unlock date",
+                "responses": {
+                    "200": {
+                        "description": "unix timestamp",
+                        "schema": {
+                            "$ref": "#/definitions/api.NextUnlockResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/practice": {
             "get": {
                 "description": "Get non encrypted chart for practice",
@@ -406,6 +423,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/reissueAccess": {
+            "post": {
+                "description": "Reissue access token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Reissue access token",
+                "parameters": [
+                    {
+                        "description": "refresh token",
+                        "name": "ReissueAccessTokenRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ReissueAccessTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ReissueAccessTokenResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "description": "Create user api",
@@ -432,10 +483,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -468,6 +516,58 @@ const docTemplate = `{
                         "description": "Authorization",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/user/checkId": {
+            "get": {
+                "description": "Check ID duplication",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Check ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/user/checkNickname": {
+            "get": {
+                "description": "Check nickname duplication",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Check nickname",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "nickname",
+                        "name": "nickname",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -544,6 +644,66 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/user/verifyEmail": {
+            "get": {
+                "description": "Check nickname duplication",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Check nickname",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "nickname",
+                        "name": "nickname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/verifyToken": {
+            "post": {
+                "description": "Reissue access token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Reissue access token",
+                "parameters": [
+                    {
+                        "description": "access token",
+                        "name": "VerifyTokenRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.VerifyTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.UserResponse"
+                        }
                     }
                 }
             }
@@ -650,6 +810,14 @@ const docTemplate = `{
                 }
             }
         },
+        "api.NextUnlockResponse": {
+            "type": "object",
+            "properties": {
+                "next_unlock": {
+                    "type": "integer"
+                }
+            }
+        },
         "api.OnePairChart": {
             "type": "object",
             "properties": {
@@ -742,6 +910,31 @@ const docTemplate = `{
                 },
                 "score_id": {
                     "type": "string"
+                }
+            }
+        },
+        "api.ReissueAccessTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ReissueAccessTokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "access_token_expires_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/api.UserResponse"
                 }
             }
         },
@@ -851,6 +1044,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.VerifyTokenRequest": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

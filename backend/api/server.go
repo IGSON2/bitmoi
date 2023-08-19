@@ -27,7 +27,6 @@ const (
 
 var (
 	errNotAuthenticated = errors.New("this service requires authentication in competition mode")
-	biddingDuration     = time.Hour * 24 //time.Minute
 )
 
 type Server struct {
@@ -38,7 +37,6 @@ type Server struct {
 	pairs           []string
 	taskDistributor worker.TaskDistributor
 	erc20Contract   *contract.ERC20Contract
-	biddingDuration time.Duration
 	nextUnlockDate  time.Time
 	s3Uploader      *s3.S3
 	exitCh          chan struct{}
@@ -66,7 +64,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		tokenMaker:      tm,
 		taskDistributor: taskDistributor,
 		erc20Contract:   erc20,
-		biddingDuration: biddingDuration,
 		s3Uploader:      s3Uploader,
 		exitCh:          make(chan struct{}),
 	}
@@ -91,18 +88,19 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/rank/:page", server.getRank)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
-	router.Get("/user/checkid", server.checkID)
-	router.Get("/user/checknickname", server.checkNickname)
-	router.Post("/token/reissue_access", server.reissueAccessToken)
-	router.Get("/verify_email", server.verifyEmail)
-	router.Post("/verify_token", server.verifyToken)
+	router.Get("/user/checkId", server.checkID)
+	router.Get("/user/checkNickname", server.checkNickname)
+	router.Get("/user/verifyEmail", server.verifyEmail)
+	router.Post("/reissueAccess", server.reissueAccessToken)
+	router.Post("/verifyToken", server.verifyToken)
+	router.Get("/nextBidUnlock", server.getNextUnlockDate)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Post("/rank", server.postRank)
 	authGroup.Get("/myscore/:page", server.myscore)
-	authGroup.Post("/freetoken", server.sendFreeErc20)
+	authGroup.Post("/freeToken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
 
