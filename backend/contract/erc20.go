@@ -78,3 +78,14 @@ func (c *ERC20Contract) UnLockTokens(
 	log.Debug().Msgf("UnLock all tokens")
 	return c.ExecuteTransaction("unlockTokens", opts)
 }
+
+func (c *ERC20Contract) GetHighestBidder(adLocation string) (*common.Address, *big.Int, error) {
+	log.Debug().Msgf("Getting highest bidder for location %s", adLocation)
+	res, err := c.CallContract("highestbidder", adLocation)
+	if err != nil {
+		return nil, nil, err
+	}
+	addr := abi.ConvertType(res[0], new(common.Address)).(*common.Address)
+	amt := abi.ConvertType(res[1], new(big.Int)).(*big.Int)
+	return addr, amt, nil
+}

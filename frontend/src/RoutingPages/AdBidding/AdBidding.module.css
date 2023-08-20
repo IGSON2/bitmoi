@@ -1,0 +1,44 @@
+.adbidding {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar {
+  width: 100%;
+  height: 9%;
+}
+
+.title {
+  width: 100%;
+  height: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview {
+  width: 100%;
+  height: 65%;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.highestbidder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.timer {
+  width: 100%;
+  height: 15%;
+  padding: 10px 20px;
+}

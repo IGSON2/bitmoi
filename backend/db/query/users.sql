@@ -18,6 +18,10 @@ WHERE user_id = ?;
 SELECT * FROM users
 WHERE nickname = ?;
 
+-- name: GetUserByMetamaskAddress :one
+SELECT * FROM users
+WHERE metamask_address = ?;
+
 -- name: GetRandomUser :one
 SELECT * FROM users
 ORDER BY RAND()

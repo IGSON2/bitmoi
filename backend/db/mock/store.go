@@ -606,6 +606,21 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockStore)(nil).GetUser), arg0, arg1)
 }
 
+// GetUserByMetamaskAddress mocks base method.
+func (m *MockStore) GetUserByMetamaskAddress(arg0 context.Context, arg1 sql.NullString) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByMetamaskAddress", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByMetamaskAddress indicates an expected call of GetUserByMetamaskAddress.
+func (mr *MockStoreMockRecorder) GetUserByMetamaskAddress(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByMetamaskAddress", reflect.TypeOf((*MockStore)(nil).GetUserByMetamaskAddress), arg0, arg1)
+}
+
 // GetUserByNickName mocks base method.
 func (m *MockStore) GetUserByNickName(arg0 context.Context, arg1 string) (db.User, error) {
 	m.ctrl.T.Helper()

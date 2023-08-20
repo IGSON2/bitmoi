@@ -117,6 +117,30 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	return i, err
 }
 
+const getUserByMetamaskAddress = `-- name: GetUserByMetamaskAddress :one
+SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
+WHERE metamask_address = ?
+`
+
+func (q *Queries) GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByMetamaskAddress, metamaskAddress)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.OauthUid,
+		&i.Nickname,
+		&i.HashedPassword,
+		&i.Email,
+		&i.MetamaskAddress,
+		&i.PhotoUrl,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+		&i.AddressChangedAt,
+		&i.IsEmailVerified,
+	)
+	return i, err
+}
+
 const getUserByNickName = `-- name: GetUserByNickName :one
 SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, created_at, password_changed_at, address_changed_at, is_email_verified FROM users
 WHERE nickname = ?

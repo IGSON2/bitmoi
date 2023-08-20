@@ -4,6 +4,7 @@ import RankDiv from "./RankDiv/RankDiv";
 import Topbutton from "../../component/Topbutton/Topbutton";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import axiosClient from "../../component/backendConn/axiosClient";
+import AdDiv from "./AdDiv/AdDiv";
 
 function Rank() {
   const [pageNum, setPageNum] = useState(1);
@@ -29,6 +30,14 @@ function Rank() {
         </div>
         {data
           ? data.map((v, i) => {
+              if ((i + 1) % 10 === 0) {
+                return (
+                  <div className={styles.adline}>
+                    <RankDiv key={i} index={i + 1} obj={v} />
+                    <AdDiv />
+                  </div>
+                );
+              }
               return <RankDiv key={i} index={i + 1} obj={v} />;
             })
           : null}

@@ -47,6 +47,7 @@ type Querier interface {
 	GetSession(ctx context.Context, sessionID string) (Session, error)
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
 	GetUser(ctx context.Context, userID string) (User, error)
+	GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error)
 	GetUserByNickName(ctx context.Context, nickname string) (User, error)
 	GetVerifyEmails(ctx context.Context, arg GetVerifyEmailsParams) (VerifyEmail, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)

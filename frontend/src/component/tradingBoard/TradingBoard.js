@@ -13,7 +13,7 @@ import axiosClient from "../backendConn/axiosClient";
 import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 import { HttpStatusCode } from "axios";
 
-function TradingBoard({ modeHeight, mode, score_id }) {
+function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
   const [isLogined, setIsLogined] = useState(false);
   const [userInfo, setUserinfo] = useState();
 
@@ -184,6 +184,9 @@ function TradingBoard({ modeHeight, mode, score_id }) {
     }
 
     setloaded(true);
+    if (mode === "practice") {
+      setIsLoaded(true);
+    }
   };
 
   useEffect(() => {

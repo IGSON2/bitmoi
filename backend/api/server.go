@@ -94,6 +94,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Post("/reissueAccess", server.reissueAccessToken)
 	router.Post("/verifyToken", server.verifyToken)
 	router.Get("/nextBidUnlock", server.getNextUnlockDate)
+	router.Get("/highestBidder", server.getHighestBidder)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Get("/competition", server.getCompetitionChart)

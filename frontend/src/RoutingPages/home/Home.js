@@ -5,7 +5,7 @@ import HorizontalLine from "../../component/lines/HorizontalLine";
 import HomeInformation from "./HomeInformation/HomeInformation";
 
 function Home() {
-  const menu = ["practice", "competition", "rank", "ad_bidding"];
+  const menu = ["practice", "competition", "rank", "ad-bidding"];
   const [modetitle, setModetitle] = useState("BITMOI");
   const onMouseEnter = (event) => {
     const selected = event.target.outerText.toLowerCase();
@@ -41,7 +41,7 @@ function Home() {
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
               >
-                {m.toUpperCase().replace(/_/, " ")}
+                {m.toUpperCase().replace(/-/, " ")}
               </button>
             </Link>
           );
