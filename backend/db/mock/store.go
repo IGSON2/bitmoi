@@ -36,6 +36,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CreateBiddingHistory mocks base method.
+func (m *MockStore) CreateBiddingHistory(arg0 context.Context, arg1 db.CreateBiddingHistoryParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBiddingHistory", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBiddingHistory indicates an expected call of CreateBiddingHistory.
+func (mr *MockStoreMockRecorder) CreateBiddingHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBiddingHistory", reflect.TypeOf((*MockStore)(nil).CreateBiddingHistory), arg0, arg1)
+}
+
 // CreateSession mocks base method.
 func (m *MockStore) CreateSession(arg0 context.Context, arg1 db.CreateSessionParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -454,6 +469,36 @@ func (m *MockStore) GetAllRanks(arg0 context.Context, arg1 db.GetAllRanksParams)
 func (mr *MockStoreMockRecorder) GetAllRanks(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllRanks", reflect.TypeOf((*MockStore)(nil).GetAllRanks), arg0, arg1)
+}
+
+// GetHistoryByLocation mocks base method.
+func (m *MockStore) GetHistoryByLocation(arg0 context.Context, arg1 db.GetHistoryByLocationParams) ([]db.BiddingHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistoryByLocation", arg0, arg1)
+	ret0, _ := ret[0].([]db.BiddingHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistoryByLocation indicates an expected call of GetHistoryByLocation.
+func (mr *MockStoreMockRecorder) GetHistoryByLocation(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistoryByLocation", reflect.TypeOf((*MockStore)(nil).GetHistoryByLocation), arg0, arg1)
+}
+
+// GetHistoryByUser mocks base method.
+func (m *MockStore) GetHistoryByUser(arg0 context.Context, arg1 string) ([]db.BiddingHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHistoryByUser", arg0, arg1)
+	ret0, _ := ret[0].([]db.BiddingHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHistoryByUser indicates an expected call of GetHistoryByUser.
+func (mr *MockStoreMockRecorder) GetHistoryByUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistoryByUser", reflect.TypeOf((*MockStore)(nil).GetHistoryByUser), arg0, arg1)
 }
 
 // GetLastUser mocks base method.

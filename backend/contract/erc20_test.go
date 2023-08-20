@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -30,4 +31,15 @@ func TestLockToken(t *testing.T) {
 
 	// _, err = contract.client.WaitAndReturnTxReceipt(*unlockHash)
 	// require.NoError(t, err)
+}
+
+func TestGetHighestBidder(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+	contract := newTestErc20Contract(t)
+
+	addr, amt, err := contract.GetHighestBidder("practice")
+	require.NoError(t, err)
+	fmt.Println(addr.Hex(), amt.Int64())
 }

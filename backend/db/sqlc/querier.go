@@ -10,6 +10,7 @@ import (
 )
 
 type Querier interface {
+	CreateBiddingHistory(ctx context.Context, arg CreateBiddingHistoryParams) (sql.Result, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (sql.Result, error)
 	CreateUsedToken(ctx context.Context, arg CreateUsedTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
@@ -37,6 +38,8 @@ type Querier interface {
 	Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error)
 	GetAllParisInDB(ctx context.Context) ([]string, error)
 	GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]RankingBoard, error)
+	GetHistoryByLocation(ctx context.Context, arg GetHistoryByLocationParams) ([]BiddingHistory, error)
+	GetHistoryByUser(ctx context.Context, userID string) ([]BiddingHistory, error)
 	GetLastUser(ctx context.Context) (User, error)
 	GetRandomUser(ctx context.Context) (User, error)
 	GetRankByUserID(ctx context.Context, userID string) (RankingBoard, error)

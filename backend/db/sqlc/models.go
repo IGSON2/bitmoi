@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+type BiddingHistory struct {
+	UserID    string    `json:"user_id"`
+	Amount    int64     `json:"amount"`
+	Location  string    `json:"location"`
+	TxHash    string    `json:"tx_hash"`
+	ExpiresAt time.Time `json:"expires_at"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Candles15m struct {
 	Name   string  `json:"name"`
 	Open   float64 `json:"open"`

@@ -103,3 +103,8 @@ type MetamaskAddressRequest struct {
 type GetHighestBidderRequest struct {
 	Location string `json:"location" validate:"required,oneof=practice rank freetoken" query:"location"`
 }
+
+type BidTokenRequest struct {
+	Amount   int    `json:"amount" validate:"required,number,min=1"`
+	Location string `json:"location" validate:"required,oneof=practice rank freetoken"`
+}

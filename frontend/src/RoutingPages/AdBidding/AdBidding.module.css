@@ -14,7 +14,7 @@
 
 .title {
   width: 100%;
-  height: 10%;
+  height: 20%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,6 +30,11 @@
   align-items: center;
 }
 
+.previewimage {
+  width: 30%;
+  height: 50%;
+}
+
 .highestbidder {
   display: flex;
   flex-direction: column;
@@ -37,8 +42,38 @@
   align-items: center;
 }
 
+.tokenbalance {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.tokenbalance img {
+  width: 40px;
+  height: 40px;
+}
+
+.navbutton {
+}
+
+.navbutton:hover {
+  cursor: pointer;
+}
+
+.navbar:active {
+  box-shadow: 2px 2px 6px rgb(48, 47, 47) inset;
+  position: relative;
+  right: -1%;
+  bottom: -1%;
+}
+
 .timer {
   width: 100%;
   height: 15%;
   padding: 10px 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }

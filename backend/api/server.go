@@ -104,6 +104,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/freeToken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
+	authGroup.Post("/bidToken", server.bidToken)
 
 	server.router = router
 
