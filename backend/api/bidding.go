@@ -45,7 +45,6 @@ func (s *Server) BiddingLoop() error {
 					log.Err(err).Msgf("Cannot unlock token. stop server..")
 					os.Exit(100)
 				}
-				continue
 			}
 			receipt, err := s.erc20Contract.WaitAndReturnTxReceipt(hash)
 			if err != nil || receipt == nil {

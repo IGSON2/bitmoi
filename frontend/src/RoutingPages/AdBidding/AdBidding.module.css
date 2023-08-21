@@ -5,6 +5,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  row-gap: 1%;
 }
 
 .navbar {
@@ -18,21 +19,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: xx-large;
+  font-weight: 700;
 }
 
 .preview {
   width: 100%;
-  height: 65%;
-  padding: 10px 20px;
+  height: 50%;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  padding: 0 3%;
 }
 
 .previewimage {
-  width: 30%;
-  height: 50%;
+  max-width: 600px;
+  max-height: 300px;
 }
 
 .highestbidder {
@@ -40,6 +43,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 250px;
+  height: 100%;
+  row-gap: 3%;
 }
 
 .tokenbalance {
@@ -47,11 +53,13 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  column-gap: 5%;
 }
 
 .tokenbalance img {
-  width: 40px;
-  height: 40px;
+  max-width: 30px;
+  max-height: 30px;
 }
 
 .navbutton {
@@ -70,10 +78,10 @@
 
 .timer {
   width: 100%;
-  height: 15%;
-  padding: 10px 20px;
+  height: 20%;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  column-gap: 5%;
 }
