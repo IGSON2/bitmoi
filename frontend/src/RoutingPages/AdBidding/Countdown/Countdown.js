@@ -30,7 +30,7 @@ function Countdown({ nextUnlock }) {
   };
 
   const days = Math.floor(remainingSeconds / 86400);
-  const hours = Math.floor(remainingSeconds / 3600);
+  const hours = Math.floor((remainingSeconds % 86400) / 3600);
   const minutes = Math.floor((remainingSeconds % 3600) / 60);
   const seconds = remainingSeconds % 60;
 
