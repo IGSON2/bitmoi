@@ -33,7 +33,6 @@ type HighestBidderResponse struct {
 func (s *Server) BiddingLoop() error {
 
 	for {
-		s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)
 		biddingTimer := time.NewTimer(s.config.BiddingDuration)
 		select {
 		case <-biddingTimer.C:
@@ -56,6 +55,7 @@ func (s *Server) BiddingLoop() error {
 				}
 				continue
 			}
+			s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)
 			log.Info().Msgf("Unlock token successfully. hash: %s, next unlock date: %s", hash.Hex(), s.nextUnlockDate.Format("2006-01-02 15:04:05"))
 		case <-s.exitCh:
 			return ErrClosedBiddingLoop
