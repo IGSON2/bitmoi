@@ -70,8 +70,10 @@ func (s *Server) BiddingLoop() error {
 // @Success      200 {object} api.NextUnlockResponse "unix timestamp"
 // @Router       /nextBidUnlock [get]
 func (s *Server) getNextUnlockDate(c *fiber.Ctx) error {
+	kst := time.FixedZone("KST", 9*60*60)
+	kstTime := s.nextUnlockDate.In(kst)
 	return c.Status(fiber.StatusOK).JSON(NextUnlockResponse{
-		NextUnlock: s.nextUnlockDate.Format("2006-01-02T15:04:05")})
+		NextUnlock: kstTime.Format("2006-01-02T15:04:05")})
 }
 
 // getHighestBidder godoc
