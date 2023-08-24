@@ -9,9 +9,11 @@ import next from "../../component/images/next.png";
 import { useEffect, useState } from "react";
 import Countdown from "./Countdown/Countdown";
 import HorizontalLine from "../../component/lines/HorizontalLine";
-import VerticalLine from "../../component/lines/VerticalLine";
+import { useParams } from "react-router-dom";
 
 function AddBidding() {
+  const { locParam } = useParams(); // TODO fix undefined param value error
+
   const [idx, setIdx] = useState(0);
   const titles = ["연습모드 하단", "랭크 페이지 중간", "무료 토큰 지급 페이지"];
   const previImages = [practice, rank];
@@ -57,8 +59,16 @@ function AddBidding() {
     };
 
     getNextBidUnlock();
+    pathes.map((path) => {
+      if (locParam && path === locParam) {
+        highestBidder(locParam);
+        return;
+      }
+    });
     highestBidder(pathes[0]);
   }, []);
+
+  console.log(locParam);
 
   return (
     <div className={styles.adbidding}>

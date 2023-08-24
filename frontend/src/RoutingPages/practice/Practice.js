@@ -7,6 +7,10 @@ function Practice() {
   const score_id = Date.now().toString();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const adClick = () => {
+    window.location.replace("/ad-bidding/practice");
+  };
+
   return (
     <div className={styles.practicepage}>
       <div className={styles.chart}>
@@ -18,7 +22,7 @@ function Practice() {
         />
       </div>
       <div className={styles.ad}>
-        {isLoaded ? <img src={mockupimg}></img> : null}
+        {isLoaded ? <img src={mockupimg} onClick={adClick}></img> : null}
       </div>
     </div>
   );

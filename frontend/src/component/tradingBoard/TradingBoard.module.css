@@ -43,6 +43,8 @@
   width: 1%;
   height: 100%;
   z-index: 10;
+  position: relative;
+  left: 5px;
 }
 
 .closebutton,
@@ -50,11 +52,8 @@
   background-color: transparent;
   border: none;
   font-size: 1.7vw;
-  position: relative;
   color: #555860;
   width: 100%;
-  top: 0%;
-  left: -5%;
 }
 
 .closebutton:hover {
@@ -76,15 +75,13 @@
 .chartinterface {
   width: 75%;
   height: 100%;
-  padding-top: 20px;
-  padding-left: 20px;
+  padding-top: 10px;
   transition: 1s;
 }
 .widerchart {
   width: 78%;
   height: 100%;
-  padding-top: 20px;
-  padding-left: 20px;
+  padding-top: 10px;
   transition: 1s;
 }
 
