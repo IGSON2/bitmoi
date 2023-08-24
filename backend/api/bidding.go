@@ -36,18 +36,18 @@ func (s *Server) BiddingLoop() error {
 		biddingTimer := time.NewTimer(s.config.BiddingDuration)
 		select {
 		case <-biddingTimer.C:
+			var initErr error
+			s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
+			if initErr != nil {
+				log.Err(initErr).Msgf("Cannot initialize contract instance. stop server..")
+				os.Exit(100)
+			}
 			hash, err := s.erc20Contract.UnLockTokens(contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 			if err != nil {
-				var initErr error
-				s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
-				if initErr != nil {
-					log.Err(err).Msgf("Cannot unlock token. stop server..")
-					os.Exit(100)
-				}
+				log.Panic().Msgf("cannot unlock token. re-generate contract instance. Err: %s", err.Error())
 			}
 			receipt, err := s.erc20Contract.WaitAndReturnTxReceipt(hash)
 			if err != nil || receipt == nil {
-				var initErr error
 				s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
 				if initErr != nil {
 					log.Err(err).Msgf("Cannot get receipt of unlock token transaction. stop server..")
