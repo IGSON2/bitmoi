@@ -129,7 +129,11 @@ contract MoiToken is Ownable, ERC20 {
 
         locks[_adLocation][_from] += _amount;
 
-        if (locks[_adLocation][_from] > highestbidder[_adLocation].amount) {
+        if (_from == highestbidder[_adLocation].addr) {
+            highestbidder[_adLocation].amount += _amount;
+        } else if (
+            locks[_adLocation][_from] > highestbidder[_adLocation].amount
+        ) {
             highestbidder[_adLocation] = addrAmount(_from, _amount);
         }
 

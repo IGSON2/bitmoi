@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ERC20Address = "0xf4CFFdF8032B7C59d8254538Cc9F3f20BF2a03fF"
+	ERC20Address = "0xd7003A3DE013054B52978b02FaE6620f3f9C2368"
 )
 
 var (
