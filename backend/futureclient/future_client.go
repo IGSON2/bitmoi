@@ -38,14 +38,15 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
 	}
-	if getErr := f.GetAllPairs(); getErr != nil {
+	if getErr := f.GetAllPairsFromStore(); getErr != nil {
 		return nil, getErr
 	}
 	return f, nil
 }
 
-func (f *FutureClient) GetAllPairs() error {
-	log.Info().Msg("start to get all pair names")
+// GetAllPairsFromBinance is storing pairnames from binance server but "deprecated" now.
+func (f *FutureClient) GetAllPairsFromBinance() error {
+	log.Info().Msg("start to get all pair names from binance server")
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
@@ -54,6 +55,17 @@ func (f *FutureClient) GetAllPairs() error {
 		if strings.HasSuffix(s.Symbol, "USDT") {
 			f.Pairs = append(f.Pairs, s.Symbol)
 		}
+	}
+	log.Info().Msg("init all pair names completely")
+	return nil
+}
+
+func (f *FutureClient) GetAllPairsFromStore() error {
+	log.Info().Msg("start to get all pair names from database store")
+	var err error
+	f.Pairs, err = f.Store.GetAllParisInDB(context.Background())
+	if err != nil {
+		return fmt.Errorf("cannot get allpairs %w", err)
 	}
 	log.Info().Msg("init all pair names completely")
 	return nil

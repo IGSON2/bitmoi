@@ -6,13 +6,15 @@ import rank from "../../component/images/preview_rank.png";
 import symbol from "../../component/images/logo.png";
 import previous from "../../component/images/previous.png";
 import next from "../../component/images/next.png";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Countdown from "./Countdown/Countdown";
 import HorizontalLine from "../../component/lines/HorizontalLine";
 import { useParams } from "react-router-dom";
+import { BsXLg } from "react-icons/bs";
 
 function AddBidding() {
-  const { locParam } = useParams(); // TODO fix undefined param value error
+  const { location } = useParams();
+  const fileInputRef = useRef(null);
 
   const [idx, setIdx] = useState(0);
   const titles = ["연습모드 하단", "랭크 페이지 중간", "무료 토큰 지급 페이지"];
@@ -21,6 +23,11 @@ function AddBidding() {
   const [userID, setUserID] = useState("");
   const [bidAmt, setBidAmt] = useState(0);
   const [nextUnlock, setNextUnlock] = useState();
+  const [bidOpen, setBidOpen] = useState(false);
+  const [imgPreview, setImgPreview] = useState(null);
+  const [imageFileError, setImageFileError] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
 
   const highestBidder = async (path) => {
     try {
@@ -52,6 +59,31 @@ function AddBidding() {
     highestBidder(path);
   };
 
+  const handleFileChange = (event) => {
+    const selected = event.target.files[0];
+    const fileExtension = selected.name.split(".").pop().toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      setImageFileError(
+        "이미지 파일 확장자가 잘못되었습니다. JPG, JPEG, PNG, GIF 중에서 업로드 해주세요."
+      );
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024;
+    if (selected.size > maxSize) {
+      setImageFileError("이미지 파일은 10 MB 이내로 업로드 해주세요.");
+      return;
+    }
+
+    setSelectedFile(selected);
+    setImgPreview(URL.createObjectURL(selected));
+    setImageFileError("");
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
   useEffect(() => {
     const getNextBidUnlock = async () => {
       const res = await axiosClient.get("/nextBidUnlock");
@@ -59,16 +91,15 @@ function AddBidding() {
     };
 
     getNextBidUnlock();
-    pathes.map((path) => {
-      if (locParam && path === locParam) {
-        highestBidder(locParam);
+    pathes.map((path, i) => {
+      if (location && path === location) {
+        setIdx(i);
+        highestBidder(path);
         return;
       }
     });
     highestBidder(pathes[0]);
   }, []);
-
-  console.log(locParam);
 
   return (
     <div className={styles.adbidding}>
@@ -102,7 +133,61 @@ function AddBidding() {
       <div className={styles.timer}>
         <h2>입찰 마감까지</h2>
         {nextUnlock ? <Countdown nextUnlock={nextUnlock} /> : null}
+        <button
+          className={styles.bidbutton}
+          onClick={() => {
+            setBidOpen(true);
+          }}
+        >
+          입찰하기
+        </button>
       </div>
+      {bidOpen ? (
+        <div className={styles.comment}>
+          <div
+            className={styles.background}
+            onClick={() => {
+              setBidOpen(false);
+            }}
+          ></div>
+          <div className={styles.inner}>
+            <div className={styles.closebutton}>
+              <span>
+                <BsXLg
+                  onClick={() => {
+                    setBidOpen(false);
+                  }}
+                />
+              </span>
+            </div>
+            <div className={styles.title}>광고할 이미지를 등록해 주세요</div>
+            <div className={styles.imginput}>
+              <img className={styles.imgpreview} src={imgPreview} />
+              <button
+                className={styles.selectimg}
+                type="button"
+                onClick={handleButtonClick}
+              >
+                찾아보기
+              </button>
+              <input
+                id="image"
+                type="file"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                accept="image/*"
+              />
+            </div>
+            <input
+              className={styles.numberinput}
+              type="number"
+              placeholder="광고 스팟에 대한 입찰가를 입력해주세요."
+              maxLength={100}
+            />
+            <button className={styles.sendbutton}>등록하기</button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

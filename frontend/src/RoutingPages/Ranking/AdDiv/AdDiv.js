@@ -3,7 +3,7 @@ import mockup from "../../../component/images/mockup_rank.png";
 
 function AdDiv() {
   const adClick = () => {
-    window.location.replace("/ad-bidding/rank");
+    window.open("/ad-bidding/rank", "_blank");
   };
   return (
     <div className={styles.addiv} onClick={adClick}>

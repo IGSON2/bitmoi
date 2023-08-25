@@ -8,7 +8,8 @@ function Practice() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const adClick = () => {
-    window.location.replace("/ad-bidding/practice");
+    //Need to handle url later
+    window.open("/ad-bidding/practice", "_blank");
   };
 
   return (

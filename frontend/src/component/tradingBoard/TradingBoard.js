@@ -96,8 +96,13 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
   const reqinterval = async (reqinterval, identifier, stage) => {
     const fIdentifier = encodeURIComponent(identifier);
     const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}&stage=${stage}`;
-    const response = await axiosClient.get(reqURL);
-    return response.data;
+    try {
+      const response = await axiosClient.get(reqURL);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   };
 
   const getChartData = async (interval) => {
@@ -143,7 +148,11 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "5m":
         if (fiveMinutes === undefined) {
-          const data = reqinterval("5m", identifier, titleArray.length);
+          const data = await reqinterval("5m", identifier, titleArray.length);
+          if (!data.onechart) {
+            setloaded(true);
+            return;
+          }
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFiveMinutes(data.onechart);
@@ -155,7 +164,11 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "15m":
         if (fifteenMinutes === undefined) {
-          const data = reqinterval("15m", identifier, titleArray.length);
+          const data = await reqinterval("15m", identifier, titleArray.length);
+          if (!data.onechart) {
+            setloaded(true);
+            return;
+          }
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFifteenMinutes(data.onechart);
@@ -171,7 +184,11 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "4h":
         if (!fourHour) {
-          const data = reqinterval("4h", identifier, titleArray.length);
+          const data = await reqinterval("4h", identifier, titleArray.length);
+          if (!data.onechart) {
+            setloaded(true);
+            return;
+          }
           data.onechart.pdata.reverse();
           data.onechart.vdata.reverse();
           setFourHour(data.onechart);
@@ -208,7 +225,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
           alert("로그인이 필요합니다.");
           window.location.replace("/login");
         }
-        setUserinfo({ user_id: "" });
+        setUserinfo({ user_id: "practice_mode" });
         return;
       }
       setUserinfo(userInfo);
