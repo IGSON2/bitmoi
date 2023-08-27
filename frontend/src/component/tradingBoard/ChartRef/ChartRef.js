@@ -81,9 +81,14 @@ const ChartRef = forwardRef((props, ref) => {
       candleSeriesRef.current = candleSeries;
       volumeSeriesRef.current = volumeSeries;
       if (props.toolBar === "NonSelected") {
+        var range = 200;
+        const length = props.candles.pdata.length;
+        if (length < 200) {
+          range = length;
+        }
         chart.timeScale().setVisibleRange({
-          from: props.candles.pdata[props.candles.pdata.length - 200].time,
-          to: props.candles.pdata[props.candles.pdata.length - 1].time,
+          from: props.candles.pdata[length - range].time,
+          to: props.candles.pdata[length - 1].time,
         });
       }
     }

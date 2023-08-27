@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -105,6 +106,11 @@ func (s *Server) getHighestBidder(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(HighestBidderResponse{UserID: user.UserID, Amount: amt.Int64()})
 }
 
+type BidTokenResponse struct {
+	ImageURL string       `json:"image_url"`
+	Hash     *common.Hash `json:"hash"`
+}
+
 // bidToken godoc
 //
 //	@Summary		Bid token
@@ -117,16 +123,33 @@ func (s *Server) getHighestBidder(c *fiber.Ctx) error {
 //	@Success		200		{object}	api.ScoreResponse
 //	@Router       /bidToken [post]
 func (s *Server) bidToken(c *fiber.Ctx) error {
-	req := new(BidTokenRequest)
-	err := c.BodyParser(req)
-	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	amt, err := strconv.Atoi(c.FormValue("amount"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot convert string to integer err : %s", err.Error()))
+	}
+
+	req := BidTokenRequest{
+		Amount:   amt,
+		Location: c.FormValue("location"),
+	}
+	if errs := utilities.ValidateStruct(req); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf(" validation err : %s", errs.Error()))
 	}
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 	user, err := s.store.GetUser(c.Context(), payload.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())
+	}
+
+	f, err := c.FormFile(formFileKey)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Ad image dosen't exist. err: %s", err.Error()))
+	}
+
+	fileURL, err := s.uploadADImageToS3(f, user.UserID, req.Location)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Cannot upload ad image to S3 bucket. err: %s", err.Error()))
 	}
 
 	addr := common.HexToAddress(user.MetamaskAddress.String)
@@ -152,9 +175,10 @@ func (s *Server) bidToken(c *fiber.Ctx) error {
 		TxHash:    txHash.Hex(),
 		ExpiresAt: s.nextUnlockDate,
 	})
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot create bidding history. err: %w", err).Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(TransactionResponse{Hash: txHash})
+	return c.Status(fiber.StatusOK).JSON(BidTokenResponse{ImageURL: fileURL, Hash: txHash})
 }

@@ -40,7 +40,6 @@ function AddBidding() {
 
     try {
       const response = await axiosClient.post("/bidToken", formData);
-
       if (response.status == 200) {
         setBidOpen(false);
       }
@@ -187,7 +186,7 @@ function AddBidding() {
               setBidOpen(false);
             }}
           ></div>
-          <div className={styles.inner}>
+          <div className={styles.wrapper}>
             <div className={styles.closebutton}>
               <span>
                 <BsXLg
@@ -203,7 +202,11 @@ function AddBidding() {
               해주세요.
             </div>
             <div className={styles.imginput}>
-              <img className={styles.imgpreview} src={imgPreview} />
+              <img
+                className={styles.imgpreview}
+                src={imgPreview}
+                onClick={handleButtonClick}
+              />
               <button
                 className={styles.selectimg}
                 type="button"
@@ -219,19 +222,24 @@ function AddBidding() {
                 accept="image/*"
               />
             </div>
-            <input
-              className={styles.numberinput}
-              placeholder="광고 스팟에 대한 입찰가를 입력해주세요."
-              value={userBidAmt}
-              onChange={handleAmountChange}
-            />
-            <div className={styles.errormessage}>
-              {imageFileError
-                ? imageFileError
-                : bidAmtError
-                ? bidAmtError
-                : null}
+            <div className={styles.numberinputwrapper}>
+              <input
+                className={styles.numberinput}
+                placeholder="광고 스팟에 대한 입찰가를 입력해주세요."
+                value={userBidAmt}
+                onChange={handleAmountChange}
+              />
+              <div className={styles.moi}>MOI</div>
             </div>
+            {imageFileError || bidAmtError ? (
+              <div className={styles.errormessage}>
+                {imageFileError
+                  ? imageFileError
+                  : bidAmtError
+                  ? bidAmtError
+                  : null}
+              </div>
+            ) : null}
             <button
               className={styles.sendbutton}
               disabled={imageFileError !== "" || bidAmtError !== ""}

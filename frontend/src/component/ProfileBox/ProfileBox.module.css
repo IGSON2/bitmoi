@@ -22,10 +22,13 @@
 .profileImg {
   width: 40px;
   border-radius: 50%;
+  transition: 0.5s;
 }
 
 .profileImg:hover {
   cursor: pointer;
+  width: 50px;
+  border-radius: 50%;
 }
 
 .userinfo {
@@ -101,6 +104,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: 0.5s;
 }
 
 .logout {
@@ -110,6 +114,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: 0.5s;
 }
 
 .mypage img,
@@ -120,6 +125,7 @@
 .mypage img:hover,
 .logout img:hover {
   cursor: pointer;
+  width: 110%;
 }
 
 @keyframes profileOpen {
