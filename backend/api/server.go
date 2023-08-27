@@ -66,6 +66,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		erc20Contract:   erc20,
 		s3Uploader:      s3Uploader,
 		exitCh:          make(chan struct{}),
+		nextUnlockDate:  time.Now().Add(c.BiddingDuration),
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())

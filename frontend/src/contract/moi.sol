@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.11;
 
 import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../node_modules/@openzeppelin/contracts/access/Ownable.sol";
@@ -244,5 +244,20 @@ contract MoiToken is Ownable, ERC20 {
 
     function decimals() public view virtual override returns (uint8) {
         return 1;
+    }
+
+    function spendToken(
+        address _from,
+        uint256 _amount
+    ) external onlyOwner moreThanZeroAmt(_amount) {
+        require(balanceOf(_from) > 0, "insufficient balance");
+        _transfer(_from, owner(), _amount);
+    }
+
+    function sendFreeToken(
+        address _to,
+        uint256 _amount
+    ) external onlyOwner moreThanZeroAmt(_amount) {
+        _transfer(owner(), _to, _amount);
     }
 }

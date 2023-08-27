@@ -13,31 +13,53 @@ import { useParams } from "react-router-dom";
 import { BsXLg } from "react-icons/bs";
 
 function AddBidding() {
-  const { location } = useParams();
+  const { locationParam } = useParams();
   const fileInputRef = useRef(null);
 
   const [idx, setIdx] = useState(0);
   const titles = ["연습모드 하단", "랭크 페이지 중간", "무료 토큰 지급 페이지"];
   const previImages = [practice, rank];
-  const pathes = ["practice", "rank"];
+  const locations = ["practice", "rank"];
+  const reqImgSize = ["1500 x 70", "1060 x 70"];
   const [userID, setUserID] = useState("");
-  const [bidAmt, setBidAmt] = useState(0);
+  const [highestBidAmt, setHighestBidAmt] = useState(0);
   const [nextUnlock, setNextUnlock] = useState();
   const [bidOpen, setBidOpen] = useState(false);
   const [imgPreview, setImgPreview] = useState(null);
   const [imageFileError, setImageFileError] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+  const [userBidAmt, setUserBidAmt] = useState();
+  const [bidAmtError, setBidAmtError] = useState("");
+
+  const submit = async () => {
+    const formData = new FormData();
+    formData.append("location", locations[idx]);
+    formData.append("amount", userBidAmt);
+    formData.append("image", selectedFile);
+
+    try {
+      const response = await axiosClient.post("/bidToken", formData);
+
+      if (response.status == 200) {
+        setBidOpen(false);
+      }
+    } catch (error) {
+      if (error.response.data.includes("insufficient")) {
+        alert(`토큰이 부족합니다.`);
+      }
+    }
+  };
 
   const highestBidder = async (path) => {
     try {
       const res = await axiosClient.get(`/highestBidder?location=${path}`);
       setUserID(res.data.user_id);
-      setBidAmt(res.data.amount);
+      setHighestBidAmt(res.data.amount);
     } catch (error) {
       console.error(error);
       setUserID("아직 입찰자가 없습니다.");
-      setBidAmt(0);
+      setHighestBidAmt(0);
     }
   };
 
@@ -46,8 +68,8 @@ function AddBidding() {
       return;
     }
     setIdx((current) => current - 1);
-    const path = pathes[idx - 1];
-    highestBidder(path);
+    const loc = locations[idx - 1];
+    highestBidder(loc);
   };
 
   const clickNext = () => {
@@ -55,8 +77,8 @@ function AddBidding() {
       return;
     }
     setIdx((current) => current + 1);
-    const path = pathes[idx + 1];
-    highestBidder(path);
+    const loc = locations[idx + 1];
+    highestBidder(loc);
   };
 
   const handleFileChange = (event) => {
@@ -84,6 +106,19 @@ function AddBidding() {
     fileInputRef.current.click();
   };
 
+  const isNumber = (inputValue) => {
+    return /^-?\d*\.?\d+$/.test(inputValue);
+  };
+
+  const handleAmountChange = (event) => {
+    if (!isNumber(event.target.value)) {
+      setBidAmtError("입찰가는 숫자만 입력 가능합니다.");
+    } else {
+      setBidAmtError("");
+    }
+    setUserBidAmt(event.target.value);
+  };
+
   useEffect(() => {
     const getNextBidUnlock = async () => {
       const res = await axiosClient.get("/nextBidUnlock");
@@ -91,15 +126,17 @@ function AddBidding() {
     };
 
     getNextBidUnlock();
-    pathes.map((path, i) => {
-      if (location && path === location) {
+    locations.map((path, i) => {
+      if (locationParam && path === locationParam) {
         setIdx(i);
         highestBidder(path);
         return;
       }
     });
-    highestBidder(pathes[0]);
+    highestBidder(locations[0]);
   }, []);
+
+  console.log(userBidAmt);
 
   return (
     <div className={styles.adbidding}>
@@ -124,7 +161,7 @@ function AddBidding() {
           <h3>{userID}</h3>
           <div className={styles.tokenbalance}>
             <img src={symbol} />
-            <h3>{bidAmt.toLocaleString()}</h3>
+            <h3>{highestBidAmt.toLocaleString()}</h3>
           </div>
         </div>
         <img className={styles.navbutton} src={next} onClick={clickNext} />
@@ -161,6 +198,10 @@ function AddBidding() {
               </span>
             </div>
             <div className={styles.title}>광고할 이미지를 등록해 주세요</div>
+            <div className={styles.caution}>
+              요구하는 사이즈 ( {reqImgSize[idx]} )에 맞는 이미지를 업로드
+              해주세요.
+            </div>
             <div className={styles.imginput}>
               <img className={styles.imgpreview} src={imgPreview} />
               <button
@@ -180,11 +221,24 @@ function AddBidding() {
             </div>
             <input
               className={styles.numberinput}
-              type="number"
               placeholder="광고 스팟에 대한 입찰가를 입력해주세요."
-              maxLength={100}
+              value={userBidAmt}
+              onChange={handleAmountChange}
             />
-            <button className={styles.sendbutton}>등록하기</button>
+            <div className={styles.errormessage}>
+              {imageFileError
+                ? imageFileError
+                : bidAmtError
+                ? bidAmtError
+                : null}
+            </div>
+            <button
+              className={styles.sendbutton}
+              disabled={imageFileError !== "" || bidAmtError !== ""}
+              onClick={submit}
+            >
+              등록하기
+            </button>
           </div>
         </div>
       ) : null}

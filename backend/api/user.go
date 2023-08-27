@@ -87,7 +87,7 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 //	 @Router       /user [post]
 func (s *Server) createUser(c *fiber.Ctx) error {
 	req := &CreateUserRequest{
-		UserID:   c.FormValue(userIdKey),
+		UserID:   c.FormValue("user_id"),
 		Password: c.FormValue("password"),
 		Nickname: c.FormValue("nickname"),
 		Email:    c.FormValue("email"),
@@ -109,11 +109,11 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 	var uploadErr error
 	var fileURL string
 
-	f, err := c.FormFile(fileKey)
+	f, err := c.FormFile(formFileKey)
 	if err != nil {
 		log.Debug().Msgf("%s dosen't upload profile image.", req.UserID)
 	} else {
-		fileURL, uploadErr = s.uploadImageToS3(f, req.UserID)
+		fileURL, uploadErr = s.uploadProfileImageToS3(f, req.UserID)
 	}
 
 	arg := db.CreateUserParams{
@@ -149,7 +149,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 
 	txResult, err := s.store.CreateUserTx(c.Context(), txArg)
 	if err != nil {
-		s.deleteImage(req.UserID)
+		s.deleteObject(req.UserID)
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "unique_violation":
@@ -326,12 +326,12 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("cannot get user by authorization payload")
 	}
 
-	f, err := c.FormFile(fileKey)
+	f, err := c.FormFile(formFileKey)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get photo image file from context. err: %w", err).Error())
 	}
 
-	url, err := s.uploadImageToS3(f, user.UserID)
+	url, err := s.uploadProfileImageToS3(f, user.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
@@ -342,7 +342,7 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		s.deleteImage(user.UserID)
+		s.deleteObject(user.UserID)
 		errmsg := fmt.Sprintf("cannot update photo url. user: %s", user.UserID)
 		log.Err(err).Msg(errmsg)
 		return c.Status(fiber.StatusInternalServerError).SendString(errmsg)
