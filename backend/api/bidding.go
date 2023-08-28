@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -165,7 +166,15 @@ func (s *Server) bidToken(c *fiber.Ctx) error {
 
 	txHash, err := s.erc20Contract.LockTokens(addr, big.NewInt(int64(req.Amount)), req.Location, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. err: %w", req.Location, user.UserID, err).Error())
+		if strings.Contains(err.Error(), "nonce") {
+			s.erc20Contract, _ = contract.InitErc20Contract(s.config.PrivateKey)
+			txHash, err = s.erc20Contract.LockTokens(addr, big.NewInt(int64(req.Amount)), req.Location, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. new contract instance err: %w", req.Location, user.UserID, err).Error())
+			}
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. err: %w", req.Location, user.UserID, err).Error())
+		}
 	}
 
 	_, err = s.store.CreateBiddingHistory(c.Context(), db.CreateBiddingHistoryParams{
