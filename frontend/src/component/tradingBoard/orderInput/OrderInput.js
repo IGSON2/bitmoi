@@ -3,7 +3,7 @@ import styles from "./OrderInput.module.css";
 import Warning from "./Warning";
 import OrderConfirm from "./OrderConfirm/OrderConfirm";
 import { AiOutlineCloseCircle, AiOutlinePlusCircle } from "react-icons/ai";
-import getBalance from "../../../contract/contract";
+import { getBalance } from "../../../contract/contract";
 
 function OrderInput({
   mode,

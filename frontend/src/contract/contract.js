@@ -17,4 +17,12 @@ const getBalance = async () => {
   return Number(balance);
 };
 
-export default getBalance;
+const getAccount = async () => {
+  let accounts = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+
+  return accounts[0];
+};
+
+export { getBalance, getAccount };
