@@ -124,7 +124,11 @@ type BidTokenResponse struct {
 //	@Success		200		{object}	api.ScoreResponse
 //	@Router       /bidToken [post]
 func (s *Server) bidToken(c *fiber.Ctx) error {
-	amt, err := strconv.Atoi(c.FormValue("amount"))
+	receivedAmt := c.FormValue("amount")
+	receivedLoc := c.FormValue("location")
+	header, _ := c.FormFile(formFileKey)
+	log.Info().Msgf("Amt: %s, Loc: %s, img-len: %d", receivedAmt, receivedLoc, header.Size)
+	amt, err := strconv.Atoi(receivedAmt)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot convert string to integer err : %s", err.Error()))
 	}

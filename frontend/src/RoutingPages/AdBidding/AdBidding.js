@@ -47,6 +47,7 @@ function AddBidding() {
       if (error.response.data.includes("insufficient")) {
         alert(`토큰이 부족합니다.`);
       }
+      console.error(error);
     }
   };
 
@@ -134,8 +135,6 @@ function AddBidding() {
     });
     highestBidder(locations[0]);
   }, []);
-
-  console.log(userBidAmt);
 
   return (
     <div className={styles.adbidding}>
