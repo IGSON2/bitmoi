@@ -1,16 +1,25 @@
 import TradingBoard from "../../component/tradingBoard/TradingBoard";
 import mockupimg from "../../component/images/mockup_prac.png";
 import styles from "./practice.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import getSelectedBidder from "../../component/backendConn/getSelectedBidder";
 
 function Practice() {
   const score_id = Date.now().toString();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const [imgLink, setImgLink] = useState("");
+
   const adClick = () => {
-    //Need to handle url later
     window.open("/ad-bidding/practice", "_blank");
   };
+
+  useEffect(() => {
+    //TODO
+
+    getSelectedBidder("practice");
+    setImgLink();
+  }, {});
 
   return (
     <div className={styles.practicepage}>

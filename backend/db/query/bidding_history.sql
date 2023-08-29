@@ -17,5 +17,11 @@ LIMIT ?;
 
 -- name: GetHistoryByUser :many
 SELECT * FROM bidding_history 
-WHERE user_id = ? AND expires_at >= now()
-ORDER BY amount DESC;
+WHERE user_id = ?
+ORDER BY created_at DESC;
+
+-- name: GetHighestBidder :one
+SELECT * FROM bidding_history 
+WHERE location = ? AND expires_at > ? AND expires_at < now()
+ORDER BY amount DESC
+LIMIT 1;

@@ -41,6 +41,32 @@ func (q *Queries) CreateBiddingHistory(ctx context.Context, arg CreateBiddingHis
 	)
 }
 
+const getHighestBidder = `-- name: GetHighestBidder :one
+SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
+WHERE location = ? AND expires_at > ? AND expires_at < now()
+ORDER BY amount DESC
+LIMIT 1
+`
+
+type GetHighestBidderParams struct {
+	Location  string    `json:"location"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+func (q *Queries) GetHighestBidder(ctx context.Context, arg GetHighestBidderParams) (BiddingHistory, error) {
+	row := q.db.QueryRowContext(ctx, getHighestBidder, arg.Location, arg.ExpiresAt)
+	var i BiddingHistory
+	err := row.Scan(
+		&i.UserID,
+		&i.Amount,
+		&i.Location,
+		&i.TxHash,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getHistoryByLocation = `-- name: GetHistoryByLocation :many
 SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
 WHERE location = ? AND expires_at >= now()
@@ -85,8 +111,8 @@ func (q *Queries) GetHistoryByLocation(ctx context.Context, arg GetHistoryByLoca
 
 const getHistoryByUser = `-- name: GetHistoryByUser :many
 SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
-WHERE user_id = ? AND expires_at >= now()
-ORDER BY amount DESC
+WHERE user_id = ?
+ORDER BY created_at DESC
 `
 
 func (q *Queries) GetHistoryByUser(ctx context.Context, userID string) ([]BiddingHistory, error) {

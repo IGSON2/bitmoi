@@ -242,6 +242,14 @@
   background: #4b569e;
 }
 
+.sendbutton:disabled {
+  background-color: #707071;
+}
+
+.sendbutton:disabled:hover {
+  cursor: default;
+}
+
 .errormessage {
   width: 90%;
   height: 5%;

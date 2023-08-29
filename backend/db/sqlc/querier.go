@@ -38,6 +38,7 @@ type Querier interface {
 	Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error)
 	GetAllParisInDB(ctx context.Context) ([]string, error)
 	GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]RankingBoard, error)
+	GetHighestBidder(ctx context.Context, arg GetHighestBidderParams) (BiddingHistory, error)
 	GetHistoryByLocation(ctx context.Context, arg GetHistoryByLocationParams) ([]BiddingHistory, error)
 	GetHistoryByUser(ctx context.Context, userID string) ([]BiddingHistory, error)
 	GetLastUser(ctx context.Context) (User, error)

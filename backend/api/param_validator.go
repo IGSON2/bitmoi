@@ -100,7 +100,7 @@ type MetamaskAddressRequest struct {
 	Addr string `json:"addr" validate:"required,eth_addr"`
 }
 
-type GetHighestBidderRequest struct {
+type GetBidderByLocRequest struct {
 	Location string `json:"location" validate:"required,oneof=practice rank freetoken" query:"location"`
 }
 
