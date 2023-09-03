@@ -471,6 +471,21 @@ func (mr *MockStoreMockRecorder) GetAllRanks(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllRanks", reflect.TypeOf((*MockStore)(nil).GetAllRanks), arg0, arg1)
 }
 
+// GetHighestBidder mocks base method.
+func (m *MockStore) GetHighestBidder(arg0 context.Context, arg1 db.GetHighestBidderParams) (db.BiddingHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHighestBidder", arg0, arg1)
+	ret0, _ := ret[0].(db.BiddingHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHighestBidder indicates an expected call of GetHighestBidder.
+func (mr *MockStoreMockRecorder) GetHighestBidder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHighestBidder", reflect.TypeOf((*MockStore)(nil).GetHighestBidder), arg0, arg1)
+}
+
 // GetHistoryByLocation mocks base method.
 func (m *MockStore) GetHistoryByLocation(arg0 context.Context, arg1 db.GetHistoryByLocationParams) ([]db.BiddingHistory, error) {
 	m.ctrl.T.Helper()

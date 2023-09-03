@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -24,11 +25,6 @@ var (
 
 type NextUnlockResponse struct {
 	NextUnlock string `json:"next_unlock"`
-}
-
-type HighestBidderResponse struct {
-	UserID string `json:"user_id"`
-	Amount int64  `json:"amount"`
 }
 
 func (s *Server) BiddingLoop() error {
@@ -77,6 +73,11 @@ func (s *Server) getNextUnlockDate(c *fiber.Ctx) error {
 		NextUnlock: kstTime.Format("2006-01-02T15:04:05")})
 }
 
+type HighestBidderResponse struct {
+	UserID string `json:"user_id"`
+	Amount int64  `json:"amount"`
+}
+
 // getHighestBidder godoc
 // @Summary      Get highest bidder
 // @Description  Get highest bidder by specific location
@@ -85,7 +86,7 @@ func (s *Server) getNextUnlockDate(c *fiber.Ctx) error {
 // @Success      200 {object} api.HighestBidderResponse "bidder and amount of tokens bid"
 // @Router       /highestBidder [get]
 func (s *Server) getHighestBidder(c *fiber.Ctx) error {
-	req := new(GetHighestBidderRequest)
+	req := new(GetBidderByLocRequest)
 	err := c.QueryParser(req)
 	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
@@ -123,7 +124,10 @@ type BidTokenResponse struct {
 //	@Success		200		{object}	api.ScoreResponse
 //	@Router       /bidToken [post]
 func (s *Server) bidToken(c *fiber.Ctx) error {
-	amt, err := strconv.Atoi(c.FormValue("amount"))
+	receivedAmt := c.FormValue("amount")
+	receivedLoc := c.FormValue("location")
+	log.Info().Msgf("Amt: %s, Loc: %s", receivedAmt, receivedLoc)
+	amt, err := strconv.Atoi(receivedAmt)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot convert string to integer err : %s", err.Error()))
 	}
@@ -165,7 +169,15 @@ func (s *Server) bidToken(c *fiber.Ctx) error {
 
 	txHash, err := s.erc20Contract.LockTokens(addr, big.NewInt(int64(req.Amount)), req.Location, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. err: %w", req.Location, user.UserID, err).Error())
+		if strings.Contains(err.Error(), "nonce") {
+			s.erc20Contract, _ = contract.InitErc20Contract(s.config.PrivateKey)
+			txHash, err = s.erc20Contract.LockTokens(addr, big.NewInt(int64(req.Amount)), req.Location, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. new contract instance err: %w", req.Location, user.UserID, err).Error())
+			}
+		} else {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot bid token at location %s by user %s. err: %w", req.Location, user.UserID, err).Error())
+		}
 	}
 
 	_, err = s.store.CreateBiddingHistory(c.Context(), db.CreateBiddingHistoryParams{
@@ -181,4 +193,35 @@ func (s *Server) bidToken(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(BidTokenResponse{ImageURL: fileURL, Hash: txHash})
+}
+
+type SelectedBidderResponse struct {
+	UserID string `json:"user_id"`
+}
+
+// getSelectedBidder godoc
+// @Summary      Get selected bidder
+// @Description  Get selected bidder by specific location
+// @Tags         erc20
+// @Param location query string true "Location to look up selected bidder"
+// @Success      200 {object} api.HighestBidderResponse "bidder and amount of tokens bid"
+// @Router       /highestBidder [get]
+func (s *Server) getSelectedBidder(c *fiber.Ctx) error {
+	req := new(GetBidderByLocRequest)
+	err := c.QueryParser(req)
+	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	}
+	history, err := s.store.GetHighestBidder(c.Context(), db.GetHighestBidderParams{
+		Location:  req.Location,
+		ExpiresAt: s.nextUnlockDate.Add(-1 * s.config.BiddingDuration),
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).SendString(fmt.Sprintf("cannot find bidder in this location. err: %s", err.Error()))
+		}
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get selected bidder in db. err: %s", err.Error()))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(SelectedBidderResponse{UserID: history.UserID})
 }

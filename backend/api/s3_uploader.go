@@ -163,34 +163,6 @@ func (s *Server) uploadADImageToS3(f *multipart.FileHeader, userId, location str
 	contentType := mime.TypeByExtension("." + kind.Extension)
 	fileUrl := fmt.Sprintf("%s/%s", cloudFront, filePath)
 
-	resp, err := s.s3Uploader.GetObject(&s3.GetObjectInput{
-		Bucket: &bucketName,
-		Key:    &filePath,
-	})
-
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == s3.ErrCodeNoSuchKey {
-			_, createErr := s.s3Uploader.PutObject(&s3.PutObjectInput{
-				Bucket:      &bucketName,
-				Key:         &filePath,
-				Body:        openedFile,
-				ContentType: &contentType,
-			})
-			if createErr == nil {
-				log.Info().Msgf("%s's ad image of %s page stored in s3 bucket successfully", userId, location)
-				return fileUrl, createErr
-			} else {
-				return "", createErr
-			}
-		} else {
-			return "", err
-		}
-	}
-
-	if time.Since(*resp.LastModified) < 24*time.Hour {
-		return "", errCannotUpdateUntil24H
-	}
-
 	_, updateErr := s.s3Uploader.PutObject(&s3.PutObjectInput{
 		Bucket:      &bucketName,
 		Key:         &filePath,

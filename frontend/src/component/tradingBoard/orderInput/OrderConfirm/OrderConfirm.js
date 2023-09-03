@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PostOrderJson from "../../../backendConn/PostOrderJson";
 import ResultPopup from "./resultPopup/ResultPopup";
 import styles from "./OrderConfirm.module.css";
 import axiosClient from "../../../backendConn/axiosClient";

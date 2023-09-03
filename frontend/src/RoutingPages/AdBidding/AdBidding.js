@@ -1,4 +1,3 @@
-import axiosClient from "../../component/backendConn/axiosClient";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import styles from "./AdBidding.module.css";
 import practice from "../../component/images/preview_practice.png";
@@ -11,6 +10,8 @@ import Countdown from "./Countdown/Countdown";
 import HorizontalLine from "../../component/lines/HorizontalLine";
 import { useParams } from "react-router-dom";
 import { BsXLg } from "react-icons/bs";
+import axiosFormClient from "../../component/backendConn/axiosFormClient";
+import axiosClient from "../../component/backendConn/axiosClient";
 
 function AddBidding() {
   const { locationParam } = useParams();
@@ -32,31 +33,34 @@ function AddBidding() {
   const [userBidAmt, setUserBidAmt] = useState();
   const [bidAmtError, setBidAmtError] = useState("");
 
-  const submit = async () => {
+  const submitAd = async (e) => {
+    e.preventDefault();
+
     const formData = new FormData();
     formData.append("location", locations[idx]);
     formData.append("amount", userBidAmt);
     formData.append("image", selectedFile);
 
     try {
-      const response = await axiosClient.post("/bidToken", formData);
-      if (response.status == 200) {
+      const response = await axiosFormClient.post("/bidToken", formData);
+      console.log(response);
+      if (response.status === 200) {
         setBidOpen(false);
       }
     } catch (error) {
       if (error.response.data.includes("insufficient")) {
         alert(`토큰이 부족합니다.`);
       }
+      console.error(error);
     }
   };
 
-  const highestBidder = async (path) => {
+  const highestBidder = async (location) => {
     try {
-      const res = await axiosClient.get(`/highestBidder?location=${path}`);
+      const res = await axiosClient.get(`/highestBidder?location=${location}`);
       setUserID(res.data.user_id);
       setHighestBidAmt(res.data.amount);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setUserID("아직 입찰자가 없습니다.");
       setHighestBidAmt(0);
     }
@@ -125,17 +129,15 @@ function AddBidding() {
     };
 
     getNextBidUnlock();
-    locations.map((path, i) => {
-      if (locationParam && path === locationParam) {
+    locations.map((loc, i) => {
+      if (locationParam && loc === locationParam) {
         setIdx(i);
-        highestBidder(path);
+        highestBidder(loc);
         return;
       }
     });
     highestBidder(locations[0]);
   }, []);
-
-  console.log(userBidAmt);
 
   return (
     <div className={styles.adbidding}>
@@ -243,7 +245,7 @@ function AddBidding() {
             <button
               className={styles.sendbutton}
               disabled={imageFileError !== "" || bidAmtError !== ""}
-              onClick={submit}
+              onClick={submitAd}
             >
               등록하기
             </button>

@@ -1,14 +1,14 @@
 import axios from "axios";
 
-const axiosClient = axios.create({
-  // baseURL: "http://localhost:5001",
+const axiosFormClient = axios.create({
+  //   baseURL: "http://localhost:5001",
   baseURL: "https://api.bitmoi.co.kr",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
   },
 });
 
-axiosClient.interceptors.request.use(
+axiosFormClient.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("accessToken");
     if (accessToken) {
@@ -21,4 +21,4 @@ axiosClient.interceptors.request.use(
   }
 );
 
-export default axiosClient;
+export default axiosFormClient;

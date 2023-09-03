@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	FreeAmt         = big.NewInt(1)
+	FreeAmt         = big.NewInt(3)
 	timeoutDuration = 1440
 )
 
