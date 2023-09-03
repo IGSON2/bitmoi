@@ -22,6 +22,6 @@ ORDER BY created_at DESC;
 
 -- name: GetHighestBidder :one
 SELECT * FROM bidding_history 
-WHERE location = ? AND expires_at > ? AND expires_at < now()
+WHERE location = ? AND expires_at >= ? AND expires_at < now()
 ORDER BY amount DESC
 LIMIT 1;

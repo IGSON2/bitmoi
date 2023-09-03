@@ -7,13 +7,13 @@ const axiosClient = axios.create({
   },
 });
 
-const getSelectedBidder = async (location) => {
+const getSelectedBidderImg = async (location) => {
   try {
     const response = await axiosClient.get(
       `/selectedBidder?location=${location}`
     );
     if (response.status === 200) {
-      return response.data;
+      return `https://cnd.bitmoi.co.kr/bidding/${location}/${response.data}`;
     } else {
       throw response.data;
     }
@@ -23,4 +23,4 @@ const getSelectedBidder = async (location) => {
   }
 };
 
-export default getSelectedBidder;
+export default getSelectedBidderImg;

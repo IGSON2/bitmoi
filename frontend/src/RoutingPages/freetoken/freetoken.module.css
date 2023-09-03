@@ -35,3 +35,9 @@
   cursor: pointer;
   background: #4b569e;
 }
+
+.warning {
+  font-size: small;
+  text-align: center;
+  color: #ef5350;
+}

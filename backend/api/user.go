@@ -22,6 +22,7 @@ type UserResponse struct {
 	Nickname          string    `json:"nickname"`
 	Email             string    `json:"email"`
 	PhotoURL          string    `json:"photo_url"`
+	MetamaskAddress   string    `json:"metamask_address"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 }
@@ -34,8 +35,11 @@ func convertUserResponse(user db.User) UserResponse {
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
-	if user.PhotoUrl.String != "" {
+	if user.PhotoUrl.Valid {
 		uR.PhotoURL = user.PhotoUrl.String
+	}
+	if user.MetamaskAddress.Valid {
+		uR.MetamaskAddress = user.MetamaskAddress.String
 	}
 
 	return uR

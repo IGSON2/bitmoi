@@ -2,7 +2,7 @@ import TradingBoard from "../../component/tradingBoard/TradingBoard";
 import mockupimg from "../../component/images/mockup_prac.png";
 import styles from "./practice.module.css";
 import { useEffect, useState } from "react";
-import getSelectedBidder from "../../component/backendConn/getSelectedBidder";
+import getSelectedBidderImg from "../../component/backendConn/getSelectedBidderImg";
 
 function Practice() {
   const score_id = Date.now().toString();
@@ -15,10 +15,11 @@ function Practice() {
   };
 
   useEffect(() => {
-    //TODO
-
-    getSelectedBidder("practice");
-    setImgLink();
+    const getBidder = async () => {
+      const img = await getSelectedBidderImg("practice");
+      img === "" ? setImgLink(mockupimg) : setImgLink(img);
+    };
+    getBidder();
   }, {});
 
   return (
@@ -32,7 +33,7 @@ function Practice() {
         />
       </div>
       <div className={styles.ad}>
-        {isLoaded ? <img src={mockupimg} onClick={adClick}></img> : null}
+        {isLoaded ? <img src={imgLink} onClick={adClick}></img> : null}
       </div>
     </div>
   );

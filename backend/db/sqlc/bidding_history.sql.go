@@ -43,7 +43,7 @@ func (q *Queries) CreateBiddingHistory(ctx context.Context, arg CreateBiddingHis
 
 const getHighestBidder = `-- name: GetHighestBidder :one
 SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
-WHERE location = ? AND expires_at > ? AND expires_at < now()
+WHERE location = ? AND expires_at >= ? AND expires_at < now()
 ORDER BY amount DESC
 LIMIT 1
 `

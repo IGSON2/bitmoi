@@ -29,9 +29,18 @@ function Warning({
     }
   }
 
+  const goFreetoken = () => {
+    window.location.replace("/freetoken");
+  };
+
   return (
     <div className={styles.warningdiv}>
       <p>{warningTxt}</p>
+      {tokenWarning !== "" ? (
+        <a className={styles.gofreetoken} href="/freetoken" target="_blank">
+          무료 토큰 받기
+        </a>
+      ) : null}
     </div>
   );
 }
