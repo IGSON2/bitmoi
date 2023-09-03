@@ -13,7 +13,7 @@ const getSelectedBidderImg = async (location) => {
       `/selectedBidder?location=${location}`
     );
     if (response.status === 200) {
-      return `https://cnd.bitmoi.co.kr/bidding/${location}/${response.data}`;
+      return `https://cdn.bitmoi.co.kr/bidding/${location}/${response.data}`;
     } else {
       throw response.data;
     }
