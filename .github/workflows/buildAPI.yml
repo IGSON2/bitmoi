@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Build API
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy-API
+    name: build
     runs-on: ubuntu-latest
 
     steps:

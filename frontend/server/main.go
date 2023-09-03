@@ -64,6 +64,7 @@ func main() {
 	app.Static("/practice", "./build")
 	app.Static("/community", "./build")
 	app.Static("/ad-bidding/:path", "./build")
+	app.Static("/ad-bidding", "./build")
 	app.Static("/mypage", "./build")
 	app.Static("/rank", "./build")
 	app.Static("/login", "./build")
