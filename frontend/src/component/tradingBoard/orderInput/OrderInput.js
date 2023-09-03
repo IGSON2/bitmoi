@@ -3,7 +3,7 @@ import styles from "./OrderInput.module.css";
 import Warning from "./Warning";
 import OrderConfirm from "./OrderConfirm/OrderConfirm";
 import { AiOutlineCloseCircle, AiOutlinePlusCircle } from "react-icons/ai";
-import { getBalance } from "../../../contract/contract";
+import { getBalance, getChainId } from "../../../contract/contract";
 
 function OrderInput({
   mode,
@@ -67,6 +67,8 @@ function OrderInput({
     waiting_term: 0,
   });
   var commission = 0.0002;
+  const baobabTestNetID = 1001; // 8217;
+
   const inputRef = useRef(null);
   const longClicked = () => {
     setIsLong(true);
@@ -545,6 +547,10 @@ function OrderInput({
   useEffect(() => {
     const checkTokenBalance = async () => {
       setTokenWarning("Metamask에 로그인 해주세요.");
+      const chainId = await getChainId();
+      if (chainId !== `0x${baobabTestNetID.toString(16)}`) {
+        setTokenWarning("Metamask에 Klaytn 메인넷을 등록해 주세요");
+      }
       var balance = await getBalance();
       if (balance <= 0) {
         setTokenWarning("도전에 사용할 MOI 토큰이 부족합니다.");

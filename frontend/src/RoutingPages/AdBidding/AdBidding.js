@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import { BsXLg } from "react-icons/bs";
 import axiosFormClient from "../../component/backendConn/axiosFormClient";
 import axiosClient from "../../component/backendConn/axiosClient";
+import checkAccessTokenValidity from "../../component/backendConn/checkAccessTokenValidity";
 
 function AddBidding() {
   const { locationParam } = useParams();
@@ -173,7 +174,13 @@ function AddBidding() {
         {nextUnlock ? <Countdown nextUnlock={nextUnlock} /> : null}
         <button
           className={styles.bidbutton}
-          onClick={() => {
+          onClick={async () => {
+            const userInfo = await checkAccessTokenValidity();
+            if (!userInfo) {
+              alert("로그인이 필요합니다.");
+              window.location.replace("/login");
+              return;
+            }
             setBidOpen(true);
           }}
         >

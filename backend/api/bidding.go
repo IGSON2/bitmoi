@@ -205,23 +205,26 @@ type SelectedBidderResponse struct {
 // @Tags         erc20
 // @Param location query string true "Location to look up selected bidder"
 // @Success      200 {object} api.HighestBidderResponse "bidder and amount of tokens bid"
-// @Router       /highestBidder [get]
+// @Router       /selectedBidder [get]
 func (s *Server) getSelectedBidder(c *fiber.Ctx) error {
 	req := new(GetBidderByLocRequest)
 	err := c.QueryParser(req)
 	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
-	history, err := s.store.GetHighestBidder(c.Context(), db.GetHighestBidderParams{
-		Location:  req.Location,
-		ExpiresAt: s.nextUnlockDate.Add(-1 * s.config.BiddingDuration),
-	})
+	addr, _, err := s.erc20Contract.GetCurrentAdOwner(req.Location)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).SendString(fmt.Sprintf("cannot find bidder in this location. err: %s", err.Error()))
-		}
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get selected bidder in db. err: %s", err.Error()))
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get current AD owner in contract. err: %s", err.Error()))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(SelectedBidderResponse{UserID: history.UserID})
+	user, err := s.store.GetUserByMetamaskAddress(c.Context(), sql.NullString{String: addr.Hex(), Valid: true})
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).SendString(fmt.Sprintf("cannot find ad owner in this location. err: %s", err.Error()))
+		}
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get ad owner in db. err: %s", err.Error()))
+	}
+
+	return c.Status(fiber.StatusOK).JSON(SelectedBidderResponse{UserID: user.UserID})
 }

@@ -83,7 +83,7 @@ function Wallet() {
 
         const contract = new web3.eth.Contract(
           ContractABI,
-          "0x4C6c0101B74f1789409EAB5E1D542057512472bD"
+          "0x3CF4A2Deaf37eA7B7e2413C6ce8C35215099cDc7"
         );
         setContractInstance(contract);
 

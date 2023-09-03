@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.11;
 
-import "../../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MoiToken is Ownable, ERC20 {
     bool public limited;
@@ -24,6 +24,7 @@ contract MoiToken is Ownable, ERC20 {
     }
 
     mapping(string => addrAmount) public highestbidder;
+    mapping(string => addrAmount) public currentAdOwners;
 
     event TokensLocked(
         address indexed account,
@@ -82,6 +83,7 @@ contract MoiToken is Ownable, ERC20 {
         delete adLocations[_adLocation];
         delete lockAddress[_adLocation];
         delete highestbidder[_adLocation];
+        delete currentAdOwners[_adLocation];
 
         uint256 locationKeysLength = locationKeys.length;
         uint256 idx = findLocationIdx(_adLocation);
@@ -168,6 +170,7 @@ contract MoiToken is Ownable, ERC20 {
             highestbidder[_adLocation].addr,
             highestbidder[_adLocation].amount
         );
+        currentAdOwners[_adLocation] = highestbidder[_adLocation];
         delete highestbidder[_adLocation];
     }
 

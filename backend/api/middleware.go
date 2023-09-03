@@ -18,22 +18,6 @@ const (
 	authorizationPayloadKey = "authorization_payload"
 )
 
-var (
-	allowOriginMiddleware = cors.New(cors.Config{
-		AllowOrigins: "*",
-	})
-	limiterMiddleware = limiter.New(limiter.Config{
-		Max:        30,
-		Expiration: 30 * time.Second,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.Get("x-forwarded-for")
-		},
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
-		},
-	})
-)
-
 func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 	abort := func(c *fiber.Ctx, err string) error {
 		return c.Status(fiber.StatusUnauthorized).SendString(err)
@@ -94,4 +78,23 @@ func checkAuthorization(c *fiber.Ctx, maker *token.PasetoMaker) error {
 	}
 	c.Locals(authorizationPayloadKey, payload)
 	return nil
+}
+
+func createNewOriginMiddleware() fiber.Handler {
+	return cors.New(cors.Config{
+		AllowOrigins: "*",
+	})
+}
+
+func createNewLimitMiddleware() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        30,
+		Expiration: 30 * time.Second,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.Get("x-forwarded-for")
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
+		},
+	})
 }

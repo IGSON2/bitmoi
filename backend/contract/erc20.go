@@ -89,3 +89,14 @@ func (c *ERC20Contract) GetHighestBidder(adLocation string) (*common.Address, *b
 	amt := abi.ConvertType(res[1], new(big.Int)).(*big.Int)
 	return addr, amt, nil
 }
+
+func (c *ERC20Contract) GetCurrentAdOwner(adLocation string) (*common.Address, *big.Int, error) {
+	log.Debug().Msgf("Getting current ad owner location %s", adLocation)
+	res, err := c.CallContract("currentAdOwners", adLocation)
+	if err != nil {
+		return nil, nil, err
+	}
+	addr := abi.ConvertType(res[0], new(common.Address)).(*common.Address)
+	amt := abi.ConvertType(res[1], new(big.Int)).(*big.Int)
+	return addr, amt, nil
+}

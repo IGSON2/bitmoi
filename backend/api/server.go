@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 const (
@@ -76,10 +77,11 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	server.pairs = ps
 
 	router := fiber.New(fiber.Config{})
-
-	router.Use(allowOriginMiddleware, limiterMiddleware)
+	router.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(server.createLoggerMiddleware())
+	} else {
+		router.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
 	}
 
 	router.Get("/practice", server.getPracticeChart)
@@ -99,6 +101,15 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/selectedBidder", server.getSelectedBidder)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
+	authGroup.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
+	if c.Environment == bitmoicommon.EnvProduction {
+		authGroup.Use(server.createLoggerMiddleware())
+	} else {
+		authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+	}
+
+	authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Post("/rank", server.postRank)

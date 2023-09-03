@@ -1,11 +1,4 @@
-import axios from "axios";
-
-const axiosClient = axios.create({
-  baseURL: "https://api.bitmoi.co.kr",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import axiosClient from "./axiosClient";
 
 const getSelectedBidderImg = async (location) => {
   try {

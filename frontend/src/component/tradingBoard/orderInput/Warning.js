@@ -36,7 +36,7 @@ function Warning({
   return (
     <div className={styles.warningdiv}>
       <p>{warningTxt}</p>
-      {tokenWarning !== "" ? (
+      {tokenWarning === "도전에 사용할 MOI 토큰이 부족합니다." ? (
         <a className={styles.gofreetoken} href="/freetoken" target="_blank">
           무료 토큰 받기
         </a>
