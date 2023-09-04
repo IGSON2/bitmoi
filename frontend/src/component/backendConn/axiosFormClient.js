@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosFormClient = axios.create({
-  //   baseURL: "http://localhost:5001",
+  // baseURL: "http://localhost:5000",
   baseURL: "https://api.bitmoi.co.kr",
   headers: {
     "Content-Type": "multipart/form-data",

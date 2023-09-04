@@ -22,6 +22,7 @@ function Practice() {
     getBidder();
   }, {});
 
+  console.log(imgLink);
   return (
     <div className={styles.practicepage}>
       <div className={styles.chart}>
