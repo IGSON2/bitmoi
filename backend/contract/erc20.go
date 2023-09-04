@@ -4,7 +4,6 @@ import (
 	"bitmoi/backend/contract/consts"
 	"math/big"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -14,7 +13,6 @@ import (
 
 type ERC20Contract struct {
 	Contract
-	Timeouts map[string]time.Time
 }
 
 func NewERC20Contract(
@@ -26,7 +24,6 @@ func NewERC20Contract(
 	b := common.FromHex(consts.ERC20Bin)
 	return &ERC20Contract{
 		Contract: NewContract(erc20ContractAddress, a, b, client, transactor),
-		Timeouts: make(map[string]time.Time),
 	}
 }
 

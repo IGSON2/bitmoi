@@ -62,21 +62,29 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 		user.MetamaskAddress.String = r.Addr
 	}
 
-	if timeout := s.erc20Contract.Timeouts[user.UserID]; time.Now().After(timeout) {
+	if timeoutUnix := s.FaucetTimeouts[user.UserID]; time.Now().After(time.Unix(timeoutUnix, 0)) {
 		ToAddr := common.HexToAddress(user.MetamaskAddress.String)
 
 		hash, err := s.erc20Contract.SendFreeTokens(ToAddr, FreeAmt, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+			if strings.Contains(err.Error(), "nonce") {
+				s.erc20Contract, err = contract.InitErc20Contract(s.config.PrivateKey)
+				if err != nil {
+					log.Error().Err(err).Msg("cannot regenerate erc20 contract instance.")
+					return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+				}
+			}
+			hash, err = s.erc20Contract.SendFreeTokens(ToAddr, FreeAmt, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+			}
 		}
 
-		timeout := time.Duration(timeoutDuration) * time.Minute
-		grace := timeout / 288
-
-		s.erc20Contract.Timeouts[user.MetamaskAddress.String] = time.Now().Add(timeout - grace)
+		duration := time.Duration(timeoutDuration) * time.Minute
+		s.FaucetTimeouts[user.UserID] = time.Now().Add(duration).Unix()
 		return c.Status(fiber.StatusOK).JSON(TransactionResponse{hash})
 	} else {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Errorf("%s left until next allowance", common.PrettyDuration(time.Until(timeout))).Error())
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Errorf("%s left until next allowance", common.PrettyDuration(time.Until(time.Unix(timeoutUnix, 0)))).Error())
 	}
 
 }

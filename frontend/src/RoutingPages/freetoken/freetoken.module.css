@@ -36,8 +36,21 @@
   background: #4b569e;
 }
 
+.faucet:disabled {
+  background-color: rgb(109, 108, 108);
+}
+.faucet:disabled:hover {
+  background-color: rgb(109, 108, 108);
+  cursor: default;
+}
+
 .warning {
+  width: 60%;
+  height: 10%;
   font-size: small;
-  text-align: center;
+  font-weight: 900;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: #ef5350;
 }

@@ -41,6 +41,7 @@ type Server struct {
 	nextUnlockDate  time.Time
 	s3Uploader      *s3.S3
 	exitCh          chan struct{}
+	FaucetTimeouts  map[string]int64
 }
 
 func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
@@ -68,6 +69,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		s3Uploader:      s3Uploader,
 		exitCh:          make(chan struct{}),
 		nextUnlockDate:  time.Now().Add(c.BiddingDuration),
+		FaucetTimeouts:  make(map[string]int64),
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())

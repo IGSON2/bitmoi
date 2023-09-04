@@ -9,12 +9,27 @@ function Freetoken() {
   const [addr, setAddr] = useState("");
   // const [userInfo, setUserInfo] = useState();
   const [warning, setWarning] = useState("");
+  const [disableReq, setDisAbleReq] = useState(false);
   const getFreeToken = async () => {
     try {
       const res = await axiosClient.post("/freeToken", {
         addr: addr,
       });
+      setWarning("");
     } catch (error) {
+      const resMsg = error.response.data;
+      if (error.response.status === 429) {
+        setDisAbleReq(true);
+        setWarning("요청이 너무 잦습니다.");
+        return;
+      }
+      if (resMsg.includes("allowance")) {
+        if (resMsg[7] === ".") {
+          setWarning(`다음 무료 발급까지 남은 시간 [ ${resMsg.slice(0, 7)}s ]`);
+        } else {
+          setWarning(`다음 무료 발급까지 남은 시간 [ ${resMsg.slice(0, 8)}s ]`);
+        }
+      }
       console.error(error);
     }
   };
@@ -45,7 +60,11 @@ function Freetoken() {
         <H_NavBar />
       </div>
       <div className={styles.mainbody}>
-        <button className={styles.faucet} onClick={getFreeToken}>
+        <button
+          className={styles.faucet}
+          onClick={getFreeToken}
+          disabled={disableReq}
+        >
           토큰 발급받기
         </button>
         {warning ? <div className={styles.warning}>{warning}</div> : null}
