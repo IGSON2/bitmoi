@@ -5,11 +5,20 @@ import Topbutton from "../../component/Topbutton/Topbutton";
 import H_NavBar from "../../component/navbar/H_NavBar";
 import axiosClient from "../../component/backendConn/axiosClient";
 import AdDiv from "./AdDiv/AdDiv";
+import mockup from "../../component/images/mockup_rank.png";
+import getSelectedBidderImg from "../../component/backendConn/getSelectedBidderImg";
 
 function Rank() {
   const [pageNum, setPageNum] = useState(1);
 
   const [data, setData] = useState([{}]);
+  const [imgLink, setImgLink] = useState("");
+
+  const getBidder = async () => {
+    const adImgLink = await getSelectedBidderImg("rank");
+    adImgLink ? setImgLink(adImgLink) : setImgLink(mockup);
+  };
+
   const getUserScore = async () => {
     const response = await axiosClient.get(`/rank/${pageNum}`);
     setData(response.data);
@@ -17,6 +26,7 @@ function Rank() {
 
   useEffect(() => {
     getUserScore();
+    getBidder();
   }, [pageNum]);
 
   return (
@@ -34,7 +44,7 @@ function Rank() {
                 return (
                   <div className={styles.adline}>
                     <RankDiv key={i} index={i + 1} obj={v} />
-                    <AdDiv />
+                    <AdDiv imgLink={imgLink} />
                   </div>
                 );
               }

@@ -1,13 +1,13 @@
 import styles from "./AdDiv.module.css";
-import mockup from "../../../component/images/mockup_rank.png";
+import { useEffect } from "react";
 
-function AdDiv() {
+function AdDiv({ imgLink }) {
   const adClick = () => {
     window.open("/ad-bidding/rank", "_blank");
   };
   return (
     <div className={styles.addiv} onClick={adClick}>
-      <img className={styles.adimage} src={mockup}></img>
+      <img className={styles.adimage} src={imgLink}></img>
     </div>
   );
 }

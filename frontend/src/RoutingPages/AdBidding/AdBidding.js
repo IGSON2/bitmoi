@@ -207,8 +207,8 @@ function AddBidding() {
             </div>
             <div className={styles.title}>광고할 이미지를 등록해 주세요</div>
             <div className={styles.caution}>
-              요구하는 사이즈 ( {reqImgSize[idx]} )에 맞는 이미지를 업로드
-              해주세요.
+              정상적인 이미지 출력을 위해 규격 ({reqImgSize[idx]})에 맞는
+              이미지를 업로드 해주세요.
             </div>
             <div className={styles.imginput}>
               <img
