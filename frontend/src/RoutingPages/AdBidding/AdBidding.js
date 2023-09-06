@@ -6,7 +6,7 @@ import symbol from "../../component/images/logo.png";
 import previous from "../../component/images/previous.png";
 import next from "../../component/images/next.png";
 import { useEffect, useRef, useState } from "react";
-import Countdown from "./Countdown/Countdown";
+import Countdown from "../../component/Countdown/Countdown";
 import HorizontalLine from "../../component/lines/HorizontalLine";
 import { useParams } from "react-router-dom";
 import { BsXLg } from "react-icons/bs";

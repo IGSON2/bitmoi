@@ -44,6 +44,7 @@ function RankDiv({ index, obj }) {
         >
           {index}
         </div>
+        {/* index가 0~2인경우 토큰 수량을 반환하고 0이면 null처리하기 */}
         <div className={`${styles.pic} ${styles.field}`}>
           <img className={styles.photo} src={obj.photo_url} />
         </div>

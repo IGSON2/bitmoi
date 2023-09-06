@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bitmoi/backend/contract"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities/common"
 	"context"
@@ -8,22 +9,27 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/big"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 const (
-	long                   = "LONG"
-	short                  = "SHORT"
-	defaultBalance float64 = 1000
-	rankRows               = 100
-	myscoreRows            = 15
+	long                    = "LONG"
+	short                   = "SHORT"
+	defaultBalance  float64 = 1000
+	rankRows                = 100
+	myscoreRows             = 15
+	rewardReceivers         = 3
 )
 
 var (
 	ErrNotUpdatedScore    = errors.New("failed to update rank due to low score")
 	ErrLiquidation        = errors.New("you were liquidated due to insufficient balance")
 	ErrInvalidStageLength = errors.New("insufficient number of stages cleared")
+	rewardRates           = []float64{0.5, 0.3, 0.2}
 )
 
 func (s *Server) insertUserScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) error {
@@ -152,4 +158,61 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 		FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 	})
 	return err
+}
+
+func (s *Server) SendReward() error {
+
+	top3, err := s.store.GetAllRanks(context.Background(), db.GetAllRanksParams{
+		Limit:  3,
+		Offset: 0,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("cannot get rankers of top3 from db.")
+		return err
+	}
+
+	spendCnt, err := s.erc20Contract.GetSpendCounts()
+	if err != nil {
+		log.Error().Err(err).Msg("cannot get spend counts from contract.")
+		return err
+	}
+
+	tops := make([]ethcommon.Address, rewardReceivers)
+	amounts := make([]*big.Int, rewardReceivers)
+	for i, t := range top3 {
+		user, err := s.store.GetUser(context.Background(), t.UserID)
+		if err != nil {
+			log.Error().Err(err).Msgf("cannot find user from db. user: %s", t.UserID)
+			return err
+		}
+
+		addr := ethcommon.HexToAddress(user.MetamaskAddress.String)
+		tops = append(tops, addr)
+		amounts[i] = big.NewInt(int64(float64(spendCnt.Uint64()) / rewardRates[i]))
+	}
+
+	hash, err := s.erc20Contract.SendReward(tops, amounts, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
+	if err != nil {
+		log.Error().Err(err).Msgf("cannot send reward.")
+		return err
+	}
+	_, err = s.erc20Contract.WaitAndReturnTxReceipt(hash)
+	if err != nil {
+		log.Error().Err(err).Msgf("Cannot get receipt of send reward transaction.")
+		return err
+	}
+	return nil
+}
+
+type SpendCount struct {
+	Count uint64 `json:"spend_count"`
+}
+
+func (s *Server) GetSpendCount(c *fiber.Ctx) error {
+	cnt, err := s.erc20Contract.GetSpendCounts()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(SpendCount{Count: cnt.Uint64()})
 }

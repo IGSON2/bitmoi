@@ -22,9 +22,10 @@ contract MoiToken is Ownable, ERC20 {
         address addr;
         uint256 amount;
     }
-
     mapping(string => addrAmount) public highestbidder;
     mapping(string => addrAmount) public currentAdOwners;
+
+    uint256 public spendCnt;
 
     event TokensLocked(
         address indexed account,
@@ -39,6 +40,7 @@ contract MoiToken is Ownable, ERC20 {
     event LocationAdded(string location);
     event LocationRemoved(string location);
     event AdFeePaid(string location, address _addr, uint256 amount);
+    event SendReward(address to, uint256 amount);
 
     constructor(uint256 _totalSupply) ERC20("Bitmoi", "MOI") {
         _mint(msg.sender, _totalSupply);
@@ -255,6 +257,7 @@ contract MoiToken is Ownable, ERC20 {
     ) external onlyOwner moreThanZeroAmt(_amount) {
         require(balanceOf(_from) > 0, "insufficient balance");
         _transfer(_from, owner(), _amount);
+        spendCnt++;
     }
 
     function sendFreeToken(
@@ -262,5 +265,16 @@ contract MoiToken is Ownable, ERC20 {
         uint256 _amount
     ) external onlyOwner moreThanZeroAmt(_amount) {
         _transfer(owner(), _to, _amount);
+    }
+
+    function sendReward(
+        address[] calldata _rankers,
+        uint256[] calldata _amounts
+    ) external onlyOwner {
+        for (uint256 i = 0; i < _rankers.length; i++) {
+            _transfer(address(this),_rankers[i],_amounts[i]);
+            emit SendReward(_rankers[i],_amounts[i]);
+        }
+        spendCnt=0;
     }
 }

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +26,7 @@ type NextUnlockResponse struct {
 	NextUnlock string `json:"next_unlock"`
 }
 
-func (s *Server) BiddingLoop() error {
+func (s *Server) BiddingLoop() {
 
 	for {
 		biddingTimer := time.NewTimer(s.config.BiddingDuration)
@@ -36,26 +35,32 @@ func (s *Server) BiddingLoop() error {
 			var initErr error
 			s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
 			if initErr != nil {
-				log.Err(initErr).Msgf("Cannot initialize contract instance. stop server..")
-				os.Exit(100)
+				log.Error().Err(initErr).Msg("Cannot initialize contract")
+				return
 			}
 			hash, err := s.erc20Contract.UnLockTokens(contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 			if err != nil {
-				log.Panic().Msgf("cannot unlock token. re-generate contract instance. Err: %s", err.Error())
+				log.Error().Err(err).Msg("cannot unlock token.")
+				return
 			}
-			receipt, err := s.erc20Contract.WaitAndReturnTxReceipt(hash)
-			if err != nil || receipt == nil {
-				s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
-				if initErr != nil {
-					log.Err(err).Msgf("Cannot get receipt of unlock token transaction. stop server..")
-					os.Exit(100)
-				}
-				continue
+			_, err = s.erc20Contract.WaitAndReturnTxReceipt(hash)
+			if err != nil {
+				log.Error().Err(err).Msgf("Cannot get receipt of unlock token transaction. stop server. hash:%s", hash.Hex())
+				return
 			}
+
+			//TODO:테스트 필요
+			err = s.SendReward()
+			if err != nil {
+				log.Error().Err(err).Msgf("send reward err occured during unlock.")
+				return
+			}
+
 			s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)
 			log.Info().Msgf("Unlock token successfully. hash: %s, next unlock date: %s", hash.Hex(), s.nextUnlockDate.Format("2006-01-02 15:04:05"))
 		case <-s.exitCh:
-			return ErrClosedBiddingLoop
+			log.Warn().Err(ErrClosedBiddingLoop)
+			return
 		}
 	}
 }

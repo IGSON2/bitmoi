@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Countdown.module.css";
-import VerticalLine from "../../../component/lines/VerticalLine";
+import VerticalLine from "../lines/VerticalLine";
 import Countbox from "./Countbox/Countbox";
 
 function Countdown({ nextUnlock }) {

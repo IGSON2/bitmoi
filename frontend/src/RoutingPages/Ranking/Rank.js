@@ -7,12 +7,14 @@ import axiosClient from "../../component/backendConn/axiosClient";
 import AdDiv from "./AdDiv/AdDiv";
 import mockup from "../../component/images/mockup_rank.png";
 import getSelectedBidderImg from "../../component/backendConn/getSelectedBidderImg";
+import Countdown from "../../component/Countdown/Countdown";
 
 function Rank() {
   const [pageNum, setPageNum] = useState(1);
 
   const [data, setData] = useState([{}]);
   const [imgLink, setImgLink] = useState("");
+  const [nextUnlock, setNextUnlock] = useState();
 
   const getBidder = async () => {
     const adImgLink = await getSelectedBidderImg("rank");
@@ -24,10 +26,19 @@ function Rank() {
     setData(response.data);
   };
 
+  const getNextBidUnlock = async () => {
+    const res = await axiosClient.get("/nextBidUnlock");
+    setNextUnlock(res.data.next_unlock);
+  };
+
   useEffect(() => {
     getUserScore();
-    getBidder();
   }, [pageNum]);
+
+  useEffect(() => {
+    getNextBidUnlock();
+    getBidder();
+  }, []);
 
   return (
     <div className={styles.scorediv}>
@@ -37,6 +48,11 @@ function Rank() {
       <div className={styles.graphbody}>
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
+          <div className={styles.timer}>
+            {/* CSS적용 안되는 문제 수정 */}
+            <h3>보상 지급</h3>
+            {nextUnlock ? <Countdown nextUnlock={nextUnlock} /> : null}
+          </div>
         </div>
         {data
           ? data.map((v, i) => {

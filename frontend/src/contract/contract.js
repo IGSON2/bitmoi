@@ -5,7 +5,7 @@ const getBalance = async () => {
   const web3 = new Web3(window.ethereum);
   const contract = new web3.eth.Contract(
     ContractABI,
-    "0xfF24C889655fEb31F802fE26e5eAb2D58fe23b5E"
+    "0xC6D6e6E081dA15bd4258bDbdC121AD2D72ad793B"
   );
 
   let accounts = await window.ethereum.request({

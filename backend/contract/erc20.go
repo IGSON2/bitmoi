@@ -97,3 +97,22 @@ func (c *ERC20Contract) GetCurrentAdOwner(adLocation string) (*common.Address, *
 	amt := abi.ConvertType(res[1], new(big.Int)).(*big.Int)
 	return addr, amt, nil
 }
+
+func (c *ERC20Contract) GetSpendCounts() (*big.Int, error) {
+	log.Debug().Msgf("Getting spend counts")
+	res, err := c.CallContract("spendCnt")
+	if err != nil {
+		return nil, err
+	}
+	amt := abi.ConvertType(res[0], new(big.Int)).(*big.Int)
+	return amt, nil
+}
+
+func (c *ERC20Contract) SendReward(
+	to []common.Address,
+	amount []*big.Int,
+	opts TransactOptions,
+) (*common.Hash, error) {
+	log.Debug().Msgf("Send rewares to top3")
+	return c.ExecuteTransaction("sendReward", opts, to, amount)
+}
