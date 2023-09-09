@@ -136,10 +136,9 @@ func (s *Server) Listen() error {
 }
 
 // getPracticeChart godoc
-// @Summary      Get practice chart
-// @Description  Get non encrypted chart for practice
+// @Summary      연습모드에서 제공할 차트를 불러옵니다.
 // @Tags         chart
-// @Param names query string false "Comma-separated list of pair names"
+// @Param names query string false "제외할 USDT페어들을 쉼표로 구분하여 전달합니다."
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
 // @Router       /practice [get]
@@ -163,15 +162,13 @@ func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 }
 
 // postPracticeScore godoc
-//
-//		@Summary		Post score
-//		@Description	Post score of practice mode
-//		@Tags			score
-//		@Accept			json
-//		@Produce		json
-//		@Param			order	body		api.ScoreRequest	true	"order inforamtion"
-//		@Success		200		{object}	api.ScoreResponse
-//	 @Router       /practice [post]
+// @Summary		연습모드에서 작성한 주문을 제출합니다.
+// @Tags		score
+// @Accept		json
+// @Produce		json
+// @Param		order	body		api.ScoreRequest	true	"주문 정보"
+// @Success		200		{object}	api.ScoreResponse
+// @Router       /practice [post]
 func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 	var PracticeOrder ScoreRequest
 	err := c.BodyParser(&PracticeOrder)
@@ -197,11 +194,10 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 }
 
 // getCompetitionChart godoc
-// @Summary      Get competition chart
-// @Description  Get encrypted chart for competition
+// @Summary      경쟁모드에서 제공할 차트를 불러옵니다.
 // @Tags         chart
-// @Param names query string false "Comma-separated list of pair names"
-// @param Authorization header string true "Authorization"
+// @Param 		 names query string false "제외할 USDT페어들을 쉼표로 구분하여 전달합니다."
+// @param 		 Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
 // @Router       /competition [get]
@@ -225,16 +221,14 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 }
 
 // postCompetitionScore godoc
-//
-//	@Summary		Post score
-//	@Description	Post score of competition mode
-//	@Tags			score
-//	@Accept			json
-//	@Produce		json
-//	@Param			order	body		api.ScoreRequest	true	"order inforamtion"
-//	@param Authorization header string true "Authorization"
-//	@Success		200		{object}	api.ScoreResponse
-//	@Router       /competition [post]
+// @Summary		경쟁모드에서 작성한 주문을 제출합니다.
+// @Tags		score
+// @Accept		json
+// @Produce		json
+// @Param		order	body		api.ScoreRequest	true	"주문 정보"
+// @param		Authorization header string true "Authorization"
+// @Success		200		{object}	api.ScoreResponse
+// @Router      /competition [post]
 func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 	var CompetitionOrder ScoreRequest
 	err := c.BodyParser(&CompetitionOrder)
@@ -295,11 +289,10 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 }
 
 // getAnotherInterval godoc
-// @Summary      Get another interval chart
-// @Description  Get another interval chart for both of practice and competition
+// @Summary      다른 시간단위의 차트를 불러옵니다. 연습, 경쟁 두 모드 모두 지원합니다.
 // @Tags         chart
-// @Param anotherIntervalRequest query api.AnotherIntervalRequest true "query has interval,identifier,mode,stage"
-// @param Authorization header string false "Authorization"
+// @Param 		 anotherIntervalRequest query api.AnotherIntervalRequest true "새로운 시간단위에 대한 요청 정보"
+// @param 		 Authorization header string false "Authorization"
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
 // @Router       /interval [get]
@@ -322,11 +315,10 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 }
 
 // myscore godoc
-// @Summary      Get myscore
-// @Description  Get history of my score
+// @Summary      사용자의 경쟁모드 주문 채결 내역을 불러옵니다.
 // @Tags         score
-// @Param page path int true "page number"
-// @param Authorization header string true "Authorization"
+// @Param		 page path int true "페이지 번호"
+// @param		 Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200  {array}  db.Score
 // @Router       /myscore/{page} [get]
@@ -346,10 +338,9 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 }
 
 // getRank godoc
-// @Summary      Get rank
-// @Description  Get ranking chart
+// @Summary      랭크에 등재된 사용자들을 불러옵니다.
 // @Tags         rank
-// @Param page path int true "Page number"
+// @Param 		 page path int true "페이지 번호"
 // @Produce      json
 // @Success      200  {array}  db.RankingBoard
 // @Router       /rank/{page} [get]
@@ -369,11 +360,10 @@ func (s *Server) getRank(c *fiber.Ctx) error {
 }
 
 // postRank godoc
-// @Summary      Post rank
-// @Description  Post rank to ranking chart
+// @Summary      사용자를 랭크에 등재합니다.
 // @Tags         rank
-// @Param rankInsertRequest body api.RankInsertRequest true "socre id and comment"
-// @param Authorization header string true "Authorization"
+// @Param 		 rankInsertRequest body api.RankInsertRequest true "랭크 등재 요청에 대한 정보"
+// @param 		 Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200
 // @Router       /rank [post]
@@ -403,10 +393,9 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 }
 
 // moreinfo godoc
-// @Summary      Get moreInfo
-// @Description  Get more infomation of rank
+// @Summary      사용자가 랭크에 등재하며 기입한 추가 정보를 불러옵니다.
 // @Tags         rank
-// @Param moreInfoRequest query api.MoreInfoRequest true "query contains user id and score id"
+// @Param moreInfoRequest query api.MoreInfoRequest true "추가 정보 요청에 대한 정보"
 // @Produce      json
 // @Success      200  {array}  db.Score
 // @Router       /moreinfo [get]

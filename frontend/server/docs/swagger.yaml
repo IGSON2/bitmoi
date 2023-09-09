@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  api.BidTokenRequest:
+    properties:
+      amount:
+        minimum: 1
+        type: integer
+      location:
+        enum:
+        - practice
+        - rank
+        - freetoken
+        type: string
+    required:
+    - amount
+    - location
+    type: object
   api.CandleData:
     properties:
       pdata:
@@ -33,6 +48,13 @@ definitions:
     - nickname
     - password
     - user_id
+    type: object
+  api.HighestBidderResponse:
+    properties:
+      amount:
+        type: integer
+      user_id:
+        type: string
     type: object
   api.LoginUserRequest:
     properties:
@@ -72,7 +94,7 @@ definitions:
   api.NextUnlockResponse:
     properties:
       next_unlock:
-        type: integer
+        type: string
     type: object
   api.OnePairChart:
     properties:
@@ -222,6 +244,8 @@ definitions:
         type: string
       email:
         type: string
+      metamask_address:
+        type: string
       nickname:
         type: string
       password_changed_at:
@@ -303,11 +327,36 @@ info:
   title: Bitmoi API
   version: "1.0"
 paths:
+  /bidToken:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 입찰 금액과 광고 스팟
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.BidTokenRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ScoreResponse'
+      summary: 광고 스팟에 MOI 토큰을 입찰합니다.
+      tags:
+      - erc20
   /competition:
     get:
-      description: Get encrypted chart for competition
       parameters:
-      - description: Comma-separated list of pair names
+      - description: 제외할 USDT페어들을 쉼표로 구분하여 전달합니다.
         in: query
         name: names
         type: string
@@ -323,15 +372,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.OnePairChart'
-      summary: Get competition chart
+      summary: 경쟁모드에서 제공할 차트를 불러옵니다.
       tags:
       - chart
     post:
       consumes:
       - application/json
-      description: Post score of competition mode
       parameters:
-      - description: order inforamtion
+      - description: 주문 정보
         in: body
         name: order
         required: true
@@ -349,16 +397,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.ScoreResponse'
-      summary: Post score
+      summary: 경쟁모드에서 작성한 주문을 제출합니다.
       tags:
       - score
   /freeToken:
     post:
       consumes:
       - application/json
-      description: request for free token
       parameters:
-      - description: eth address
+      - description: metamask 주소
         in: body
         name: MetamaskAddressRequest
         required: true
@@ -376,12 +423,27 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Post sendFreeErc20
+      summary: 프리 MOI 토큰을 지급합니다.
+      tags:
+      - erc20
+  /highestBidder:
+    get:
+      parameters:
+      - description: 광고 스팟
+        in: query
+        name: location
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 최상위 입찰자
+          schema:
+            $ref: '#/definitions/api.HighestBidderResponse'
+      summary: 특정 광고 스팟에 가장 높은 가격을 제시한 입찰자를 반환합니다.
       tags:
       - erc20
   /interval:
     get:
-      description: Get another interval chart for both of practice and competition
       parameters:
       - in: query
         name: identifier
@@ -421,12 +483,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.OnePairChart'
-      summary: Get another interval chart
+      summary: 다른 시간단위의 차트를 불러옵니다. 연습, 경쟁 두 모드 모두 지원합니다.
       tags:
       - chart
   /moreinfo:
     get:
-      description: Get more infomation of rank
       parameters:
       - in: query
         name: score_id
@@ -445,14 +506,13 @@ paths:
             items:
               $ref: '#/definitions/db.Score'
             type: array
-      summary: Get moreInfo
+      summary: 사용자가 랭크에 등재하며 기입한 추가 정보를 불러옵니다.
       tags:
       - rank
   /myscore/{page}:
     get:
-      description: Get history of my score
       parameters:
-      - description: page number
+      - description: 페이지 번호
         in: path
         name: page
         required: true
@@ -471,25 +531,23 @@ paths:
             items:
               $ref: '#/definitions/db.Score'
             type: array
-      summary: Get myscore
+      summary: 사용자의 경쟁모드 주문 채결 내역을 불러옵니다.
       tags:
       - score
   /nextBidUnlock:
     get:
-      description: Get next date of unlock ad bidding
       responses:
         "200":
-          description: unix timestamp
+          description: 포멧된 일자
           schema:
             $ref: '#/definitions/api.NextUnlockResponse'
-      summary: Get next unlock date
+      summary: 경매 마감 일자를 제공합니다.
       tags:
       - erc20
   /practice:
     get:
-      description: Get non encrypted chart for practice
       parameters:
-      - description: Comma-separated list of pair names
+      - description: 제외할 USDT페어들을 쉼표로 구분하여 전달합니다.
         in: query
         name: names
         type: string
@@ -500,15 +558,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.OnePairChart'
-      summary: Get practice chart
+      summary: 연습모드에서 제공할 차트를 불러옵니다.
       tags:
       - chart
     post:
       consumes:
       - application/json
-      description: Post score of practice mode
       parameters:
-      - description: order inforamtion
+      - description: 주문 정보
         in: body
         name: order
         required: true
@@ -521,14 +578,13 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.ScoreResponse'
-      summary: Post score
+      summary: 연습모드에서 작성한 주문을 제출합니다.
       tags:
       - score
   /rank:
     post:
-      description: Post rank to ranking chart
       parameters:
-      - description: socre id and comment
+      - description: 랭크 등재 요청에 대한 정보
         in: body
         name: rankInsertRequest
         required: true
@@ -544,14 +600,13 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Post rank
+      summary: 사용자를 랭크에 등재합니다.
       tags:
       - rank
   /rank/{page}:
     get:
-      description: Get ranking chart
       parameters:
-      - description: Page number
+      - description: 페이지 번호
         in: path
         name: page
         required: true
@@ -565,14 +620,13 @@ paths:
             items:
               $ref: '#/definitions/db.RankingBoard'
             type: array
-      summary: Get rank
+      summary: 랭크에 등재된 사용자들을 불러옵니다.
       tags:
       - rank
   /reissueAccess:
     post:
       consumes:
       - application/json
-      description: Reissue access token
       parameters:
       - description: refresh token
         in: body
@@ -587,16 +641,31 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.ReissueAccessTokenResponse'
-      summary: Reissue access token
+      summary: access token을 재발급 합니다.
       tags:
       - user
+  /selectedBidder:
+    get:
+      parameters:
+      - description: 광고 스팟
+        in: query
+        name: location
+        required: true
+        type: string
+      responses:
+        "200":
+          description: 사용자와 입찰금액
+          schema:
+            $ref: '#/definitions/api.HighestBidderResponse'
+      summary: 특정 광고 스팟의 입찰에 성공한 사용자를 불러옵니다.
+      tags:
+      - erc20
   /user:
     post:
       consumes:
       - application/json
-      description: Create user api
       parameters:
-      - description: request contains id,pw,nickname,email ...
+      - description: 유저 생성 요청에 필요한 정보
         in: body
         name: CreateUserRequest
         required: true
@@ -607,16 +676,15 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Create user
+      summary: 사용자를 생성합니다.
       tags:
       - user
   /user/address:
     post:
       consumes:
       - application/json
-      description: Update metamask address api
       parameters:
-      - description: request contains metamask address
+      - description: Metamask 주소
         in: body
         name: LoginUserRequest
         required: true
@@ -632,14 +700,13 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Update metamask address
+      summary: 사용자의 Metamask 계좌를 업데이트 합니다.
       tags:
       - user
   /user/checkId:
     get:
-      description: Check ID duplication
       parameters:
-      - description: user id
+      - description: 체크할 ID
         in: query
         name: user_id
         required: true
@@ -649,14 +716,13 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Check ID
+      summary: ID 중복 여부를 확인합니다.
       tags:
       - user
   /user/checkNickname:
     get:
-      description: Check nickname duplication
       parameters:
-      - description: nickname
+      - description: 체크할 닉네임
         in: query
         name: nickname
         required: true
@@ -666,16 +732,15 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Check nickname
+      summary: 닉네임 중복 여부를 확인합니다.
       tags:
       - user
   /user/login:
     post:
       consumes:
       - application/json
-      description: Login user api
       parameters:
-      - description: request contains id and pw
+      - description: ID와 PW
         in: body
         name: LoginUserRequest
         required: true
@@ -688,14 +753,13 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.LoginUserResponse'
-      summary: Login user
+      summary: 사용자의 ID와 PW를 확인하여 토큰을 발급합니다.
       tags:
       - user
   /user/profile:
     post:
       consumes:
       - application/json
-      description: Update profile image api
       parameters:
       - description: profile image
         in: formData
@@ -712,7 +776,7 @@ paths:
       responses:
         "200":
           description: OK
-      summary: Update profile image
+      summary: 사용자의 프로필 이미지를 업데이트 합니다.
       tags:
       - user
   /user/verifyEmail:
@@ -736,7 +800,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: Reissue access token
       parameters:
       - description: access token
         in: body
@@ -751,7 +814,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/api.UserResponse'
-      summary: Reissue access token
+      summary: 발급했던 access token을 검증합니다.
       tags:
       - user
 swagger: "2.0"

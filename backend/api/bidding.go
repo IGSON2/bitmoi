@@ -66,10 +66,9 @@ func (s *Server) BiddingLoop() {
 }
 
 // getNextUnlockDate godoc
-// @Summary      Get next unlock date
-// @Description  Get next date of unlock ad bidding
+// @Summary      경매 마감 일자를 제공합니다.
 // @Tags         erc20
-// @Success      200 {object} api.NextUnlockResponse "unix timestamp"
+// @Success      200 {object} api.NextUnlockResponse "포멧된 일자"
 // @Router       /nextBidUnlock [get]
 func (s *Server) getNextUnlockDate(c *fiber.Ctx) error {
 	kst := time.FixedZone("KST", 9*60*60)
@@ -84,11 +83,10 @@ type HighestBidderResponse struct {
 }
 
 // getHighestBidder godoc
-// @Summary      Get highest bidder
-// @Description  Get highest bidder by specific location
+// @Summary      특정 광고 스팟에 가장 높은 가격을 제시한 입찰자를 반환합니다.
 // @Tags         erc20
-// @Param location query string true "Location for the spot to advertise"
-// @Success      200 {object} api.HighestBidderResponse "bidder and amount of tokens bid"
+// @Param location query string true "광고 스팟"
+// @Success      200 {object} api.HighestBidderResponse "최상위 입찰자"
 // @Router       /highestBidder [get]
 func (s *Server) getHighestBidder(c *fiber.Ctx) error {
 	req := new(GetBidderByLocRequest)
@@ -118,16 +116,14 @@ type BidTokenResponse struct {
 }
 
 // bidToken godoc
-//
-//	@Summary		Bid token
-//	@Description	Bid token to specified location
-//	@Tags			erc20
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		api.BidTokenRequest	true	"bidding request"
-//	@param Authorization header string true "Authorization"
-//	@Success		200		{object}	api.ScoreResponse
-//	@Router       /bidToken [post]
+// @Summary		광고 스팟에 MOI 토큰을 입찰합니다.
+// @Tags		erc20
+// @Accept		json
+// @Produce		json
+// @Param		request	body		api.BidTokenRequest	true	"입찰 금액과 광고 스팟"
+// @param 		Authorization header string true "Authorization"
+// @Success		200		{object}	api.ScoreResponse
+// @Router      /bidToken [post]
 func (s *Server) bidToken(c *fiber.Ctx) error {
 	receivedAmt := c.FormValue("amount")
 	receivedLoc := c.FormValue("location")
@@ -205,11 +201,10 @@ type SelectedBidderResponse struct {
 }
 
 // getSelectedBidder godoc
-// @Summary      Get selected bidder
-// @Description  Get selected bidder by specific location
+// @Summary      특정 광고 스팟의 입찰에 성공한 사용자를 불러옵니다.
 // @Tags         erc20
-// @Param location query string true "Location to look up selected bidder"
-// @Success      200 {object} api.HighestBidderResponse "bidder and amount of tokens bid"
+// @Param location query string true "광고 스팟"
+// @Success      200 {object} api.HighestBidderResponse "사용자와 입찰금액"
 // @Router       /selectedBidder [get]
 func (s *Server) getSelectedBidder(c *fiber.Ctx) error {
 	req := new(GetBidderByLocRequest)

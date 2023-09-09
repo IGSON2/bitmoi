@@ -26,16 +26,14 @@ type TransactionResponse struct {
 }
 
 // sendFreeErc20 godoc
-//
-//	@Summary		Post sendFreeErc20
-//	@Description	request for free token
-//	@Tags			erc20
-//	@Accept			json
-//	@Produce		json
-//	@Param			MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"eth address"
-//	@param Authorization header string true "Authorization"
-//	@Success		200		{object}	string
-//	@Router       /freeToken [post]
+// @Summary		프리 MOI 토큰을 지급합니다.
+// @Tags		erc20
+// @Accept		json
+// @Produce		json
+// @Param		MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"metamask 주소"
+// @param 		Authorization header string true "Authorization"
+// @Success		200		{object}	string
+// @Router      /freeToken [post]
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)

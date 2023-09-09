@@ -46,10 +46,9 @@ func convertUserResponse(user db.User) UserResponse {
 }
 
 // checkID godoc
-// @Summary      Check ID
-// @Description  Check ID duplication
+// @Summary      ID 중복 여부를 확인합니다.
 // @Tags         user
-// @Param user_id query string true "user id"
+// @Param user_id query string true "체크할 ID"
 // @Produce      json
 // @Success      200
 // @Router       /user/checkId [get]
@@ -63,10 +62,9 @@ func (s *Server) checkID(c *fiber.Ctx) error {
 }
 
 // checkNickname godoc
-// @Summary      Check nickname
-// @Description  Check nickname duplication
+// @Summary      닉네임 중복 여부를 확인합니다.
 // @Tags         user
-// @Param nickname query string true "nickname"
+// @Param nickname query string true "체크할 닉네임"
 // @Produce      json
 // @Success      200
 // @Router       /user/checkNickname [get]
@@ -80,15 +78,13 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 }
 
 // createUser godoc
-//
-//		@Summary		Create user
-//		@Description	Create user api
-//		@Tags			user
-//		@Accept			json
-//		@Produce		json
-//		@Param			CreateUserRequest	body		api.CreateUserRequest	true	"request contains id,pw,nickname,email ..."
-//		@Success		200
-//	 @Router       /user [post]
+// @Summary			사용자를 생성합니다.
+// @Tags			user
+// @Accept			json
+// @Produce			json
+// @Param			CreateUserRequest	body		api.CreateUserRequest	true	"유저 생성 요청에 필요한 정보"
+// @Success			200
+// @Router       	/user [post]
 func (s *Server) createUser(c *fiber.Ctx) error {
 	req := &CreateUserRequest{
 		UserID:   c.FormValue("user_id"),
@@ -176,15 +172,13 @@ type LoginUserResponse struct {
 }
 
 // loginUser godoc
-//
-//		@Summary		Login user
-//		@Description	Login user api
-//		@Tags			user
-//		@Accept			json
-//		@Produce		json
-//		@Param			LoginUserRequest	body		api.LoginUserRequest	true	"request contains id and pw"
-//		@Success		200		{object}	api.LoginUserResponse
-//	 @Router       /user/login [post]
+// @Summary		사용자의 ID와 PW를 확인하여 토큰을 발급합니다.
+// @Tags		user
+// @Accept		json
+// @Produce		json
+// @Param		LoginUserRequest	body		api.LoginUserRequest	true	"ID와 PW"
+// @Success		200		{object}	api.LoginUserResponse
+// @Router      /user/login [post]
 func (s *Server) loginUser(c *fiber.Ctx) error {
 	loginReq := new(LoginUserRequest)
 	err := c.BodyParser(&loginReq)
@@ -263,16 +257,14 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 }
 
 // updateMetamaskAddress godoc
-//
-//	@Summary		Update metamask address
-//	@Description	Update metamask address api
-//	@Tags			user
-//	@Accept			json
-//	@Produce		json
-//	@Param			LoginUserRequest	body		api.MetamaskAddressRequest	true	"request contains metamask address"
-//	@param Authorization header string true "Authorization"
-//	@Success		200
-//	@Router       /user/address [post]
+// @Summary		사용자의 Metamask 계좌를 업데이트 합니다.
+// @Tags		user
+// @Accept		json
+// @Produce		json
+// @Param		LoginUserRequest	body		api.MetamaskAddressRequest	true	"Metamask 주소"
+// @param 		Authorization header string true "Authorization"
+// @Success		200
+// @Router      /user/address [post]
 func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
 	r := new(MetamaskAddressRequest)
 	err := c.BodyParser(r)
@@ -309,16 +301,14 @@ func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
 }
 
 // updateProfileImg godoc
-//
-//		@Summary		Update profile image
-//		@Description	Update profile image api
-//		@Tags			user
-//		@Accept			json
-//		@Produce		json
-//		@Param			image	formData		file	true	"profile image"
-//	@param Authorization header string true "Authorization"
-//		@Success		200
-//	 @Router       /user/profile [post]
+// @Summary		사용자의 프로필 이미지를 업데이트 합니다.
+// @Tags		user
+// @Accept		json
+// @Produce		json
+// @Param		image	formData		file	true	"profile image"
+// @param 		Authorization header string true "Authorization"
+// @Success		200
+// @Router      /user/profile [post]
 func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
 	if !ok {
