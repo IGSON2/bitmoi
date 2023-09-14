@@ -89,12 +89,15 @@ type HighestBidderResponse struct {
 // @Success      200 {object} api.HighestBidderResponse "최상위 입찰자"
 // @Router       /highestBidder [get]
 func (s *Server) getHighestBidder(c *fiber.Ctx) error {
-	req := new(GetBidderByLocRequest)
-	err := c.QueryParser(req)
-	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	r := new(GetBidderByLocRequest)
+	err := c.QueryParser(r)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
 	}
-	addr, amt, err := s.erc20Contract.GetHighestBidder(req.Location)
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
+	}
+	addr, amt, err := s.erc20Contract.GetHighestBidder(r.Location)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get highest bidder in contract. err: %s", err.Error()))
 	}
@@ -207,12 +210,15 @@ type SelectedBidderResponse struct {
 // @Success      200 {object} api.HighestBidderResponse "사용자와 입찰금액"
 // @Router       /selectedBidder [get]
 func (s *Server) getSelectedBidder(c *fiber.Ctx) error {
-	req := new(GetBidderByLocRequest)
-	err := c.QueryParser(req)
-	if errs := utilities.ValidateStruct(req); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	r := new(GetBidderByLocRequest)
+	err := c.QueryParser(r)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
 	}
-	addr, _, err := s.erc20Contract.GetCurrentAdOwner(req.Location)
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
+	}
+	addr, _, err := s.erc20Contract.GetCurrentAdOwner(r.Location)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get current AD owner in contract. err: %s", err.Error()))
 	}

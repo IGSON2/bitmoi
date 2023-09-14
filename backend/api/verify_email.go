@@ -23,8 +23,11 @@ type VerifyEmailResponse struct {
 func (s *Server) verifyEmail(c *fiber.Ctx) error {
 	r := new(VerifyEmailRequest)
 	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
+	}
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
 	txResult, err := s.store.VerifyEmailTx(c.Context(), db.VerifyEmailTxParams{

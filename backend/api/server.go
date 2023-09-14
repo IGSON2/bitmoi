@@ -31,19 +31,20 @@ var (
 )
 
 type Server struct {
-	config          *utilities.Config
-	store           db.Store
-	router          *fiber.App
-	tokenMaker      *token.PasetoMaker
-	pairs           []string
-	taskDistributor worker.TaskDistributor
-	erc20Contract   *contract.ERC20Contract
-	nextUnlockDate  time.Time
-	s3Uploader      *s3.S3
-	exitCh          chan struct{}
-	FaucetTimeouts  map[string]int64
+	config          *utilities.Config       // 환경 구성 요소
+	store           db.Store                // DB 커넥션
+	router          *fiber.App              // 각 Endpoint별 router 집합
+	tokenMaker      *token.PasetoMaker      // 인증, 인가에 필요한 토큰 생성 및 검증
+	pairs           []string                // 제공하는 차트 종목 목록
+	taskDistributor worker.TaskDistributor  // Redis 테스크 큐
+	erc20Contract   *contract.ERC20Contract // MOI 스마트 컨트랙트
+	nextUnlockDate  time.Time               // 경매 종료 일자
+	s3Uploader      *s3.S3                  // S3 FullAccess role이 부여된 사용자
+	exitCh          chan struct{}           // 서버 종료 시그널을 수신할 채널
+	FaucetTimeouts  map[string]int64        // 무료 토큰 수령자 별 재요청 제한시간 맵
 }
 
+// NewServer creates a new HTTP server and setup routing.
 func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	if err != nil {
@@ -79,11 +80,11 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	server.pairs = ps
 
 	router := fiber.New(fiber.Config{})
-	router.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
+	router.Use(createNewLimitMiddleware())
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(server.createLoggerMiddleware())
 	} else {
-		router.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		router.Use(createNewOriginMiddleware(), logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
 	}
 
 	router.Get("/practice", server.getPracticeChart)
@@ -103,14 +104,16 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/selectedBidder", server.getSelectedBidder)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
+	authGroup.Use(createNewLimitMiddleware())
+
+	lgr := server.createLoggerMiddleware()
 	if c.Environment == bitmoicommon.EnvProduction {
-		authGroup.Use(server.createLoggerMiddleware())
+		authGroup.Use(lgr)
 	} else {
-		authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		authGroup.Use(createNewOriginMiddleware(), logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
 	}
 
-	authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+	authGroup.Use(lgr)
 
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
@@ -128,6 +131,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	return server, nil
 }
 
+// Listen enables the server to listen for incoming requests.
 func (s *Server) Listen() error {
 	defer func() {
 		s.exitCh <- struct{}{}
@@ -145,8 +149,11 @@ func (s *Server) Listen() error {
 func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 	r := new(CandlesRequest)
 	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
+	}
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
 	history := utilities.SplitPairnames(r.Names)
@@ -204,8 +211,11 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	r := new(CandlesRequest)
 	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
+	}
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 	history := utilities.SplitPairnames(r.Names)
 
@@ -299,8 +309,11 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 	r := new(AnotherIntervalRequest)
 	err := c.QueryParser(r)
-	if errs := utilities.ValidateStruct(*r); err != nil || errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
+	}
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 	if r.Mode == competition {
 		if err := checkAuthorization(c, s.tokenMaker); err != nil {
@@ -401,12 +414,12 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 // @Router       /moreinfo [get]
 func (s *Server) moreinfo(c *fiber.Ctx) error {
 	r := new(MoreInfoRequest)
-	if err := c.QueryParser(r); err != nil {
-		return err
+	err := c.QueryParser(r)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
 	}
-	errs := utilities.ValidateStruct(r)
-	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 	scores, err := s.getScoresByScoreID(r.ScoreId, r.UserId, c.Context())
 	if err != nil {

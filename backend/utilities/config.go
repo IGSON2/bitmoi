@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config is the struct for the configuration of the application
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
 	SymmetricKey         string        `mapstructure:"SYMMETRIC_KEY"`
