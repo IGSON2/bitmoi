@@ -82,9 +82,9 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router := fiber.New(fiber.Config{})
 	router.Use(createNewLimitMiddleware())
 	if c.Environment == bitmoicommon.EnvProduction {
-		router.Use(server.createLoggerMiddleware())
+		router.Use(createNewOriginMiddleware(), server.createLoggerMiddleware())
 	} else {
-		router.Use(createNewOriginMiddleware(), logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		router.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
 	}
 
 	router.Get("/practice", server.getPracticeChart)
@@ -104,13 +104,13 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/selectedBidder", server.getSelectedBidder)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Use(createNewLimitMiddleware())
+	authGroup.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
 
 	lgr := server.createLoggerMiddleware()
 	if c.Environment == bitmoicommon.EnvProduction {
 		authGroup.Use(lgr)
 	} else {
-		authGroup.Use(createNewOriginMiddleware(), logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
 	}
 
 	authGroup.Use(lgr)
