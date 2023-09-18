@@ -72,5 +72,4 @@ func main() {
 	app.Static("/freetoken", "./build")
 	log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
 
-	//testcommit
 }
