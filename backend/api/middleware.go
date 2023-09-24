@@ -32,12 +32,12 @@ func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 
 		fields := strings.Fields(authorizationHeader)
 
-		if len(fields) < 2 {
+		if len(fields) < 2 { // Authorization 값은 "Bearer <token>" 형태로 전달되어야 함
 			return abort(c, "invalid authorization header format")
 		}
 
 		authorizationType := strings.ToLower(fields[0])
-		if authorizationType != authorizationTypeBearer {
+		if authorizationType != authorizationTypeBearer { // Auth type은 표준인 Bearer만 허용
 			return abort(c, "unsupported authorization type,"+authorizationType)
 		}
 
@@ -46,7 +46,7 @@ func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 		if err != nil {
 			return abort(c, fmt.Sprintf("%v", err))
 		}
-		c.Locals(authorizationPayloadKey, payload)
+		c.Locals(authorizationPayloadKey, payload) // 토큰이 유효하면 payload를 context에 저장
 		return c.Next()
 	}
 }

@@ -64,6 +64,7 @@ func TestCreateUser(t *testing.T) {
 	hashed, err := utilities.HashPassword(password)
 
 	storeCtrl := gomock.NewController(t)
+	defer storeCtrl.Finish()
 	mockStore := mockdb.NewMockStore(storeCtrl)
 
 	taskCtrl := gomock.NewController(t)

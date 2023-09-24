@@ -24,6 +24,7 @@ func NewPasetoTokenMaker(symmetricKey string) (*PasetoMaker, error) {
 	return maker, nil
 }
 
+// CreateToken은 특정 유저에게 제공할 토큰을 생성합니다.
 func (p *PasetoMaker) CreateToken(userID string, duration time.Duration) (string, *Payload, error) {
 	payload, err := NewPayload(userID, duration)
 	if err != nil {

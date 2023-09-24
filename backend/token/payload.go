@@ -12,6 +12,7 @@ var (
 	ErrInvalidToken = fmt.Errorf("token is invalid")
 )
 
+// Payload는 토근에 담길 내용을 정의합니다.
 type Payload struct {
 	SessionID uuid.UUID `json:"session_id"`
 	UserID    string    `json:"user_id"`
