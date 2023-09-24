@@ -68,6 +68,7 @@ func TestCreateUser(t *testing.T) {
 	mockStore := mockdb.NewMockStore(storeCtrl)
 
 	taskCtrl := gomock.NewController(t)
+	defer taskCtrl.Finish()
 	mockTask := mocktask.NewMockTaskDistributor(taskCtrl)
 
 	mockStore.EXPECT().GetAllParisInDB(gomock.Any()).Times(1)
