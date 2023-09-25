@@ -53,10 +53,10 @@ func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResp
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
 	var result = ScoreResponse{
-		ResultChart: resultchart,
-		Score:       calculateResult(resultchart, order, practice, nil),
+		Score: calculateResult(resultchart, order, practice, nil),
 	}
 	result.Score.Entrytime = utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time))
+	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
 
 	return &result, nil
 }
@@ -74,9 +74,10 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
 	var result = ScoreResponse{
-		ResultChart: resultchart,
-		Score:       calculateResult(resultchart, compOrder, competition, compInfo),
+		Score: calculateResult(resultchart, compOrder, competition, compInfo),
 	}
+
+	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
 
 	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
 	if err != nil {
