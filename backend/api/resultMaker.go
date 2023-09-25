@@ -91,6 +91,7 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 	return &result, nil
 }
 
+// calculateResult는 주문에 대한 결과를 계산합니다.
 func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, info *utilities.IdentificationData) *OrderResult {
 	var (
 		roe      float64
