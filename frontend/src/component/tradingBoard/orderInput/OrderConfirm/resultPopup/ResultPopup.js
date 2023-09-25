@@ -21,6 +21,9 @@ const ResultPopup = (props) => {
         throw new Error(response.data);
       }
     } catch (error) {
+      if (error.response.data.includes("low score")) {
+        // 기록 갱신 실패
+      }
       console.error(error);
     }
   };
