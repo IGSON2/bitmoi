@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"time"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
@@ -160,14 +161,24 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 	return err
 }
 
-func (s *Server) SendReward() error {
+func (s *Server) SendReward(prevUnlocked time.Time) error {
 
-	top3, err := s.store.GetAllRanks(context.Background(), db.GetAllRanksParams{
-		Limit:  3,
-		Offset: 0,
+	top3, err := s.store.GetTopRankers(context.Background(), db.GetTopRankersParams{
+		CreatedAt: prevUnlocked.UTC(),
+		Limit:     3,
+		Offset:    0,
 	})
 
+	if len(top3) == 0 {
+		log.Warn().Msg("no rankers of top3")
+		return nil
+	}
+
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Warn().Msg("no rankers of top3")
+			return nil
+		}
 		log.Error().Err(err).Msg("cannot get rankers of top3 from db.")
 		return err
 	}

@@ -24,3 +24,10 @@ WHERE user_id = ?;
 UPDATE ranking_board 
 SET score_id = ?, final_balance = ?, comment = ?, nickname = ?
 WHERE user_id = ?;
+
+-- name: GetTopRankers :many
+SELECT * FROM ranking_board
+WHERE created_at > ?
+ORDER BY final_balance DESC
+LIMIT ?
+OFFSET ?;

@@ -74,12 +74,13 @@ type Candles5m struct {
 }
 
 type RankingBoard struct {
-	UserID       string  `json:"user_id"`
-	PhotoUrl     string  `json:"photo_url"`
-	ScoreID      string  `json:"score_id"`
-	Nickname     string  `json:"nickname"`
-	FinalBalance float64 `json:"final_balance"`
-	Comment      string  `json:"comment"`
+	UserID       string    `json:"user_id"`
+	PhotoUrl     string    `json:"photo_url"`
+	ScoreID      string    `json:"score_id"`
+	Nickname     string    `json:"nickname"`
+	FinalBalance float64   `json:"final_balance"`
+	Comment      string    `json:"comment"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type Score struct {

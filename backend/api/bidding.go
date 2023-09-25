@@ -27,7 +27,6 @@ type NextUnlockResponse struct {
 }
 
 func (s *Server) BiddingLoop() {
-
 	for {
 		biddingTimer := time.NewTimer(s.config.BiddingDuration)
 		select {
@@ -36,24 +35,23 @@ func (s *Server) BiddingLoop() {
 			s.erc20Contract, initErr = contract.InitErc20Contract(s.config.PrivateKey)
 			if initErr != nil {
 				log.Error().Err(initErr).Msg("Cannot initialize contract")
-				return
+				s.exitCh <- struct{}{}
 			}
 			hash, err := s.erc20Contract.UnLockTokens(contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
 			if err != nil {
 				log.Error().Err(err).Msg("cannot unlock token.")
-				return
+				s.exitCh <- struct{}{}
 			}
 			_, err = s.erc20Contract.WaitAndReturnTxReceipt(hash)
 			if err != nil {
 				log.Error().Err(err).Msgf("Cannot get receipt of unlock token transaction. stop server. hash:%s", hash.Hex())
-				return
+				s.exitCh <- struct{}{}
 			}
 
-			//TODO:테스트 필요
-			err = s.SendReward()
+			err = s.SendReward(s.nextUnlockDate.Add(-1 * s.config.BiddingDuration))
 			if err != nil {
 				log.Error().Err(err).Msgf("send reward err occured during unlock.")
-				return
+				s.exitCh <- struct{}{}
 			}
 
 			s.nextUnlockDate = time.Now().Add(s.config.BiddingDuration)

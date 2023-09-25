@@ -651,6 +651,21 @@ func (mr *MockStoreMockRecorder) GetStageLenByScoreID(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStageLenByScoreID", reflect.TypeOf((*MockStore)(nil).GetStageLenByScoreID), arg0, arg1)
 }
 
+// GetTopRankers mocks base method.
+func (m *MockStore) GetTopRankers(arg0 context.Context, arg1 db.GetTopRankersParams) ([]db.RankingBoard, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTopRankers", arg0, arg1)
+	ret0, _ := ret[0].([]db.RankingBoard)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTopRankers indicates an expected call of GetTopRankers.
+func (mr *MockStoreMockRecorder) GetTopRankers(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopRankers", reflect.TypeOf((*MockStore)(nil).GetTopRankers), arg0, arg1)
+}
+
 // GetUser mocks base method.
 func (m *MockStore) GetUser(arg0 context.Context, arg1 string) (db.User, error) {
 	m.ctrl.T.Helper()

@@ -1,0 +1,16 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 25%;
+}
+
+.number {
+  font-size: large;
+  font-weight: 900;
+}
+
+.unit {
+  font-size: xx-small;
+}

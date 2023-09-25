@@ -145,10 +145,17 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 // Listen enables the server to listen for incoming requests.
 func (s *Server) Listen() error {
-	defer func() {
-		s.exitCh <- struct{}{}
-	}()
-	return s.router.Listen(s.config.HTTPAddress)
+	errCh := make(chan error)
+	go func(ch chan<- error) {
+		errCh <- s.router.Listen(s.config.HTTPAddress)
+	}(errCh)
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-s.exitCh:
+		return ErrClosedBiddingLoop
+	}
 }
 
 // getPracticeChart godoc

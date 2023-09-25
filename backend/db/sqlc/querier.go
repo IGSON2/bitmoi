@@ -50,6 +50,7 @@ type Querier interface {
 	GetScoresByUserID(ctx context.Context, arg GetScoresByUserIDParams) ([]Score, error)
 	GetSession(ctx context.Context, sessionID string) (Session, error)
 	GetStageLenByScoreID(ctx context.Context, arg GetStageLenByScoreIDParams) (int64, error)
+	GetTopRankers(ctx context.Context, arg GetTopRankersParams) ([]RankingBoard, error)
 	GetUser(ctx context.Context, userID string) (User, error)
 	GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error)
 	GetUserByNickName(ctx context.Context, nickname string) (User, error)

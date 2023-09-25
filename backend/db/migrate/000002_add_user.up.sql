@@ -33,7 +33,8 @@ CREATE TABLE `ranking_board` (
   `score_id` varchar(255) NOT NULL,
   `nickname` varchar(255) NOT NULL,
   `final_balance` double NOT NULL,
-  `comment` varchar(255) NOT NULL
+  `comment` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE `used_token` (

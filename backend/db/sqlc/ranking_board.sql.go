@@ -8,10 +8,11 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const getAllRanks = `-- name: GetAllRanks :many
-SELECT user_id, photo_url, score_id, nickname, final_balance, comment FROM ranking_board
+SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
 ORDER BY final_balance DESC
 LIMIT ?
 OFFSET ?
@@ -38,6 +39,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 			&i.Nickname,
 			&i.FinalBalance,
 			&i.Comment,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -53,7 +55,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 }
 
 const getRankByUserID = `-- name: GetRankByUserID :one
-SELECT user_id, photo_url, score_id, nickname, final_balance, comment FROM ranking_board
+SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
 WHERE user_id = ?
 `
 
@@ -67,8 +69,54 @@ func (q *Queries) GetRankByUserID(ctx context.Context, userID string) (RankingBo
 		&i.Nickname,
 		&i.FinalBalance,
 		&i.Comment,
+		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const getTopRankers = `-- name: GetTopRankers :many
+SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
+WHERE created_at > ?
+ORDER BY final_balance DESC
+LIMIT ?
+OFFSET ?
+`
+
+type GetTopRankersParams struct {
+	CreatedAt time.Time `json:"created_at"`
+	Limit     int32     `json:"limit"`
+	Offset    int32     `json:"offset"`
+}
+
+func (q *Queries) GetTopRankers(ctx context.Context, arg GetTopRankersParams) ([]RankingBoard, error) {
+	rows, err := q.db.QueryContext(ctx, getTopRankers, arg.CreatedAt, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []RankingBoard{}
+	for rows.Next() {
+		var i RankingBoard
+		if err := rows.Scan(
+			&i.UserID,
+			&i.PhotoUrl,
+			&i.ScoreID,
+			&i.Nickname,
+			&i.FinalBalance,
+			&i.Comment,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertRank = `-- name: InsertRank :execresult

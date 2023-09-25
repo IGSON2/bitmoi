@@ -7,7 +7,7 @@ import axiosClient from "../../component/backendConn/axiosClient";
 import AdDiv from "./AdDiv/AdDiv";
 import mockup from "../../component/images/mockup_rank.png";
 import getSelectedBidderImg from "../../component/backendConn/getSelectedBidderImg";
-import Countdown from "../../component/Countdown/Countdown";
+import Countdown from "./Countdown/Countdown";
 
 function Rank() {
   const [pageNum, setPageNum] = useState(1);
@@ -45,14 +45,12 @@ function Rank() {
       <div className={styles.navbar}>
         <H_NavBar />
       </div>
+      <div className={styles.timer}>
+        {nextUnlock ? <Countdown nextUnlock={nextUnlock} /> : null}
+      </div>
       <div className={styles.graphbody}>
         <div className={styles.titlediv}>
           <h1 className={styles.title}>RANKING BOARD</h1>
-          <div className={styles.timer}>
-            {/* CSS적용 안되는 문제 수정 */}
-            <h3>보상 지급</h3>
-            {nextUnlock ? <Countdown nextUnlock={nextUnlock} /> : null}
-          </div>
         </div>
         {data
           ? data.map((v, i) => {
@@ -67,6 +65,7 @@ function Rank() {
               return <RankDiv key={i} index={i + 1} obj={v} />;
             })
           : null}
+
         <div className={styles.footer}>
           <div>Copyright &copy; 2023 IGSON All rights reserved.</div>
         </div>
