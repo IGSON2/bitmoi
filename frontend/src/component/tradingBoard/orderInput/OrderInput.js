@@ -13,8 +13,6 @@ function OrderInput({
   submitOrder,
   setSubmitOrder,
   entryPrice,
-  setProfitMarker,
-  setLossMarker,
   identifier,
   setName,
   setCandles,
@@ -104,8 +102,6 @@ function OrderInput({
     };
     setOrderObject(tempObject);
     setConfirm((current) => !current);
-    setLossMarker(lossPrice);
-    setProfitMarker(profitPrice);
   };
   const orderInit = () => {
     setIsLong(true);

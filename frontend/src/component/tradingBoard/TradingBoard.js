@@ -67,6 +67,8 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
     name: "",
     leverage: 0,
     entry_price: 0,
+    profit_price: 0,
+    loss_price: 0,
     end_price: 0,
     out_time: 0,
     roe: 0,
@@ -80,8 +82,6 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
   const [headerInterval, setHeaderInterval] = useState("");
   const [index, setIndex] = useState(0);
   const [entryPrice, setEntryPrice] = useState(0);
-  const [profitMarker, setProfitMarker] = useState(0);
-  const [lossMarker, setLossMarker] = useState(0);
   const [balance, setBalance] = useState(1000);
   const [name, setName] = useState("");
   const [titleArray, setTitleArray] = useState([]);
@@ -313,9 +313,6 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
                 setSubmitOrder={setSubmitOrder}
                 modeHeight={modeHeight}
                 opened={opened}
-                entryMarker={entryPrice}
-                profitMarker={profitMarker}
-                lossMarker={lossMarker}
                 resultChart={resultChart}
                 resultScore={resultScore}
                 toolBar={toolBar}
@@ -336,8 +333,6 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
                 submitOrder={submitOrder}
                 setSubmitOrder={setSubmitOrder}
                 entryPrice={entryPrice}
-                setProfitMarker={setProfitMarker}
-                setLossMarker={setLossMarker}
                 identifier={identifier}
                 setName={setName}
                 setResultChart={setResultChart}

@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -81,10 +82,17 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	router := fiber.New(fiber.Config{})
 	router.Use(createNewLimitMiddleware())
+
+	lgr := server.createLoggerMiddleware()
 	if c.Environment == bitmoicommon.EnvProduction {
-		router.Use(createNewOriginMiddleware(), server.createLoggerMiddleware())
+		router.Use(createNewOriginMiddleware(), lgr)
 	} else {
-		router.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		router.Use(
+			logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}),
+			cors.New(cors.Config{
+				AllowOrigins: "*",
+			}),
+		)
 	}
 
 	router.Get("/practice", server.getPracticeChart)
@@ -104,13 +112,17 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/selectedBidder", server.getSelectedBidder)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Use(createNewOriginMiddleware(), createNewLimitMiddleware())
+	authGroup.Use(createNewLimitMiddleware())
 
-	lgr := server.createLoggerMiddleware()
 	if c.Environment == bitmoicommon.EnvProduction {
-		authGroup.Use(lgr)
+		authGroup.Use(createNewOriginMiddleware(), lgr)
 	} else {
-		authGroup.Use(logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}))
+		authGroup.Use(
+			logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}),
+			cors.New(cors.Config{
+				AllowOrigins: "*",
+			}),
+		)
 	}
 
 	authGroup.Use(lgr)

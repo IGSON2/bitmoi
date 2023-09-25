@@ -22,6 +22,8 @@ type OrderResult struct {
 	Entrytime    string  `json:"entry_time"`
 	Leverage     int32   `json:"leverage"`
 	EntryPrice   float64 `json:"entry_price"`
+	ProfitPrice  float64 `json:"profit_price"`
+	LossPrice    float64 `json:"loss_price"`
 	EndPrice     float64 `json:"end_price"`
 	OutTime      int32   `json:"out_time"`
 	Roe          float64 `json:"roe"`
@@ -153,15 +155,17 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 	pnl = (roe * order.Balance)
 
 	resultInfo := OrderResult{
-		Stage:      order.Stage,
-		Name:       order.Name,
-		Leverage:   order.Leverage,
-		EntryPrice: order.EntryPrice,
-		EndPrice:   common.FloorDecimal(endPrice),
-		OutTime:    int32(endIdx),
-		Roe:        common.FloorDecimal(roe * 100),
-		Pnl:        common.FloorDecimal(pnl),
-		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
+		Stage:       order.Stage,
+		Name:        order.Name,
+		Leverage:    order.Leverage,
+		EntryPrice:  order.EntryPrice,
+		ProfitPrice: order.ProfitPrice,
+		LossPrice:   order.LossPrice,
+		EndPrice:    common.FloorDecimal(endPrice),
+		OutTime:     int32(endIdx),
+		Roe:         common.FloorDecimal(roe * 100),
+		Pnl:         common.FloorDecimal(pnl),
+		Commission:  common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
 	}
 	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
 		resultInfo.Isliquidated = true

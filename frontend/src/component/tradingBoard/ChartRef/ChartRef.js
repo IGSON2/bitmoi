@@ -232,17 +232,11 @@ const ChartRef = forwardRef((props, ref) => {
     if (candleSeriesRef.current === null) {
       return;
     }
-    // if (props.modeHeight > 0.8) {
-    //   chartRef.current.timeScale().setVisibleRange({
-    //     from: props.candles.pdata[props.candles.pdata.length - 200].time,
-    //     to: props.candles.pdata[props.candles.pdata.length - 1].time,
-    //   });
-    // }
 
     if (props.submitOrder && props.loaded) {
       var i = 0;
       candleSeriesRef.current.createPriceLine({
-        price: props.entryMarker,
+        price: props.resultScore.entry_price,
         color: "rgb(51, 61, 121)",
         lineWidth: 2,
         lineStyle: LineStyle.Dotted,
@@ -250,7 +244,7 @@ const ChartRef = forwardRef((props, ref) => {
         title: "Entry price",
       });
       candleSeriesRef.current.createPriceLine({
-        price: props.profitMarker,
+        price: props.resultScore.profit_price,
         color: "rgb(53, 182, 169)",
         lineWidth: 2,
         lineStyle: LineStyle.Dotted,
@@ -258,7 +252,7 @@ const ChartRef = forwardRef((props, ref) => {
         title: "Take profit",
       });
       candleSeriesRef.current.createPriceLine({
-        price: props.lossMarker,
+        price: props.resultScore.loss_price,
         color: "rgb(238, 103, 101)",
         lineWidth: 2,
         lineStyle: LineStyle.Dotted,
@@ -302,7 +296,7 @@ const ChartRef = forwardRef((props, ref) => {
         candleSeriesRef.current.update(nextP);
         volumeSeriesRef.current.update(nextV);
 
-        if (props.resultScore.outtime - 1 == i) {
+        if (props.resultScore.out_time - 1 == i) {
           if (props.resultScore.pnl > 0) {
             candleSeriesRef.current.setMarkers([
               {
@@ -314,9 +308,9 @@ const ChartRef = forwardRef((props, ref) => {
               },
               {
                 time: props.resultChart.pdata[i].time,
-                position: "belowBar",
+                position: "aboveBar",
                 color: "rgb(38,166,154)",
-                shape: "arrowUp",
+                shape: "arrowDown",
                 size: 1.5,
               },
             ]);
@@ -331,9 +325,9 @@ const ChartRef = forwardRef((props, ref) => {
               },
               {
                 time: props.resultChart.pdata[i].time,
-                position: "belowBar",
+                position: "aboveBar",
                 color: "rgb(239,83,80)",
-                shape: "arrowUp",
+                shape: "arrowDown",
                 size: 1.5,
               },
             ]);
