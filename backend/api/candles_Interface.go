@@ -36,7 +36,7 @@ func (c *Candles1dSlice) InitCandleData() *CandleData {
 			Open:  common.FloorDecimal(candle.Open),
 			Close: common.FloorDecimal(candle.Close),
 			High:  common.FloorDecimal(candle.High),
-			Low:   common.FloorDecimal(candle.Open),
+			Low:   common.FloorDecimal(candle.Low),
 			Time:  candle.Time,
 		})
 
@@ -73,7 +73,7 @@ func (c *Candles4hSlice) InitCandleData() *CandleData {
 			Open:  common.FloorDecimal(candle.Open),
 			Close: common.FloorDecimal(candle.Close),
 			High:  common.FloorDecimal(candle.High),
-			Low:   common.FloorDecimal(candle.Open),
+			Low:   common.FloorDecimal(candle.Low),
 			Time:  candle.Time,
 		})
 
@@ -110,7 +110,7 @@ func (c *Candles1hSlice) InitCandleData() *CandleData {
 			Open:  common.FloorDecimal(candle.Open),
 			Close: common.FloorDecimal(candle.Close),
 			High:  common.FloorDecimal(candle.High),
-			Low:   common.FloorDecimal(candle.Open),
+			Low:   common.FloorDecimal(candle.Low),
 			Time:  candle.Time,
 		})
 
@@ -147,7 +147,7 @@ func (c *Candles15mSlice) InitCandleData() *CandleData {
 			Open:  common.FloorDecimal(candle.Open),
 			Close: common.FloorDecimal(candle.Close),
 			High:  common.FloorDecimal(candle.High),
-			Low:   common.FloorDecimal(candle.Open),
+			Low:   common.FloorDecimal(candle.Low),
 			Time:  candle.Time,
 		})
 
@@ -184,7 +184,7 @@ func (c *Candles5mSlice) InitCandleData() *CandleData {
 			Open:  common.FloorDecimal(candle.Open),
 			Close: common.FloorDecimal(candle.Close),
 			High:  common.FloorDecimal(candle.High),
-			Low:   common.FloorDecimal(candle.Open),
+			Low:   common.FloorDecimal(candle.Low),
 			Time:  candle.Time,
 		})
 
