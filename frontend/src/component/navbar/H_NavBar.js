@@ -1,8 +1,23 @@
 import styles from "./H_NavBar.module.css";
 import { Link } from "react-router-dom";
+import ProfileBox from "../ProfileBox/ProfileBox";
+import { useEffect, useState } from "react";
+import checkAccessTokenValidity from "../backendConn/checkAccessTokenValidity";
 
 function H_NavBar() {
   const menubutton = ["HOME", "COMPETITION", "PRACTICE", "RANK", "AD BIDDING"];
+  const [userInfo, setUserinfo] = useState();
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const userInfo = await checkAccessTokenValidity();
+      if (userInfo) {
+        setUserinfo(userInfo);
+      }
+    };
+    verifyToken();
+  }, []);
+
   return (
     <div className={styles.navbar}>
       {menubutton.map((menu, idx) => {
@@ -24,6 +39,9 @@ function H_NavBar() {
           );
         }
       })}
+      <div className={styles.profilediv}>
+        <ProfileBox userInfo={userInfo} />
+      </div>
     </div>
   );
 }

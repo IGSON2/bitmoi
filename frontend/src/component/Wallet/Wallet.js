@@ -124,7 +124,15 @@ function Wallet() {
           >
             <img src={moilogo}></img>
           </div>
-          <div className={styles.number}>{tokenBalance} MOI</div>
+          <div
+            className={styles.number}
+            title={tokenBalance.toLocaleString("ko-KR")}
+          >
+            {String(tokenBalance).length > 4
+              ? String(tokenBalance).slice(0, 4) + ".."
+              : tokenBalance}
+            MOI
+          </div>
         </div>
       ) : (
         <div className={styles.warning}>

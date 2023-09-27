@@ -38,6 +38,12 @@
   font-size: medium;
 }
 
+.profilediv {
+  position: fixed;
+  right: 0;
+  padding-right: 10px;
+}
+
 @keyframes buttonhover {
   0% {
     background: #333d79;
