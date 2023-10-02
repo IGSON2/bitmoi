@@ -16,13 +16,14 @@ const ResultPopup = (props) => {
         score_id: props.order.score_id,
       });
       if (response.status === 200) {
-        window.location.replace("/rank/1");
+        window.location.replace("/rank");
       } else {
         throw new Error(response.data);
       }
     } catch (error) {
       if (error.response.data.includes("low score")) {
-        // 기록 갱신 실패
+        alert("점수를 갱신하지 못했습니다.");
+        window.location.replace("/competition");
       }
       console.error(error);
     }
