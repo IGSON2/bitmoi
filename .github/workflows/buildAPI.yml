@@ -43,4 +43,4 @@ jobs:
 
       - name: Restart autoscaling group
         run: |
-          aws autoscaling start-instance-refresh --auto-scaling-group-name api-auto-scaling --preferences '{"InstanceWarmup":60}'
+          aws autoscaling start-instance-refresh --auto-scaling-group-name bitmoi-api --preferences '{"InstanceWarmup":60}'
