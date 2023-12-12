@@ -202,10 +202,10 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	errs := utilities.ValidateStruct(PracticeOrder)
-	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-	}
+	// errs := utilities.ValidateStruct(PracticeOrder)
+	// if errs != nil {
+	// 	return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
+	// }
 
 	err = validateOrderRequest(&PracticeOrder)
 	if err != nil {

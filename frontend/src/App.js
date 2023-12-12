@@ -6,7 +6,6 @@ import Practice from "./RoutingPages/practice/Practice";
 import MyPage from "./RoutingPages/mypage/MyPage";
 import Rank from "./RoutingPages/Ranking/Rank";
 import Mobile from "./component/Mobile/Mobile";
-import Wallet from "./component/Wallet/Wallet";
 import SignUp from "./RoutingPages/SignUp/SignUp";
 import AddBidding from "./RoutingPages/AdBidding/AdBidding";
 import Login from "./RoutingPages/Login/Login";

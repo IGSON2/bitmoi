@@ -79,3 +79,10 @@ func TestEncodeIdentifier(t *testing.T) {
 	fmt.Println(info)
 
 }
+
+func TestHashPassw(t *testing.T) {
+	password := "qwer1234!!"
+	hashed, err := HashPassword(password)
+	require.NoError(t, err)
+	fmt.Println(hashed)
+}
