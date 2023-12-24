@@ -40,6 +40,16 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-      - name: Restart autoscaling group
-        run: |
-          aws autoscaling start-instance-refresh --auto-scaling-group-name bitmoi-api --preferences '{"InstanceWarmup":60}'
+      # - name: Restart autoscaling group
+      #   run: |
+      #     aws autoscaling start-instance-refresh --auto-scaling-group-name bitmoi-api --preferences '{"InstanceWarmup":60}'
+      - name: Restart server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIV }}
+          script: |
+            cd /home/${{ secrets.EC2_USERNAME }}
+            ./stop.sh
+            ./start.sh
