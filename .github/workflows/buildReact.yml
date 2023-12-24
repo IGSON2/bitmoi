@@ -9,52 +9,58 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: build
+  temp:
+    name: log
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: log
+        run: echo "hello world"
+#   build:
+#     name: build
+#     runs-on: ubuntu-latest
 
-      - name: Retrieve and create SSL files
-        run: |
-          cd frontend/server
-          echo "${{ secrets.server_crt }}" > server.crt
-          echo "${{ secrets.server_key }}" > server.key
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::122786534921:role/ECR_PowerUser
-          aws-region: ap-northeast-2
+#       - name: Retrieve and create SSL files
+#         run: |
+#           cd frontend/server
+#           echo "${{ secrets.server_crt }}" > server.crt
+#           echo "${{ secrets.server_key }}" > server.key
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           role-to-assume: arn:aws:iam::122786534921:role/ECR_PowerUser
+#           aws-region: ap-northeast-2
 
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: build react app
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: bitmoi-client
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          cd frontend
-          npm install
-          CI=false npm run build
-          cd server
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+#       - name: build react app
+#         env:
+#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#           ECR_REPOSITORY: bitmoi-client
+#           IMAGE_TAG: ${{ github.sha }}
+#         run: |
+#           cd frontend
+#           npm install
+#           CI=false npm run build
+#           cd server
+#           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+#           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
 
-      - name: Restart server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIV }}
-          script: |
-            cd /home/${{ secrets.EC2_USERNAME }}
-            ./stop.sh
-            ./login.sh
-            ./start.sh
+#       - name: Restart server
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USERNAME }}
+#           key: ${{ secrets.EC2_PRIV }}
+#           script: |
+#             cd /home/${{ secrets.EC2_USERNAME }}
+#             ./stop.sh
+#             ./login.sh
+#             ./start.sh
