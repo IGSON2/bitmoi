@@ -7,6 +7,7 @@ import (
 	"bitmoi/backend/utilities"
 	bitmoicommon "bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
+	"log"
 
 	"context"
 	"errors"
@@ -47,6 +48,7 @@ type Server struct {
 
 // NewServer creates a new HTTP server and setup routing.
 func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
+	log.Printf("Environment: %s", c.Environment)
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)
