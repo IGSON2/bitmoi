@@ -43,7 +43,7 @@ func init() {
 // @BasePath /
 func main() {
 	if err := bApp.Run(os.Args); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Printf("Bitmoi API closed. Error: %s", err.Error())
 		os.Exit(1)
 	}
 }
