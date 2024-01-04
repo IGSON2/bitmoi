@@ -28,6 +28,7 @@ require (
 	github.com/swaggo/swag v1.16.1
 	github.com/urfave/cli/v2 v2.24.1
 	golang.org/x/crypto v0.12.0
+	golang.org/x/oauth2 v0.10.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230814215434-ca7cfce7776a
 	google.golang.org/grpc v1.57.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
@@ -35,6 +36,8 @@ require (
 )
 
 require (
+	cloud.google.com/go/compute v1.23.0 // indirect
+	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -106,6 +109,7 @@ require (
 	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230803162519-f966b187b2e5 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
