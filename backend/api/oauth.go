@@ -3,7 +3,6 @@ package api
 import (
 	"bitmoi/backend/utilities"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -20,7 +19,7 @@ const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_
 func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 	port := strings.Split(c.HTTPAddress, ":")[1]
 	return &oauth2.Config{
-		RedirectURL:  fmt.Sprintf("http://localhost:%s/auth/google/callback", port),
+		RedirectURL:  "https://api.bitmoi.co.kr/login/callback",
 		ClientID:     c.OauthClientID,
 		ClientSecret: c.OauthClientSecret,
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
