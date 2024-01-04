@@ -26,6 +26,8 @@ type Config struct {
 	S3AccessKey          string        `mapstructure:"S3_ACCESS_KEY"`
 	S3SecretKey          string        `mapstructure:"S3_SECRET_KEY"`
 	BiddingDuration      time.Duration `mapstructure:"BIDDING_DURATION"`
+	OauthClientID        string        `mapstructure:"OAUTH_CLIENT_ID"`
+	OauthClientSecret    string        `mapstructure:"OAUTH_CLIENT_SECRET"`
 	DataDir              string
 }
 
