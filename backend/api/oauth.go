@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
@@ -17,7 +16,6 @@ var oauthConf *oauth2.Config
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
 func NewOauthConfig(c *utilities.Config) *oauth2.Config {
-	port := strings.Split(c.HTTPAddress, ":")[1]
 	return &oauth2.Config{
 		RedirectURL:  "https://api.bitmoi.co.kr/login/callback",
 		ClientID:     c.OauthClientID,
