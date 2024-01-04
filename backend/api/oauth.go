@@ -53,3 +53,12 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(jsonMap)
 }
+
+func (s *Server) GetLoginURL(c *fiber.Ctx) error {
+	token, _, err := s.tokenMaker.CreateToken("state", s.config.AccessTokenDuration)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	url := s.oauthConfig.AuthCodeURL(token)
+	return c.Status(fiber.StatusOK).SendString(url)
+}
