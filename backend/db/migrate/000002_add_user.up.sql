@@ -1,8 +1,8 @@
 CREATE TABLE `users` (
   `user_id` varchar(255) PRIMARY KEY,
   `oauth_uid` varchar(255),
-  `nickname` varchar(255) NOT NULL,
-  `hashed_password` varchar(255) NOT NULL,
+  `nickname` varchar(255),
+  `hashed_password` varchar(255),
   `email` varchar(255) NOT NULL,
   `metamask_address` varchar(255),
   `photo_url` varchar(255),

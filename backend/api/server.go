@@ -106,7 +106,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/moreinfo", server.moreinfo)
 	router.Get("/rank/:page", server.getRank)
 	// router.Post("/user", server.createUser)
-	router.Post("/user/login", server.loginUser)
+	// router.Post("/user/login", server.loginUser)
 	router.Get("/user/checkId", server.checkID)
 	router.Get("/user/checkNickname", server.checkNickname)
 	router.Get("/user/verifyEmail", server.verifyEmail)

@@ -1,19 +1,27 @@
 package api
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
-var oauthConf *oauth2.Config
-
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
+
+type OauthData struct {
+	Email         string `json:"email"`
+	ID            string `json:"id"`
+	Picture       string `json:"picture"`
+	VerifiedEmail bool   `json:"verified_email"`
+}
 
 func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 	return &oauth2.Config{
@@ -42,13 +50,63 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
-	jsonMap := make(map[string]interface{})
-	err = json.Unmarshal(contents, &jsonMap)
+	od := new(OauthData)
+	err = json.Unmarshal(contents, &od)
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(jsonMap)
+	userID := strings.Split(od.Email, "@")[0]
+
+	_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
+		UserID:   userID,
+		OauthUid: sql.NullString{String: od.ID, Valid: true},
+		Email:    od.Email,
+		PhotoUrl: sql.NullString{String: od.Picture, Valid: true},
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	refreshToken, refreshPayload, err := s.tokenMaker.CreateToken(
+		userID,
+		s.config.RefreshTokenDuration,
+	)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	_, err = s.store.CreateSession(c.Context(), db.CreateSessionParams{
+		SessionID:    refreshPayload.SessionID.String(),
+		UserID:       userID,
+		RefreshToken: refreshToken,
+		UserAgent:    string(c.Request().Header.UserAgent()),
+		ClientIp:     c.IP(),
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	rsp := LoginUserResponse{
+		SessionID:             refreshPayload.SessionID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  UserResponse{UserID: userID, Email: od.Email, PhotoURL: od.Picture},
+	}
+
+	return c.Status(fiber.StatusOK).JSON(rsp)
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
@@ -57,5 +115,5 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	url := s.oauthConfig.AuthCodeURL(token)
-	return c.Status(fiber.StatusOK).SendString(url)
+	return c.Redirect(url, fiber.StatusMovedPermanently)
 }
