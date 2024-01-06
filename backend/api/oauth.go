@@ -5,6 +5,7 @@ import (
 	"bitmoi/backend/utilities"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -69,7 +70,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	accessToken, accessPayload, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
+	accessToken, _, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -97,24 +98,9 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	rsp := LoginUserResponse{
-		SessionID:             refreshPayload.SessionID,
-		AccessToken:           accessToken,
-		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
-		RefreshToken:          refreshToken,
-		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		User:                  UserResponse{UserID: userID, Email: od.Email, PhotoURL: od.Picture},
-	}
+	redirectURL := fmt.Sprintf("http://localhost:3000/welcome?access_token=%s&refresh_token=%s", accessToken, refreshToken)
 
-	raw, err := json.Marshal(rsp)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-
-	c.Response().SetBodyRaw(raw)
-	c.Response().Header.SetContentType(fiber.MIMEApplicationJSON)
-
-	return c.Redirect("http://localhost:3000/login", fiber.StatusMovedPermanently)
+	return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
