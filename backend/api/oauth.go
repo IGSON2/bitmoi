@@ -106,7 +106,15 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		User:                  UserResponse{UserID: userID, Email: od.Email, PhotoURL: od.Picture},
 	}
 
-	return c.Status(fiber.StatusOK).JSON(rsp)
+	raw, err := json.Marshal(rsp)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	c.Response().SetBodyRaw(raw)
+	c.Response().Header.SetContentType(fiber.MIMEApplicationJSON)
+
+	return c.Redirect("http://localhost:3000/login", fiber.StatusMovedPermanently)
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {

@@ -44,8 +44,6 @@ CREATE TABLE `used_token` (
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE UNIQUE INDEX `users_index_0` ON `users` (`nickname`);
-
 CREATE UNIQUE INDEX `users_index_1` ON `users` (`email`);
 
 CREATE UNIQUE INDEX `users_index_2` ON `users` (`metamask_address`);
