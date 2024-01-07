@@ -1,7 +1,6 @@
 package api
 
 import (
-	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"fmt"
 
@@ -30,15 +29,15 @@ func (s *Server) verifyEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
-	txResult, err := s.store.VerifyEmailTx(c.Context(), db.VerifyEmailTxParams{
-		EmailId:    r.EmailId,
-		SecretCode: r.SecretCode,
-	})
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("failed to verify email")
-	}
-	if !txResult.User.IsEmailVerified {
-		return c.Status(fiber.StatusUnauthorized).SendString("user not verified")
-	}
+	// txResult, err := s.store.VerifyEmailTx(c.Context(), db.VerifyEmailTxParams{
+	// 	EmailId:    r.EmailId,
+	// 	SecretCode: r.SecretCode,
+	// })
+	// if err != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).SendString("failed to verify email")
+	// }
+	// if !txResult.User.IsEmailVerified {
+	// 	return c.Status(fiber.StatusUnauthorized).SendString("user not verified")
+	// }
 	return c.Status(fiber.StatusOK).SendFile("./welcome.html", false)
 }

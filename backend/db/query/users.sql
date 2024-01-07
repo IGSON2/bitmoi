@@ -36,10 +36,6 @@ LIMIT 1;
 UPDATE users SET photo_url = ?
 WHERE user_id = ?;
 
--- name: UpdateUserEmailVerified :execresult
-UPDATE users SET is_email_verified = ?
-WHERE user_id = ?;
-
 -- name: UpdateUserMetamaskAddress :execresult
 UPDATE users 
 SET 

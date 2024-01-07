@@ -61,7 +61,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	user, err := s.store.GetUser(c.Context(), userID)
 
-	if user.Nickname != "" || err == sql.ErrNoRows {
+	if user.UserID != "" || err == sql.ErrNoRows {
 		_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
 			UserID:   userID,
 			OauthUid: sql.NullString{String: od.ID, Valid: true},

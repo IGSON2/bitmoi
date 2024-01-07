@@ -697,7 +697,7 @@ func (mr *MockStoreMockRecorder) GetUserByMetamaskAddress(arg0, arg1 interface{}
 }
 
 // GetUserByNickName mocks base method.
-func (m *MockStore) GetUserByNickName(arg0 context.Context, arg1 string) (db.User, error) {
+func (m *MockStore) GetUserByNickName(arg0 context.Context, arg1 sql.NullString) (db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByNickName", arg0, arg1)
 	ret0, _ := ret[0].(db.User)
@@ -860,21 +860,6 @@ func (m *MockStore) SpendTokenTx(arg0 context.Context, arg1 db.SpendTokenTxParam
 func (mr *MockStoreMockRecorder) SpendTokenTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendTokenTx", reflect.TypeOf((*MockStore)(nil).SpendTokenTx), arg0, arg1)
-}
-
-// UpdateUserEmailVerified mocks base method.
-func (m *MockStore) UpdateUserEmailVerified(arg0 context.Context, arg1 db.UpdateUserEmailVerifiedParams) (sql.Result, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserEmailVerified", arg0, arg1)
-	ret0, _ := ret[0].(sql.Result)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateUserEmailVerified indicates an expected call of UpdateUserEmailVerified.
-func (mr *MockStoreMockRecorder) UpdateUserEmailVerified(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserEmailVerified", reflect.TypeOf((*MockStore)(nil).UpdateUserEmailVerified), arg0, arg1)
 }
 
 // UpdateUserMetamaskAddress mocks base method.

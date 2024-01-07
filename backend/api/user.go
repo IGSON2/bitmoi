@@ -30,7 +30,7 @@ type UserResponse struct {
 func convertUserResponse(user db.User) UserResponse {
 	uR := UserResponse{
 		UserID:            user.UserID,
-		Nickname:          user.Nickname,
+		Nickname:          user.Nickname.String,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
@@ -70,8 +70,11 @@ func (s *Server) checkID(c *fiber.Ctx) error {
 // @Router       /user/checkNickname [get]
 func (s *Server) checkNickname(c *fiber.Ctx) error {
 	nickname := c.Query("nickname")
-	user, _ := s.store.GetUserByNickName(c.Context(), nickname)
-	if user.Nickname == nickname {
+	if nickname == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("nickname is empty")
+	}
+	user, _ := s.store.GetUserByNickName(c.Context(), sql.NullString{Valid: true, String: nickname})
+	if user.Nickname.String == nickname {
 		return c.Status(fiber.StatusBadRequest).SendString("full name already exist")
 	}
 	return c.Status(fiber.StatusOK).SendString(nickname)
@@ -118,8 +121,8 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
-		HashedPassword: hashedPassword,
-		Nickname:       req.Nickname,
+		HashedPassword: sql.NullString{Valid: true, String: hashedPassword},
+		Nickname:       sql.NullString{Valid: true, String: req.Nickname},
 		Email:          req.Email,
 	}
 	if uploadErr == nil {
@@ -194,23 +197,23 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	if !user.IsEmailVerified {
-		if time.Now().After(user.CreatedAt.Add(s.config.AccessTokenDuration)) {
-			taskPayload := &worker.PayloadSendVerifyEmail{
-				UserID: user.UserID,
-			}
-			opts := []asynq.Option{
-				asynq.MaxRetry(10),
-				asynq.ProcessIn(10 * time.Second),
-				asynq.Queue(worker.QueueCritical),
-			}
-			err = s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
-			return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("인증 Email을 한 번 더 보내드렸습니다. 인증을 완료해주세요. : %v", err))
-		}
-		return c.Status(fiber.StatusUnauthorized).SendString("먼저 Email 인증을 완료해주세요.")
-	}
+	// if !user.IsEmailVerified {
+	// 	if time.Now().After(user.CreatedAt.Add(s.config.AccessTokenDuration)) {
+	// 		taskPayload := &worker.PayloadSendVerifyEmail{
+	// 			UserID: user.UserID,
+	// 		}
+	// 		opts := []asynq.Option{
+	// 			asynq.MaxRetry(10),
+	// 			asynq.ProcessIn(10 * time.Second),
+	// 			asynq.Queue(worker.QueueCritical),
+	// 		}
+	// 		err = s.taskDistributor.DistributeTaskSendVerifyEmail(c.Context(), taskPayload, opts...)
+	// 		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("인증 Email을 한 번 더 보내드렸습니다. 인증을 완료해주세요. : %v", err))
+	// 	}
+	// 	return c.Status(fiber.StatusUnauthorized).SendString("먼저 Email 인증을 완료해주세요.")
+	// }
 
-	if err := utilities.CheckPassword(loginReq.Password, user.HashedPassword); err != nil {
+	if err := utilities.CheckPassword(loginReq.Password, user.HashedPassword.String); err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("password is not correct err : %v", err))
 	}
 

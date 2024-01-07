@@ -75,13 +75,13 @@ func (store *SqlStore) VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParam
 			return fmt.Errorf("verification has expired")
 		}
 
-		_, err = q.UpdateUserEmailVerified(ctx, UpdateUserEmailVerifiedParams{
-			IsEmailVerified: true,
-			UserID:          result.VerifyEmail.UserID,
-		})
-		if err != nil {
-			return err
-		}
+		// _, err = q.UpdateUserEmailVerified(ctx, UpdateUserEmailVerifiedParams{
+		// 	IsEmailVerified: true,
+		// 	UserID:          result.VerifyEmail.UserID,
+		// })
+		// if err != nil {
+		// 	return err
+		// }
 
 		result.User, err = q.GetUser(ctx, result.VerifyEmail.UserID)
 		return err

@@ -111,7 +111,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	// router.Post("/user/login", server.loginUser)
 	router.Get("/user/checkId", server.checkID)
 	router.Get("/user/checkNickname", server.checkNickname)
-	router.Get("/user/verifyEmail", server.verifyEmail)
+	// router.Get("/user/verifyEmail", server.verifyEmail)
 	router.Post("/reissueAccess", server.reissueAccessToken)
 	router.Post("/verifyToken", server.verifyToken)
 	router.Get("/nextBidUnlock", server.getNextUnlockDate)

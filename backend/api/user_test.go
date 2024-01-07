@@ -7,6 +7,7 @@ import (
 	"bitmoi/backend/worker"
 	mocktask "bitmoi/backend/worker/mock"
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -30,7 +31,7 @@ func (m *createuserMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	if err := utilities.CheckPassword(m.password, actualParam.HashedPassword); err != nil {
+	if err := utilities.CheckPassword(m.password, actualParam.HashedPassword.String); err != nil {
 		return false
 	}
 
@@ -80,7 +81,7 @@ func TestCreateUser(t *testing.T) {
 		CreateUserParams: db.CreateUserParams{
 			UserID:         user.UserID,
 			Nickname:       user.Nickname,
-			HashedPassword: hashed,
+			HashedPassword: sql.NullString{Valid: true, String: hashed},
 			Email:          user.Email,
 		}}
 	mockStore.EXPECT().CreateUserTx(gomock.Any(), newCreateUserMatcher(param, password, user)).Times(1).
@@ -95,7 +96,7 @@ func TestCreateUser(t *testing.T) {
 	req := CreateUserRequest{
 		UserID:   user.UserID,
 		Password: password,
-		Nickname: user.Nickname,
+		Nickname: user.Nickname.String,
 		Email:    user.Email,
 	}
 	b, err := json.Marshal(req)

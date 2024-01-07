@@ -139,7 +139,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
 				UserID:       user.UserID,
 				ScoreID:      req.ScoreId,
-				Nickname:     user.Nickname,
+				Nickname:     user.Nickname.String,
 				PhotoUrl:     user.PhotoUrl.String,
 				Comment:      req.Comment,
 				FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
@@ -154,7 +154,7 @@ func (s *Server) insertScoreToRankBoard(req *RankInsertRequest, user *db.User, c
 	_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
 		UserID:       user.UserID,
 		ScoreID:      req.ScoreId,
-		Nickname:     user.Nickname,
+		Nickname:     user.Nickname.String,
 		Comment:      req.Comment,
 		FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 	})

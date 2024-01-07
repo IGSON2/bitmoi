@@ -9,5 +9,3 @@ CREATE TABLE `verify_emails` (
 );
 
 ALTER TABLE `verify_emails` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
-ALTER TABLE `users` ADD COLUMN `is_email_verified` boolean NOT NULL DEFAULT false;
