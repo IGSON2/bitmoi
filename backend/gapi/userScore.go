@@ -15,7 +15,7 @@ func (s *Server) insertUserScore(o *pb.ScoreRequest, r *pb.Score, c context.Cont
 		position = "short"
 	}
 
-	_, err := s.store.InsertScore(c, db.InsertScoreParams{
+	_, err := s.store.InsertPracScore(c, db.InsertPracScoreParams{
 		ScoreID:    o.ScoreId,
 		UserID:     o.UserId,
 		Stage:      o.Stage,
