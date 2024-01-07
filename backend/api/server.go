@@ -20,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/rs/zerolog"
 	"golang.org/x/oauth2"
 )
 
@@ -34,8 +35,9 @@ var (
 )
 
 type Server struct {
-	config          *utilities.Config       // 환경 구성 요소
-	oauthConfig     *oauth2.Config          // OAuth2.0 인증 구성 요소
+	config          *utilities.Config // 환경 구성 요소
+	oauthConfig     *oauth2.Config    // OAuth2.0 인증 구성 요소
+	logger          zerolog.Logger
 	store           db.Store                // DB 커넥션
 	router          *fiber.App              // 각 Endpoint별 router 집합
 	tokenMaker      *token.PasetoMaker      // 인증, 인가에 필요한 토큰 생성 및 검증
@@ -45,7 +47,7 @@ type Server struct {
 	nextUnlockDate  time.Time               // 경매 종료 일자
 	s3Uploader      *s3.S3                  // S3 FullAccess role이 부여된 사용자
 	exitCh          chan struct{}           // 서버 종료 시그널을 수신할 채널
-	FaucetTimeouts  map[string]int64        // 무료 토큰 수령자 별 재요청 제한시간 맵
+	faucetTimeouts  map[string]int64        // 무료 토큰 수령자 별 재요청 제한시간 맵
 }
 
 // NewServer creates a new HTTP server and setup routing.
@@ -76,7 +78,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		s3Uploader:      s3Uploader,
 		exitCh:          make(chan struct{}),
 		nextUnlockDate:  time.Now().Add(c.BiddingDuration),
-		FaucetTimeouts:  make(map[string]int64),
+		faucetTimeouts:  make(map[string]int64),
 	}
 
 	ps, err := server.store.GetAllParisInDB(context.Background())

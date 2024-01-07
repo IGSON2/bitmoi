@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/rs/zerolog"
 )
 
 func (s *Server) createLoggerMiddleware() fiber.Handler {
@@ -33,5 +34,7 @@ func (s *Server) createLoggerMiddleware() fiber.Handler {
 		Output:     w,
 		TimeFormat: "2006-01-02T15:04:05",
 	})
+
+	s.logger = zerolog.New(w).With().Timestamp().Logger()
 	return lm
 }

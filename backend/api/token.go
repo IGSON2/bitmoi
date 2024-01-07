@@ -113,6 +113,7 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 
 	user, err := s.store.GetUser(c.Context(), payload.UserID)
 	if err != nil {
+		s.logger.Error().Err(err).Any("user", user).Msg("cannot find user")
 		return c.Status(fiber.StatusNotFound).SendString("cannot find user")
 	}
 	userRes := convertUserResponse(user)

@@ -60,7 +60,7 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 		user.MetamaskAddress.String = r.Addr
 	}
 
-	if timeoutUnix := s.FaucetTimeouts[user.UserID]; time.Now().After(time.Unix(timeoutUnix, 0)) {
+	if timeoutUnix := s.faucetTimeouts[user.UserID]; time.Now().After(time.Unix(timeoutUnix, 0)) {
 		ToAddr := common.HexToAddress(user.MetamaskAddress.String)
 
 		hash, err := s.erc20Contract.SendFreeTokens(ToAddr, FreeAmt, contract.TransactOptions{GasLimit: contract.DefaultGasLimit})
@@ -79,7 +79,7 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 		}
 
 		duration := time.Duration(timeoutDuration) * time.Minute
-		s.FaucetTimeouts[user.UserID] = time.Now().Add(duration).Unix()
+		s.faucetTimeouts[user.UserID] = time.Now().Add(duration).Unix()
 		return c.Status(fiber.StatusOK).JSON(TransactionResponse{hash})
 	} else {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Errorf("%s left until next allowance", common.PrettyDuration(time.Until(time.Unix(timeoutUnix, 0)))).Error())
