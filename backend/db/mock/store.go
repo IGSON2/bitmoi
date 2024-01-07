@@ -471,6 +471,81 @@ func (mr *MockStoreMockRecorder) GetAllRanks(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllRanks", reflect.TypeOf((*MockStore)(nil).GetAllRanks), arg0, arg1)
 }
 
+// GetCompScore mocks base method.
+func (m *MockStore) GetCompScore(arg0 context.Context, arg1 db.GetCompScoreParams) (db.CompScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompScore", arg0, arg1)
+	ret0, _ := ret[0].(db.CompScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompScore indicates an expected call of GetCompScore.
+func (mr *MockStoreMockRecorder) GetCompScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompScore", reflect.TypeOf((*MockStore)(nil).GetCompScore), arg0, arg1)
+}
+
+// GetCompScoreToStage mocks base method.
+func (m *MockStore) GetCompScoreToStage(arg0 context.Context, arg1 db.GetCompScoreToStageParams) (interface{}, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompScoreToStage", arg0, arg1)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompScoreToStage indicates an expected call of GetCompScoreToStage.
+func (mr *MockStoreMockRecorder) GetCompScoreToStage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompScoreToStage", reflect.TypeOf((*MockStore)(nil).GetCompScoreToStage), arg0, arg1)
+}
+
+// GetCompScoresByScoreID mocks base method.
+func (m *MockStore) GetCompScoresByScoreID(arg0 context.Context, arg1 db.GetCompScoresByScoreIDParams) ([]db.CompScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompScoresByScoreID", arg0, arg1)
+	ret0, _ := ret[0].([]db.CompScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompScoresByScoreID indicates an expected call of GetCompScoresByScoreID.
+func (mr *MockStoreMockRecorder) GetCompScoresByScoreID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompScoresByScoreID", reflect.TypeOf((*MockStore)(nil).GetCompScoresByScoreID), arg0, arg1)
+}
+
+// GetCompScoresByUserID mocks base method.
+func (m *MockStore) GetCompScoresByUserID(arg0 context.Context, arg1 db.GetCompScoresByUserIDParams) ([]db.CompScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompScoresByUserID", arg0, arg1)
+	ret0, _ := ret[0].([]db.CompScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompScoresByUserID indicates an expected call of GetCompScoresByUserID.
+func (mr *MockStoreMockRecorder) GetCompScoresByUserID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompScoresByUserID", reflect.TypeOf((*MockStore)(nil).GetCompScoresByUserID), arg0, arg1)
+}
+
+// GetCompStageLenByScoreID mocks base method.
+func (m *MockStore) GetCompStageLenByScoreID(arg0 context.Context, arg1 db.GetCompStageLenByScoreIDParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCompStageLenByScoreID", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCompStageLenByScoreID indicates an expected call of GetCompStageLenByScoreID.
+func (mr *MockStoreMockRecorder) GetCompStageLenByScoreID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCompStageLenByScoreID", reflect.TypeOf((*MockStore)(nil).GetCompStageLenByScoreID), arg0, arg1)
+}
+
 // GetHighestBidder mocks base method.
 func (m *MockStore) GetHighestBidder(arg0 context.Context, arg1 db.GetHighestBidderParams) (db.BiddingHistory, error) {
 	m.ctrl.T.Helper()
@@ -531,6 +606,81 @@ func (mr *MockStoreMockRecorder) GetLastUser(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastUser", reflect.TypeOf((*MockStore)(nil).GetLastUser), arg0)
 }
 
+// GetPracScore mocks base method.
+func (m *MockStore) GetPracScore(arg0 context.Context, arg1 db.GetPracScoreParams) (db.PracScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPracScore", arg0, arg1)
+	ret0, _ := ret[0].(db.PracScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPracScore indicates an expected call of GetPracScore.
+func (mr *MockStoreMockRecorder) GetPracScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPracScore", reflect.TypeOf((*MockStore)(nil).GetPracScore), arg0, arg1)
+}
+
+// GetPracScoreToStage mocks base method.
+func (m *MockStore) GetPracScoreToStage(arg0 context.Context, arg1 db.GetPracScoreToStageParams) (interface{}, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPracScoreToStage", arg0, arg1)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPracScoreToStage indicates an expected call of GetPracScoreToStage.
+func (mr *MockStoreMockRecorder) GetPracScoreToStage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPracScoreToStage", reflect.TypeOf((*MockStore)(nil).GetPracScoreToStage), arg0, arg1)
+}
+
+// GetPracScoresByScoreID mocks base method.
+func (m *MockStore) GetPracScoresByScoreID(arg0 context.Context, arg1 db.GetPracScoresByScoreIDParams) ([]db.PracScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPracScoresByScoreID", arg0, arg1)
+	ret0, _ := ret[0].([]db.PracScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPracScoresByScoreID indicates an expected call of GetPracScoresByScoreID.
+func (mr *MockStoreMockRecorder) GetPracScoresByScoreID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPracScoresByScoreID", reflect.TypeOf((*MockStore)(nil).GetPracScoresByScoreID), arg0, arg1)
+}
+
+// GetPracScoresByUserID mocks base method.
+func (m *MockStore) GetPracScoresByUserID(arg0 context.Context, arg1 db.GetPracScoresByUserIDParams) ([]db.PracScore, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPracScoresByUserID", arg0, arg1)
+	ret0, _ := ret[0].([]db.PracScore)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPracScoresByUserID indicates an expected call of GetPracScoresByUserID.
+func (mr *MockStoreMockRecorder) GetPracScoresByUserID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPracScoresByUserID", reflect.TypeOf((*MockStore)(nil).GetPracScoresByUserID), arg0, arg1)
+}
+
+// GetPracStageLenByScoreID mocks base method.
+func (m *MockStore) GetPracStageLenByScoreID(arg0 context.Context, arg1 db.GetPracStageLenByScoreIDParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPracStageLenByScoreID", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPracStageLenByScoreID indicates an expected call of GetPracStageLenByScoreID.
+func (mr *MockStoreMockRecorder) GetPracStageLenByScoreID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPracStageLenByScoreID", reflect.TypeOf((*MockStore)(nil).GetPracStageLenByScoreID), arg0, arg1)
+}
+
 // GetRandomUser mocks base method.
 func (m *MockStore) GetRandomUser(arg0 context.Context) (db.User, error) {
 	m.ctrl.T.Helper()
@@ -561,66 +711,6 @@ func (mr *MockStoreMockRecorder) GetRankByUserID(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRankByUserID", reflect.TypeOf((*MockStore)(nil).GetRankByUserID), arg0, arg1)
 }
 
-// GetScore mocks base method.
-func (m *MockStore) GetScore(arg0 context.Context, arg1 db.GetScoreParams) (db.Score, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScore", arg0, arg1)
-	ret0, _ := ret[0].(db.Score)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetScore indicates an expected call of GetScore.
-func (mr *MockStoreMockRecorder) GetScore(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScore", reflect.TypeOf((*MockStore)(nil).GetScore), arg0, arg1)
-}
-
-// GetScoreToStage mocks base method.
-func (m *MockStore) GetScoreToStage(arg0 context.Context, arg1 db.GetScoreToStageParams) (interface{}, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScoreToStage", arg0, arg1)
-	ret0, _ := ret[0].(interface{})
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetScoreToStage indicates an expected call of GetScoreToStage.
-func (mr *MockStoreMockRecorder) GetScoreToStage(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScoreToStage", reflect.TypeOf((*MockStore)(nil).GetScoreToStage), arg0, arg1)
-}
-
-// GetScoresByScoreID mocks base method.
-func (m *MockStore) GetScoresByScoreID(arg0 context.Context, arg1 db.GetScoresByScoreIDParams) ([]db.Score, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScoresByScoreID", arg0, arg1)
-	ret0, _ := ret[0].([]db.Score)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetScoresByScoreID indicates an expected call of GetScoresByScoreID.
-func (mr *MockStoreMockRecorder) GetScoresByScoreID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScoresByScoreID", reflect.TypeOf((*MockStore)(nil).GetScoresByScoreID), arg0, arg1)
-}
-
-// GetScoresByUserID mocks base method.
-func (m *MockStore) GetScoresByUserID(arg0 context.Context, arg1 db.GetScoresByUserIDParams) ([]db.Score, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetScoresByUserID", arg0, arg1)
-	ret0, _ := ret[0].([]db.Score)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetScoresByUserID indicates an expected call of GetScoresByUserID.
-func (mr *MockStoreMockRecorder) GetScoresByUserID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScoresByUserID", reflect.TypeOf((*MockStore)(nil).GetScoresByUserID), arg0, arg1)
-}
-
 // GetSession mocks base method.
 func (m *MockStore) GetSession(arg0 context.Context, arg1 string) (db.Session, error) {
 	m.ctrl.T.Helper()
@@ -634,21 +724,6 @@ func (m *MockStore) GetSession(arg0 context.Context, arg1 string) (db.Session, e
 func (mr *MockStoreMockRecorder) GetSession(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockStore)(nil).GetSession), arg0, arg1)
-}
-
-// GetStageLenByScoreID mocks base method.
-func (m *MockStore) GetStageLenByScoreID(arg0 context.Context, arg1 db.GetStageLenByScoreIDParams) (int64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStageLenByScoreID", arg0, arg1)
-	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetStageLenByScoreID indicates an expected call of GetStageLenByScoreID.
-func (mr *MockStoreMockRecorder) GetStageLenByScoreID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStageLenByScoreID", reflect.TypeOf((*MockStore)(nil).GetStageLenByScoreID), arg0, arg1)
 }
 
 // GetTopRankers mocks base method.
@@ -801,6 +876,36 @@ func (mr *MockStoreMockRecorder) Insert5mCandles(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert5mCandles", reflect.TypeOf((*MockStore)(nil).Insert5mCandles), arg0, arg1)
 }
 
+// InsertCompScore mocks base method.
+func (m *MockStore) InsertCompScore(arg0 context.Context, arg1 db.InsertCompScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertCompScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertCompScore indicates an expected call of InsertCompScore.
+func (mr *MockStoreMockRecorder) InsertCompScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertCompScore", reflect.TypeOf((*MockStore)(nil).InsertCompScore), arg0, arg1)
+}
+
+// InsertPracScore mocks base method.
+func (m *MockStore) InsertPracScore(arg0 context.Context, arg1 db.InsertPracScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertPracScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertPracScore indicates an expected call of InsertPracScore.
+func (mr *MockStoreMockRecorder) InsertPracScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertPracScore", reflect.TypeOf((*MockStore)(nil).InsertPracScore), arg0, arg1)
+}
+
 // InsertRank mocks base method.
 func (m *MockStore) InsertRank(arg0 context.Context, arg1 db.InsertRankParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -814,21 +919,6 @@ func (m *MockStore) InsertRank(arg0 context.Context, arg1 db.InsertRankParams) (
 func (mr *MockStoreMockRecorder) InsertRank(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRank", reflect.TypeOf((*MockStore)(nil).InsertRank), arg0, arg1)
-}
-
-// InsertScore mocks base method.
-func (m *MockStore) InsertScore(arg0 context.Context, arg1 db.InsertScoreParams) (sql.Result, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertScore", arg0, arg1)
-	ret0, _ := ret[0].(sql.Result)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// InsertScore indicates an expected call of InsertScore.
-func (mr *MockStoreMockRecorder) InsertScore(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertScore", reflect.TypeOf((*MockStore)(nil).InsertScore), arg0, arg1)
 }
 
 // SelectMinMaxTime mocks base method.

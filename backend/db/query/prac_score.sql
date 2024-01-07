@@ -1,5 +1,5 @@
--- name: InsertScore :execresult
-INSERT INTO score (
+-- name: InsertPracScore :execresult
+INSERT INTO prac_score (
     score_id,
     user_id,
     stage,
@@ -17,25 +17,25 @@ INSERT INTO score (
     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
--- name: GetScore :one
-SELECT * FROM score
+-- name: GetPracScore :one
+SELECT * FROM prac_score
 WHERE score_id = ? AND stage = ?;
 
--- name: GetScoresByScoreID :many
-SELECT * FROM score
+-- name: GetPracScoresByScoreID :many
+SELECT * FROM prac_score
 WHERE score_id = ? AND user_id = ?;
 
--- name: GetScoresByUserID :many
-SELECT * FROM score
+-- name: GetPracScoresByUserID :many
+SELECT * FROM prac_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
 OFFSET ?;
 
--- name: GetScoreToStage :one
-SELECT SUM(pnl) FROM score
+-- name: GetPracScoreToStage :one
+SELECT SUM(pnl) FROM prac_score
 WHERE score_id = ? AND user_id = ? AND stage <= ?;
 
--- name: GetStageLenByScoreID :one
-SELECT COUNT(stage) FROM score
+-- name: GetPracStageLenByScoreID :one
+SELECT COUNT(stage) FROM prac_score
 WHERE score_id = ? AND user_id = ?;

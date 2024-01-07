@@ -73,17 +73,7 @@ type Candles5m struct {
 	Color  string  `json:"color"`
 }
 
-type RankingBoard struct {
-	UserID       string    `json:"user_id"`
-	PhotoUrl     string    `json:"photo_url"`
-	ScoreID      string    `json:"score_id"`
-	Nickname     string    `json:"nickname"`
-	FinalBalance float64   `json:"final_balance"`
-	Comment      string    `json:"comment"`
-	CreatedAt    time.Time `json:"created_at"`
-}
-
-type Score struct {
+type CompScore struct {
 	ScoreID       string  `json:"score_id"`
 	UserID        string  `json:"user_id"`
 	Stage         int32   `json:"stage"`
@@ -97,6 +87,32 @@ type Score struct {
 	Pnl           float64 `json:"pnl"`
 	Roe           float64 `json:"roe"`
 	RemainBalance float64 `json:"remain_balance"`
+}
+
+type PracScore struct {
+	ScoreID       string  `json:"score_id"`
+	UserID        string  `json:"user_id"`
+	Stage         int32   `json:"stage"`
+	Pairname      string  `json:"pairname"`
+	Entrytime     string  `json:"entrytime"`
+	Position      string  `json:"position"`
+	Leverage      int32   `json:"leverage"`
+	Outtime       int32   `json:"outtime"`
+	Entryprice    float64 `json:"entryprice"`
+	Endprice      float64 `json:"endprice"`
+	Pnl           float64 `json:"pnl"`
+	Roe           float64 `json:"roe"`
+	RemainBalance float64 `json:"remain_balance"`
+}
+
+type RankingBoard struct {
+	UserID       string    `json:"user_id"`
+	PhotoUrl     string    `json:"photo_url"`
+	ScoreID      string    `json:"score_id"`
+	Nickname     string    `json:"nickname"`
+	FinalBalance float64   `json:"final_balance"`
+	Comment      string    `json:"comment"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type Session struct {

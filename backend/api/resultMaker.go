@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	commissionRate = 0.0002
+	commissionRate = 0.02
 )
 
 type OrderResult struct {

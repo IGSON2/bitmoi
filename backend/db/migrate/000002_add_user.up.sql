@@ -11,7 +11,23 @@ CREATE TABLE `users` (
   `address_changed_at` timestamp
 );
 
-CREATE TABLE `score` (
+CREATE TABLE `prac_score` (
+  `score_id` varchar(255) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `stage` tinyint NOT NULL,
+  `pairname` varchar(255) NOT NULL,
+  `entrytime` varchar(255) NOT NULL,
+  `position` varchar(255) NOT NULL,
+  `leverage` tinyint NOT NULL,
+  `outtime` tinyint NOT NULL,
+  `entryprice` double NOT NULL,
+  `endprice` double NOT NULL,
+  `pnl` double NOT NULL,
+  `roe` double NOT NULL,
+  `remain_balance` double NOT NULL
+);
+
+CREATE TABLE `comp_score` (
   `score_id` varchar(255) NOT NULL,
   `user_id` varchar(255) NOT NULL,
   `stage` tinyint NOT NULL,
@@ -48,13 +64,21 @@ CREATE UNIQUE INDEX `users_index_1` ON `users` (`email`);
 
 CREATE UNIQUE INDEX `users_index_2` ON `users` (`metamask_address`);
 
-CREATE INDEX `score_index_1` ON `score` (`user_id`);
+CREATE INDEX `prac_score_index_1` ON `prac_score` (`user_id`);
 
-CREATE INDEX `score_index_2` ON `score` (`score_id`);
+CREATE INDEX `prac_score_index_2` ON `prac_score` (`score_id`);
 
-CREATE UNIQUE INDEX `score_index_3` ON `score` (`user_id`, `score_id`, `stage`);
+CREATE UNIQUE INDEX `prac_score_index_3` ON `prac_score` (`user_id`, `score_id`, `stage`);
 
-CREATE UNIQUE INDEX `score_index_4` ON `score` (`user_id`, `score_id`, `pairname`);
+CREATE UNIQUE INDEX `prac_score_index_4` ON `prac_score` (`user_id`, `score_id`, `pairname`);
+
+CREATE INDEX `comp_score_index_1` ON `comp_score` (`user_id`);
+
+CREATE INDEX `comp_score_index_2` ON `comp_score` (`score_id`);
+
+CREATE UNIQUE INDEX `comp_score_index_3` ON `comp_score` (`user_id`, `score_id`, `stage`);
+
+CREATE UNIQUE INDEX `comp_score_index_4` ON `comp_score` (`user_id`, `score_id`, `pairname`);
 
 CREATE INDEX `ranking_board_index_4` ON `ranking_board` (`score_id`);
 
@@ -62,7 +86,9 @@ CREATE UNIQUE INDEX `ranking_board_index_5` ON `ranking_board` (`user_id`, `scor
 
 CREATE UNIQUE INDEX `used_token_index_6` ON `used_token` (`user_id`, `score_id`);
 
-ALTER TABLE `score` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+ALTER TABLE `prac_score` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+ALTER TABLE `comp_score` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 ALTER TABLE `ranking_board` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 

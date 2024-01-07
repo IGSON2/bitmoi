@@ -225,6 +225,11 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
+
+	err = s.insertPracScore(&PracticeOrder, r.Score, c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
 	return c.Status(fiber.StatusOK).JSON(r)
 }
 
@@ -295,7 +300,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 	case CompetitionOrder.Stage > 1:
-		prevScore, err := s.store.GetScore(c.Context(), db.GetScoreParams{
+		prevScore, err := s.store.GetCompScore(c.Context(), db.GetCompScoreParams{
 			ScoreID: CompetitionOrder.ScoreId,
 			Stage:   CompetitionOrder.Stage - 1,
 		})
@@ -314,7 +319,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	err = s.insertUserScore(&CompetitionOrder, compResult.Score, c)
+	err = s.insertCompScore(&CompetitionOrder, compResult.Score, c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -371,7 +376,7 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 
-	scores, err := s.getMyscores(payload.UserID, int32(page), c)
+	scores, err := s.getMyPracScores(payload.UserID, int32(page), c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -426,7 +431,7 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 	}
 
-	err = s.insertScoreToRankBoard(&r, &user, c)
+	err = s.insertPracScoreToRankBoard(&r, &user, c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
@@ -449,7 +454,7 @@ func (s *Server) moreinfo(c *fiber.Ctx) error {
 	if errs := utilities.ValidateStruct(r); errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
-	scores, err := s.getScoresByScoreID(r.ScoreId, r.UserId, c.Context())
+	scores, err := s.getPracScoresByScoreID(r.ScoreId, r.UserId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
