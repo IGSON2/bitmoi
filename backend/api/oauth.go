@@ -59,15 +59,19 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	userID := strings.Split(od.Email, "@")[0]
 
-	_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
-		UserID:   userID,
-		OauthUid: sql.NullString{String: od.ID, Valid: true},
-		Email:    od.Email,
-		PhotoUrl: sql.NullString{String: od.Picture, Valid: true},
-	})
+	user, err := s.store.GetUser(c.Context(), userID)
 
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	if user.Nickname != "" || err == sql.ErrNoRows {
+		_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
+			UserID:   userID,
+			OauthUid: sql.NullString{String: od.ID, Valid: true},
+			Email:    od.Email,
+			PhotoUrl: sql.NullString{String: od.Picture, Valid: true},
+		})
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
 	}
 
 	accessToken, _, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
@@ -98,7 +102,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	redirectURL := fmt.Sprintf("http://localhost:3000/welcome?access_token=%s&refresh_token=%s", accessToken, refreshToken)
+	redirectURL := fmt.Sprintf("http://localhost:3000/welcome?accessToken=%s&refreshToken=%s", accessToken, refreshToken)
 
 	return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
 }
