@@ -11,7 +11,7 @@ import (
 )
 
 const getCompScore = `-- name: GetCompScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
 WHERE score_id = ? AND stage = ?
 `
 
@@ -37,6 +37,7 @@ func (q *Queries) GetCompScore(ctx context.Context, arg GetCompScoreParams) (Com
 		&i.Pnl,
 		&i.Roe,
 		&i.RemainBalance,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -60,7 +61,7 @@ func (q *Queries) GetCompScoreToStage(ctx context.Context, arg GetCompScoreToSta
 }
 
 const getCompScoresByScoreID = `-- name: GetCompScoresByScoreID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
 WHERE score_id = ? AND user_id = ?
 `
 
@@ -92,6 +93,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 			&i.Pnl,
 			&i.Roe,
 			&i.RemainBalance,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -107,7 +109,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 }
 
 const getCompScoresByUserID = `-- name: GetCompScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -143,6 +145,7 @@ func (q *Queries) GetCompScoresByUserID(ctx context.Context, arg GetCompScoresBy
 			&i.Pnl,
 			&i.Roe,
 			&i.RemainBalance,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

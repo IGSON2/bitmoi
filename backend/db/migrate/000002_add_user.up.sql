@@ -24,7 +24,8 @@ CREATE TABLE `prac_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
-  `remain_balance` double NOT NULL
+  `remain_balance` double NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE `comp_score` (
@@ -40,7 +41,8 @@ CREATE TABLE `comp_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
-  `remain_balance` double NOT NULL
+  `remain_balance` double NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE `ranking_board` (
