@@ -28,6 +28,7 @@ type Config struct {
 	BiddingDuration      time.Duration `mapstructure:"BIDDING_DURATION"`
 	OauthClientID        string        `mapstructure:"OAUTH_CLIENT_ID"`
 	OauthClientSecret    string        `mapstructure:"OAUTH_CLIENT_SECRET"`
+	OauthRedirectURL     string        `mapstructure:"OAUTH_REDIRECT_URL"`
 	DataDir              string
 }
 

@@ -102,7 +102,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	redirectURL := fmt.Sprintf("http://localhost:3000/welcome?accessToken=%s&refreshToken=%s", accessToken, refreshToken)
+	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s", s.config.OauthRedirectURL, accessToken, refreshToken)
 
 	return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
 }
