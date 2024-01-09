@@ -1027,6 +1027,36 @@ func (mr *MockStoreMockRecorder) SpendTokenTx(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendTokenTx", reflect.TypeOf((*MockStore)(nil).SpendTokenTx), arg0, arg1)
 }
 
+// UpdateCompcScore mocks base method.
+func (m *MockStore) UpdateCompcScore(arg0 context.Context, arg1 db.UpdateCompcScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCompcScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCompcScore indicates an expected call of UpdateCompcScore.
+func (mr *MockStoreMockRecorder) UpdateCompcScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCompcScore", reflect.TypeOf((*MockStore)(nil).UpdateCompcScore), arg0, arg1)
+}
+
+// UpdatePracScore mocks base method.
+func (m *MockStore) UpdatePracScore(arg0 context.Context, arg1 db.UpdatePracScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePracScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePracScore indicates an expected call of UpdatePracScore.
+func (mr *MockStoreMockRecorder) UpdatePracScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePracScore", reflect.TypeOf((*MockStore)(nil).UpdatePracScore), arg0, arg1)
+}
+
 // UpdateUserMetamaskAddress mocks base method.
 func (m *MockStore) UpdateUserMetamaskAddress(arg0 context.Context, arg1 db.UpdateUserMetamaskAddressParams) (sql.Result, error) {
 	m.ctrl.T.Helper()

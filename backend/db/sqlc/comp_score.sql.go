@@ -230,3 +230,38 @@ func (q *Queries) InsertCompScore(ctx context.Context, arg InsertCompScoreParams
 		arg.RemainBalance,
 	)
 }
+
+const updateCompcScore = `-- name: UpdateCompcScore :execresult
+UPDATE comp_score SET pairname = ?, entrytime = ?, outtime = ?, entryprice = ?, endprice = ?, pnl = ?, roe = ?, remain_balance = ?
+WHERE user_id = ? AND score_id = ? AND stage = ?
+`
+
+type UpdateCompcScoreParams struct {
+	Pairname      string  `json:"pairname"`
+	Entrytime     string  `json:"entrytime"`
+	Outtime       int32   `json:"outtime"`
+	Entryprice    float64 `json:"entryprice"`
+	Endprice      float64 `json:"endprice"`
+	Pnl           float64 `json:"pnl"`
+	Roe           float64 `json:"roe"`
+	RemainBalance float64 `json:"remain_balance"`
+	UserID        string  `json:"user_id"`
+	ScoreID       string  `json:"score_id"`
+	Stage         int32   `json:"stage"`
+}
+
+func (q *Queries) UpdateCompcScore(ctx context.Context, arg UpdateCompcScoreParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateCompcScore,
+		arg.Pairname,
+		arg.Entrytime,
+		arg.Outtime,
+		arg.Entryprice,
+		arg.Endprice,
+		arg.Pnl,
+		arg.Roe,
+		arg.RemainBalance,
+		arg.UserID,
+		arg.ScoreID,
+		arg.Stage,
+	)
+}

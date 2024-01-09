@@ -73,6 +73,8 @@ type Querier interface {
 	InsertCompScore(ctx context.Context, arg InsertCompScoreParams) (sql.Result, error)
 	InsertPracScore(ctx context.Context, arg InsertPracScoreParams) (sql.Result, error)
 	InsertRank(ctx context.Context, arg InsertRankParams) (sql.Result, error)
+	UpdateCompcScore(ctx context.Context, arg UpdateCompcScoreParams) (sql.Result, error)
+	UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams) (sql.Result, error)
 	UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error)
 	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)

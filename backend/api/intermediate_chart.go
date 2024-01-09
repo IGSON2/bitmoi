@@ -20,8 +20,12 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
+	if err := validateOrderRequest(&r.Score); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
 	info := new(utilities.IdentificationData)
-	infoByte := utilities.DecryptByASE(r.Identifier)
+	infoByte := utilities.DecryptByASE(r.Score.Identifier)
 	err = json.Unmarshal(infoByte, info)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
@@ -41,11 +45,18 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 	oc.timeFactor = info.TimeFactor
 	oc.volumeFactor = info.VolumeFactor
 
+	// result := calculateResult(oc.OneChart, &r.Score, r.Score.Mode, info)
+	// init score
+	// if 종료 => update score
+
 	if info.PriceFactor != 0 || info.TimeFactor != 0 || info.VolumeFactor != 0 {
 		oc.anonymization()
 	} else {
 		oc.addIdentifier()
 	}
+
+	// score 생성 및 업데이트
+	// result chart 반환
 
 	return c.Status(fiber.StatusOK).JSON(oc)
 }

@@ -39,3 +39,7 @@ WHERE score_id = ? AND user_id = ? AND stage <= ?;
 -- name: GetCompStageLenByScoreID :one
 SELECT COUNT(stage) FROM comp_score
 WHERE score_id = ? AND user_id = ?;
+
+-- name: UpdateCompcScore :execresult
+UPDATE comp_score SET pairname = ?, entrytime = ?, outtime = ?, entryprice = ?, endprice = ?, pnl = ?, roe = ?, remain_balance = ?
+WHERE user_id = ? AND score_id = ? AND stage = ?;

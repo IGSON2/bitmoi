@@ -109,9 +109,8 @@ type BidTokenRequest struct {
 }
 
 type InterChartRequest struct {
-	// Score        ScoreRequest `json:"score" validate:"required" query:"score"`
-	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
-	Identifier   string `json:"identifier" validate:"required" query:"identifier"`
-	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
-	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
+	Score        ScoreRequest `json:"score" validate:"required" query:"score"`
+	ReqInterval  string       `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
+	MinTimestamp int64        `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
+	MaxTimestamp int64        `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
 }

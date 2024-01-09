@@ -230,3 +230,32 @@ func (q *Queries) InsertPracScore(ctx context.Context, arg InsertPracScoreParams
 		arg.RemainBalance,
 	)
 }
+
+const updatePracScore = `-- name: UpdatePracScore :execresult
+UPDATE prac_score SET outtime = ?, endprice = ?, pnl = ?, roe = ?, remain_balance = ?
+WHERE user_id = ? AND score_id = ? AND stage = ?
+`
+
+type UpdatePracScoreParams struct {
+	Outtime       int32   `json:"outtime"`
+	Endprice      float64 `json:"endprice"`
+	Pnl           float64 `json:"pnl"`
+	Roe           float64 `json:"roe"`
+	RemainBalance float64 `json:"remain_balance"`
+	UserID        string  `json:"user_id"`
+	ScoreID       string  `json:"score_id"`
+	Stage         int32   `json:"stage"`
+}
+
+func (q *Queries) UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updatePracScore,
+		arg.Outtime,
+		arg.Endprice,
+		arg.Pnl,
+		arg.Roe,
+		arg.RemainBalance,
+		arg.UserID,
+		arg.ScoreID,
+		arg.Stage,
+	)
+}
