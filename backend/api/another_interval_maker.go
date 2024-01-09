@@ -46,7 +46,7 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 		oc.priceFactor = originInfo.PriceFactor
 		oc.timeFactor = originInfo.TimeFactor
 		oc.volumeFactor = originInfo.VolumeFactor
-		oc.anonymization(int(a.Stage) - 1)
+		oc.anonymization()
 	} else {
 		oc.addIdentifier()
 		oc.EntryPrice = oc.OneChart.PData[0].Close

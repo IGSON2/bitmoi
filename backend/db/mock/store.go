@@ -141,6 +141,21 @@ func (mr *MockStoreMockRecorder) Get15mCandles(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get15mCandles", reflect.TypeOf((*MockStore)(nil).Get15mCandles), arg0, arg1)
 }
 
+// Get15mCandlesRnage mocks base method.
+func (m *MockStore) Get15mCandlesRnage(arg0 context.Context, arg1 db.Get15mCandlesRnageParams) ([]db.Candles15m, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get15mCandlesRnage", arg0, arg1)
+	ret0, _ := ret[0].([]db.Candles15m)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get15mCandlesRnage indicates an expected call of Get15mCandlesRnage.
+func (mr *MockStoreMockRecorder) Get15mCandlesRnage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get15mCandlesRnage", reflect.TypeOf((*MockStore)(nil).Get15mCandlesRnage), arg0, arg1)
+}
+
 // Get15mMinMaxTime mocks base method.
 func (m *MockStore) Get15mMinMaxTime(arg0 context.Context, arg1 string) (db.Get15mMinMaxTimeRow, error) {
 	m.ctrl.T.Helper()
@@ -201,6 +216,21 @@ func (mr *MockStoreMockRecorder) Get1dCandles(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1dCandles", reflect.TypeOf((*MockStore)(nil).Get1dCandles), arg0, arg1)
 }
 
+// Get1dCandlesRnage mocks base method.
+func (m *MockStore) Get1dCandlesRnage(arg0 context.Context, arg1 db.Get1dCandlesRnageParams) ([]db.Candles1d, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get1dCandlesRnage", arg0, arg1)
+	ret0, _ := ret[0].([]db.Candles1d)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get1dCandlesRnage indicates an expected call of Get1dCandlesRnage.
+func (mr *MockStoreMockRecorder) Get1dCandlesRnage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1dCandlesRnage", reflect.TypeOf((*MockStore)(nil).Get1dCandlesRnage), arg0, arg1)
+}
+
 // Get1dMinMaxTime mocks base method.
 func (m *MockStore) Get1dMinMaxTime(arg0 context.Context, arg1 string) (db.Get1dMinMaxTimeRow, error) {
 	m.ctrl.T.Helper()
@@ -259,6 +289,21 @@ func (m *MockStore) Get1hCandles(arg0 context.Context, arg1 db.Get1hCandlesParam
 func (mr *MockStoreMockRecorder) Get1hCandles(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hCandles", reflect.TypeOf((*MockStore)(nil).Get1hCandles), arg0, arg1)
+}
+
+// Get1hCandlesRnage mocks base method.
+func (m *MockStore) Get1hCandlesRnage(arg0 context.Context, arg1 db.Get1hCandlesRnageParams) ([]db.Candles1h, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get1hCandlesRnage", arg0, arg1)
+	ret0, _ := ret[0].([]db.Candles1h)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get1hCandlesRnage indicates an expected call of Get1hCandlesRnage.
+func (mr *MockStoreMockRecorder) Get1hCandlesRnage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get1hCandlesRnage", reflect.TypeOf((*MockStore)(nil).Get1hCandlesRnage), arg0, arg1)
 }
 
 // Get1hEntryTimestamp mocks base method.
@@ -336,6 +381,21 @@ func (mr *MockStoreMockRecorder) Get4hCandles(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get4hCandles", reflect.TypeOf((*MockStore)(nil).Get4hCandles), arg0, arg1)
 }
 
+// Get4hCandlesRnage mocks base method.
+func (m *MockStore) Get4hCandlesRnage(arg0 context.Context, arg1 db.Get4hCandlesRnageParams) ([]db.Candles4h, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get4hCandlesRnage", arg0, arg1)
+	ret0, _ := ret[0].([]db.Candles4h)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get4hCandlesRnage indicates an expected call of Get4hCandlesRnage.
+func (mr *MockStoreMockRecorder) Get4hCandlesRnage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get4hCandlesRnage", reflect.TypeOf((*MockStore)(nil).Get4hCandlesRnage), arg0, arg1)
+}
+
 // Get4hMinMaxTime mocks base method.
 func (m *MockStore) Get4hMinMaxTime(arg0 context.Context, arg1 string) (db.Get4hMinMaxTimeRow, error) {
 	m.ctrl.T.Helper()
@@ -394,6 +454,21 @@ func (m *MockStore) Get5mCandles(arg0 context.Context, arg1 db.Get5mCandlesParam
 func (mr *MockStoreMockRecorder) Get5mCandles(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mCandles", reflect.TypeOf((*MockStore)(nil).Get5mCandles), arg0, arg1)
+}
+
+// Get5mCandlesRnage mocks base method.
+func (m *MockStore) Get5mCandlesRnage(arg0 context.Context, arg1 db.Get5mCandlesRnageParams) ([]db.Candles5m, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get5mCandlesRnage", arg0, arg1)
+	ret0, _ := ret[0].([]db.Candles5m)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get5mCandlesRnage indicates an expected call of Get5mCandlesRnage.
+func (mr *MockStoreMockRecorder) Get5mCandlesRnage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mCandlesRnage", reflect.TypeOf((*MockStore)(nil).Get5mCandlesRnage), arg0, arg1)
 }
 
 // Get5mMinMaxTime mocks base method.

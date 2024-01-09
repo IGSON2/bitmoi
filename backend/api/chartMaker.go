@@ -21,6 +21,7 @@ const (
 var (
 	ErrGetStageChart  = errors.New("server cannot get stage chart")
 	ErrGetResultChart = errors.New("server cannot get result chart")
+	ErrShortRange     = errors.New("chart range is too short")
 )
 
 type PriceData struct {
@@ -148,7 +149,7 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 }
 
 func calculateRefTimestamp(section int64, name, interval string) int64 {
-	oneMonth, waitingTime := 30*24*time.Hour.Seconds(), 24*time.Hour.Seconds()
+	oneMonth, waitingTime := 30*24*time.Hour.Seconds(), 30*24*time.Hour.Seconds()
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section-int64(oneMonth))))
 }
 
@@ -160,6 +161,9 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 	}
 
 	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
+	if refTimestamp == max {
+		return nil, ErrShortRange
+	}
 	cdd, err := s.selectStageChart(name, interval, refTimestamp, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
@@ -184,7 +188,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		if err := oc.setFactors(); err != nil {
 			return nil, fmt.Errorf("cannot set factors. name : %s, interval : %s, err : %w", name, interval, err)
 		}
-		oc.anonymization(prevStage)
+		oc.anonymization()
 	} else {
 		oc.addIdentifier()
 		oc.EntryPrice = oc.OneChart.PData[0].Close
@@ -225,13 +229,13 @@ func (o *OnePairChart) setFactors() error {
 	return nil
 }
 
-func (o *OnePairChart) anonymization(stage int) {
+func (o *OnePairChart) anonymization() {
 
 	o.OneChart.encodeChart(o.priceFactor, o.volumeFactor, o.timeFactor)
 	o.EntryPrice = o.OneChart.PData[0].Close
 	o.addIdentifier()
 	o.EntryTime = "Sometime"
-	o.Name = fmt.Sprintf("STAGE %02d", stage+1)
+	o.Name = "Competition"
 }
 
 func (o *OnePairChart) addIdentifier() {

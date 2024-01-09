@@ -55,6 +55,50 @@ func (q *Queries) Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([
 	return items, nil
 }
 
+const get15mCandlesRnage = `-- name: Get15mCandlesRnage :many
+SELECT name, open, close, high, low, time, volume, color FROM candles_15m 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC
+`
+
+type Get15mCandlesRnageParams struct {
+	Name   string `json:"name"`
+	Time   int64  `json:"time"`
+	Time_2 int64  `json:"time_2"`
+}
+
+func (q *Queries) Get15mCandlesRnage(ctx context.Context, arg Get15mCandlesRnageParams) ([]Candles15m, error) {
+	rows, err := q.db.QueryContext(ctx, get15mCandlesRnage, arg.Name, arg.Time, arg.Time_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Candles15m{}
+	for rows.Next() {
+		var i Candles15m
+		if err := rows.Scan(
+			&i.Name,
+			&i.Open,
+			&i.Close,
+			&i.High,
+			&i.Low,
+			&i.Time,
+			&i.Volume,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const get15mMinMaxTime = `-- name: Get15mMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_15m
@@ -184,6 +228,50 @@ func (q *Queries) Get1dCandles(ctx context.Context, arg Get1dCandlesParams) ([]C
 	return items, nil
 }
 
+const get1dCandlesRnage = `-- name: Get1dCandlesRnage :many
+SELECT name, open, close, high, low, time, volume, color FROM candles_1d 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC
+`
+
+type Get1dCandlesRnageParams struct {
+	Name   string `json:"name"`
+	Time   int64  `json:"time"`
+	Time_2 int64  `json:"time_2"`
+}
+
+func (q *Queries) Get1dCandlesRnage(ctx context.Context, arg Get1dCandlesRnageParams) ([]Candles1d, error) {
+	rows, err := q.db.QueryContext(ctx, get1dCandlesRnage, arg.Name, arg.Time, arg.Time_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Candles1d{}
+	for rows.Next() {
+		var i Candles1d
+		if err := rows.Scan(
+			&i.Name,
+			&i.Open,
+			&i.Close,
+			&i.High,
+			&i.Low,
+			&i.Time,
+			&i.Volume,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const get1dMinMaxTime = `-- name: Get1dMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_1d
@@ -283,6 +371,50 @@ type Get1hCandlesParams struct {
 
 func (q *Queries) Get1hCandles(ctx context.Context, arg Get1hCandlesParams) ([]Candles1h, error) {
 	rows, err := q.db.QueryContext(ctx, get1hCandles, arg.Name, arg.Time, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Candles1h{}
+	for rows.Next() {
+		var i Candles1h
+		if err := rows.Scan(
+			&i.Name,
+			&i.Open,
+			&i.Close,
+			&i.High,
+			&i.Low,
+			&i.Time,
+			&i.Volume,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const get1hCandlesRnage = `-- name: Get1hCandlesRnage :many
+SELECT name, open, close, high, low, time, volume, color FROM candles_1h 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC
+`
+
+type Get1hCandlesRnageParams struct {
+	Name   string `json:"name"`
+	Time   int64  `json:"time"`
+	Time_2 int64  `json:"time_2"`
+}
+
+func (q *Queries) Get1hCandlesRnage(ctx context.Context, arg Get1hCandlesRnageParams) ([]Candles1h, error) {
+	rows, err := q.db.QueryContext(ctx, get1hCandlesRnage, arg.Name, arg.Time, arg.Time_2)
 	if err != nil {
 		return nil, err
 	}
@@ -461,6 +593,50 @@ func (q *Queries) Get4hCandles(ctx context.Context, arg Get4hCandlesParams) ([]C
 	return items, nil
 }
 
+const get4hCandlesRnage = `-- name: Get4hCandlesRnage :many
+SELECT name, open, close, high, low, time, volume, color FROM candles_4h 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC
+`
+
+type Get4hCandlesRnageParams struct {
+	Name   string `json:"name"`
+	Time   int64  `json:"time"`
+	Time_2 int64  `json:"time_2"`
+}
+
+func (q *Queries) Get4hCandlesRnage(ctx context.Context, arg Get4hCandlesRnageParams) ([]Candles4h, error) {
+	rows, err := q.db.QueryContext(ctx, get4hCandlesRnage, arg.Name, arg.Time, arg.Time_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Candles4h{}
+	for rows.Next() {
+		var i Candles4h
+		if err := rows.Scan(
+			&i.Name,
+			&i.Open,
+			&i.Close,
+			&i.High,
+			&i.Low,
+			&i.Time,
+			&i.Volume,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const get4hMinMaxTime = `-- name: Get4hMinMaxTime :one
 SELECT MIN(time), MAX(time)
 FROM candles_4h
@@ -560,6 +736,50 @@ type Get5mCandlesParams struct {
 
 func (q *Queries) Get5mCandles(ctx context.Context, arg Get5mCandlesParams) ([]Candles5m, error) {
 	rows, err := q.db.QueryContext(ctx, get5mCandles, arg.Name, arg.Time, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Candles5m{}
+	for rows.Next() {
+		var i Candles5m
+		if err := rows.Scan(
+			&i.Name,
+			&i.Open,
+			&i.Close,
+			&i.High,
+			&i.Low,
+			&i.Time,
+			&i.Volume,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const get5mCandlesRnage = `-- name: Get5mCandlesRnage :many
+SELECT name, open, close, high, low, time, volume, color FROM candles_5m 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC
+`
+
+type Get5mCandlesRnageParams struct {
+	Name   string `json:"name"`
+	Time   int64  `json:"time"`
+	Time_2 int64  `json:"time_2"`
+}
+
+func (q *Queries) Get5mCandlesRnage(ctx context.Context, arg Get5mCandlesRnageParams) ([]Candles5m, error) {
+	rows, err := q.db.QueryContext(ctx, get5mCandlesRnage, arg.Name, arg.Time, arg.Time_2)
 	if err != nil {
 		return nil, err
 	}

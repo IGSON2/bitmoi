@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -99,7 +98,6 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 			IntervalReq: &AnotherIntervalRequest{
 				ReqInterval: db.FourH,
 				Mode:        practice,
-				Stage:       1,
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 			},
@@ -110,7 +108,6 @@ func testAnotherInterval(t *testing.T, store db.Store, s *Server, ch chan<- test
 			IntervalReq: &AnotherIntervalRequest{
 				ReqInterval: db.FourH,
 				Mode:        competition,
-				Stage:       1,
 			},
 			SetUpAuth: func(t *testing.T, request *http.Request, tokenMaker token.PasetoMaker) {
 				addAuthrization(t, request, s.tokenMaker, authorizationTypeBearer, "igson", time.Minute)
@@ -219,6 +216,5 @@ func encodeParams(intervalReq *AnotherIntervalRequest) string {
 	params.Set("reqinterval", intervalReq.ReqInterval)
 	params.Set("identifier", intervalReq.Identifier)
 	params.Set("mode", intervalReq.Mode)
-	params.Set("stage", strconv.Itoa(int(intervalReq.Stage)))
 	return fmt.Sprintf("/interval?%s", params.Encode())
 }

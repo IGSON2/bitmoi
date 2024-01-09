@@ -71,7 +71,6 @@ type AnotherIntervalRequest struct {
 	ReqInterval string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
 	Identifier  string `json:"identifier" validate:"required" query:"identifier"`
 	Mode        string `json:"mode" validate:"required,oneof=competition practice" query:"mode"`
-	Stage       int32  `json:"stage" validate:"required,number,min=1,max=10" query:"stage"`
 }
 
 type LoginUserRequest struct {
@@ -107,4 +106,12 @@ type GetBidderByLocRequest struct {
 type BidTokenRequest struct {
 	Amount   int    `json:"amount" validate:"required,number,min=1"`
 	Location string `json:"location" validate:"required,oneof=practice rank freetoken"`
+}
+
+type InterChartRequest struct {
+	// Score        ScoreRequest `json:"score" validate:"required" query:"score"`
+	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
+	Identifier   string `json:"identifier" validate:"required" query:"identifier"`
+	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
+	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
 }

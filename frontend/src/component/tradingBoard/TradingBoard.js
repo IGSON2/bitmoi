@@ -93,9 +93,9 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
   const [active, setActive] = useState("");
 
   const openclosebuttonClick = () => setOpened((current) => !current);
-  const reqinterval = async (reqinterval, identifier, stage) => {
+  const reqinterval = async (reqinterval, identifier) => {
     const fIdentifier = encodeURIComponent(identifier);
-    const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}&stage=${stage}`;
+    const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}`;
     try {
       const response = await axiosClient.get(reqURL);
       return response.data;
@@ -122,6 +122,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
                 `/competition?names=${titleArray}`
               );
             }
+            // TODO: Competition Pairname 따로 설정
           } else {
             return;
           }
@@ -148,7 +149,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "5m":
         if (fiveMinutes === undefined) {
-          const data = await reqinterval("5m", identifier, titleArray.length);
+          const data = await reqinterval("5m", identifier);
           if (!data.onechart) {
             setloaded(true);
             return;
@@ -164,7 +165,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "15m":
         if (fifteenMinutes === undefined) {
-          const data = await reqinterval("15m", identifier, titleArray.length);
+          const data = await reqinterval("15m", identifier);
           if (!data.onechart) {
             setloaded(true);
             return;
@@ -184,7 +185,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         break;
       case "4h":
         if (!fourHour) {
-          const data = await reqinterval("4h", identifier, titleArray.length);
+          const data = await reqinterval("4h", identifier);
           if (!data.onechart) {
             setloaded(true);
             return;

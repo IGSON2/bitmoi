@@ -107,11 +107,11 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/interval", server.getAnotherInterval)
 	router.Get("/moreinfo", server.moreinfo)
 	router.Get("/rank/:page", server.getRank)
-	// router.Post("/user", server.createUser)
-	// router.Post("/user/login", server.loginUser)
+	router.Post("/user", server.createUser)
+	router.Post("/user/login", server.loginUser)
 	router.Get("/user/checkId", server.checkID)
 	router.Get("/user/checkNickname", server.checkNickname)
-	// router.Get("/user/verifyEmail", server.verifyEmail)
+	router.Get("/user/verifyEmail", server.verifyEmail)
 	router.Post("/reissueAccess", server.reissueAccessToken)
 	router.Post("/verifyToken", server.verifyToken)
 	router.Get("/nextBidUnlock", server.getNextUnlockDate)
@@ -119,6 +119,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/selectedBidder", server.getSelectedBidder)
 	router.Get("/login/callback", server.CallBackLogin)
 	router.Get("/oauth", server.GetLoginURL)
+
+	router.Get("/intermediate", server.getInterMediateChart)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Use(createNewLimitMiddleware())
@@ -175,6 +177,7 @@ func (s *Server) Listen() error {
 // @Success      200  {object}  api.OnePairChart
 // @Router       /practice [get]
 func (s *Server) getPracticeChart(c *fiber.Ctx) error {
+	var oc *OnePairChart
 	r := new(CandlesRequest)
 	err := c.QueryParser(r)
 	if err != nil {
@@ -188,10 +191,17 @@ func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 	if len(history) >= finalstage {
 		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 	}
-	nextPair := utilities.FindDiffPair(s.pairs, history)
-	oc, err := s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	for {
+		nextPair := utilities.FindDiffPair(s.pairs, history)
+		oc, err = s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
+		if err != nil || oc == nil {
+			if err == ErrShortRange {
+				s.logger.Warn().Str("parname", nextPair).Msg(err.Error())
+				continue
+			}
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		break
 	}
 	return c.Status(fiber.StatusOK).JSON(oc)
 }
@@ -242,6 +252,8 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 // @Success      200  {object}  api.OnePairChart
 // @Router       /competition [get]
 func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
+	var oc *OnePairChart
+
 	r := new(CandlesRequest)
 	err := c.QueryParser(r)
 	if err != nil {
@@ -255,10 +267,17 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	if len(history) >= finalstage {
 		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 	}
-	nextPair := utilities.FindDiffPair(s.pairs, history)
-	oc, err := s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	for {
+		nextPair := utilities.FindDiffPair(s.pairs, history)
+		oc, err = s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
+		if err != nil || oc == nil {
+			if err == ErrShortRange {
+				s.logger.Warn().Str("parname", nextPair).Msg(err.Error())
+				continue
+			}
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		break
 	}
 	return c.Status(fiber.StatusOK).JSON(oc)
 }

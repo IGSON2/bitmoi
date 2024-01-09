@@ -173,33 +173,38 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 	return &resultInfo
 }
 
+// watingTerm == 0 이면 최근 1개의 캔들을 가져옵니다.
 func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTerm int, c *fiber.Ctx) (*CandleData, error) {
 	cdd := new(CandleData)
+	limit := int32(db.CalculateWaitingTerm(info.Interval, waitingTerm))
+	if waitingTerm == 0 {
+		limit = 1
+	}
 
 	switch info.Interval {
 	case db.OneD:
-		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.OneD, waitingTerm))})
+		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.FourH, waitingTerm))})
+		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.OneH, waitingTerm))})
+		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: int32(db.CalculateWaitingTerm(db.FifM, waitingTerm))})
+		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
 		if err != nil {
 			return nil, err
 		}

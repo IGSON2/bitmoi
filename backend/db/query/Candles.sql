@@ -18,6 +18,11 @@ WHERE name = ? AND time <= ?
 ORDER BY time DESC 
 LIMIT ?;
 
+-- name: Get1dCandlesRnage :many
+SELECT * FROM candles_1d 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC;
+
 -- name: Get1dResult :many
 SELECT * FROM candles_1d 
 WHERE name = ? AND time > ?
@@ -52,6 +57,11 @@ WHERE name = ?  AND time <= ?
 ORDER BY time DESC 
 LIMIT ?;
 
+-- name: Get4hCandlesRnage :many
+SELECT * FROM candles_4h 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC;
+
 -- name: Get4hResult :many
 SELECT * FROM candles_4h 
 WHERE name = ? AND time > ?
@@ -85,6 +95,11 @@ SELECT * FROM candles_1h
 WHERE name = ?  AND time <= ?
 ORDER BY time DESC 
 LIMIT ?;
+
+-- name: Get1hCandlesRnage :many
+SELECT * FROM candles_1h 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC;
 
 -- name: Get1hEntryTimestamp :one
 SELECT time FROM candles_1h 
@@ -126,6 +141,11 @@ WHERE name = ?  AND time <= ?
 ORDER BY time DESC 
 LIMIT ?;
 
+-- name: Get15mCandlesRnage :many
+SELECT * FROM candles_15m 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC;
+
 -- name: Get15mResult :many
 SELECT * FROM candles_15m 
 WHERE name = ? AND time > ?
@@ -159,6 +179,11 @@ SELECT * FROM candles_5m
 WHERE name = ?  AND time <= ?
 ORDER BY time DESC 
 LIMIT ?;
+
+-- name: Get5mCandlesRnage :many
+SELECT * FROM candles_5m 
+WHERE name = ? AND time > ? AND time <= ?
+ORDER BY time DESC;
 
 -- name: Get5mResult :many
 SELECT * FROM candles_5m 
