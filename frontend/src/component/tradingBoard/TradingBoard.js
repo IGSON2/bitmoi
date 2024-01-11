@@ -110,7 +110,6 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
     setloaded(false);
     switch (interval) {
       case "init":
-        var response;
         if (mode === "competition") {
           if (isLogined) {
             response = await axiosClient.get(
@@ -122,7 +121,6 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
                 `/competition?names=${titleArray}`
               );
             }
-            // TODO: Competition Pairname 따로 설정
           } else {
             return;
           }
@@ -138,7 +136,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         setOneHour(response.data.onechart);
         setCandles(response.data.onechart);
         setIdentifier(response.data.identifier);
-        setName(response.data.name);
+        setName(`${response.data.name}${String(index + 1).padStart(2, "0")}`);
         if (!response.data.name.includes("STAGE")) {
           setTitleArray((current) => [...current, response.data.name + ","]);
         }
@@ -199,6 +197,8 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         }
         setHeaderInterval("4h");
         break;
+      default:
+        console.log("invalid interval");
     }
 
     setloaded(true);

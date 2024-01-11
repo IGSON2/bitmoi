@@ -235,7 +235,7 @@ func (o *OnePairChart) anonymization() {
 	o.EntryPrice = o.OneChart.PData[0].Close
 	o.addIdentifier()
 	o.EntryTime = "Sometime"
-	o.Name = "Competition"
+	o.Name = "STAGE"
 }
 
 func (o *OnePairChart) addIdentifier() {
