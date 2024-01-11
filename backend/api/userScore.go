@@ -141,16 +141,16 @@ func (s *Server) getPracScoreToStage(o *ScoreRequest, c *fiber.Ctx) error {
 	return nil
 }
 
-func (s *Server) getMyPracScores(userId string, pages int32, c *fiber.Ctx) ([]db.PracScore, error) {
-	return s.store.GetPracScoresByUserID(c.Context(), db.GetPracScoresByUserIDParams{
+func (s *Server) getMyCompScores(userId string, pages int32, c *fiber.Ctx) ([]db.CompScore, error) {
+	return s.store.GetCompScoresByUserID(c.Context(), db.GetCompScoresByUserIDParams{
 		UserID: userId,
 		Limit:  myscoreRows,
 		Offset: (pages - 1) * myscoreRows,
 	})
 }
 
-func (s *Server) getPracScoresByScoreID(scoreId, userId string, c context.Context) ([]db.PracScore, error) {
-	return s.store.GetPracScoresByScoreID(c, db.GetPracScoresByScoreIDParams{
+func (s *Server) getCompScoresByScoreID(scoreId, userId string, c context.Context) ([]db.CompScore, error) {
+	return s.store.GetCompScoresByScoreID(c, db.GetCompScoresByScoreIDParams{
 		ScoreID: scoreId,
 		UserID:  userId,
 	})
@@ -167,8 +167,8 @@ func (s *Server) getRankByUserID(userId string) (db.RankingBoard, error) {
 	return s.store.GetRankByUserID(context.Background(), userId)
 }
 
-func (s *Server) insertPracScoreToRankBoard(req *RankInsertRequest, user *db.User, c *fiber.Ctx) error {
-	length, err := s.store.GetPracStageLenByScoreID(c.Context(), db.GetPracStageLenByScoreIDParams{
+func (s *Server) insertCompScoreToRankBoard(req *RankInsertRequest, user *db.User, c *fiber.Ctx) error {
+	length, err := s.store.GetCompStageLenByScoreID(c.Context(), db.GetCompStageLenByScoreIDParams{
 		ScoreID: req.ScoreId,
 		UserID:  user.UserID,
 	})
@@ -178,7 +178,7 @@ func (s *Server) insertPracScoreToRankBoard(req *RankInsertRequest, user *db.Use
 		return ErrInvalidStageLength
 	}
 
-	t, err := s.store.GetPracScoreToStage(c.Context(), db.GetPracScoreToStageParams{
+	t, err := s.store.GetCompScoreToStage(c.Context(), db.GetCompScoreToStageParams{
 		ScoreID: req.ScoreId,
 		UserID:  user.UserID,
 		Stage:   finalstage,

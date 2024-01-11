@@ -390,7 +390,7 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 
-	scores, err := s.getMyPracScores(payload.UserID, int32(page), c)
+	scores, err := s.getMyCompScores(payload.UserID, int32(page), c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -445,7 +445,7 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
 	}
 
-	err = s.insertPracScoreToRankBoard(&r, &user, c)
+	err = s.insertCompScoreToRankBoard(&r, &user, c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
@@ -468,7 +468,7 @@ func (s *Server) moreinfo(c *fiber.Ctx) error {
 	if errs := utilities.ValidateStruct(r); errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
-	scores, err := s.getPracScoresByScoreID(r.ScoreId, r.UserId, c.Context())
+	scores, err := s.getCompScoresByScoreID(r.ScoreId, r.UserId, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

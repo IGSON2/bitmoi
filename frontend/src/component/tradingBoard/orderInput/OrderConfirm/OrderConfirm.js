@@ -65,10 +65,7 @@ function Orderconfirm({
       const response = await axiosClient.post(order.mode, order);
       if (order.mode === "competition") {
         setPairtitle(response.data.score.name);
-        setTitleArray((current) => [
-          ...current,
-          response.data.score.name + ",",
-        ]);
+        setTitleArray((current) => [...current, response.data.score.name]);
         response.data.origin_chart.pdata.reverse();
         response.data.origin_chart.vdata.reverse();
         setCandles(response.data.origin_chart);

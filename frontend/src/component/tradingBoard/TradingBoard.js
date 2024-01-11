@@ -113,19 +113,21 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         if (mode === "competition") {
           if (isLogined) {
             response = await axiosClient.get(
-              `/competition?names=${titleArray}`
+              `/competition?names=${titleArray.join(",")}`
             );
             if (response.status === HttpStatusCode.Unauthorized) {
               await checkAccessTokenValidity();
               response = await axiosClient.get(
-                `/competition?names=${titleArray}`
+                `/competition?names=${titleArray.join(",")}`
               );
             }
           } else {
             return;
           }
         } else {
-          response = await axiosClient.get(`/practice?names=${titleArray}`);
+          response = await axiosClient.get(
+            `/practice?names=${titleArray.join(",")}`
+          );
         }
 
         response.data.onechart.pdata.reverse();
@@ -138,7 +140,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         setIdentifier(response.data.identifier);
         setName(`${response.data.name}${String(index + 1).padStart(2, "0")}`);
         if (!response.data.name.includes("STAGE")) {
-          setTitleArray((current) => [...current, response.data.name + ","]);
+          setTitleArray((current) => [...current, response.data.name]);
         }
         setBtcRatio(response.data.btcratio);
         setEntryPrice(response.data.entry_price);
