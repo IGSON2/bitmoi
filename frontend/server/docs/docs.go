@@ -239,14 +239,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "maximum": 10,
-                        "minimum": 1,
-                        "type": "integer",
-                        "name": "stage",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "Authorization",
                         "name": "Authorization",
@@ -292,7 +284,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.Score"
+                                "$ref": "#/definitions/db.PracScore"
                             }
                         }
                     }
@@ -330,7 +322,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.Score"
+                                "$ref": "#/definitions/db.PracScore"
                             }
                         }
                     }
@@ -952,9 +944,6 @@ const docTemplate = `{
                 "end_price": {
                     "type": "number"
                 },
-                "entry_price": {
-                    "type": "number"
-                },
                 "entry_time": {
                     "type": "string"
                 },
@@ -975,9 +964,6 @@ const docTemplate = `{
                 },
                 "roe": {
                     "type": "number"
-                },
-                "stage": {
-                    "type": "integer"
                 }
             }
         },
@@ -1178,32 +1164,12 @@ const docTemplate = `{
                 }
             }
         },
-        "db.RankingBoard": {
+        "db.PracScore": {
             "type": "object",
             "properties": {
-                "comment": {
+                "created_at": {
                     "type": "string"
                 },
-                "final_balance": {
-                    "type": "number"
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "photo_url": {
-                    "type": "string"
-                },
-                "score_id": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "db.Score": {
-            "type": "object",
-            "properties": {
                 "endprice": {
                     "type": "number"
                 },
@@ -1228,6 +1194,9 @@ const docTemplate = `{
                 "position": {
                     "type": "string"
                 },
+                "quantity": {
+                    "type": "number"
+                },
                 "remain_balance": {
                     "type": "number"
                 },
@@ -1239,6 +1208,32 @@ const docTemplate = `{
                 },
                 "stage": {
                     "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.RankingBoard": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "final_balance": {
+                    "type": "number"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "score_id": {
+                    "type": "string"
                 },
                 "user_id": {
                     "type": "string"

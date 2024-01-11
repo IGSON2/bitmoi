@@ -380,7 +380,7 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 // @Param		 page path int true "페이지 번호"
 // @param		 Authorization header string true "Authorization"
 // @Produce      json
-// @Success      200  {array}  db.Score
+// @Success      200  {array}  db.PracScore
 // @Router       /myscore/{page} [get]
 func (s *Server) myscore(c *fiber.Ctx) error {
 	page, err := c.ParamsInt("page")
@@ -457,7 +457,7 @@ func (s *Server) postRank(c *fiber.Ctx) error {
 // @Tags         rank
 // @Param moreInfoRequest query api.MoreInfoRequest true "추가 정보 요청에 대한 정보"
 // @Produce      json
-// @Success      200  {array}  db.Score
+// @Success      200  {array}  db.PracScore
 // @Router       /moreinfo [get]
 func (s *Server) moreinfo(c *fiber.Ctx) error {
 	r := new(MoreInfoRequest)
