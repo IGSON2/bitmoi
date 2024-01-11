@@ -39,7 +39,7 @@ func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResp
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
 	var result = ScoreResponse{
-		Score: calculateResult(resultchart, order, nil),
+		Score: calculateResult(resultchart, order, pracInfo),
 	}
 	result.Score.Entrytime = utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time))
 	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
