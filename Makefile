@@ -49,7 +49,7 @@ rmi:
 	docker compose down && docker rmi bitmoi_api
 
 test:
-	go test -v -cover -short ./...
+	go test -v -cover -short ./backend/...
 
 benchmark:
 	go-wrk -c 80 -d 5 -H Content-Type:application/json -M GET http://43.202.77.76:5000/practice
