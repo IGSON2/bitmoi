@@ -81,8 +81,9 @@ type CompScore struct {
 	Entrytime     string    `json:"entrytime"`
 	Position      string    `json:"position"`
 	Leverage      int32     `json:"leverage"`
-	Outtime       int32     `json:"outtime"`
+	Outtime       int64     `json:"outtime"`
 	Entryprice    float64   `json:"entryprice"`
+	Quantity      float64   `json:"quantity"`
 	Endprice      float64   `json:"endprice"`
 	Pnl           float64   `json:"pnl"`
 	Roe           float64   `json:"roe"`
@@ -98,8 +99,9 @@ type PracScore struct {
 	Entrytime     string    `json:"entrytime"`
 	Position      string    `json:"position"`
 	Leverage      int32     `json:"leverage"`
-	Outtime       int32     `json:"outtime"`
+	Outtime       int64     `json:"outtime"`
 	Entryprice    float64   `json:"entryprice"`
+	Quantity      float64   `json:"quantity"`
 	Endprice      float64   `json:"endprice"`
 	Pnl           float64   `json:"pnl"`
 	Roe           float64   `json:"roe"`

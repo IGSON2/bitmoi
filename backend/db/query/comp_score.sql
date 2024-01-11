@@ -9,17 +9,18 @@ INSERT INTO comp_score (
     leverage,
     outtime,
     entryprice,
+    quantity,
     endprice,
     pnl,
     roe,
     remain_balance
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: GetCompScore :one
 SELECT * FROM comp_score
-WHERE score_id = ? AND stage = ?;
+WHERE user_id = ? AND score_id = ? AND stage = ?;
 
 -- name: GetCompScoresByScoreID :many
 SELECT * FROM comp_score

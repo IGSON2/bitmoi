@@ -21,7 +21,7 @@ func (s *Server) createPracResult(order *pb.ScoreRequest, c context.Context) (*p
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
-	if !pracInfo.IsZeroFactor() {
+	if !pracInfo.IsPracticeMode() {
 		return nil, fmt.Errorf("factor is not set to 0, mode: practice")
 	}
 	resultchart, err := s.selectResultChart(pracInfo, int(order.WaitingTerm), c)
@@ -43,7 +43,7 @@ func (s *Server) createCompResult(compOrder *pb.ScoreRequest, c context.Context)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
-	if compInfo.IsZeroFactor() {
+	if compInfo.IsPracticeMode() {
 		return nil, fmt.Errorf("factor is set to 0, mode: competition")
 	}
 	resultchart, err := s.selectResultChart(compInfo, int(compOrder.WaitingTerm), c)
@@ -134,7 +134,7 @@ func calculateResult(resultchart *pb.CandleData, order *pb.ScoreRequest, mode st
 		EntryPrice: order.EntryPrice,
 		Entrytime:  utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time)),
 		EndPrice:   common.FloorDecimal(endPrice),
-		OutTime:    int32(endIdx),
+		OutTime:    int64(endIdx),
 		Roe:        common.FloorDecimal(roe * 100),
 		Pnl:        common.FloorDecimal(pnl),
 		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),

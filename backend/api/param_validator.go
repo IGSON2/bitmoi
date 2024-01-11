@@ -1,56 +1,7 @@
 package api
 
-import (
-	"bitmoi/backend/utilities/common"
-	"fmt"
-	"math"
-)
-
 type CandlesRequest struct {
 	Names string `json:"names" query:"names"`
-}
-
-type ScoreRequest struct {
-	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
-	UserId      string  `json:"user_id" validate:"required,alphanum"`
-	Name        string  `json:"name" validate:"required"`
-	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
-	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
-	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
-	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
-	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
-	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
-	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
-	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
-	Identifier  string  `json:"identifier"  validate:"required"`
-	ScoreId     string  `json:"score_id" validate:"required,numeric"`
-	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=1"`
-}
-
-func validateOrderRequest(o *ScoreRequest) error {
-	limit := math.Pow(float64(o.Leverage), float64(-1))
-	if *o.IsLong {
-		if !(o.EntryPrice < o.ProfitPrice && o.LossPrice < o.EntryPrice) {
-			return fmt.Errorf("check the profit and loss price. positon: %s, entry price: %f", long, o.EntryPrice)
-		}
-		if (o.EntryPrice-o.LossPrice)/o.EntryPrice > limit {
-			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
-				long, o.EntryPrice, o.LossPrice, o.Leverage, common.CeilDecimal(o.EntryPrice*(1-limit)))
-		}
-	} else {
-		if !(o.EntryPrice > o.ProfitPrice && o.LossPrice > o.EntryPrice) {
-			return fmt.Errorf("check the profit and loss price. positon : %s, entry price : %f", short, o.EntryPrice)
-		}
-		if (o.LossPrice-o.EntryPrice)/o.EntryPrice > limit {
-			return fmt.Errorf("unacceptable loss price. position: %s, entry price: %f, loss price: %f, leverage: %d limit : %f",
-				short, o.EntryPrice, o.LossPrice, o.Leverage, common.FloorDecimal(o.EntryPrice*(1+limit)))
-		}
-	}
-
-	if (o.Balance * float64(o.Leverage)) < (o.Quantity * o.EntryPrice) {
-		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", o.Quantity*o.EntryPrice, o.Balance*float64(o.Leverage))
-	}
-	return nil
 }
 
 type RankInsertRequest struct {
@@ -106,11 +57,4 @@ type GetBidderByLocRequest struct {
 type BidTokenRequest struct {
 	Amount   int    `json:"amount" validate:"required,number,min=1"`
 	Location string `json:"location" validate:"required,oneof=practice rank freetoken"`
-}
-
-type InterChartRequest struct {
-	Score        ScoreRequest `json:"score" validate:"required" query:"score"`
-	ReqInterval  string       `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
-	MinTimestamp int64        `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
-	MaxTimestamp int64        `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
 }

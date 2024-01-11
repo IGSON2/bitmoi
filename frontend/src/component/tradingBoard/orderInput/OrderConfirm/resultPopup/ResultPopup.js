@@ -85,14 +85,14 @@ const ResultPopup = (props) => {
           ) : null}
 
           <div className={styles.buttonfield}>
-            {props.result.stage < 10 && !props.result.is_liquidated ? (
+            {props.order.stage < 10 && !props.result.is_liquidated ? (
               <button
                 onClick={props.close}
                 disabled={props.submitOrder ? true : false}
               >
                 NEXT
               </button>
-            ) : props.result.stage === 10 ? (
+            ) : props.order.stage === 10 ? (
               props.order.mode === "competition" ? (
                 <button
                   onClick={openPopup}

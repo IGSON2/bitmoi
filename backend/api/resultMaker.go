@@ -13,24 +13,8 @@ import (
 )
 
 const (
-	commissionRate = 0.02
+	commissionRate = 0.02 / 100
 )
-
-type OrderResult struct {
-	Stage        int32   `json:"stage"`
-	Name         string  `json:"name"`
-	Entrytime    string  `json:"entry_time"`
-	Leverage     int32   `json:"leverage"`
-	EntryPrice   float64 `json:"entry_price"`
-	ProfitPrice  float64 `json:"profit_price"`
-	LossPrice    float64 `json:"loss_price"`
-	EndPrice     float64 `json:"end_price"`
-	OutTime      int32   `json:"out_time"`
-	Roe          float64 `json:"roe"`
-	Pnl          float64 `json:"pnl"`
-	Commission   float64 `json:"commission"`
-	Isliquidated bool    `json:"is_liquidated"`
-}
 
 type ScoreResponse struct {
 	OriginChart *CandleData  `json:"origin_chart"`
@@ -55,7 +39,7 @@ func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResp
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
 	var result = ScoreResponse{
-		Score: calculateResult(resultchart, order, practice, nil),
+		Score: calculateResult(resultchart, order, nil),
 	}
 	result.Score.Entrytime = utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time))
 	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
@@ -76,7 +60,7 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 		return nil, fmt.Errorf("cannot select result chart. err : %w", err)
 	}
 	var result = ScoreResponse{
-		Score: calculateResult(resultchart, compOrder, competition, compInfo),
+		Score: calculateResult(resultchart, compOrder, compInfo),
 	}
 
 	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
@@ -94,7 +78,7 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 }
 
 // calculateResult는 주문에 대한 결과를 계산합니다.
-func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, info *utilities.IdentificationData) *OrderResult {
+func calculateResult(resultchart *CandleData, order *ScoreRequest, info *utilities.IdentificationData) *OrderResult {
 	var (
 		roe      float64
 		pnl      float64
@@ -102,7 +86,7 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 		endPrice float64
 	)
 
-	if mode == competition {
+	if !info.IsPracticeMode() {
 		order.EntryPrice = common.FloorDecimal(order.EntryPrice / info.PriceFactor)
 		order.ProfitPrice = common.FloorDecimal(order.ProfitPrice / info.PriceFactor)
 		order.LossPrice = common.FloorDecimal(order.LossPrice / info.PriceFactor)
@@ -155,17 +139,13 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 	pnl = (roe * order.Balance)
 
 	resultInfo := OrderResult{
-		Stage:       order.Stage,
-		Name:        order.Name,
-		Leverage:    order.Leverage,
-		EntryPrice:  order.EntryPrice,
-		ProfitPrice: order.ProfitPrice,
-		LossPrice:   order.LossPrice,
-		EndPrice:    common.FloorDecimal(endPrice),
-		OutTime:     int32(endIdx),
-		Roe:         common.FloorDecimal(roe * 100),
-		Pnl:         common.FloorDecimal(pnl),
-		Commission:  common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
+		Name:       order.Name,
+		Leverage:   order.Leverage,
+		EndPrice:   common.FloorDecimal(endPrice),
+		OutTime:    int32(endIdx),
+		Roe:        common.FloorDecimal(roe * 100),
+		Pnl:        common.FloorDecimal(pnl),
+		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
 	}
 	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
 		resultInfo.Isliquidated = true
@@ -173,13 +153,9 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, mode string, 
 	return &resultInfo
 }
 
-// watingTerm == 0 이면 최근 1개의 캔들을 가져옵니다.
 func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTerm int, c *fiber.Ctx) (*CandleData, error) {
 	cdd := new(CandleData)
 	limit := int32(db.CalculateWaitingTerm(info.Interval, waitingTerm))
-	if waitingTerm == 0 {
-		limit = 1
-	}
 
 	switch info.Interval {
 	case db.OneD:

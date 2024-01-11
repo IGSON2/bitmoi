@@ -11,17 +11,18 @@ import (
 )
 
 const getPracScore = `-- name: GetPracScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM prac_score
-WHERE score_id = ? AND stage = ?
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM prac_score
+WHERE user_id = ? AND score_id = ? AND stage = ?
 `
 
 type GetPracScoreParams struct {
+	UserID  string `json:"user_id"`
 	ScoreID string `json:"score_id"`
 	Stage   int32  `json:"stage"`
 }
 
 func (q *Queries) GetPracScore(ctx context.Context, arg GetPracScoreParams) (PracScore, error) {
-	row := q.db.QueryRowContext(ctx, getPracScore, arg.ScoreID, arg.Stage)
+	row := q.db.QueryRowContext(ctx, getPracScore, arg.UserID, arg.ScoreID, arg.Stage)
 	var i PracScore
 	err := row.Scan(
 		&i.ScoreID,
@@ -33,6 +34,7 @@ func (q *Queries) GetPracScore(ctx context.Context, arg GetPracScoreParams) (Pra
 		&i.Leverage,
 		&i.Outtime,
 		&i.Entryprice,
+		&i.Quantity,
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
@@ -61,7 +63,7 @@ func (q *Queries) GetPracScoreToStage(ctx context.Context, arg GetPracScoreToSta
 }
 
 const getPracScoresByScoreID = `-- name: GetPracScoresByScoreID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM prac_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM prac_score
 WHERE score_id = ? AND user_id = ?
 `
 
@@ -89,6 +91,7 @@ func (q *Queries) GetPracScoresByScoreID(ctx context.Context, arg GetPracScoresB
 			&i.Leverage,
 			&i.Outtime,
 			&i.Entryprice,
+			&i.Quantity,
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
@@ -109,7 +112,7 @@ func (q *Queries) GetPracScoresByScoreID(ctx context.Context, arg GetPracScoresB
 }
 
 const getPracScoresByUserID = `-- name: GetPracScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM prac_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM prac_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -141,6 +144,7 @@ func (q *Queries) GetPracScoresByUserID(ctx context.Context, arg GetPracScoresBy
 			&i.Leverage,
 			&i.Outtime,
 			&i.Entryprice,
+			&i.Quantity,
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
@@ -187,13 +191,14 @@ INSERT INTO prac_score (
     position,
     leverage,
     outtime,
+    quantity,
     entryprice,
     endprice,
     pnl,
     roe,
     remain_balance
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
@@ -205,7 +210,8 @@ type InsertPracScoreParams struct {
 	Entrytime     string  `json:"entrytime"`
 	Position      string  `json:"position"`
 	Leverage      int32   `json:"leverage"`
-	Outtime       int32   `json:"outtime"`
+	Outtime       int64   `json:"outtime"`
+	Quantity      float64 `json:"quantity"`
 	Entryprice    float64 `json:"entryprice"`
 	Endprice      float64 `json:"endprice"`
 	Pnl           float64 `json:"pnl"`
@@ -223,6 +229,7 @@ func (q *Queries) InsertPracScore(ctx context.Context, arg InsertPracScoreParams
 		arg.Position,
 		arg.Leverage,
 		arg.Outtime,
+		arg.Quantity,
 		arg.Entryprice,
 		arg.Endprice,
 		arg.Pnl,
@@ -237,7 +244,7 @@ WHERE user_id = ? AND score_id = ? AND stage = ?
 `
 
 type UpdatePracScoreParams struct {
-	Outtime       int32   `json:"outtime"`
+	Outtime       int64   `json:"outtime"`
 	Endprice      float64 `json:"endprice"`
 	Pnl           float64 `json:"pnl"`
 	Roe           float64 `json:"roe"`

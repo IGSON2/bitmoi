@@ -11,17 +11,18 @@ import (
 )
 
 const getCompScore = `-- name: GetCompScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
-WHERE score_id = ? AND stage = ?
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM comp_score
+WHERE user_id = ? AND score_id = ? AND stage = ?
 `
 
 type GetCompScoreParams struct {
+	UserID  string `json:"user_id"`
 	ScoreID string `json:"score_id"`
 	Stage   int32  `json:"stage"`
 }
 
 func (q *Queries) GetCompScore(ctx context.Context, arg GetCompScoreParams) (CompScore, error) {
-	row := q.db.QueryRowContext(ctx, getCompScore, arg.ScoreID, arg.Stage)
+	row := q.db.QueryRowContext(ctx, getCompScore, arg.UserID, arg.ScoreID, arg.Stage)
 	var i CompScore
 	err := row.Scan(
 		&i.ScoreID,
@@ -33,6 +34,7 @@ func (q *Queries) GetCompScore(ctx context.Context, arg GetCompScoreParams) (Com
 		&i.Leverage,
 		&i.Outtime,
 		&i.Entryprice,
+		&i.Quantity,
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
@@ -61,7 +63,7 @@ func (q *Queries) GetCompScoreToStage(ctx context.Context, arg GetCompScoreToSta
 }
 
 const getCompScoresByScoreID = `-- name: GetCompScoresByScoreID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM comp_score
 WHERE score_id = ? AND user_id = ?
 `
 
@@ -89,6 +91,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 			&i.Leverage,
 			&i.Outtime,
 			&i.Entryprice,
+			&i.Quantity,
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
@@ -109,7 +112,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 }
 
 const getCompScoresByUserID = `-- name: GetCompScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, endprice, pnl, roe, remain_balance, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, remain_balance, created_at FROM comp_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -141,6 +144,7 @@ func (q *Queries) GetCompScoresByUserID(ctx context.Context, arg GetCompScoresBy
 			&i.Leverage,
 			&i.Outtime,
 			&i.Entryprice,
+			&i.Quantity,
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
@@ -188,12 +192,13 @@ INSERT INTO comp_score (
     leverage,
     outtime,
     entryprice,
+    quantity,
     endprice,
     pnl,
     roe,
     remain_balance
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
@@ -205,8 +210,9 @@ type InsertCompScoreParams struct {
 	Entrytime     string  `json:"entrytime"`
 	Position      string  `json:"position"`
 	Leverage      int32   `json:"leverage"`
-	Outtime       int32   `json:"outtime"`
+	Outtime       int64   `json:"outtime"`
 	Entryprice    float64 `json:"entryprice"`
+	Quantity      float64 `json:"quantity"`
 	Endprice      float64 `json:"endprice"`
 	Pnl           float64 `json:"pnl"`
 	Roe           float64 `json:"roe"`
@@ -224,6 +230,7 @@ func (q *Queries) InsertCompScore(ctx context.Context, arg InsertCompScoreParams
 		arg.Leverage,
 		arg.Outtime,
 		arg.Entryprice,
+		arg.Quantity,
 		arg.Endprice,
 		arg.Pnl,
 		arg.Roe,
@@ -239,7 +246,7 @@ WHERE user_id = ? AND score_id = ? AND stage = ?
 type UpdateCompcScoreParams struct {
 	Pairname      string  `json:"pairname"`
 	Entrytime     string  `json:"entrytime"`
-	Outtime       int32   `json:"outtime"`
+	Outtime       int64   `json:"outtime"`
 	Entryprice    float64 `json:"entryprice"`
 	Endprice      float64 `json:"endprice"`
 	Pnl           float64 `json:"pnl"`

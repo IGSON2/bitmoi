@@ -33,61 +33,89 @@ var (
 	rewardRates           = []float64{0.5, 0.3, 0.2}
 )
 
-func (s *Server) insertPracScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) error {
+func (s *Server) insertScore(req ScoreReqInterface, res OrderResultInterface, ctx context.Context) error {
+	var err error
 	var position string
-	if *o.IsLong {
+
+	if req.GetIsLong() {
 		position = long
 	} else {
 		position = short
 	}
 
-	_, err := s.store.InsertPracScore(c.Context(), db.InsertPracScoreParams{
-		ScoreID:       o.ScoreId,
-		UserID:        o.UserId,
-		Stage:         o.Stage,
-		Pairname:      r.Name,
-		Entrytime:     r.Entrytime,
-		Position:      position,
-		Leverage:      o.Leverage,
-		Outtime:       r.OutTime,
-		Entryprice:    r.EntryPrice,
-		Endprice:      r.EndPrice,
-		Pnl:           r.Pnl,
-		Roe:           r.Roe,
-		RemainBalance: common.FloorDecimal(o.Balance + r.Pnl),
-	})
-	if err != nil {
-		return fmt.Errorf("cannot insert score, err: %w", err)
+	switch req.GetMode() {
+	case practice:
+		_, err = s.store.InsertPracScore(ctx, db.InsertPracScoreParams{
+			ScoreID:       req.GetScoreID(),
+			UserID:        req.GetUserID(),
+			Stage:         req.GetStage(),
+			Pairname:      res.GetPairName(),
+			Entrytime:     res.GetEntryTime(),
+			Position:      position,
+			Leverage:      req.GetLeverage(),
+			Outtime:       res.GetOutTime(),
+			Entryprice:    req.GetEntryPrice(),
+			Quantity:      req.GetQuantity(),
+			Endprice:      res.GetEndPrice(),
+			Pnl:           res.GetPnl(),
+			Roe:           res.GetRoe(),
+			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+		})
+	case competition:
+		_, err = s.store.InsertCompScore(ctx, db.InsertCompScoreParams{
+			ScoreID:       req.GetScoreID(),
+			UserID:        req.GetUserID(),
+			Stage:         req.GetStage(),
+			Pairname:      res.GetPairName(),
+			Entrytime:     res.GetEntryTime(),
+			Position:      position,
+			Leverage:      req.GetLeverage(),
+			Outtime:       res.GetOutTime(),
+			Entryprice:    req.GetEntryPrice(),
+			Quantity:      req.GetQuantity(),
+			Endprice:      res.GetEndPrice(),
+			Pnl:           res.GetPnl(),
+			Roe:           res.GetRoe(),
+			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+		})
+	default:
+		err = fmt.Errorf("invalid mode: %s", req.GetMode())
 	}
 
 	return err
 }
 
-func (s *Server) insertCompScore(o *ScoreRequest, r *OrderResult, c *fiber.Ctx) error {
-	var position string
-	if *o.IsLong {
-		position = long
-	} else {
-		position = short
-	}
+func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ctx context.Context) error {
+	var err error
 
-	_, err := s.store.InsertCompScore(c.Context(), db.InsertCompScoreParams{
-		ScoreID:       o.ScoreId,
-		UserID:        o.UserId,
-		Stage:         o.Stage,
-		Pairname:      r.Name,
-		Entrytime:     r.Entrytime,
-		Position:      position,
-		Leverage:      o.Leverage,
-		Outtime:       r.OutTime,
-		Entryprice:    r.EntryPrice,
-		Endprice:      r.EndPrice,
-		Pnl:           r.Pnl,
-		Roe:           r.Roe,
-		RemainBalance: common.FloorDecimal(o.Balance + r.Pnl),
-	})
-	if err != nil {
-		return fmt.Errorf("cannot insert score, err: %w", err)
+	switch req.GetMode() {
+	case practice:
+		_, err = s.store.UpdatePracScore(ctx, db.UpdatePracScoreParams{
+			Outtime:       res.GetOutTime(),
+			Endprice:      res.GetEndPrice(),
+			Pnl:           res.GetPnl(),
+			Roe:           res.GetRoe(),
+			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+			UserID:        req.GetUserID(),
+			ScoreID:       req.GetScoreID(),
+			Stage:         req.GetStage(),
+		})
+	case competition:
+		_, err = s.store.UpdateCompcScore(ctx, db.UpdateCompcScoreParams{
+			Pairname:      res.GetPairName(),
+			Entrytime:     res.GetEntryTime(),
+			Outtime:       res.GetOutTime(),
+			Entryprice:    req.GetEntryPrice(),
+			Endprice:      res.GetEndPrice(),
+			Pnl:           res.GetPnl(),
+			Roe:           res.GetRoe(),
+			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+			UserID:        req.GetUserID(),
+			ScoreID:       req.GetScoreID(),
+			Stage:         req.GetStage(),
+		})
+	default:
+		err = fmt.Errorf("invalid mode: %s", req.GetMode())
 	}
 
 	return err

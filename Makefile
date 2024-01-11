@@ -1,11 +1,7 @@
-ifeq ($(OS),Windows_NT)
-	ifneq ($(ls backend/gapi/pb),)
-		DELETE_COMMAND=cd backend/gapi/pb&&del *pb.go
-	else
-		DELETE_COMMAND=echo "already empty"
-	endif
+ifneq ($(ls backend/gapi/pb),)
+	DELETE_COMMAND=cd backend/gapi/pb&&del *pb.go
 else
-	DELETE_COMMAND=rm backend/gapi/pb/*.go
+	DELETE_COMMAND=echo "already empty"
 endif
 
 sqlc:

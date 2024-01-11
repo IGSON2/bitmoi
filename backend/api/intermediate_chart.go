@@ -4,61 +4,88 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+type InterScoreResponse struct {
+	ResultChart *CandleData         `json:"result_chart"`
+	Score       *InterMediateResult `json:"score"`
+}
+
 func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
-	r := new(InterChartRequest)
-	err := c.QueryParser(r)
+	req := new(InterScoreRequest)
+	err := c.BodyParser(req)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
 	}
-	if errs := utilities.ValidateStruct(r); errs != nil {
+	if errs := utilities.ValidateStruct(req); errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
-	if err := validateOrderRequest(&r.Score); err != nil {
+	if err := validateOrderRequest(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
+	score, getScoreErr := s.store.GetPracScore(c.Context(), db.GetPracScoreParams{UserID: req.UserId, ScoreID: req.ScoreId, Stage: req.Stage})
 
-	info := new(utilities.IdentificationData)
-	infoByte := utilities.DecryptByASE(r.Score.Identifier)
-	err = json.Unmarshal(infoByte, info)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
+	res := new(InterScoreResponse)
+
+	switch {
+	case req.MinTimestamp < req.MaxTimestamp:
+		info := new(utilities.IdentificationData)
+		infoByte := utilities.DecryptByASE(req.Identifier)
+		err = json.Unmarshal(infoByte, info)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
+		}
+
+		cdd, err := s.selectInterChart(info, req.ReqInterval, req.MinTimestamp, req.MaxTimestamp, c.Context())
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot make intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
+		}
+
+		result := calculateInterResult(cdd, req, info)
+
+		if getScoreErr != nil {
+			if getScoreErr == sql.ErrNoRows {
+				err = s.insertScore(req, result, c.Context())
+				if err != nil {
+					return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot insert score. err : %s", err.Error()))
+				}
+			} else {
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get score. err : %s", getScoreErr.Error()))
+			}
+		}
+
+		if result.OutTime > 0 {
+			err = s.updateScore(req, result, c.Context())
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+			}
+		}
+
+		if !info.IsPracticeMode() {
+			cdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
+		}
+
+		res = &InterScoreResponse{
+			ResultChart: cdd,
+			Score:       result,
+		}
+	case req.MinTimestamp == req.MaxTimestamp:
+		result := scoreToInterResult(&score)
+		// result 계산 후 업데이트 필요
+		res = &InterScoreResponse{
+			Score: &result,
+		}
+	case req.MinTimestamp > req.MaxTimestamp:
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("min timestamp is bigger than max timestamp. min : %d, max : %d", req.MinTimestamp, req.MaxTimestamp))
 	}
 
-	cdd, err := s.selectInterChart(info, r.ReqInterval, r.MinTimestamp, r.MaxTimestamp, c.Context())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot make intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, r.ReqInterval, err.Error()))
-	}
-
-	var oc = &OnePairChart{
-		OneChart:  cdd,
-		EntryTime: utilities.EntryTimeFormatter(cdd.PData[0].Time),
-	}
-
-	oc.priceFactor = info.PriceFactor
-	oc.timeFactor = info.TimeFactor
-	oc.volumeFactor = info.VolumeFactor
-
-	// result := calculateResult(oc.OneChart, &r.Score, r.Score.Mode, info)
-	// init score
-	// if 종료 => update score
-
-	if info.PriceFactor != 0 || info.TimeFactor != 0 || info.VolumeFactor != 0 {
-		oc.anonymization()
-	} else {
-		oc.addIdentifier()
-	}
-
-	// score 생성 및 업데이트
-	// result chart 반환
-
-	return c.Status(fiber.StatusOK).JSON(oc)
+	return c.Status(fiber.StatusOK).JSON(res)
 }
 
 func (s *Server) selectInterChart(info *utilities.IdentificationData, interval string, minTime, maxTime int64, ctx context.Context) (*CandleData, error) {

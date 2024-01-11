@@ -120,8 +120,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/login/callback", server.CallBackLogin)
 	router.Get("/oauth", server.GetLoginURL)
 
-	router.Get("/intermediate", server.getInterMediateChart)
-
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 	authGroup.Use(createNewLimitMiddleware())
 
@@ -146,6 +144,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
 	authGroup.Post("/bidToken", server.bidToken)
+	authGroup.Post("/intermediate", server.getInterMediateChart)
 
 	server.router = router
 
@@ -235,11 +234,6 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-
-	err = s.insertPracScore(&PracticeOrder, r.Score, c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
 	return c.Status(fiber.StatusOK).JSON(r)
 }
 
@@ -320,6 +314,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 		}
 	case CompetitionOrder.Stage > 1:
 		prevScore, err := s.store.GetCompScore(c.Context(), db.GetCompScoreParams{
+			UserID:  CompetitionOrder.UserId,
 			ScoreID: CompetitionOrder.ScoreId,
 			Stage:   CompetitionOrder.Stage - 1,
 		})
@@ -338,7 +333,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	err = s.insertCompScore(&CompetitionOrder, compResult.Score, c)
+	err = s.insertScore(&CompetitionOrder, compResult.Score, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

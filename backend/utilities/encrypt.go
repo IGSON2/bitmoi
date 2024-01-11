@@ -20,7 +20,7 @@ type IdentificationData struct {
 	TimeFactor   int64   `json:"ranpastdate"`
 }
 
-func (i *IdentificationData) IsZeroFactor() bool {
+func (i *IdentificationData) IsPracticeMode() bool {
 	return i.PriceFactor == 0 || i.TimeFactor == 0 || i.VolumeFactor == 0
 }
 
