@@ -73,9 +73,9 @@ func bitmoi(ctx *cli.Context) error {
 	}
 
 	if isHTTPRun := ctx.Bool(app.HTTPFlag.Name); isHTTPRun {
-		// if config.Environment == common.EnvProduction {
-		// go runTaskProcessor(config, dbStore)
-		// }
+		if config.Environment == common.EnvProduction {
+			go runTaskProcessor(config, dbStore)
+		}
 		go runHttpServer(config, dbStore, errCh)
 	}
 

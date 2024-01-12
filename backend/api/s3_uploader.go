@@ -42,7 +42,7 @@ const (
 	maxAdImageSize      = 10 * 1024 * 1024
 )
 
-var bucketName = "bitmoi-photo"
+var bucketName = "bitmoi"
 
 func NewS3Uploader(c *utilities.Config) (*s3.S3, error) {
 	sess, err := session.NewSession(&aws.Config{
