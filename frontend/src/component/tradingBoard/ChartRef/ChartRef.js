@@ -296,7 +296,7 @@ const ChartRef = forwardRef((props, ref) => {
         candleSeriesRef.current.update(nextP);
         volumeSeriesRef.current.update(nextV);
 
-        if (props.resultScore.out_time - 1 == i) {
+        if (props.resultScore.out_time - 1 === i) {
           if (props.resultScore.pnl > 0) {
             candleSeriesRef.current.setMarkers([
               {
