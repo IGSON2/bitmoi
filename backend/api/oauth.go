@@ -72,6 +72,8 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
+	} else {
+		userID = user.UserID
 	}
 
 	accessToken, _, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
