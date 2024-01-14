@@ -59,7 +59,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	userID := strings.Split(od.Email, "@")[0]
 
-	user, err := s.store.GetUser(c.Context(), userID)
+	user, err := s.store.GetUserByEmail(c.Context(), od.Email)
 
 	if user.UserID == "" || err == sql.ErrNoRows {
 		_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
