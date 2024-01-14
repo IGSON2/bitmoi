@@ -126,7 +126,7 @@ func (s *Server) selectInterChart(info *utilities.IdentificationData, interval s
 		cdd = cs.InitCandleData()
 	}
 	if cdd.PData == nil || cdd.VData == nil {
-		return nil, ErrGetResultChart
+		s.logger.Warn().Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")
 	}
 
 	return cdd, nil
