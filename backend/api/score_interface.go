@@ -52,22 +52,26 @@ func (s *ScoreRequest) GetLeverage() int32      { return s.Leverage }
 func (s *ScoreRequest) GetBalance() float64     { return s.Balance }
 
 type InterScoreRequest struct {
-	Mode         string  `json:"mode" validate:"required,oneof=competition practice"`
-	UserId       string  `json:"user_id" validate:"required,alphanum"`
-	ScoreId      string  `json:"score_id" validate:"required,numeric"`
-	Name         string  `json:"name" validate:"required"`
-	Stage        int32   `json:"stage" validate:"required,number,min=1,max=10"`
-	IsLong       *bool   `json:"is_long"  validate:"required,boolean"`
-	EntryPrice   float64 `json:"entry_price" validate:"required,number,gt=0"`
-	Quantity     float64 `json:"quantity" validate:"required,number,gt=0"`
-	ProfitPrice  float64 `json:"profit_price" validate:"number,min=0"`
-	LossPrice    float64 `json:"loss_price" validate:"number,min=0"`
-	Leverage     int32   `json:"leverage" validate:"required,number,min=1,max=100"`
-	Balance      float64 `json:"balance" validate:"required,number,gt=0"`
-	Identifier   string  `json:"identifier"  validate:"required"`
-	ReqInterval  string  `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
-	MinTimestamp int64   `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
-	MaxTimestamp int64   `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
+	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
+	UserId      string  `json:"user_id" validate:"required,alphanum"`
+	ScoreId     string  `json:"score_id" validate:"required,numeric"`
+	Name        string  `json:"name" validate:"required"`
+	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
+	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
+	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
+	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
+	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
+	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
+	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
+	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
+	Identifier  string  `json:"identifier"  validate:"required"`
+}
+
+type InterStepRequest struct {
+	InterScoreRequest
+	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
+	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
+	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
 }
 
 func (i *InterScoreRequest) GetMode() string         { return i.Mode }

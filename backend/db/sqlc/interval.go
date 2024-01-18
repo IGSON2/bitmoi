@@ -73,3 +73,20 @@ func CalculateSeconds(interval string) int64 {
 		return 0
 	}
 }
+
+func GetAnotherIntervals(interval string) []string {
+	switch interval {
+	case OneD:
+		return []string{FourH, OneH, FifM, FiveM}
+	case FourH:
+		return []string{OneD, OneH, FifM, FiveM}
+	case OneH:
+		return []string{OneD, FourH, FifM, FiveM}
+	case FifM:
+		return []string{OneD, FourH, OneH, FiveM}
+	case FiveM:
+		return []string{OneD, FourH, OneH, FifM}
+	default:
+		return []string{}
+	}
+}

@@ -145,6 +145,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/user/profile", server.updateProfileImg)
 	authGroup.Post("/bidToken", server.bidToken)
 	authGroup.Post("/intermediate", server.getInterMediateChart)
+	authGroup.Post("/intermediate/init", server.initIntermediateScore)
 
 	server.router = router
 
