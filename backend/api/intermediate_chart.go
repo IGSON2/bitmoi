@@ -68,10 +68,14 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 		for _, it := range db.GetAnotherIntervals(req.ReqInterval) {
 			anotherCdd, err := s.selectInterChart(info, it, req.MinTimestamp, req.MaxTimestamp, c.Context())
 			if err != nil {
-				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot make intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, it, err.Error()))
+				if err != sql.ErrNoRows {
+					return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot make intermediate another chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, it, err.Error()))
+				}
 			}
 			if !info.IsPracticeMode() {
-				anotherCdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
+				if anotherCdd.PData != nil && anotherCdd.VData != nil {
+					anotherCdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
+				}
 			}
 			anotherIntvMap[it] = anotherCdd
 		}
@@ -132,7 +136,7 @@ func (s *Server) selectInterChart(info *utilities.IdentificationData, interval s
 		cdd = cs.InitCandleData()
 	}
 	if cdd.PData == nil || cdd.VData == nil {
-		s.logger.Warn().Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")
+		s.logger.Warn().Str("name", info.Name).Str("interval", interval).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")
 	}
 
 	return cdd, nil
