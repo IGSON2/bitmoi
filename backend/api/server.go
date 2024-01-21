@@ -91,7 +91,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	lgr := server.createLoggerMiddleware()
 
-	router.Use(createNewLimitMiddleware(30, server.logger))
+	router.Use(createNewLimitMiddleware(50, server.logger))
 
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(createNewOriginMiddleware(), lgr)
@@ -123,7 +123,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/oauth", server.GetLoginURL)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Use(createNewLimitMiddleware(100, server.logger))
 
 	if c.Environment == bitmoicommon.EnvProduction {
 		authGroup.Use(createNewOriginMiddleware(), lgr)
