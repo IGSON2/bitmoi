@@ -81,7 +81,6 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 
 func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *InterScoreRequest, info *utilities.IdentificationData) *AfterScore {
 	var (
-		roe          float64
 		maxRoe       float64 = -100
 		minRoe       float64 = 100
 		endTimestamp int64
@@ -114,12 +113,14 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 	for _, candle := range resultchart.PData {
 		timeGap := resultchart.PData[1].Time - resultchart.PData[0].Time
 		if *order.IsLong {
-			roe = levQuanRate * ((candle.Close - order.EntryPrice) / order.EntryPrice)
-			if roe > maxRoe {
-				maxRoe = roe
+			// max roe는 high, min은 row값
+			_maxroe := levQuanRate * ((candle.High - order.EntryPrice) / order.EntryPrice)
+			_minroe := levQuanRate * ((candle.Low - order.EntryPrice) / order.EntryPrice)
+			if _maxroe > maxRoe {
+				maxRoe = _maxroe
 			}
-			if roe < minRoe {
-				minRoe = roe
+			if _minroe < minRoe {
+				minRoe = _minroe
 			}
 
 			if candle.High >= order.ProfitPrice {
@@ -141,12 +142,13 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 				break
 			}
 		} else {
-			roe = levQuanRate * ((order.EntryPrice - candle.Close) / order.EntryPrice)
-			if roe > maxRoe {
-				maxRoe = roe
+			_maxroe := levQuanRate * ((order.EntryPrice - candle.Low) / order.EntryPrice)
+			_minroe := levQuanRate * ((order.EntryPrice - candle.High) / order.EntryPrice)
+			if _maxroe > maxRoe {
+				maxRoe = _maxroe
 			}
-			if roe < minRoe {
-				minRoe = roe
+			if _minroe < minRoe {
+				minRoe = _minroe
 			}
 
 			if candle.Low <= order.ProfitPrice {
