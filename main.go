@@ -28,6 +28,7 @@ func init() {
 		app.DatadirFlag,
 		app.GRPCFlag,
 		app.HTTPFlag,
+		app.LogLevelFlag,
 	}
 	bApp.Action = bitmoi
 }
@@ -54,6 +55,7 @@ func bitmoi(ctx *cli.Context) error {
 	if path := ctx.String(app.DatadirFlag.Name); path != "" {
 		config.SetDataDir(path)
 	}
+	config.SetLogLevel(int8(ctx.Int(app.LogLevelFlag.Name)))
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {

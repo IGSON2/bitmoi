@@ -89,3 +89,17 @@ func GetAnotherIntervals(interval string) []string {
 		return []string{}
 	}
 }
+
+func GetIntervalFromRange(from, to int64) string {
+	diff := to - from
+	if diff > 86400 {
+		return OneD
+	} else if diff > 14400 {
+		return FourH
+	} else if diff > 3600 {
+		return OneH
+	} else if diff > 900 {
+		return FifM
+	}
+	return ""
+}

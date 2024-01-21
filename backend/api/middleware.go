@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -86,14 +87,15 @@ func createNewOriginMiddleware() fiber.Handler {
 	})
 }
 
-func createNewLimitMiddleware() fiber.Handler {
+func createNewLimitMiddleware(cnt int, logger zerolog.Logger) fiber.Handler {
 	return limiter.New(limiter.Config{
-		Max:        30,
+		Max:        cnt,
 		Expiration: 30 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.Get("x-forwarded-for")
 		},
 		LimitReached: func(c *fiber.Ctx) error {
+			logger.Warn().Str("ip", c.Get("x-forwarded-for")).Str("path", c.Path()).Str("method", c.Method()).Str("ua", c.Get("user-agent")).Str("authorization", c.Get(authorizationHeaderKey)).Msg("too many request.")
 			return c.Status(fiber.StatusTooManyRequests).SendString("too many request.")
 		},
 	})

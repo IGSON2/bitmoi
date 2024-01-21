@@ -88,9 +88,11 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	server.pairs = ps
 
 	router := fiber.New(fiber.Config{})
-	router.Use(createNewLimitMiddleware())
 
 	lgr := server.createLoggerMiddleware()
+
+	router.Use(createNewLimitMiddleware(30, server.logger))
+
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(createNewOriginMiddleware(), lgr)
 	} else {
@@ -121,7 +123,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/oauth", server.GetLoginURL)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-	authGroup.Use(createNewLimitMiddleware())
+	authGroup.Use(createNewLimitMiddleware(100, server.logger))
 
 	if c.Environment == bitmoicommon.EnvProduction {
 		authGroup.Use(createNewOriginMiddleware(), lgr)
@@ -146,6 +148,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/bidToken", server.bidToken)
 	authGroup.Post("/intermediate", server.getInterMediateChart)
 	authGroup.Post("/intermediate/init", server.initIntermediateScore)
+	authGroup.Post("/intermediate/close", server.closeIntermediateScore)
 
 	server.router = router
 

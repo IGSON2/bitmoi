@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
 
@@ -30,12 +31,17 @@ type Config struct {
 	OauthClientSecret    string        `mapstructure:"OAUTH_CLIENT_SECRET"`
 	OauthRedirectURL     string        `mapstructure:"OAUTH_REDIRECT_URL"`
 	DataDir              string
+	LogLevel             zerolog.Level
 }
 
 var C *Config
 
 func (c *Config) SetDataDir(path string) {
 	c.DataDir = path
+}
+
+func (c *Config) SetLogLevel(level int8) {
+	c.LogLevel = zerolog.Level(level)
 }
 
 func GetConfig(path string) *Config {

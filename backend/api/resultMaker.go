@@ -4,6 +4,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -154,33 +155,36 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, info *utiliti
 }
 
 func (s *Server) selectResultChart(info *utilities.IdentificationData, waitingTerm int, c *fiber.Ctx) (*CandleData, error) {
-	cdd := new(CandleData)
 	limit := int32(db.CalculateWaitingTerm(info.Interval, waitingTerm))
+	return s.getResultByInterval(info.Interval, info.Name, info.RefTimestamp, limit, c.Context())
+}
 
-	switch info.Interval {
+func (s *Server) getResultByInterval(intv, name string, refTime int64, limit int32, ctx context.Context) (*CandleData, error) {
+	cdd := new(CandleData)
+	switch intv {
 	case db.OneD:
-		candles, err := s.store.Get1dResult(c.Context(), db.Get1dResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
+		candles, err := s.store.Get1dResult(ctx, db.Get1dResultParams{Name: name, Time: refTime, Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hResult(c.Context(), db.Get4hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
+		candles, err := s.store.Get4hResult(ctx, db.Get4hResultParams{Name: name, Time: refTime, Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hResult(c.Context(), db.Get1hResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
+		candles, err := s.store.Get1hResult(ctx, db.Get1hResultParams{Name: name, Time: refTime, Limit: limit})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = cs.InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mResult(c.Context(), db.Get15mResultParams{Name: info.Name, Time: int64(info.RefTimestamp), Limit: limit})
+		candles, err := s.store.Get15mResult(ctx, db.Get15mResultParams{Name: name, Time: refTime, Limit: limit})
 		if err != nil {
 			return nil, err
 		}
