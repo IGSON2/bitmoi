@@ -65,6 +65,7 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 
 	resultInfo := InterMediateResult{
 		Name:       order.Name,
+		IsLong:     *order.IsLong,
 		Entrytime:  utilities.EntryTimeFormatter(info.RefTimestamp),
 		Leverage:   order.Leverage,
 		EndPrice:   common.FloorDecimal(endPrice),
@@ -182,23 +183,9 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 	}
 
 	afterResultInfo := AfterScore{
-		ClosedTime: endTimestamp,
+		ClosedTime: endTimestamp - info.RefTimestamp,
 		MaxRoe:     common.FloorDecimal(maxRoe),
 		MinRoe:     common.FloorDecimal(minRoe),
 	}
 	return &afterResultInfo
-}
-
-func scoreToInterResult(s *db.PracScore) *InterMediateResult {
-	return &InterMediateResult{
-		Name:         s.Pairname,
-		Entrytime:    s.Entrytime,
-		Leverage:     s.Leverage,
-		EndPrice:     s.Endprice,
-		OutTime:      s.Outtime,
-		Roe:          s.Roe,
-		Pnl:          s.Pnl,
-		Commission:   common.FloorDecimal(commissionRate * s.Entryprice * s.Quantity),
-		Isliquidated: s.RemainBalance < 0,
-	}
 }

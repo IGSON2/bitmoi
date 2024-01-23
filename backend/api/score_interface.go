@@ -154,6 +154,7 @@ func (o *OrderResult) GetIsliquidated() bool { return o.Isliquidated }
 
 type InterMediateResult struct {
 	Name         string  `json:"name"`
+	IsLong       bool    `json:"is_long"`
 	Entrytime    string  `json:"entry_time"`
 	Leverage     int32   `json:"leverage"`
 	EndPrice     float64 `json:"end_price"`
