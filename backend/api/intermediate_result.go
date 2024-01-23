@@ -183,7 +183,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 	}
 
 	afterResultInfo := AfterScore{
-		ClosedTime: endTimestamp - info.RefTimestamp,
+		ClosedTime: endTimestamp,
 		MaxRoe:     common.FloorDecimal(maxRoe),
 		MinRoe:     common.FloorDecimal(minRoe),
 	}

@@ -194,6 +194,7 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 		Score:      score,
 		AfterScore: s.calculateAfterInterResult(resultChart, &req.InterScoreRequest, info),
 	}
+	res.AfterScore.ClosedTime -= info.RefTimestamp
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
