@@ -47,7 +47,7 @@ func (c *Config) SetLogLevel(level int8) {
 }
 
 func (c *Config) SwitchOauthRedirectURL() {
-	if c.Environment == bitmoicommon.EnvDevelop {
+	if c.Environment == bitmoicommon.EnvProduction {
 		c.OauthRedirectURL = "https://m.bitmoi.co.kr"
 	} else {
 		c.OauthRedirectURL = "http://localhost:3000"
