@@ -172,15 +172,15 @@ func TestRankInsertRequestValidation(t *testing.T) {
 func TestPageRequestValidation(t *testing.T) {
 	testCases := []struct {
 		name     string
-		params   PageRequest
-		expected func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int)
+		params   MyscoreRequest
+		expected func(t *testing.T, es *utilities.ErrorResponse, req MyscoreRequest, i int)
 	}{
 		{
 			name: "OK",
-			params: PageRequest{
+			params: MyscoreRequest{
 				Page: 100,
 			},
-			expected: func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int) {
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req MyscoreRequest, i int) {
 				r := reflect.TypeOf(req).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
 				require.NotContains(t, es.FailedField, r.Name, m)
@@ -190,8 +190,8 @@ func TestPageRequestValidation(t *testing.T) {
 		},
 		{
 			name:   "Fail_Missing_Fields",
-			params: PageRequest{},
-			expected: func(t *testing.T, es *utilities.ErrorResponse, req PageRequest, i int) {
+			params: MyscoreRequest{},
+			expected: func(t *testing.T, es *utilities.ErrorResponse, req MyscoreRequest, i int) {
 				r := reflect.TypeOf(req).Field(i)
 				m := fmt.Sprintf("Field : %s, Tag : %s, Value : %s", es.FailedField, es.Tag, es.Value)
 				require.Contains(t, es.FailedField, r.Name, m)

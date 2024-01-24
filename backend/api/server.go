@@ -140,7 +140,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Post("/rank", server.postRank)
-	authGroup.Get("/myscore/:page", server.myscore)
+	authGroup.Get("/myscore", server.myscore)
 	authGroup.Post("/freeToken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
@@ -380,20 +380,33 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 // myscore godoc
 // @Summary      사용자의 경쟁모드 주문 채결 내역을 불러옵니다.
 // @Tags         score
-// @Param		 page path int true "페이지 번호"
+// @Param		 page query int true "페이지 번호"
+// @Param		 mode query string true "모드"
 // @param		 Authorization header string true "Authorization"
 // @Produce      json
-// @Success      200  {array}  db.PracScore
-// @Router       /myscore/{page} [get]
+// @Success      200  {array}  db.CompScore
+// @Router       /myscore [get]
 func (s *Server) myscore(c *fiber.Ctx) error {
-	page, err := c.ParamsInt("page")
+	r := new(MyscoreRequest)
+	err := c.QueryParser(r)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	if errs := utilities.ValidateStruct(r); errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 
-	scores, err := s.getMyCompScores(payload.UserID, int32(page), c)
+	if r.Mode == practice {
+		scores, err := s.getMyPracScores(payload.UserID, int32(r.Page), c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		return c.Status(fiber.StatusOK).JSON(scores)
+	}
+
+	scores, err := s.getMyCompScores(payload.UserID, int32(r.Page), c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

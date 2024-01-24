@@ -9,8 +9,9 @@ type RankInsertRequest struct {
 	Comment string `json:"comment"`
 }
 
-type PageRequest struct {
-	Page int32 `json:"page" validate:"min=0,number" query:"page"`
+type MyscoreRequest struct {
+	Mode string `json:"mode" validate:"required,oneof=competition practice" query:"mode"`
+	Page int32  `json:"page" validate:"min=0,number" query:"page"`
 }
 
 type MoreInfoRequest struct {

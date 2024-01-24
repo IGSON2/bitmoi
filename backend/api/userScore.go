@@ -141,6 +141,14 @@ func (s *Server) getPracScoreToStage(o *ScoreRequest, c *fiber.Ctx) error {
 	return nil
 }
 
+func (s *Server) getMyPracScores(userId string, pages int32, c *fiber.Ctx) ([]db.PracScore, error) {
+	return s.store.GetPracScoresByUserID(c.Context(), db.GetPracScoresByUserIDParams{
+		UserID: userId,
+		Limit:  myscoreRows,
+		Offset: (pages - 1) * myscoreRows,
+	})
+}
+
 func (s *Server) getMyCompScores(userId string, pages int32, c *fiber.Ctx) ([]db.CompScore, error) {
 	return s.store.GetCompScoresByUserID(c.Context(), db.GetCompScoresByUserIDParams{
 		UserID: userId,

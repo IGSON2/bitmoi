@@ -12,7 +12,9 @@ function MyPage() {
   const [data, setData] = useState([{}]);
   const getUserScore = async (i) => {
     try {
-      const response = await axiosClient.get(`/myscore/${index}`);
+      const response = await axiosClient.get(
+        `/myscore?mode=competition&page=${index}`
+      );
       if (response.status === 200) {
         setData(response.data);
       }
