@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	bitmoicommon "bitmoi/backend/utilities/common"
+
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
@@ -29,7 +31,7 @@ type Config struct {
 	BiddingDuration      time.Duration `mapstructure:"BIDDING_DURATION"`
 	OauthClientID        string        `mapstructure:"OAUTH_CLIENT_ID"`
 	OauthClientSecret    string        `mapstructure:"OAUTH_CLIENT_SECRET"`
-	OauthRedirectURL     string        `mapstructure:"OAUTH_REDIRECT_URL"`
+	OauthRedirectURL     string
 	DataDir              string
 	LogLevel             zerolog.Level
 }
@@ -42,6 +44,14 @@ func (c *Config) SetDataDir(path string) {
 
 func (c *Config) SetLogLevel(level int8) {
 	c.LogLevel = zerolog.Level(level)
+}
+
+func (c *Config) SwitchOauthRedirectURL() {
+	if c.Environment == bitmoicommon.EnvDevelop {
+		c.OauthRedirectURL = "https://m.bitmoi.co.kr"
+	} else {
+		c.OauthRedirectURL = "http://localhost:3000"
+	}
 }
 
 func GetConfig(path string) *Config {
@@ -62,6 +72,7 @@ func GetConfig(path string) *Config {
 			log.Panicf("Err! cannot unmarshal config. Err : %v, File list : %s", err, files)
 		}
 		C.SetDataDir(DefaultDataDir())
+		C.SwitchOauthRedirectURL()
 	}
 	return C
 }
