@@ -178,6 +178,7 @@ func TestPageRequestValidation(t *testing.T) {
 		{
 			name: "OK",
 			params: MyscoreRequest{
+				Mode: practice,
 				Page: 100,
 			},
 			expected: func(t *testing.T, es *utilities.ErrorResponse, req MyscoreRequest, i int) {
