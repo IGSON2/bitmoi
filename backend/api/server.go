@@ -91,7 +91,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	lgr := server.createLoggerMiddleware()
 
-	router.Use(createNewLimitMiddleware(50, server.logger))
+	router.Use(createNewLimitMiddleware(100, server.logger))
 
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(createNewOriginMiddleware(), lgr)
