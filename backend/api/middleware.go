@@ -83,7 +83,7 @@ func checkAuthorization(c *fiber.Ctx, maker *token.PasetoMaker) error {
 
 func createNewOriginMiddleware() fiber.Handler {
 	return cors.New(cors.Config{
-		AllowOrigins: "https://bitmoi.co.kr, http://localhost:*",
+		AllowOrigins: "https://bitmoi.co.kr, https://m.bitmoi.co.kr, http://localhost:3000",
 	})
 }
 
