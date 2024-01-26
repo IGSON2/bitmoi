@@ -41,7 +41,10 @@ func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
 
-	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return fmt.Errorf("cannot get authorization payload")
+	}
 	user, err := s.store.GetUser(c.Context(), payload.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())

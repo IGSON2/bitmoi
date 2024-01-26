@@ -6,7 +6,11 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `metamask_address` varchar(255),
   `photo_url` varchar(255),
+  `prac_balance` double NOT NULL,
+  `comp_balance` double NOT NULL,
+  `recommender_code` varchar(255),
   `created_at` timestamp NOT NULL DEFAULT (now()),
+  `last_accessed_at` timestamp NOT NULL DEFAULT (now()),
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),
   `address_changed_at` timestamp
 );
@@ -25,7 +29,6 @@ CREATE TABLE `prac_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
-  `remain_balance` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
@@ -43,7 +46,6 @@ CREATE TABLE `comp_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
-  `remain_balance` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 

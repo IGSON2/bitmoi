@@ -347,3 +347,23 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).SendString(url)
 }
+
+func (s *Server) freeMoney(c *fiber.Ctx) error {
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
+	}
+
+	res, err := s.store.CheckAttendTx(c.Context(), db.CheckAttendTxParams{
+		UserId:        payload.UserID,
+		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
+	})
+
+	if err != nil {
+		s.logger.Error().Err(err).Str("user", payload.UserID).Msg("cannot check attend tx")
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(struct {
+		PracBalance float64 `json:"prac_balance"`
+	}{PracBalance: res.PracBalance})
+}

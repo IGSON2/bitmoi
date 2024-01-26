@@ -5,9 +5,12 @@ INSERT INTO users (
     nickname,
     hashed_password,
     email,
-    photo_url
+    photo_url,
+    prac_balance,
+    comp_balance,
+    recommender_code
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: GetUser :one
@@ -36,6 +39,10 @@ SELECT * FROM users
 ORDER BY created_at DESC
 LIMIT 1;
 
+-- name: GetUserLastAccessedAt :one
+SELECT last_accessed_at FROM users
+WHERE user_id = ?;
+
 -- name: UpdateUserPhotoURL :execresult
 UPDATE users SET photo_url = ?
 WHERE user_id = ?;
@@ -45,4 +52,16 @@ UPDATE users
 SET 
     metamask_address = ?,
     address_changed_at = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserPracBalance :execresult
+UPDATE users SET prac_balance = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserCompBalance :execresult
+UPDATE users SET comp_balance = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserLastAccessedAt :execresult
+UPDATE users SET last_accessed_at = ?
 WHERE user_id = ?;

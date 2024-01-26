@@ -65,6 +65,10 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 		}
 	}
 	pnl := (roe * deposit)
+	commission := common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity)
+	if info.IsPracticeMode() {
+		commission = 0
+	}
 
 	resultInfo := InterMediateResult{
 		Name:       order.Name,
@@ -75,7 +79,7 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 		OutTime:    endTimestamp,
 		Roe:        common.FloorDecimal(roe * 100),
 		Pnl:        common.FloorDecimal(pnl),
-		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),
+		Commission: commission,
 	}
 	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
 		resultInfo.Isliquidated = true

@@ -130,6 +130,7 @@ type OrderResultInterface interface {
 	GetRoe() float64
 	GetPnl() float64
 	GetIsliquidated() bool
+	GetCommission() float64
 }
 
 type OrderResult struct {
@@ -144,13 +145,14 @@ type OrderResult struct {
 	Isliquidated bool    `json:"is_liquidated"`
 }
 
-func (o *OrderResult) GetPairName() string   { return o.Name }
-func (o *OrderResult) GetEntryTime() string  { return o.Entrytime }
-func (o *OrderResult) GetEndPrice() float64  { return o.EndPrice }
-func (o *OrderResult) GetOutTime() int64     { return int64(o.OutTime) }
-func (o *OrderResult) GetRoe() float64       { return o.Roe }
-func (o *OrderResult) GetPnl() float64       { return o.Pnl }
-func (o *OrderResult) GetIsliquidated() bool { return o.Isliquidated }
+func (o *OrderResult) GetPairName() string    { return o.Name }
+func (o *OrderResult) GetEntryTime() string   { return o.Entrytime }
+func (o *OrderResult) GetEndPrice() float64   { return o.EndPrice }
+func (o *OrderResult) GetOutTime() int64      { return int64(o.OutTime) }
+func (o *OrderResult) GetRoe() float64        { return o.Roe }
+func (o *OrderResult) GetPnl() float64        { return o.Pnl }
+func (o *OrderResult) GetIsliquidated() bool  { return o.Isliquidated }
+func (o *OrderResult) GetCommission() float64 { return o.Commission }
 
 type InterMediateResult struct {
 	Name         string  `json:"name"`
@@ -172,3 +174,6 @@ func (i *InterMediateResult) GetOutTime() int64     { return i.OutTime }
 func (i *InterMediateResult) GetRoe() float64       { return i.Roe }
 func (i *InterMediateResult) GetPnl() float64       { return i.Pnl }
 func (i *InterMediateResult) GetIsliquidated() bool { return i.Isliquidated }
+func (i *InterMediateResult) GetCommission() float64 {
+	return i.Commission
+}

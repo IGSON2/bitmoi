@@ -141,6 +141,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Post("/rank", server.postRank)
 	authGroup.Get("/myscore", server.myscore)
+	authGroup.Post("/checkAttendance", server.freeMoney)
 	authGroup.Post("/freeToken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Post("/user/profile", server.updateProfileImg)
@@ -305,6 +306,12 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
+	userID := c.Locals(authorizationPayloadKey).(*token.Payload).UserID
+	user, err := s.store.GetUser(c.Context(), userID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
+	}
+
 	var hash *common.Hash
 	switch {
 	case CompetitionOrder.Stage == 1:
@@ -327,8 +334,8 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 		if prevScore.Stage != CompetitionOrder.Stage-1 {
 			return c.Status(fiber.StatusBadRequest).SendString("Invalid stage number")
 		}
-		if prevScore.RemainBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", prevScore.RemainBalance, CompetitionOrder.Balance))
+		if user.CompBalance < (math.Floor(CompetitionOrder.Balance*10) / 10) {
+			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("Invalid balance. expected: %.4f, actual: %.4f", user.CompBalance, CompetitionOrder.Balance))
 		}
 	}
 

@@ -3,7 +3,6 @@ package api
 import (
 	"bitmoi/backend/contract"
 	db "bitmoi/backend/db/sqlc"
-	"bitmoi/backend/utilities/common"
 	"context"
 	"database/sql"
 	"errors"
@@ -33,6 +32,32 @@ var (
 	rewardRates           = []float64{0.5, 0.3, 0.2}
 )
 
+func (s *Server) updateUserBalance(req ScoreReqInterface, res OrderResultInterface, ctx context.Context) error {
+	user, err := s.store.GetUser(ctx, req.GetUserID())
+	if err != nil {
+		return err
+	}
+	switch req.GetMode() {
+	case practice:
+		_, err = s.store.UpdateUserPracBalance(ctx, db.UpdateUserPracBalanceParams{
+			PracBalance: user.PracBalance + res.GetPnl() - res.GetCommission(),
+			UserID:      req.GetUserID(),
+		})
+		if err != nil {
+			return err
+		}
+	case competition:
+		_, err = s.store.UpdateUserCompBalance(ctx, db.UpdateUserCompBalanceParams{
+			CompBalance: user.CompBalance + res.GetPnl() - res.GetCommission(),
+			UserID:      req.GetUserID(),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
 func (s *Server) insertScore(req ScoreReqInterface, res OrderResultInterface, ctx context.Context) error {
 	var err error
 	var position string
@@ -46,37 +71,35 @@ func (s *Server) insertScore(req ScoreReqInterface, res OrderResultInterface, ct
 	switch req.GetMode() {
 	case practice:
 		_, err = s.store.InsertPracScore(ctx, db.InsertPracScoreParams{
-			ScoreID:       req.GetScoreID(),
-			UserID:        req.GetUserID(),
-			Stage:         req.GetStage(),
-			Pairname:      res.GetPairName(),
-			Entrytime:     res.GetEntryTime(),
-			Position:      position,
-			Leverage:      req.GetLeverage(),
-			Outtime:       res.GetOutTime(),
-			Entryprice:    req.GetEntryPrice(),
-			Quantity:      req.GetQuantity(),
-			Endprice:      res.GetEndPrice(),
-			Pnl:           res.GetPnl(),
-			Roe:           res.GetRoe(),
-			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+			ScoreID:    req.GetScoreID(),
+			UserID:     req.GetUserID(),
+			Stage:      req.GetStage(),
+			Pairname:   res.GetPairName(),
+			Entrytime:  res.GetEntryTime(),
+			Position:   position,
+			Leverage:   req.GetLeverage(),
+			Outtime:    res.GetOutTime(),
+			Entryprice: req.GetEntryPrice(),
+			Quantity:   req.GetQuantity(),
+			Endprice:   res.GetEndPrice(),
+			Pnl:        res.GetPnl(),
+			Roe:        res.GetRoe(),
 		})
 	case competition:
 		_, err = s.store.InsertCompScore(ctx, db.InsertCompScoreParams{
-			ScoreID:       req.GetScoreID(),
-			UserID:        req.GetUserID(),
-			Stage:         req.GetStage(),
-			Pairname:      res.GetPairName(),
-			Entrytime:     res.GetEntryTime(),
-			Position:      position,
-			Leverage:      req.GetLeverage(),
-			Outtime:       res.GetOutTime(),
-			Entryprice:    req.GetEntryPrice(),
-			Quantity:      req.GetQuantity(),
-			Endprice:      res.GetEndPrice(),
-			Pnl:           res.GetPnl(),
-			Roe:           res.GetRoe(),
-			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
+			ScoreID:    req.GetScoreID(),
+			UserID:     req.GetUserID(),
+			Stage:      req.GetStage(),
+			Pairname:   res.GetPairName(),
+			Entrytime:  res.GetEntryTime(),
+			Position:   position,
+			Leverage:   req.GetLeverage(),
+			Outtime:    res.GetOutTime(),
+			Entryprice: req.GetEntryPrice(),
+			Quantity:   req.GetQuantity(),
+			Endprice:   res.GetEndPrice(),
+			Pnl:        res.GetPnl(),
+			Roe:        res.GetRoe(),
 		})
 	default:
 		err = fmt.Errorf("invalid mode: %s", req.GetMode())
@@ -102,14 +125,13 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 			return errors.New("already closed score")
 		}
 		_, err = s.store.UpdatePracScore(ctx, db.UpdatePracScoreParams{
-			Outtime:       res.GetOutTime(),
-			Endprice:      res.GetEndPrice(),
-			Pnl:           res.GetPnl(),
-			Roe:           res.GetRoe(),
-			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
-			UserID:        req.GetUserID(),
-			ScoreID:       req.GetScoreID(),
-			Stage:         req.GetStage(),
+			Outtime:  res.GetOutTime(),
+			Endprice: res.GetEndPrice(),
+			Pnl:      res.GetPnl(),
+			Roe:      res.GetRoe(),
+			UserID:   req.GetUserID(),
+			ScoreID:  req.GetScoreID(),
+			Stage:    req.GetStage(),
 		})
 	case competition:
 		compScore, getErr := s.store.GetCompScore(ctx, db.GetCompScoreParams{
@@ -124,17 +146,16 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 			return errors.New("already closed score")
 		}
 		_, err = s.store.UpdateCompcScore(ctx, db.UpdateCompcScoreParams{
-			Pairname:      res.GetPairName(),
-			Entrytime:     res.GetEntryTime(),
-			Outtime:       res.GetOutTime(),
-			Entryprice:    req.GetEntryPrice(),
-			Endprice:      res.GetEndPrice(),
-			Pnl:           res.GetPnl(),
-			Roe:           res.GetRoe(),
-			RemainBalance: common.FloorDecimal(req.GetBalance() + res.GetPnl()),
-			UserID:        req.GetUserID(),
-			ScoreID:       req.GetScoreID(),
-			Stage:         req.GetStage(),
+			Pairname:   res.GetPairName(),
+			Entrytime:  res.GetEntryTime(),
+			Outtime:    res.GetOutTime(),
+			Entryprice: req.GetEntryPrice(),
+			Endprice:   res.GetEndPrice(),
+			Pnl:        res.GetPnl(),
+			Roe:        res.GetRoe(),
+			UserID:     req.GetUserID(),
+			ScoreID:    req.GetScoreID(),
+			Stage:      req.GetStage(),
 		})
 	default:
 		err = fmt.Errorf("invalid mode: %s", req.GetMode())

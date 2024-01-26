@@ -12,10 +12,9 @@ INSERT INTO prac_score (
     entryprice,
     endprice,
     pnl,
-    roe,
-    remain_balance
+    roe
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: GetPracScore :one
@@ -42,5 +41,5 @@ SELECT COUNT(stage) FROM prac_score
 WHERE score_id = ? AND user_id = ?;
 
 -- name: UpdatePracScore :execresult
-UPDATE prac_score SET outtime = ?, endprice = ?, pnl = ?, roe = ?, remain_balance = ?
+UPDATE prac_score SET outtime = ?, endprice = ?, pnl = ?, roe = ?
 WHERE user_id = ? AND score_id = ? AND stage = ?;

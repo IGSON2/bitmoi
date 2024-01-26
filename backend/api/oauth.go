@@ -61,15 +61,18 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	user, err := s.store.GetUserByEmail(c.Context(), od.Email)
 
-	if user.UserID == "" || err == sql.ErrNoRows {
-		_, err = s.store.CreateUser(c.Context(), db.CreateUserParams{
+	if user.UserID == "" || err != nil {
+		if err != sql.ErrNoRows {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		_, createErr := s.store.CreateUser(c.Context(), db.CreateUserParams{
 			UserID:   userID,
 			OauthUid: sql.NullString{String: od.ID, Valid: true},
 			Email:    od.Email,
 			PhotoUrl: sql.NullString{String: od.Picture, Valid: true},
 		})
-
-		if err != nil {
+		if createErr != nil {
+			s.logger.Error().Err(err).Str("user id", userID).Msg("cannot create user")
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 	} else {

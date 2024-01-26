@@ -64,7 +64,13 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 		if result.OutTime > 0 {
 			err = s.updateScore(req, result, c.Context())
 			if err != nil {
+				s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Int32("stage", req.Stage).Msg("cannot update score. Not initialized.")
 				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+			}
+			err = s.updateUserBalance(req, result, c.Context())
+			if err != nil {
+				s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Int32("stage", req.Stage).Str("mode", req.Mode).Msg("cannot update user balance.")
+				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
 			}
 		}
 
@@ -77,7 +83,8 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 			anotherCdd, err := s.selectInterChart(info, it, req.MinTimestamp, req.MaxTimestamp, c.Context())
 			if err != nil {
 				if err != sql.ErrNoRows {
-					return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot make intermediate another chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, it, err.Error()))
+					s.logger.Error().Str("name", info.Name).Str("interval", it).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot select intermediate chart to reference timestamp.")
+					return c.Status(fiber.StatusInternalServerError).SendString("cannot make intermediate another chart to reference timestamp.")
 				}
 			}
 			if !info.IsPracticeMode() {
@@ -181,6 +188,11 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 	err = s.updateScore(req, score, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+	}
+
+	err = s.updateUserBalance(req, score, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
 	}
 
 	// 진입시간 기준으로 1D부터 축소 검색 한다

@@ -12,10 +12,9 @@ INSERT INTO comp_score (
     quantity,
     endprice,
     pnl,
-    roe,
-    remain_balance
+    roe
 ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: GetCompScore :one
@@ -42,5 +41,5 @@ SELECT COUNT(stage) FROM comp_score
 WHERE score_id = ? AND user_id = ?;
 
 -- name: UpdateCompcScore :execresult
-UPDATE comp_score SET pairname = ?, entrytime = ?, outtime = ?, entryprice = ?, endprice = ?, pnl = ?, roe = ?, remain_balance = ?
+UPDATE comp_score SET pairname = ?, entrytime = ?, outtime = ?, entryprice = ?, endprice = ?, pnl = ?, roe = ?
 WHERE user_id = ? AND score_id = ? AND stage = ?;
