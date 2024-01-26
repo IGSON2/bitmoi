@@ -90,6 +90,17 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 
 	switch req.GetMode() {
 	case practice:
+		pracScore, getErr := s.store.GetPracScore(ctx, db.GetPracScoreParams{
+			UserID:  req.GetUserID(),
+			ScoreID: req.GetScoreID(),
+			Stage:   req.GetStage(),
+		})
+		if getErr != nil {
+			return getErr
+		}
+		if pracScore.Outtime > 0 {
+			return errors.New("already closed score")
+		}
 		_, err = s.store.UpdatePracScore(ctx, db.UpdatePracScoreParams{
 			Outtime:       res.GetOutTime(),
 			Endprice:      res.GetEndPrice(),
@@ -101,6 +112,17 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 			Stage:         req.GetStage(),
 		})
 	case competition:
+		compScore, getErr := s.store.GetCompScore(ctx, db.GetCompScoreParams{
+			UserID:  req.GetUserID(),
+			ScoreID: req.GetScoreID(),
+			Stage:   req.GetStage(),
+		})
+		if getErr != nil {
+			return getErr
+		}
+		if compScore.Outtime > 0 {
+			return errors.New("already closed score")
+		}
 		_, err = s.store.UpdateCompcScore(ctx, db.UpdateCompcScoreParams{
 			Pairname:      res.GetPairName(),
 			Entrytime:     res.GetEntryTime(),
@@ -117,7 +139,6 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 	default:
 		err = fmt.Errorf("invalid mode: %s", req.GetMode())
 	}
-
 	return err
 }
 

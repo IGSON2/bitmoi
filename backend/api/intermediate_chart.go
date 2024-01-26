@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -168,6 +169,7 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 	}
 
 	if len(cdd.PData) != 1 {
+		err = errors.New("invalid intermediate chart data")
 		s.logger.Error().Err(err).Str("name", info.Name).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot get intermediate result 15m chart.")
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
