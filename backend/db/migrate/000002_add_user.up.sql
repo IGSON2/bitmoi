@@ -10,8 +10,8 @@ CREATE TABLE `users` (
   `prac_balance` double NOT NULL,
   `comp_balance` double NOT NULL,
   `recommender_code` varchar(255),
-  `created_at` timestamp,
-  `last_accessed_at` timestamp NOT NULL DEFAULT (now()),
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `last_accessed_at` timestamp,
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),
   `address_changed_at` timestamp
 );

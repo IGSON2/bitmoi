@@ -147,8 +147,8 @@ type User struct {
 	PracBalance       float64        `json:"prac_balance"`
 	CompBalance       float64        `json:"comp_balance"`
 	RecommenderCode   sql.NullString `json:"recommender_code"`
-	CreatedAt         sql.NullTime   `json:"created_at"`
-	LastAccessedAt    time.Time      `json:"last_accessed_at"`
+	CreatedAt         time.Time      `json:"created_at"`
+	LastAccessedAt    sql.NullTime   `json:"last_accessed_at"`
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
 	AddressChangedAt  sql.NullTime   `json:"address_changed_at"`
 }

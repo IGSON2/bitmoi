@@ -39,7 +39,6 @@ func convertUserResponse(user db.User) UserResponse {
 		Email:             user.Email,
 		PracBalance:       user.PracBalance,
 		CompBalance:       user.CompBalance,
-		LastAccessedAt:    user.LastAccessedAt,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
@@ -48,6 +47,9 @@ func convertUserResponse(user db.User) UserResponse {
 	}
 	if user.MetamaskAddress.Valid {
 		uR.MetamaskAddress = user.MetamaskAddress.String
+	}
+	if user.LastAccessedAt.Valid {
+		uR.LastAccessedAt = user.LastAccessedAt.Time
 	}
 	if user.RecommenderCode.Valid {
 		uR.RecommenderCode = user.RecommenderCode.String

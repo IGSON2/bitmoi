@@ -7,7 +7,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"time"
 )
 
 type Querier interface {
@@ -66,7 +65,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error)
 	GetUserByNickName(ctx context.Context, nickname sql.NullString) (User, error)
-	GetUserLastAccessedAt(ctx context.Context, userID string) (time.Time, error)
+	GetUserLastAccessedAt(ctx context.Context, userID string) (sql.NullTime, error)
 	GetVerifyEmails(ctx context.Context, arg GetVerifyEmailsParams) (VerifyEmail, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)
 	Insert1dCandles(ctx context.Context, arg Insert1dCandlesParams) (sql.Result, error)
