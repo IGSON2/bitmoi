@@ -132,7 +132,7 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 		if user.UserID == "" || err != nil {
 			return fmt.Errorf("failed to attendence due to cannot find user. err: %w", err)
 		}
-		if user.LastAccessedAt.Valid && user.LastAccessedAt.Time.Before(arg.TodayMidnight) {
+		if !user.LastAccessedAt.Valid || user.LastAccessedAt.Time.Before(arg.TodayMidnight) {
 			_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
 				LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
 				UserID:         arg.UserId,
