@@ -129,11 +129,17 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	rewardStr := fmt.Sprintf("%d", db.AttendanceReward)
+
+	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken)
+
 	err = s.checkAttendance(c.Context(), userId)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("user id", userId).Msg("cannot check attendance")
+		rewardStr = ""
+	}
 
-	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s&attendanceReward=%d", s.config.OauthRedirectURL, accessToken, refreshToken, db.AttendanceReward)
-
-	return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
+	return c.Redirect(redirectURL+rewardStr, fiber.StatusMovedPermanently)
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
