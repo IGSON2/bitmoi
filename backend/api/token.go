@@ -1,7 +1,9 @@
 package api
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -113,9 +115,16 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 
 	user, err := s.store.GetUser(c.Context(), payload.UserID)
 	if err != nil {
-		s.logger.Error().Err(err).Any("user", user).Msg("cannot find user")
+		s.logger.Error().Err(err).Any("user", user).Msg("cannot find user for verify token")
 		return c.Status(fiber.StatusNotFound).SendString("cannot find user")
 	}
 	userRes := convertUserResponse(user)
 	return c.Status(fiber.StatusOK).JSON(userRes)
+}
+
+func (s *Server) checkAttendance(ctx context.Context, userId string) error {
+	return s.store.CheckAttendTx(ctx, db.CheckAttendTxParams{
+		UserId:        userId,
+		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
+	})
 }

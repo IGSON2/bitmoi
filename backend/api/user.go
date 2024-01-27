@@ -5,6 +5,7 @@ import (
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -23,6 +24,10 @@ type UserResponse struct {
 	Email             string    `json:"email"`
 	PhotoURL          string    `json:"photo_url"`
 	MetamaskAddress   string    `json:"metamask_address"`
+	PracBalance       float64   `json:"prac_balance"`
+	CompBalance       float64   `json:"comp_balance"`
+	RecommenderCode   string    `json:"recommender_code"`
+	LastAccessedAt    time.Time `json:"last_accessed_at"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 }
@@ -32,6 +37,9 @@ func convertUserResponse(user db.User) UserResponse {
 		UserID:            user.UserID,
 		Nickname:          user.Nickname.String,
 		Email:             user.Email,
+		PracBalance:       user.PracBalance,
+		CompBalance:       user.CompBalance,
+		LastAccessedAt:    user.LastAccessedAt,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
@@ -40,6 +48,9 @@ func convertUserResponse(user db.User) UserResponse {
 	}
 	if user.MetamaskAddress.Valid {
 		uR.MetamaskAddress = user.MetamaskAddress.String
+	}
+	if user.RecommenderCode.Valid {
+		uR.RecommenderCode = user.RecommenderCode.String
 	}
 
 	return uR
@@ -348,22 +359,13 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString(url)
 }
 
-func (s *Server) freeMoney(c *fiber.Ctx) error {
-	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
-	}
-
-	res, err := s.store.CheckAttendTx(c.Context(), db.CheckAttendTxParams{
-		UserId:        payload.UserID,
-		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
-	})
-
+func (s *Server) GetLastUserID(ctx context.Context) (int64, error) {
+	lastID, err := s.store.GetLastUserID(ctx)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user", payload.UserID).Msg("cannot check attend tx")
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
 	}
-	return c.Status(fiber.StatusOK).JSON(struct {
-		PracBalance float64 `json:"prac_balance"`
-	}{PracBalance: res.PracBalance})
+	return lastID, nil
 }

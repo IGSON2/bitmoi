@@ -7,5 +7,3 @@ CREATE TABLE `verify_emails` (
   `created_at` timestamp NOT NULL,
   `expired_at` timestamp NOT NULL
 );
-
-ALTER TABLE `verify_emails` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);

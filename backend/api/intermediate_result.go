@@ -77,8 +77,8 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 		Leverage:   order.Leverage,
 		EndPrice:   common.FloorDecimal(endPrice),
 		OutTime:    endTimestamp,
-		Roe:        common.FloorDecimal(roe * 100),
-		Pnl:        common.FloorDecimal(pnl),
+		Roe:        common.RoundDecimal(roe * 100),
+		Pnl:        common.RoundDecimal(pnl),
 		Commission: commission,
 	}
 	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {

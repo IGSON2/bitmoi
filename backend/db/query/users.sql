@@ -34,9 +34,9 @@ SELECT * FROM users
 ORDER BY RAND()
 LIMIT 1;
 
--- name: GetLastUser :one
-SELECT * FROM users
-ORDER BY created_at DESC
+-- name: GetLastUserID :one
+SELECT id FROM users
+ORDER BY id DESC
 LIMIT 1;
 
 -- name: GetUserLastAccessedAt :one

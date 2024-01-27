@@ -53,36 +53,21 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	)
 }
 
-const getLastUser = `-- name: GetLastUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
-ORDER BY created_at DESC
+const getLastUserID = `-- name: GetLastUserID :one
+SELECT id FROM users
+ORDER BY id DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLastUser(ctx context.Context) (User, error) {
-	row := q.db.QueryRowContext(ctx, getLastUser)
-	var i User
-	err := row.Scan(
-		&i.UserID,
-		&i.OauthUid,
-		&i.Nickname,
-		&i.HashedPassword,
-		&i.Email,
-		&i.MetamaskAddress,
-		&i.PhotoUrl,
-		&i.PracBalance,
-		&i.CompBalance,
-		&i.RecommenderCode,
-		&i.CreatedAt,
-		&i.LastAccessedAt,
-		&i.PasswordChangedAt,
-		&i.AddressChangedAt,
-	)
-	return i, err
+func (q *Queries) GetLastUserID(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getLastUserID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getRandomUser = `-- name: GetRandomUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
+SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
 ORDER BY RAND()
 LIMIT 1
 `
@@ -91,6 +76,7 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 	row := q.db.QueryRowContext(ctx, getRandomUser)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.UserID,
 		&i.OauthUid,
 		&i.Nickname,
@@ -110,7 +96,7 @@ func (q *Queries) GetRandomUser(ctx context.Context) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
+SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
 WHERE user_id = ?
 `
 
@@ -118,6 +104,7 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userID)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.UserID,
 		&i.OauthUid,
 		&i.Nickname,
@@ -137,7 +124,7 @@ func (q *Queries) GetUser(ctx context.Context, userID string) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
+SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
 WHERE email = ?
 `
 
@@ -145,6 +132,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.UserID,
 		&i.OauthUid,
 		&i.Nickname,
@@ -164,7 +152,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByMetamaskAddress = `-- name: GetUserByMetamaskAddress :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
+SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
 WHERE metamask_address = ?
 `
 
@@ -172,6 +160,7 @@ func (q *Queries) GetUserByMetamaskAddress(ctx context.Context, metamaskAddress 
 	row := q.db.QueryRowContext(ctx, getUserByMetamaskAddress, metamaskAddress)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.UserID,
 		&i.OauthUid,
 		&i.Nickname,
@@ -191,7 +180,7 @@ func (q *Queries) GetUserByMetamaskAddress(ctx context.Context, metamaskAddress 
 }
 
 const getUserByNickName = `-- name: GetUserByNickName :one
-SELECT user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
+SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_address, photo_url, prac_balance, comp_balance, recommender_code, created_at, last_accessed_at, password_changed_at, address_changed_at FROM users
 WHERE nickname = ?
 `
 
@@ -199,6 +188,7 @@ func (q *Queries) GetUserByNickName(ctx context.Context, nickname sql.NullString
 	row := q.db.QueryRowContext(ctx, getUserByNickName, nickname)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.UserID,
 		&i.OauthUid,
 		&i.Nickname,

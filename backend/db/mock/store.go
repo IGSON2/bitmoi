@@ -38,12 +38,11 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // CheckAttendTx mocks base method.
-func (m *MockStore) CheckAttendTx(arg0 context.Context, arg1 db.CheckAttendTxParams) (db.CheckAttendTxResult, error) {
+func (m *MockStore) CheckAttendTx(arg0 context.Context, arg1 db.CheckAttendTxParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAttendTx", arg0, arg1)
-	ret0, _ := ret[0].(db.CheckAttendTxResult)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // CheckAttendTx indicates an expected call of CheckAttendTx.
@@ -682,19 +681,19 @@ func (mr *MockStoreMockRecorder) GetHistoryByUser(arg0, arg1 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistoryByUser", reflect.TypeOf((*MockStore)(nil).GetHistoryByUser), arg0, arg1)
 }
 
-// GetLastUser mocks base method.
-func (m *MockStore) GetLastUser(arg0 context.Context) (db.User, error) {
+// GetLastUserID mocks base method.
+func (m *MockStore) GetLastUserID(arg0 context.Context) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLastUser", arg0)
-	ret0, _ := ret[0].(db.User)
+	ret := m.ctrl.Call(m, "GetLastUserID", arg0)
+	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetLastUser indicates an expected call of GetLastUser.
-func (mr *MockStoreMockRecorder) GetLastUser(arg0 interface{}) *gomock.Call {
+// GetLastUserID indicates an expected call of GetLastUserID.
+func (mr *MockStoreMockRecorder) GetLastUserID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastUser", reflect.TypeOf((*MockStore)(nil).GetLastUser), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastUserID", reflect.TypeOf((*MockStore)(nil).GetLastUserID), arg0)
 }
 
 // GetPracScore mocks base method.

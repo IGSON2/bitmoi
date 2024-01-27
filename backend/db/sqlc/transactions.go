@@ -124,19 +124,14 @@ type CheckAttendTxParams struct {
 	TodayMidnight time.Time
 }
 
-type CheckAttendTxResult struct {
-	PracBalance float64
-}
-
-func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) (CheckAttendTxResult, error) {
-	var result CheckAttendTxResult
+func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error {
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		user, err := q.GetUser(ctx, arg.UserId)
 		if user.UserID == "" || err != nil {
 			return fmt.Errorf("failed to attendence due to cannot find user. err: %w", err)
 		}
-		if user.LastAccessedAt.After(arg.TodayMidnight) {
+		if user.LastAccessedAt.Before(arg.TodayMidnight) {
 			_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
 				LastAccessedAt: time.Now(),
 				UserID:         arg.UserId,
@@ -152,13 +147,12 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 			})
 
 			if err != nil {
-				return fmt.Errorf("failed to attendence due to cannot update prac balance at. err: %w", err)
+				return fmt.Errorf("failed to attendence due to cannot update prac balance. err: %w", err)
 			}
-			result.PracBalance = user.PracBalance + AttendanceReward
 			return nil
 		}
 		return fmt.Errorf("not time to attend yet")
 	})
 
-	return result, err
+	return err
 }

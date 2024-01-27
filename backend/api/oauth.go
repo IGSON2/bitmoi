@@ -2,7 +2,9 @@ package api
 
 import (
 	db "bitmoi/backend/db/sqlc"
+	btoken "bitmoi/backend/token"
 	"bitmoi/backend/utilities"
+	"bitmoi/backend/utilities/common"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -25,8 +27,12 @@ type OauthData struct {
 }
 
 func NewOauthConfig(c *utilities.Config) *oauth2.Config {
+	redirURL := fmt.Sprintf("http://localhost:%s", strings.Split(c.HTTPAddress, ":")[1])
+	if c.Environment == common.EnvProduction {
+		redirURL = "https://api.bitmoi.co.kr"
+	}
 	return &oauth2.Config{
-		RedirectURL:  "https://api.bitmoi.co.kr/login/callback",
+		RedirectURL:  fmt.Sprintf("%s/login/callback", redirURL),
 		ClientID:     c.OauthClientID,
 		ClientSecret: c.OauthClientSecret,
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
@@ -57,7 +63,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
-	userID := strings.Split(od.Email, "@")[0]
+	userId := strings.Split(od.Email, "@")[0]
 
 	user, err := s.store.GetUserByEmail(c.Context(), od.Email)
 
@@ -65,28 +71,44 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		if err != sql.ErrNoRows {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
+
+		code, err := btoken.GenerateRecCode()
+		if err != nil {
+			s.logger.Error().Err(err).Str("user id", userId).Msg("cannot generate recommender code")
+			return c.Status(fiber.StatusInternalServerError).SendString("cannot generate recommender code")
+		}
+
+		idNum, err := s.GetLastUserID(c.Context())
+		if err != nil {
+			s.logger.Error().Err(err).Str("user id", userId).Msg("cannot get last user id")
+			return c.Status(fiber.StatusInternalServerError).SendString("cannot generate nickname")
+		}
+
 		_, createErr := s.store.CreateUser(c.Context(), db.CreateUserParams{
-			UserID:   userID,
-			OauthUid: sql.NullString{String: od.ID, Valid: true},
-			Email:    od.Email,
-			PhotoUrl: sql.NullString{String: od.Picture, Valid: true},
+			UserID:          userId,
+			OauthUid:        sql.NullString{String: od.ID, Valid: true},
+			Nickname:        sql.NullString{String: fmt.Sprintf("Chartist %d", idNum+1), Valid: true},
+			Email:           od.Email,
+			PhotoUrl:        sql.NullString{String: od.Picture, Valid: true},
+			RecommenderCode: sql.NullString{String: code, Valid: true},
 		})
 		if createErr != nil {
-			s.logger.Error().Err(err).Str("user id", userID).Msg("cannot create user")
+			s.logger.Error().Err(err).Str("user id", userId).Msg("cannot create user")
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
+
 	} else {
-		userID = user.UserID
+		userId = user.UserID
 	}
 
-	accessToken, _, err := s.tokenMaker.CreateToken(userID, s.config.AccessTokenDuration)
+	accessToken, _, err := s.tokenMaker.CreateToken(userId, s.config.AccessTokenDuration)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	refreshToken, refreshPayload, err := s.tokenMaker.CreateToken(
-		userID,
+		userId,
 		s.config.RefreshTokenDuration,
 	)
 	if err != nil {
@@ -95,7 +117,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	_, err = s.store.CreateSession(c.Context(), db.CreateSessionParams{
 		SessionID:    refreshPayload.SessionID.String(),
-		UserID:       userID,
+		UserID:       userId,
 		RefreshToken: refreshToken,
 		UserAgent:    string(c.Request().Header.UserAgent()),
 		ClientIp:     c.IP(),
@@ -107,7 +129,9 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s", s.config.OauthRedirectURL, accessToken, refreshToken)
+	err = s.checkAttendance(c.Context(), userId)
+
+	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s&attendanceReward=%d", s.config.OauthRedirectURL, accessToken, refreshToken, db.AttendanceReward)
 
 	return c.Redirect(redirectURL, fiber.StatusMovedPermanently)
 }

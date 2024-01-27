@@ -7,6 +7,7 @@ import (
 	"bitmoi/backend/worker"
 	mocktask "bitmoi/backend/worker/mock"
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -132,4 +133,17 @@ func TestMoreInfo(t *testing.T) {
 	require.NoError(t, err)
 
 	fmt.Println(string(b))
+}
+
+func TestGetLastUserID(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	s := newTestServer(t, newTestStore(t), nil)
+
+	id, err := s.store.GetLastUserID(context.Background())
+	require.NoError(t, err)
+
+	t.Log(id)
 }

@@ -6,5 +6,3 @@ CREATE TABLE `bidding_history` (
   `expires_at` timestamp NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
-
-ALTER TABLE `bidding_history` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);

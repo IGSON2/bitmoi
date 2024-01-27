@@ -136,6 +136,7 @@ type UsedToken struct {
 }
 
 type User struct {
+	ID                int64          `json:"id"`
 	UserID            string         `json:"user_id"`
 	OauthUid          sql.NullString `json:"oauth_uid"`
 	Nickname          sql.NullString `json:"nickname"`

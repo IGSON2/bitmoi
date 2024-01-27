@@ -302,7 +302,7 @@ func (s *Server) SendReward(prevUnlocked time.Time) error {
 	for i, t := range top3 {
 		user, err := s.store.GetUser(context.Background(), t.UserID)
 		if err != nil {
-			log.Error().Err(err).Msgf("cannot find user from db. user: %s", t.UserID)
+			log.Error().Err(err).Msgf("cannot find user to send reward from db. user: %s", t.UserID)
 			return err
 		}
 

@@ -12,7 +12,7 @@ type Store interface {
 	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
 	SpendTokenTx(ctx context.Context, arg SpendTokenTxParams) (SpendTokenTxResult, error)
-	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) (CheckAttendTxResult, error)
+	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error
 }
 
 type SqlStore struct {

@@ -52,7 +52,7 @@ type Querier interface {
 	GetHighestBidder(ctx context.Context, arg GetHighestBidderParams) (BiddingHistory, error)
 	GetHistoryByLocation(ctx context.Context, arg GetHistoryByLocationParams) ([]BiddingHistory, error)
 	GetHistoryByUser(ctx context.Context, userID string) ([]BiddingHistory, error)
-	GetLastUser(ctx context.Context) (User, error)
+	GetLastUserID(ctx context.Context) (int64, error)
 	GetPracScore(ctx context.Context, arg GetPracScoreParams) (PracScore, error)
 	GetPracScoreToStage(ctx context.Context, arg GetPracScoreToStageParams) (interface{}, error)
 	GetPracScoresByScoreID(ctx context.Context, arg GetPracScoresByScoreIDParams) ([]PracScore, error)
