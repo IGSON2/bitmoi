@@ -114,9 +114,9 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 	switch req.GetMode() {
 	case practice:
 		pracScore, getErr := s.store.GetPracScore(ctx, db.GetPracScoreParams{
-			UserID:  req.GetUserID(),
-			ScoreID: req.GetScoreID(),
-			Stage:   req.GetStage(),
+			UserID:   req.GetUserID(),
+			ScoreID:  req.GetScoreID(),
+			Pairname: req.GetPairName(),
 		})
 		if getErr != nil {
 			return getErr
@@ -135,9 +135,9 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 		})
 	case competition:
 		compScore, getErr := s.store.GetCompScore(ctx, db.GetCompScoreParams{
-			UserID:  req.GetUserID(),
-			ScoreID: req.GetScoreID(),
-			Stage:   req.GetStage(),
+			UserID:   req.GetUserID(),
+			ScoreID:  req.GetScoreID(),
+			Pairname: req.GetPairName(),
 		})
 		if getErr != nil {
 			return getErr
@@ -155,32 +155,12 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 			Roe:        res.GetRoe(),
 			UserID:     req.GetUserID(),
 			ScoreID:    req.GetScoreID(),
-			Stage:      req.GetStage(),
+			Pairname_2: req.GetPairName(), //TODO: pairname_2 비효율적
 		})
 	default:
 		err = fmt.Errorf("invalid mode: %s", req.GetMode())
 	}
 	return err
-}
-
-func (s *Server) getPracScoreToStage(o *ScoreRequest, c *fiber.Ctx) error {
-	i, err := s.store.GetPracScoreToStage(c.Context(), db.GetPracScoreToStageParams{
-		ScoreID: o.ScoreId,
-		UserID:  o.UserId,
-		Stage:   o.Stage,
-	})
-	if err != nil {
-		return fmt.Errorf("cannot get score to current stage, err: %w", err)
-	}
-	totalScore, ok := i.(float64)
-	if !ok {
-		return fmt.Errorf("cannot assertion totalScore to float, err: %w", err)
-	}
-
-	if defaultBalance+totalScore <= 0 {
-		return ErrLiquidation
-	}
-	return nil
 }
 
 func (s *Server) getMyPracScores(userId string, pages int32, c *fiber.Ctx) ([]db.PracScore, error) {

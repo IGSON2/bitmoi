@@ -322,7 +322,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 	case CompetitionOrder.Stage > 1:
-		prevScore, err := s.store.GetCompScore(c.Context(), db.GetCompScoreParams{
+		prevScore, err := s.store.GetCompScoresByStage(c.Context(), db.GetCompScoresByStageParams{
 			UserID:  CompetitionOrder.UserId,
 			ScoreID: CompetitionOrder.ScoreId,
 			Stage:   CompetitionOrder.Stage - 1,

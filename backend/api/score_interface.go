@@ -19,6 +19,7 @@ type ScoreReqInterface interface {
 	GetQuantity() float64
 	GetLeverage() int32
 	GetBalance() float64
+	SetBalance(float64)
 }
 
 type ScoreRequest struct {
@@ -26,7 +27,7 @@ type ScoreRequest struct {
 	UserId      string  `json:"user_id" validate:"required,alphanum"`
 	ScoreId     string  `json:"score_id" validate:"required,numeric"`
 	Name        string  `json:"name" validate:"required"`
-	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
+	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"` //TODO : deprecate stage field
 	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
 	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
 	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
@@ -50,21 +51,21 @@ func (s *ScoreRequest) GetIsLong() bool         { return *s.IsLong }
 func (s *ScoreRequest) GetQuantity() float64    { return s.Quantity }
 func (s *ScoreRequest) GetLeverage() int32      { return s.Leverage }
 func (s *ScoreRequest) GetBalance() float64     { return s.Balance }
+func (s *ScoreRequest) SetBalance(b float64)    { s.Balance = b }
 
 type InterScoreRequest struct {
 	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
-	UserId      string  `json:"user_id" validate:"required,alphanum"`
+	UserId      string  `json:"user_id" validate:"required,email"`
 	ScoreId     string  `json:"score_id" validate:"required,numeric"`
 	Name        string  `json:"name" validate:"required"`
-	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"`
 	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
 	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
 	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
 	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
 	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
 	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
-	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
 	Identifier  string  `json:"identifier"  validate:"required"`
+	balance     float64
 }
 
 type InterStepRequest struct {
@@ -78,14 +79,15 @@ func (i *InterScoreRequest) GetMode() string         { return i.Mode }
 func (i *InterScoreRequest) GetUserID() string       { return i.UserId }
 func (i *InterScoreRequest) GetScoreID() string      { return i.ScoreId }
 func (i *InterScoreRequest) GetPairName() string     { return i.Name }
-func (i *InterScoreRequest) GetStage() int32         { return i.Stage }
+func (i *InterScoreRequest) GetStage() int32         { return 1 }
 func (i *InterScoreRequest) GetEntryPrice() float64  { return i.EntryPrice }
 func (i *InterScoreRequest) GetProfitPrice() float64 { return i.ProfitPrice }
 func (i *InterScoreRequest) GetLossPrice() float64   { return i.LossPrice }
 func (i *InterScoreRequest) GetIsLong() bool         { return *i.IsLong }
 func (i *InterScoreRequest) GetQuantity() float64    { return i.Quantity }
 func (i *InterScoreRequest) GetLeverage() int32      { return i.Leverage }
-func (i *InterScoreRequest) GetBalance() float64     { return i.Balance }
+func (i *InterScoreRequest) GetBalance() float64     { return i.balance }
+func (i *InterScoreRequest) SetBalance(b float64)    { i.balance = b }
 
 func validateOrderRequest(s ScoreReqInterface) error {
 	var (

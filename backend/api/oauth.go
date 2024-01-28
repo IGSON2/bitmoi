@@ -63,7 +63,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).SendString(err.Error())
 	}
 
-	userId := strings.Split(od.Email, "@")[0]
+	userId := od.Email
 
 	user, err := s.store.GetUserByEmail(c.Context(), od.Email)
 
@@ -85,7 +85,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		}
 
 		_, createErr := s.store.CreateUser(c.Context(), db.CreateUserParams{
-			UserID:          userId,
+			UserID:          od.Email,
 			OauthUid:        sql.NullString{String: od.ID, Valid: true},
 			Nickname:        sql.NullString{String: fmt.Sprintf("Chartist %d", idNum+1), Valid: true},
 			Email:           od.Email,

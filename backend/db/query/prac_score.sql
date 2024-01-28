@@ -19,11 +19,11 @@ INSERT INTO prac_score (
 
 -- name: GetPracScore :one
 SELECT * FROM prac_score
-WHERE user_id = ? AND score_id = ? AND stage = ?;
+WHERE user_id = ? AND score_id = ? AND pairname = ?;
 
--- name: GetPracScoresByScoreID :many
+-- name: GetPracScoresByStage :one
 SELECT * FROM prac_score
-WHERE score_id = ? AND user_id = ?;
+WHERE score_id = ? AND user_id = ? AND stage = ?;
 
 -- name: GetPracScoresByUserID :many
 SELECT * FROM prac_score

@@ -77,15 +77,11 @@ CREATE INDEX `prac_score_index_1` ON `prac_score` (`user_id`);
 
 CREATE INDEX `prac_score_index_2` ON `prac_score` (`score_id`);
 
-CREATE UNIQUE INDEX `prac_score_index_3` ON `prac_score` (`user_id`, `score_id`, `stage`);
-
 CREATE UNIQUE INDEX `prac_score_index_4` ON `prac_score` (`user_id`, `score_id`, `pairname`);
 
 CREATE INDEX `comp_score_index_1` ON `comp_score` (`user_id`);
 
 CREATE INDEX `comp_score_index_2` ON `comp_score` (`score_id`);
-
-CREATE UNIQUE INDEX `comp_score_index_3` ON `comp_score` (`user_id`, `score_id`, `stage`);
 
 CREATE UNIQUE INDEX `comp_score_index_4` ON `comp_score` (`user_id`, `score_id`, `pairname`);
 

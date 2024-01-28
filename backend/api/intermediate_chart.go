@@ -3,7 +3,6 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -31,77 +30,70 @@ type InterScoreResponse struct {
 
 func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 	req := new(InterStepRequest)
-	err := c.BodyParser(req)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
-	}
-	if errs := utilities.ValidateStruct(req); errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
-	}
 
-	if err := validateOrderRequest(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	code, errStr := s.validateInterScoreReq(req, c)
+	if code != fiber.StatusOK {
+		return c.Status(code).SendString(errStr)
 	}
 
 	res := new(InterScoreResponse)
 
-	switch {
-	case req.MinTimestamp < req.MaxTimestamp:
-		info := new(utilities.IdentificationData)
-		infoByte := utilities.DecryptByASE(req.Identifier)
-		err = json.Unmarshal(infoByte, info)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
-		}
-
-		cdd, err := s.selectInterChart(info, req.ReqInterval, req.MinTimestamp, req.MaxTimestamp, c.Context())
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot select intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
-		}
-
-		result := calculateInterResult(cdd, &req.InterScoreRequest, info)
-
-		if result.OutTime > 0 {
-			err = s.updateScore(req, result, c.Context())
-			if err != nil {
-				s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Int32("stage", req.Stage).Msg("cannot update score. Not initialized.")
-				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
-			}
-			err = s.updateUserBalance(req, result, c.Context())
-			if err != nil {
-				s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Int32("stage", req.Stage).Str("mode", req.Mode).Msg("cannot update user balance.")
-				return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
-			}
-		}
-
-		if !info.IsPracticeMode() {
-			cdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
-		}
-
-		anotherIntvMap := make(map[string]*CandleData)
-		for _, it := range db.GetAnotherIntervals(req.ReqInterval) {
-			anotherCdd, err := s.selectInterChart(info, it, req.MinTimestamp, req.MaxTimestamp, c.Context())
-			if err != nil {
-				if err != sql.ErrNoRows {
-					s.logger.Error().Str("name", info.Name).Str("interval", it).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot select intermediate chart to reference timestamp.")
-					return c.Status(fiber.StatusInternalServerError).SendString("cannot make intermediate another chart to reference timestamp.")
-				}
-			}
-			if !info.IsPracticeMode() {
-				if anotherCdd.PData != nil && anotherCdd.VData != nil {
-					anotherCdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
-				}
-			}
-			anotherIntvMap[it] = anotherCdd
-		}
-
-		res = &InterScoreResponse{
-			ResultChart:   cdd,
-			Score:         result,
-			AnotherCharts: anotherIntvMap,
-		}
-	case req.MinTimestamp >= req.MaxTimestamp:
+	if req.MinTimestamp >= req.MaxTimestamp {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("min timestamp is bigger than max timestamp. min : %d, max : %d", req.MinTimestamp, req.MaxTimestamp))
+	}
+
+	info := new(utilities.IdentificationData)
+	infoByte := utilities.DecryptByASE(req.Identifier)
+	err := json.Unmarshal(infoByte, info)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
+	}
+
+	cdd, err := s.selectInterChart(info, req.ReqInterval, req.MinTimestamp, req.MaxTimestamp, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot select intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
+	}
+
+	result := calculateInterResult(cdd, &req.InterScoreRequest, info)
+
+	if result.OutTime > 0 {
+		err = s.updateScore(req, result, c.Context())
+		if err != nil {
+			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot update score. Not initialized.")
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+		}
+		err = s.updateUserBalance(req, result, c.Context())
+		if err != nil {
+			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Str("mode", req.Mode).Msg("cannot update user balance.")
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
+		}
+	}
+
+	if !info.IsPracticeMode() {
+		cdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
+	}
+
+	anotherIntvMap := make(map[string]*CandleData)
+	for _, it := range db.GetAnotherIntervals(req.ReqInterval) {
+		anotherCdd, err := s.selectInterChart(info, it, req.MinTimestamp, req.MaxTimestamp, c.Context())
+		if err != nil {
+			if err != sql.ErrNoRows {
+				s.logger.Error().Str("name", info.Name).Str("interval", it).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot select intermediate chart to reference timestamp.")
+				return c.Status(fiber.StatusInternalServerError).SendString("cannot make intermediate another chart to reference timestamp.")
+			}
+		}
+		if !info.IsPracticeMode() {
+			if anotherCdd.PData != nil && anotherCdd.VData != nil {
+				anotherCdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
+			}
+		}
+		anotherIntvMap[it] = anotherCdd
+	}
+
+	res = &InterScoreResponse{
+		ResultChart:   cdd,
+		Score:         result,
+		AnotherCharts: anotherIntvMap,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(res)
@@ -109,31 +101,24 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 
 func (s *Server) initIntermediateScore(c *fiber.Ctx) error {
 	req := new(InterScoreRequest)
-	err := c.BodyParser(req)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
-	}
-	if errs := utilities.ValidateStruct(req); errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
-	}
-
-	if err := validateOrderRequest(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	code, errStr := s.validateInterScoreReq(req, c)
+	if code != fiber.StatusOK {
+		return c.Status(code).SendString(errStr)
 	}
 
 	info := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(req.Identifier)
-	err = json.Unmarshal(infoByte, info)
+	err := json.Unmarshal(infoByte, info)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
 	}
 
 	tempResult := calculateInterResult(&CandleData{}, req, info)
 
-	_, getScoreErr := s.store.GetPracScore(c.Context(), db.GetPracScoreParams{UserID: req.UserId, ScoreID: req.ScoreId, Stage: req.Stage})
+	_, getScoreErr := s.store.GetPracScore(c.Context(), db.GetPracScoreParams{UserID: req.UserId, ScoreID: req.ScoreId, Pairname: req.Name})
 
 	if getScoreErr == nil {
-		s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Int32("stage", req.Stage).Msg("already exist score.")
+		s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("already exist score.")
 		return c.Status(fiber.StatusBadRequest).SendString("already exist score.")
 	}
 
@@ -151,26 +136,19 @@ func (s *Server) initIntermediateScore(c *fiber.Ctx) error {
 
 func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 	req := new(InterStepRequest)
-	err := c.BodyParser(req)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s", err.Error()))
-	}
-	if errs := utilities.ValidateStruct(req); errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
-	}
-	if err := validateOrderRequest(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	code, errStr := s.validateInterScoreReq(req, c)
+	if code != fiber.StatusOK {
+		return c.Status(code).SendString(errStr)
 	}
 
 	info := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(req.Identifier)
-	err = json.Unmarshal(infoByte, info)
+	err := json.Unmarshal(infoByte, info)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
 	}
 
-	// 종료 시각 기준 15분봉 하나면 스코어 계산 가능
-	cdd, err := s.selectInterChart(info, db.FifM, req.MinTimestamp, req.MaxTimestamp, c.Context())
+	cdd, err := s.selectInterChart(info, req.ReqInterval, req.MinTimestamp, req.MaxTimestamp, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot select intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
 	}
@@ -212,46 +190,27 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
-func (s *Server) selectInterChart(info *utilities.IdentificationData, interval string, minTime, maxTime int64, ctx context.Context) (*CandleData, error) {
-	cdd := new(CandleData)
-
-	switch interval {
-	case db.OneD:
-		candles, err := s.store.Get1dCandlesRnage(ctx, db.Get1dCandlesRnageParams{Name: info.Name, Time: minTime, Time_2: maxTime})
-		if err != nil {
-			s.logger.Error().Err(err).Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("cannot get 1d intermediate chart.")
-			return nil, err
-		}
-		cs := Candles1dSlice(candles)
-		cdd = cs.InitCandleData()
-	case db.FourH:
-		candles, err := s.store.Get4hCandlesRnage(ctx, db.Get4hCandlesRnageParams{Name: info.Name, Time: minTime, Time_2: maxTime})
-		if err != nil {
-			s.logger.Error().Err(err).Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("cannot get 4h intermediate chart.")
-			return nil, err
-		}
-		cs := Candles4hSlice(candles)
-		cdd = cs.InitCandleData()
-	case db.OneH:
-		candles, err := s.store.Get1hCandlesRnage(ctx, db.Get1hCandlesRnageParams{Name: info.Name, Time: minTime, Time_2: maxTime})
-		if err != nil {
-			s.logger.Error().Err(err).Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("cannot get 1h intermediate chart.")
-			return nil, err
-		}
-		cs := Candles1hSlice(candles)
-		cdd = cs.InitCandleData()
-	case db.FifM:
-		candles, err := s.store.Get15mCandlesRnage(ctx, db.Get15mCandlesRnageParams{Name: info.Name, Time: minTime, Time_2: maxTime})
-		if err != nil {
-			s.logger.Error().Err(err).Str("name", info.Name).Int64("min", minTime).Int64("max", maxTime).Msg("cannot get 15m intermediate chart.")
-			return nil, err
-		}
-		cs := Candles15mSlice(candles)
-		cdd = cs.InitCandleData()
+func (s *Server) validateInterScoreReq(req ScoreReqInterface, c *fiber.Ctx) (int, string) {
+	err := c.BodyParser(req)
+	if err != nil {
+		return fiber.StatusBadRequest, fmt.Sprintf("parsing err : %s", err.Error())
 	}
-	if cdd.PData == nil || cdd.VData == nil {
-		s.logger.Debug().Str("name", info.Name).Str("interval", interval).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")
+	if errs := utilities.ValidateStruct(req); errs != nil {
+		return fiber.StatusBadRequest, fmt.Sprintf("validation err : %s", errs.Error())
 	}
 
-	return cdd, nil
+	user, err := s.store.GetUser(c.Context(), req.GetUserID())
+	if err != nil {
+		return fiber.StatusUnauthorized, fmt.Sprintf("cannot get user. err : %s", err.Error())
+	}
+	if req.GetMode() == practice {
+		req.SetBalance(user.PracBalance)
+	} else {
+		req.SetBalance(user.CompBalance)
+	}
+
+	if err := validateOrderRequest(req); err != nil {
+		return fiber.StatusBadRequest, err.Error()
+	}
+	return fiber.StatusOK, ""
 }

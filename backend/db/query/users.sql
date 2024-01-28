@@ -43,6 +43,10 @@ LIMIT 1;
 SELECT last_accessed_at FROM users
 WHERE user_id = ?;
 
+-- name: GetUserPracBalance :one
+SELECT prac_balance FROM users
+WHERE user_id = ?;
+
 -- name: UpdateUserPhotoURL :execresult
 UPDATE users SET photo_url = ?
 WHERE user_id = ?;

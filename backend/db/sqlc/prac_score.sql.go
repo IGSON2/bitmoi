@@ -12,17 +12,17 @@ import (
 
 const getPracScore = `-- name: GetPracScore :one
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM prac_score
-WHERE user_id = ? AND score_id = ? AND stage = ?
+WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
 type GetPracScoreParams struct {
-	UserID  string `json:"user_id"`
-	ScoreID string `json:"score_id"`
-	Stage   int32  `json:"stage"`
+	UserID   string `json:"user_id"`
+	ScoreID  string `json:"score_id"`
+	Pairname string `json:"pairname"`
 }
 
 func (q *Queries) GetPracScore(ctx context.Context, arg GetPracScoreParams) (PracScore, error) {
-	row := q.db.QueryRowContext(ctx, getPracScore, arg.UserID, arg.ScoreID, arg.Stage)
+	row := q.db.QueryRowContext(ctx, getPracScore, arg.UserID, arg.ScoreID, arg.Pairname)
 	var i PracScore
 	err := row.Scan(
 		&i.ScoreID,
@@ -61,52 +61,37 @@ func (q *Queries) GetPracScoreToStage(ctx context.Context, arg GetPracScoreToSta
 	return sum, err
 }
 
-const getPracScoresByScoreID = `-- name: GetPracScoresByScoreID :many
+const getPracScoresByStage = `-- name: GetPracScoresByStage :one
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM prac_score
-WHERE score_id = ? AND user_id = ?
+WHERE score_id = ? AND user_id = ? AND stage = ?
 `
 
-type GetPracScoresByScoreIDParams struct {
+type GetPracScoresByStageParams struct {
 	ScoreID string `json:"score_id"`
 	UserID  string `json:"user_id"`
+	Stage   int32  `json:"stage"`
 }
 
-func (q *Queries) GetPracScoresByScoreID(ctx context.Context, arg GetPracScoresByScoreIDParams) ([]PracScore, error) {
-	rows, err := q.db.QueryContext(ctx, getPracScoresByScoreID, arg.ScoreID, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []PracScore{}
-	for rows.Next() {
-		var i PracScore
-		if err := rows.Scan(
-			&i.ScoreID,
-			&i.UserID,
-			&i.Stage,
-			&i.Pairname,
-			&i.Entrytime,
-			&i.Position,
-			&i.Leverage,
-			&i.Outtime,
-			&i.Entryprice,
-			&i.Quantity,
-			&i.Endprice,
-			&i.Pnl,
-			&i.Roe,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetPracScoresByStage(ctx context.Context, arg GetPracScoresByStageParams) (PracScore, error) {
+	row := q.db.QueryRowContext(ctx, getPracScoresByStage, arg.ScoreID, arg.UserID, arg.Stage)
+	var i PracScore
+	err := row.Scan(
+		&i.ScoreID,
+		&i.UserID,
+		&i.Stage,
+		&i.Pairname,
+		&i.Entrytime,
+		&i.Position,
+		&i.Leverage,
+		&i.Outtime,
+		&i.Entryprice,
+		&i.Quantity,
+		&i.Endprice,
+		&i.Pnl,
+		&i.Roe,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getPracScoresByUserID = `-- name: GetPracScoresByUserID :many

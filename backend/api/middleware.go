@@ -17,6 +17,7 @@ const (
 	authorizationHeaderKey  = "authorization"
 	authorizationTypeBearer = "bearer"
 	authorizationPayloadKey = "authorization_payload"
+	authorizedUserKey       = "authorization_user"
 )
 
 func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
@@ -47,7 +48,8 @@ func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 		if err != nil {
 			return abort(c, fmt.Sprintf("%v", err))
 		}
-		c.Locals(authorizationPayloadKey, payload) // 토큰이 유효하면 payload를 context에 저장
+		c.Locals(authorizationPayloadKey, payload)
+		c.Locals(authorizedUserKey, payload.UserID)
 		return c.Next()
 	}
 }
@@ -78,6 +80,7 @@ func checkAuthorization(c *fiber.Ctx, maker *token.PasetoMaker) error {
 		return err
 	}
 	c.Locals(authorizationPayloadKey, payload)
+	c.Locals(authorizedUserKey, payload.UserID)
 	return nil
 }
 

@@ -12,17 +12,17 @@ import (
 
 const getCompScore = `-- name: GetCompScore :one
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
-WHERE user_id = ? AND score_id = ? AND stage = ?
+WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
 type GetCompScoreParams struct {
-	UserID  string `json:"user_id"`
-	ScoreID string `json:"score_id"`
-	Stage   int32  `json:"stage"`
+	UserID   string `json:"user_id"`
+	ScoreID  string `json:"score_id"`
+	Pairname string `json:"pairname"`
 }
 
 func (q *Queries) GetCompScore(ctx context.Context, arg GetCompScoreParams) (CompScore, error) {
-	row := q.db.QueryRowContext(ctx, getCompScore, arg.UserID, arg.ScoreID, arg.Stage)
+	row := q.db.QueryRowContext(ctx, getCompScore, arg.UserID, arg.ScoreID, arg.Pairname)
 	var i CompScore
 	err := row.Scan(
 		&i.ScoreID,
@@ -107,6 +107,39 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 		return nil, err
 	}
 	return items, nil
+}
+
+const getCompScoresByStage = `-- name: GetCompScoresByStage :one
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
+WHERE score_id = ? AND user_id = ? AND stage = ?
+`
+
+type GetCompScoresByStageParams struct {
+	ScoreID string `json:"score_id"`
+	UserID  string `json:"user_id"`
+	Stage   int32  `json:"stage"`
+}
+
+func (q *Queries) GetCompScoresByStage(ctx context.Context, arg GetCompScoresByStageParams) (CompScore, error) {
+	row := q.db.QueryRowContext(ctx, getCompScoresByStage, arg.ScoreID, arg.UserID, arg.Stage)
+	var i CompScore
+	err := row.Scan(
+		&i.ScoreID,
+		&i.UserID,
+		&i.Stage,
+		&i.Pairname,
+		&i.Entrytime,
+		&i.Position,
+		&i.Leverage,
+		&i.Outtime,
+		&i.Entryprice,
+		&i.Quantity,
+		&i.Endprice,
+		&i.Pnl,
+		&i.Roe,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getCompScoresByUserID = `-- name: GetCompScoresByUserID :many
@@ -234,7 +267,7 @@ func (q *Queries) InsertCompScore(ctx context.Context, arg InsertCompScoreParams
 
 const updateCompcScore = `-- name: UpdateCompcScore :execresult
 UPDATE comp_score SET pairname = ?, entrytime = ?, outtime = ?, entryprice = ?, endprice = ?, pnl = ?, roe = ?
-WHERE user_id = ? AND score_id = ? AND stage = ?
+WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
 type UpdateCompcScoreParams struct {
@@ -247,7 +280,7 @@ type UpdateCompcScoreParams struct {
 	Roe        float64 `json:"roe"`
 	UserID     string  `json:"user_id"`
 	ScoreID    string  `json:"score_id"`
-	Stage      int32   `json:"stage"`
+	Pairname_2 string  `json:"pairname_2"`
 }
 
 func (q *Queries) UpdateCompcScore(ctx context.Context, arg UpdateCompcScoreParams) (sql.Result, error) {
@@ -261,6 +294,6 @@ func (q *Queries) UpdateCompcScore(ctx context.Context, arg UpdateCompcScorePara
 		arg.Roe,
 		arg.UserID,
 		arg.ScoreID,
-		arg.Stage,
+		arg.Pairname_2,
 	)
 }

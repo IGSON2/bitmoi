@@ -218,6 +218,18 @@ func (q *Queries) GetUserLastAccessedAt(ctx context.Context, userID string) (sql
 	return last_accessed_at, err
 }
 
+const getUserPracBalance = `-- name: GetUserPracBalance :one
+SELECT prac_balance FROM users
+WHERE user_id = ?
+`
+
+func (q *Queries) GetUserPracBalance(ctx context.Context, userID string) (float64, error) {
+	row := q.db.QueryRowContext(ctx, getUserPracBalance, userID)
+	var prac_balance float64
+	err := row.Scan(&prac_balance)
+	return prac_balance, err
+}
+
 const updateUserCompBalance = `-- name: UpdateUserCompBalance :execresult
 UPDATE users SET comp_balance = ?
 WHERE user_id = ?

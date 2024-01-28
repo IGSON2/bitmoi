@@ -29,6 +29,7 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 
 	for idx, candle := range resultchart.PData {
 		if *order.IsLong {
+			// 꼬리가 길어 수익, 손실가를 모두 터치한 경우엔 작은 단위에서 한번 더 분석해야 할듯, 현재는 수익 실현이 우선 적용됨
 			if candle.High >= order.ProfitPrice {
 				roe = float64(order.Leverage) * ((order.ProfitPrice - order.EntryPrice) / order.EntryPrice)
 				endTimestamp = candle.Time
@@ -81,7 +82,7 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 		Pnl:        common.RoundDecimal(pnl),
 		Commission: commission,
 	}
-	if order.Balance+resultInfo.Pnl-resultInfo.Commission < 1 {
+	if order.balance+resultInfo.Pnl-resultInfo.Commission < 1 {
 		resultInfo.Isliquidated = true
 	}
 	return &resultInfo
@@ -116,7 +117,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 		return cdd
 	}
 
-	maxQuantity := (float64(order.Leverage) * order.Balance) / order.EntryPrice
+	maxQuantity := (float64(order.Leverage) * order.balance) / order.EntryPrice
 	levQuanRate := float64(order.Leverage) * (order.Quantity / maxQuantity)
 	for _, candle := range resultchart.PData {
 		timeGap := resultchart.PData[1].Time - resultchart.PData[0].Time
