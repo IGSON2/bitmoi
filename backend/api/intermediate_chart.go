@@ -28,8 +28,8 @@ type InterScoreResponse struct {
 	AnotherCharts map[string]*CandleData `json:"another_charts"`
 }
 
-func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
-	req := new(InterStepRequest)
+func (s *Server) getImdChart(c *fiber.Ctx) error {
+	req := new(ImdStepRequest)
 
 	code, errStr := s.validateInterScoreReq(req, c)
 	if code != fiber.StatusOK {
@@ -54,7 +54,7 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot select intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
 	}
 
-	result := calculateInterResult(cdd, &req.InterScoreRequest, info)
+	result := calcImdResult(cdd, &req.ImdScoreRequest, info)
 
 	if result.OutTime > 0 {
 		err = s.updateScore(req, result, c.Context())
@@ -99,8 +99,8 @@ func (s *Server) getInterMediateChart(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
-func (s *Server) initIntermediateScore(c *fiber.Ctx) error {
-	req := new(InterScoreRequest)
+func (s *Server) initImdScore(c *fiber.Ctx) error {
+	req := new(ImdScoreRequest)
 	code, errStr := s.validateInterScoreReq(req, c)
 	if code != fiber.StatusOK {
 		return c.Status(code).SendString(errStr)
@@ -113,7 +113,7 @@ func (s *Server) initIntermediateScore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("cannot unmarshal chart identifier. err : %s", err.Error()))
 	}
 
-	tempResult := calculateInterResult(&CandleData{}, req, info)
+	tempResult := calcImdResult(&CandleData{}, req, info)
 
 	_, getScoreErr := s.store.GetPracScore(c.Context(), db.GetPracScoreParams{UserID: req.UserId, ScoreID: req.ScoreId, Pairname: req.Name})
 
@@ -134,8 +134,8 @@ func (s *Server) initIntermediateScore(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
-	req := new(InterStepRequest)
+func (s *Server) closeImdScore(c *fiber.Ctx) error {
+	req := new(ImdStepRequest)
 	code, errStr := s.validateInterScoreReq(req, c)
 	if code != fiber.StatusOK {
 		return c.Status(code).SendString(errStr)
@@ -159,7 +159,7 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	score := calculateInterResult(cdd, &req.InterScoreRequest, info)
+	score := calcImdResult(cdd, &req.ImdScoreRequest, info)
 	score.OutTime = cdd.PData[0].Time
 	score.EndPrice = cdd.PData[0].Close
 
@@ -184,7 +184,7 @@ func (s *Server) closeIntermediateScore(c *fiber.Ctx) error {
 
 	res := &CloseInterScoreResponse{
 		Score:      score,
-		AfterScore: s.calculateAfterInterResult(resultChart, &req.InterScoreRequest, info),
+		AfterScore: s.calcAfterImdResult(resultChart, &req.ImdScoreRequest, info),
 	}
 	res.AfterScore.ClosedTime -= info.RefTimestamp
 	return c.Status(fiber.StatusOK).JSON(res)

@@ -70,7 +70,7 @@ func TestEncodeIdentifier(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	identifier := "gy+Itl5buecRyGNNGCMTDensSXQEvlUUmbL/64M8Yf5+KRd4KUp/jDfFV6jT8ZaoofQ9XN05DB8PcGEDVXa71O8lTaGaAFMFva3v5ZxRVSdA52hTjn9bjUokYw19KDWi8H5gR57fDIOVi76QFv36wUIJw2wnidxWDhMCzRm2NxBKGiwKqnCsYNoy"
+	identifier := "gy+Itl5buecRx3ZYGCMTDensSXQEvlUUmbL/64M8Yf5+KRd4KUp/jDfFV6jT8ZaoofQ9U9ExBxMAeWQDVXa71O8lTaGaAFMFva3t8Y4JD34Dvj4ZzWpAjk1rPFswaTOs7Cw7BcSOVM7EnbeYWg=="
 
 	info := new(IdentificationData)
 

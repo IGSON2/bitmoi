@@ -53,7 +53,7 @@ func (s *ScoreRequest) GetLeverage() int32      { return s.Leverage }
 func (s *ScoreRequest) GetBalance() float64     { return s.Balance }
 func (s *ScoreRequest) SetBalance(b float64)    { s.Balance = b }
 
-type InterScoreRequest struct {
+type ImdScoreRequest struct {
 	Mode        string  `json:"mode" validate:"required,oneof=competition practice"`
 	UserId      string  `json:"user_id" validate:"required,email"`
 	ScoreId     string  `json:"score_id" validate:"required,numeric"`
@@ -68,26 +68,26 @@ type InterScoreRequest struct {
 	balance     float64
 }
 
-type InterStepRequest struct {
-	InterScoreRequest
+type ImdStepRequest struct {
+	ImdScoreRequest
 	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
 	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
 	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
 }
 
-func (i *InterScoreRequest) GetMode() string         { return i.Mode }
-func (i *InterScoreRequest) GetUserID() string       { return i.UserId }
-func (i *InterScoreRequest) GetScoreID() string      { return i.ScoreId }
-func (i *InterScoreRequest) GetPairName() string     { return i.Name }
-func (i *InterScoreRequest) GetStage() int32         { return 1 }
-func (i *InterScoreRequest) GetEntryPrice() float64  { return i.EntryPrice }
-func (i *InterScoreRequest) GetProfitPrice() float64 { return i.ProfitPrice }
-func (i *InterScoreRequest) GetLossPrice() float64   { return i.LossPrice }
-func (i *InterScoreRequest) GetIsLong() bool         { return *i.IsLong }
-func (i *InterScoreRequest) GetQuantity() float64    { return i.Quantity }
-func (i *InterScoreRequest) GetLeverage() int32      { return i.Leverage }
-func (i *InterScoreRequest) GetBalance() float64     { return i.balance }
-func (i *InterScoreRequest) SetBalance(b float64)    { i.balance = b }
+func (i *ImdScoreRequest) GetMode() string         { return i.Mode }
+func (i *ImdScoreRequest) GetUserID() string       { return i.UserId }
+func (i *ImdScoreRequest) GetScoreID() string      { return i.ScoreId }
+func (i *ImdScoreRequest) GetPairName() string     { return i.Name }
+func (i *ImdScoreRequest) GetStage() int32         { return 1 }
+func (i *ImdScoreRequest) GetEntryPrice() float64  { return i.EntryPrice }
+func (i *ImdScoreRequest) GetProfitPrice() float64 { return i.ProfitPrice }
+func (i *ImdScoreRequest) GetLossPrice() float64   { return i.LossPrice }
+func (i *ImdScoreRequest) GetIsLong() bool         { return *i.IsLong }
+func (i *ImdScoreRequest) GetQuantity() float64    { return i.Quantity }
+func (i *ImdScoreRequest) GetLeverage() int32      { return i.Leverage }
+func (i *ImdScoreRequest) GetBalance() float64     { return i.balance }
+func (i *ImdScoreRequest) SetBalance(b float64)    { i.balance = b }
 
 func validateOrderRequest(s ScoreReqInterface) error {
 	var (

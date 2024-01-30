@@ -7,7 +7,7 @@ import (
 	"context"
 )
 
-func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, info *utilities.IdentificationData) *InterMediateResult {
+func calcImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilities.IdentificationData) *InterMediateResult {
 	var (
 		roe          float64
 		endTimestamp int64
@@ -88,7 +88,7 @@ func calculateInterResult(resultchart *CandleData, order *InterScoreRequest, inf
 	return &resultInfo
 }
 
-func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *InterScoreRequest, info *utilities.IdentificationData) *AfterScore {
+func (s *Server) calcAfterImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilities.IdentificationData) *AfterScore {
 	var (
 		maxRoe       float64 = -100
 		minRoe       float64 = 100
@@ -138,7 +138,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 					endTimestamp = candle.Time
 					break
 				}
-				aInfo = s.calculateAfterInterResult(mcdd, order, info)
+				aInfo = s.calcAfterImdResult(mcdd, order, info)
 				break
 			}
 			if candle.Low <= order.LossPrice {
@@ -147,7 +147,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 					endTimestamp = candle.Time
 					break
 				}
-				aInfo = s.calculateAfterInterResult(mcdd, order, info)
+				aInfo = s.calcAfterImdResult(mcdd, order, info)
 				break
 			}
 		} else {
@@ -166,7 +166,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 					endTimestamp = candle.Time
 					break
 				}
-				aInfo = s.calculateAfterInterResult(mcdd, order, info)
+				aInfo = s.calcAfterImdResult(mcdd, order, info)
 				break
 			}
 			if candle.High >= order.LossPrice {
@@ -175,7 +175,7 @@ func (s *Server) calculateAfterInterResult(resultchart *CandleData, order *Inter
 					endTimestamp = candle.Time
 					break
 				}
-				aInfo = s.calculateAfterInterResult(mcdd, order, info)
+				aInfo = s.calcAfterImdResult(mcdd, order, info)
 				break
 			}
 		}
