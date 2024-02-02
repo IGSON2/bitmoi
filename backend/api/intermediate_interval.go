@@ -28,6 +28,10 @@ func (s *Server) getImdInterval(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("validation err : %s", errs.Error()))
 	}
 
+	if req.MinTimestamp >= req.MaxTimestamp {
+		return c.Status(fiber.StatusOK).JSON(OnePairChart{})
+	}
+
 	info := new(utilities.IdentificationData)
 	infoByte := utilities.DecryptByASE(req.Identifier)
 
