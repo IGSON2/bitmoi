@@ -1,9 +1,11 @@
 package api
 
 import (
+	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +18,14 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
-	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, originInfo.RefTimestamp, c)
+
+	oneHentry, err := s.store.Get1hEntryTimestamp(c.Context(), db.Get1hEntryTimestampParams{Name: originInfo.Name, Time: originInfo.RefTimestamp})
+	if err != nil {
+		s.logger.Error().Err(err).Msgf("cannot get 1h entry timestamp. name : %s, refTime : %d", originInfo.Name, originInfo.RefTimestamp)
+		return nil, errors.New("cannot get 1h entry timestamp")
+	}
+
+	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, oneHentry+db.GetIntervalStep(db.OneH)-1, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", originInfo.Name, a.ReqInterval, err)
 	}

@@ -57,7 +57,7 @@ func CalculateWaitingTerm(interval string, waitingTerm int) int {
 	}
 }
 
-func CalculateSeconds(interval string) int64 {
+func GetIntervalStep(interval string) int64 {
 	switch interval {
 	case OneD:
 		return int64(24 * time.Hour.Seconds())

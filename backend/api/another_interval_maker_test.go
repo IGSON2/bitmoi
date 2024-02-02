@@ -190,7 +190,7 @@ func testResponseWithRequest(t *testing.T, candleRes, res *OnePairChart, req *An
 	if req.Mode == practice {
 		require.Equal(t, res.Name, candleRes.Name)
 	}
-	require.LessOrEqual(t, candleTime-resTime, db.CalculateSeconds(req.ReqInterval))
+	require.LessOrEqual(t, candleTime-resTime, db.GetIntervalStep(req.ReqInterval))
 	wg.Done()
 }
 
