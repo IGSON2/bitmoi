@@ -39,7 +39,7 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 	res := new(InterScoreResponse)
 
 	if req.MinTimestamp >= req.MaxTimestamp {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("min timestamp is bigger than max timestamp. min : %d, max : %d", req.MinTimestamp, req.MaxTimestamp))
+		return c.Status(fiber.StatusOK).SendString(fmt.Sprintf("min timestamp is bigger than max timestamp. min : %d, max : %d", req.MinTimestamp, req.MaxTimestamp))
 	}
 
 	info := new(utilities.IdentificationData)

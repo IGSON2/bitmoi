@@ -52,6 +52,6 @@ var (
 	LogLevelFlag = &cli.IntFlag{
 		Name:  "loglevel",
 		Usage: "Set log level. 0 : Debug, 1 : Info, 2 : Warn, 3 : Error, 4 : Fatal, 5 : Panic",
-		Value: 1,
+		Value: 5,
 	}
 )
