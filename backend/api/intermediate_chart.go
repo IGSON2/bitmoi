@@ -56,12 +56,14 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 
 	result := calcImdResult(cdd, &req.ImdScoreRequest, info)
 
+	// 어뷰징 행위 방지를 위해 스코어는 캔들 요청시 매번 업데이트 되어야 함
+	err = s.updateScore(req, result, c.Context())
+	if err != nil {
+		s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot update score. Not initialized.")
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+	}
+
 	if result.OutTime > 0 {
-		err = s.updateScore(req, result, c.Context())
-		if err != nil {
-			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot update score. Not initialized.")
-			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
-		}
 		err = s.updateUserBalance(req, result, c.Context())
 		if err != nil {
 			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Str("mode", req.Mode).Msg("cannot update user balance.")
