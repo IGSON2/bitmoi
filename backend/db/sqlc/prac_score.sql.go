@@ -11,7 +11,7 @@ import (
 )
 
 const getPracScore = `-- name: GetPracScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM prac_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
 WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
@@ -38,6 +38,7 @@ func (q *Queries) GetPracScore(ctx context.Context, arg GetPracScoreParams) (Pra
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
+		&i.SettledAt,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -62,7 +63,7 @@ func (q *Queries) GetPracScoreToStage(ctx context.Context, arg GetPracScoreToSta
 }
 
 const getPracScoresByStage = `-- name: GetPracScoresByStage :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM prac_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
 WHERE score_id = ? AND user_id = ? AND stage = ?
 `
 
@@ -89,13 +90,14 @@ func (q *Queries) GetPracScoresByStage(ctx context.Context, arg GetPracScoresByS
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
+		&i.SettledAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getPracScoresByUserID = `-- name: GetPracScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM prac_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -131,6 +133,7 @@ func (q *Queries) GetPracScoresByUserID(ctx context.Context, arg GetPracScoresBy
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
+			&i.SettledAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -161,6 +164,50 @@ func (q *Queries) GetPracStageLenByScoreID(ctx context.Context, arg GetPracStage
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getUnsettledPracScores = `-- name: GetUnsettledPracScores :many
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
+WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at = NULL
+`
+
+func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]PracScore, error) {
+	rows, err := q.db.QueryContext(ctx, getUnsettledPracScores, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PracScore{}
+	for rows.Next() {
+		var i PracScore
+		if err := rows.Scan(
+			&i.ScoreID,
+			&i.UserID,
+			&i.Stage,
+			&i.Pairname,
+			&i.Entrytime,
+			&i.Position,
+			&i.Leverage,
+			&i.Outtime,
+			&i.Entryprice,
+			&i.Quantity,
+			&i.Endprice,
+			&i.Pnl,
+			&i.Roe,
+			&i.SettledAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertPracScore = `-- name: InsertPracScore :execresult

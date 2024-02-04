@@ -11,7 +11,7 @@ import (
 )
 
 const getCompScore = `-- name: GetCompScore :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
 WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
@@ -38,6 +38,7 @@ func (q *Queries) GetCompScore(ctx context.Context, arg GetCompScoreParams) (Com
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
+		&i.SettledAt,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -62,7 +63,7 @@ func (q *Queries) GetCompScoreToStage(ctx context.Context, arg GetCompScoreToSta
 }
 
 const getCompScoresByScoreID = `-- name: GetCompScoresByScoreID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
 WHERE score_id = ? AND user_id = ?
 `
 
@@ -94,6 +95,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
+			&i.SettledAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -110,7 +112,7 @@ func (q *Queries) GetCompScoresByScoreID(ctx context.Context, arg GetCompScoresB
 }
 
 const getCompScoresByStage = `-- name: GetCompScoresByStage :one
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
 WHERE score_id = ? AND user_id = ? AND stage = ?
 `
 
@@ -137,13 +139,14 @@ func (q *Queries) GetCompScoresByStage(ctx context.Context, arg GetCompScoresByS
 		&i.Endprice,
 		&i.Pnl,
 		&i.Roe,
+		&i.SettledAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getCompScoresByUserID = `-- name: GetCompScoresByUserID :many
-SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, created_at FROM comp_score
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
 WHERE user_id = ?
 ORDER BY score_id DESC 
 LIMIT ?
@@ -179,6 +182,7 @@ func (q *Queries) GetCompScoresByUserID(ctx context.Context, arg GetCompScoresBy
 			&i.Endprice,
 			&i.Pnl,
 			&i.Roe,
+			&i.SettledAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -209,6 +213,50 @@ func (q *Queries) GetCompStageLenByScoreID(ctx context.Context, arg GetCompStage
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const getUnsettledCompScores = `-- name: GetUnsettledCompScores :many
+SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
+WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at = NULL
+`
+
+func (q *Queries) GetUnsettledCompScores(ctx context.Context, userID string) ([]CompScore, error) {
+	rows, err := q.db.QueryContext(ctx, getUnsettledCompScores, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CompScore{}
+	for rows.Next() {
+		var i CompScore
+		if err := rows.Scan(
+			&i.ScoreID,
+			&i.UserID,
+			&i.Stage,
+			&i.Pairname,
+			&i.Entrytime,
+			&i.Position,
+			&i.Leverage,
+			&i.Outtime,
+			&i.Entryprice,
+			&i.Quantity,
+			&i.Endprice,
+			&i.Pnl,
+			&i.Roe,
+			&i.SettledAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertCompScore = `-- name: InsertCompScore :execresult

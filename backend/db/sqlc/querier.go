@@ -62,6 +62,8 @@ type Querier interface {
 	GetRankByUserID(ctx context.Context, userID string) (RankingBoard, error)
 	GetSession(ctx context.Context, sessionID string) (Session, error)
 	GetTopRankers(ctx context.Context, arg GetTopRankersParams) ([]RankingBoard, error)
+	GetUnsettledCompScores(ctx context.Context, userID string) ([]CompScore, error)
+	GetUnsettledPracScores(ctx context.Context, userID string) ([]PracScore, error)
 	GetUser(ctx context.Context, userID string) (User, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error)

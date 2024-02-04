@@ -30,6 +30,7 @@ CREATE TABLE `prac_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
+  `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
@@ -47,6 +48,7 @@ CREATE TABLE `comp_score` (
   `endprice` double NOT NULL,
   `pnl` double NOT NULL,
   `roe` double NOT NULL,
+  `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
