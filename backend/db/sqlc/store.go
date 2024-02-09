@@ -13,6 +13,7 @@ type Store interface {
 	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
 	SpendTokenTx(ctx context.Context, arg SpendTokenTxParams) (SpendTokenTxResult, error)
 	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error
+	SettleImdPracScoreTx(ctx context.Context, arg SettleImdScoreTxParams) (float64, error)
 }
 
 type SqlStore struct {

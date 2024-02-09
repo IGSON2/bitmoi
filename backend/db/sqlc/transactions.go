@@ -157,3 +157,49 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 
 	return err
 }
+
+type SettleImdScoreTxParams struct {
+	UserID string
+}
+
+func (store *SqlStore) SettleImdPracScoreTx(ctx context.Context, arg SettleImdScoreTxParams) (float64, error) {
+	totalPnl := 0.0
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		scores, err := q.GetUnsettledPracScores(ctx, arg.UserID)
+		if err != nil {
+			return fmt.Errorf("failed to settle immediate score due to cannot get unsettled scores. err: %w", err)
+		}
+		if len(scores) == 0 {
+			return nil
+		}
+
+		for _, sc := range scores {
+			totalPnl += sc.Pnl
+			_, err = q.UpdatePracScoreSettledAt(ctx, UpdatePracScoreSettledAtParams{
+				SettledAt: sql.NullTime{Time: time.Now(), Valid: true},
+				UserID:    arg.UserID,
+				ScoreID:   sc.ScoreID,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to settle immediate score due to cannot update settled at. err: %w, user:%s, score_id: %s", err, arg.UserID, sc.ScoreID)
+			}
+		}
+
+		pBal, err := q.GetUserPracBalance(ctx, arg.UserID)
+		if err != nil {
+			return fmt.Errorf("failed to settle immediate score due to cannot get user balance. err: %w", err)
+		}
+
+		_, err = q.UpdateUserPracBalance(ctx, UpdateUserPracBalanceParams{
+			PracBalance: pBal + totalPnl,
+			UserID:      arg.UserID,
+		})
+
+		if err != nil {
+			return fmt.Errorf("failed to settle immediate score due to cannot update user balance. err: %w", err)
+		}
+		return nil
+	})
+	return totalPnl, err
+}

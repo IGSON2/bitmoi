@@ -315,3 +315,24 @@ func (s *Server) GetSpendCount(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(SpendCount{Count: cnt.Uint64()})
 }
+
+func (s *Server) SettleImdScore(c *fiber.Ctx) error {
+	userID := c.Locals(authorizedUserKey)
+	if userID == nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
+	}
+
+	userIDstr, ok := userID.(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
+	}
+
+	totalPnl, err := s.store.SettleImdPracScoreTx(c.Context(), db.SettleImdScoreTxParams{UserID: userIDstr})
+	if err != nil {
+		s.logger.Error().Err(err).Msg("cannot settle immediate score")
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.Status(fiber.StatusOK).JSON(struct {
+		TotalPnl float64 `json:"total_pnl"`
+	}{totalPnl})
+}

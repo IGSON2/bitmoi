@@ -5,9 +5,6 @@ import (
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
 	"context"
-	"fmt"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func calcImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilities.IdentificationData) *InterMediateResult {
@@ -199,25 +196,4 @@ func (s *Server) calcAfterImdResult(resultchart *CandleData, order *ImdScoreRequ
 		MinRoe:     common.FloorDecimal(minRoe),
 	}
 	return &afterResultInfo
-}
-
-func (s *Server) SettleImdScore(c *fiber.Ctx) error {
-	username := c.Locals(authorizedUserKey)
-	if username == nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
-	}
-
-	scores, err := s.store.GetUnsettledPracScores(c.Context(), username.(string))
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot get unsettled scores. err : %s", err.Error()))
-	}
-
-	totalPnl := 0.0
-	for _, sc := range scores {
-		totalPnl += sc.Pnl
-	}
-
-	// 정산금 유저 잔고 반영 -> settled_at 업데이트 트랜잭션 필요
-
-	return c.Status(fiber.StatusOK).JSON(scores)
 }

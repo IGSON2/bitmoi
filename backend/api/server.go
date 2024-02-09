@@ -149,7 +149,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/intermediate/init", server.initImdScore)
 	authGroup.Post("/intermediate/close", server.closeImdScore)
 	authGroup.Get("/intermediate/interval", server.getImdInterval)
-	authGroup.Get("/intermediate/settle", server.SettleImdScore)
+	authGroup.Put("/intermediate/settle", server.SettleImdScore)
 
 	server.router = router
 

@@ -217,7 +217,7 @@ func (q *Queries) GetCompStageLenByScoreID(ctx context.Context, arg GetCompStage
 
 const getUnsettledCompScores = `-- name: GetUnsettledCompScores :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM comp_score
-WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at = NULL
+WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at IS NULL
 `
 
 func (q *Queries) GetUnsettledCompScores(ctx context.Context, userID string) ([]CompScore, error) {
@@ -311,6 +311,21 @@ func (q *Queries) InsertCompScore(ctx context.Context, arg InsertCompScoreParams
 		arg.Pnl,
 		arg.Roe,
 	)
+}
+
+const updateCompScoreSettledAt = `-- name: UpdateCompScoreSettledAt :execresult
+UPDATE comp_score SET settled_at = ?
+WHERE user_id = ? AND score_id = ?
+`
+
+type UpdateCompScoreSettledAtParams struct {
+	SettledAt sql.NullTime `json:"settled_at"`
+	UserID    string       `json:"user_id"`
+	ScoreID   string       `json:"score_id"`
+}
+
+func (q *Queries) UpdateCompScoreSettledAt(ctx context.Context, arg UpdateCompScoreSettledAtParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateCompScoreSettledAt, arg.SettledAt, arg.UserID, arg.ScoreID)
 }
 
 const updateCompcScore = `-- name: UpdateCompcScore :execresult

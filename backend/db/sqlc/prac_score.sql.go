@@ -168,7 +168,7 @@ func (q *Queries) GetPracStageLenByScoreID(ctx context.Context, arg GetPracStage
 
 const getUnsettledPracScores = `-- name: GetUnsettledPracScores :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
-WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at = NULL
+WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at IS NULL
 `
 
 func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]PracScore, error) {
@@ -289,4 +289,19 @@ func (q *Queries) UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams
 		arg.ScoreID,
 		arg.Stage,
 	)
+}
+
+const updatePracScoreSettledAt = `-- name: UpdatePracScoreSettledAt :execresult
+UPDATE prac_score SET settled_at = ?
+WHERE user_id = ? AND score_id = ?
+`
+
+type UpdatePracScoreSettledAtParams struct {
+	SettledAt sql.NullTime `json:"settled_at"`
+	UserID    string       `json:"user_id"`
+	ScoreID   string       `json:"score_id"`
+}
+
+func (q *Queries) UpdatePracScoreSettledAt(ctx context.Context, arg UpdatePracScoreSettledAtParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updatePracScoreSettledAt, arg.SettledAt, arg.UserID, arg.ScoreID)
 }

@@ -1116,6 +1116,21 @@ func (mr *MockStoreMockRecorder) SelectMinMaxTime(arg0, arg1, arg2 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectMinMaxTime", reflect.TypeOf((*MockStore)(nil).SelectMinMaxTime), arg0, arg1, arg2)
 }
 
+// SettleImdPracScoreTx mocks base method.
+func (m *MockStore) SettleImdPracScoreTx(arg0 context.Context, arg1 db.SettleImdScoreTxParams) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SettleImdPracScoreTx", arg0, arg1)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SettleImdPracScoreTx indicates an expected call of SettleImdPracScoreTx.
+func (mr *MockStoreMockRecorder) SettleImdPracScoreTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SettleImdPracScoreTx", reflect.TypeOf((*MockStore)(nil).SettleImdPracScoreTx), arg0, arg1)
+}
+
 // SpendTokenTx mocks base method.
 func (m *MockStore) SpendTokenTx(arg0 context.Context, arg1 db.SpendTokenTxParams) (db.SpendTokenTxResult, error) {
 	m.ctrl.T.Helper()
@@ -1129,6 +1144,21 @@ func (m *MockStore) SpendTokenTx(arg0 context.Context, arg1 db.SpendTokenTxParam
 func (mr *MockStoreMockRecorder) SpendTokenTx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendTokenTx", reflect.TypeOf((*MockStore)(nil).SpendTokenTx), arg0, arg1)
+}
+
+// UpdateCompScoreSettledAt mocks base method.
+func (m *MockStore) UpdateCompScoreSettledAt(arg0 context.Context, arg1 db.UpdateCompScoreSettledAtParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCompScoreSettledAt", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCompScoreSettledAt indicates an expected call of UpdateCompScoreSettledAt.
+func (mr *MockStoreMockRecorder) UpdateCompScoreSettledAt(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCompScoreSettledAt", reflect.TypeOf((*MockStore)(nil).UpdateCompScoreSettledAt), arg0, arg1)
 }
 
 // UpdateCompcScore mocks base method.
@@ -1159,6 +1189,21 @@ func (m *MockStore) UpdatePracScore(arg0 context.Context, arg1 db.UpdatePracScor
 func (mr *MockStoreMockRecorder) UpdatePracScore(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePracScore", reflect.TypeOf((*MockStore)(nil).UpdatePracScore), arg0, arg1)
+}
+
+// UpdatePracScoreSettledAt mocks base method.
+func (m *MockStore) UpdatePracScoreSettledAt(arg0 context.Context, arg1 db.UpdatePracScoreSettledAtParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePracScoreSettledAt", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdatePracScoreSettledAt indicates an expected call of UpdatePracScoreSettledAt.
+func (mr *MockStoreMockRecorder) UpdatePracScoreSettledAt(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePracScoreSettledAt", reflect.TypeOf((*MockStore)(nil).UpdatePracScoreSettledAt), arg0, arg1)
 }
 
 // UpdateUserCompBalance mocks base method.
