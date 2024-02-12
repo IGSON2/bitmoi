@@ -120,7 +120,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/highestBidder", server.getHighestBidder)
 	router.Get("/selectedBidder", server.getSelectedBidder)
 	router.Get("/login/callback", server.CallBackLogin)
-	router.Get("/oauth", server.GetLoginURL)
+	router.Get("/oauth/:req_url", server.GetLoginURL)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 

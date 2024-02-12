@@ -31,7 +31,7 @@ type Config struct {
 	BiddingDuration      time.Duration `mapstructure:"BIDDING_DURATION"`
 	OauthClientID        string        `mapstructure:"OAUTH_CLIENT_ID"`
 	OauthClientSecret    string        `mapstructure:"OAUTH_CLIENT_SECRET"`
-	OauthRedirectURL     string
+	OauthRedirectURL     string        //TODO : c.Get("Referer") 이용
 	DataDir              string
 	LogLevel             zerolog.Level
 }

@@ -17,7 +17,10 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
+const (
+	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
+	reqPathKey        = "req_url"
+)
 
 type OauthData struct {
 	Email         string `json:"email"`
@@ -41,6 +44,13 @@ func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 }
 
 func (s *Server) CallBackLogin(c *fiber.Ctx) error {
+	state := c.Query("state", "practice")
+	rPayload, err := s.tokenMaker.VerifyToken(state)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("state mismatched.")
+	}
+	rPath := rPayload.UserID
+
 	code := c.Query("code")
 	token, err := s.oauthConfig.Exchange(c.Context(), code)
 	if err != nil {
@@ -97,6 +107,8 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
 
+		rPath = "welcome"
+
 	} else {
 		userId = user.UserID
 	}
@@ -131,7 +143,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 	rewardStr := fmt.Sprintf("%d", db.AttendanceReward)
 
-	redirectURL := fmt.Sprintf("%s/welcome?accessToken=%s&refreshToken=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken)
+	redirectURL := fmt.Sprintf("%s/auth?accessToken=%s&refreshToken=%s&path=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken, rPath)
 
 	err = s.checkAttendance(c.Context(), userId)
 	if err != nil {
@@ -143,7 +155,9 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
-	token, _, err := s.tokenMaker.CreateToken("state", s.config.AccessTokenDuration)
+	rPath := c.Params(reqPathKey, "practice")
+
+	token, _, err := s.tokenMaker.CreateToken(rPath, s.config.AccessTokenDuration)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
