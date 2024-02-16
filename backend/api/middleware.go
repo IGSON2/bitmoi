@@ -46,7 +46,7 @@ func authMiddleware(maker *token.PasetoMaker) fiber.Handler {
 		accessToken := fields[1]
 		payload, err := maker.VerifyToken(accessToken)
 		if err != nil {
-			return abort(c, fmt.Sprintf("%v", err))
+			return abort(c, err.Error())
 		}
 		c.Locals(authorizationPayloadKey, payload)
 		c.Locals(authorizedUserKey, payload.UserID)

@@ -42,7 +42,7 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 
 	refreshPayload, err := s.tokenMaker.VerifyToken(r.RefreshToken)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("refresh token verification was failed: %s", err))
+		return c.Status(fiber.StatusUnauthorized).SendString("refresh token verification was failed")
 	}
 
 	session, err := s.store.GetSession(c.Context(), refreshPayload.SessionID.String())

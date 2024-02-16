@@ -159,7 +159,11 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 }
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
-	rPath := c.Params(reqPathKey, "practice")
+	rPath := c.Params(reqPathKey)
+	if rPath == "" {
+		s.logger.Warn().Str("path", rPath).Msg("path is empty")
+		rPath = "practice"
+	}
 
 	token, _, err := s.tokenMaker.CreateToken(rPath, s.config.AccessTokenDuration)
 	if err != nil {
