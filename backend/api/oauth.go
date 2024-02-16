@@ -44,9 +44,13 @@ func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 }
 
 func (s *Server) CallBackLogin(c *fiber.Ctx) error {
-	state := c.Query("state", "practice")
+	state := c.Query("state")
+	if state == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("state is required.")
+	}
 	rPayload, err := s.tokenMaker.VerifyToken(state)
 	if err != nil {
+		s.logger.Error().Err(err).Any("payload", rPayload).Msg("State mismatched.")
 		return c.Status(fiber.StatusUnauthorized).SendString("state mismatched.")
 	}
 	rPath := rPayload.UserID
