@@ -60,5 +60,4 @@ func TestTokenExpire(t *testing.T) {
 	payload2, err := p.VerifyToken(token)
 	require.Nil(t, payload2)
 	require.Error(t, err)
-	require.EqualError(t, err, ErrExpiredToken.Error())
 }

@@ -37,7 +37,7 @@ func NewPayload(userID string, duration time.Duration) (*Payload, error) {
 
 func (p *Payload) ValidExpiration() error {
 	if time.Now().After(p.ExpiredAt) {
-		return fmt.Errorf("err: %w, payload.ExpiredAt: %s, Now: %s", ErrExpiredToken, p.ExpiredAt, time.Now())
+		return fmt.Errorf("err: %w, Payload: %v, Now: %s", ErrExpiredToken, p, time.Now())
 	}
 	return nil
 }

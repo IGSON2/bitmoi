@@ -50,7 +50,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 	}
 	rPayload, err := s.tokenMaker.VerifyToken(state)
 	if err != nil {
-		s.logger.Error().Err(err).Any("payload", rPayload).Msg("State mismatched.")
+		s.logger.Error().Err(err).Msg("State mismatched.")
 		return c.Status(fiber.StatusUnauthorized).SendString("state mismatched.")
 	}
 	rPath := rPayload.UserID
@@ -165,10 +165,11 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		rPath = "practice"
 	}
 
-	token, _, err := s.tokenMaker.CreateToken(rPath, s.config.AccessTokenDuration)
+	token, payload, err := s.tokenMaker.CreateToken(rPath, s.config.AccessTokenDuration)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
+	s.logger.Info().Str("path", rPath).Any("payload", payload).Msg("Temp // oauth token created")
 	url := s.oauthConfig.AuthCodeURL(token)
 	return c.Redirect(url, fiber.StatusMovedPermanently)
 }
