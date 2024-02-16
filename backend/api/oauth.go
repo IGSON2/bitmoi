@@ -44,16 +44,10 @@ func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 }
 
 func (s *Server) CallBackLogin(c *fiber.Ctx) error {
-	state := c.Query("state")
-	if state == "" {
+	rPath := c.Query("state")
+	if rPath == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("state is required.")
 	}
-	rPayload, err := s.tokenMaker.VerifyToken(state)
-	if err != nil {
-		s.logger.Error().Err(err).Msg("State mismatched.")
-		return c.Status(fiber.StatusUnauthorized).SendString("state mismatched.")
-	}
-	rPath := rPayload.UserID
 
 	code := c.Query("code")
 	token, err := s.oauthConfig.Exchange(c.Context(), code)
@@ -165,11 +159,6 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		rPath = "practice"
 	}
 
-	token, payload, err := s.tokenMaker.CreateToken(rPath, s.config.AccessTokenDuration)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	s.logger.Info().Str("path", rPath).Any("payload", payload).Msg("Temp // oauth token created")
-	url := s.oauthConfig.AuthCodeURL(token)
+	url := s.oauthConfig.AuthCodeURL(rPath) // TODO: 토큰 생성 시, time.now()가 클라이언트의 캐시의 영향을 받는 것 같음.
 	return c.Redirect(url, fiber.StatusMovedPermanently)
 }

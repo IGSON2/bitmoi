@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rs/zerolog"
 )
 
 var (
@@ -33,7 +32,6 @@ func NewPayload(userID string, duration time.Duration) (*Payload, error) {
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),
 	}
-	new(zerolog.Logger).Info().Time("Now", time.Now()).Msgf("Tepm // New Payload: %v", payload)
 	return payload, nil
 }
 
