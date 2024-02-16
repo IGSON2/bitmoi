@@ -37,7 +37,7 @@ var (
 type Server struct {
 	config          *utilities.Config // 환경 구성 요소
 	oauthConfig     *oauth2.Config    // OAuth2.0 인증 구성 요소
-	logger          zerolog.Logger
+	logger          *zerolog.Logger
 	store           db.Store                // DB 커넥션
 	router          *fiber.App              // 각 Endpoint별 router 집합
 	tokenMaker      *token.PasetoMaker      // 인증, 인가에 필요한 토큰 생성 및 검증

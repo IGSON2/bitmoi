@@ -90,7 +90,7 @@ func createNewOriginMiddleware() fiber.Handler {
 	})
 }
 
-func createNewLimitMiddleware(cnt int, logger zerolog.Logger) fiber.Handler {
+func createNewLimitMiddleware(cnt int, logger *zerolog.Logger) fiber.Handler {
 	return limiter.New(limiter.Config{
 		Max:        cnt,
 		Expiration: 30 * time.Second,

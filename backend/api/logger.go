@@ -35,6 +35,7 @@ func (s *Server) createLoggerMiddleware() fiber.Handler {
 		TimeFormat: "2006-01-02T15:04:05",
 	})
 
-	s.logger = zerolog.New(zerolog.ConsoleWriter{Out: w}).With().Timestamp().Logger().Level(s.config.LogLevel)
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: w}).With().Timestamp().Logger().Level(s.config.LogLevel)
+	s.logger = &logger
 	return lm
 }
