@@ -17,6 +17,10 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+var (
+	allowRpathes = []string{"practice", "mypage", "welcome"}
+)
+
 const (
 	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 	reqPathKey        = "req_url"
@@ -154,8 +158,8 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 
 func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 	rPath := c.Params(reqPathKey)
-	if rPath == "" {
-		s.logger.Warn().Str("path", rPath).Msg("path is empty")
+	if !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
+		s.logger.Warn().Str("path", rPath).Msg("path is invalid.")
 		rPath = "practice"
 	}
 
