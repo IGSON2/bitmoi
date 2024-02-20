@@ -51,3 +51,12 @@ WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at IS NULL;
 -- name: UpdatePracScoreSettledAt :execresult
 UPDATE prac_score SET settled_at = ?
 WHERE user_id = ? AND score_id = ?;
+
+-- name: GetUserScoreSummary :one
+SELECT 
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH THEN pnl ELSE 0 END) AS pnl_sum,
+  COUNT(CASE WHEN pnl > 0 THEN 1 END) AS win,
+  COUNT(CASE WHEN pnl < 0 THEN 1 END) AS lose
+FROM prac_score s
+JOIN users u ON s.user_id = u.user_id
+WHERE u.nickname = ?;

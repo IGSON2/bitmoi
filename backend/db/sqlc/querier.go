@@ -70,6 +70,7 @@ type Querier interface {
 	GetUserByNickName(ctx context.Context, nickname sql.NullString) (User, error)
 	GetUserLastAccessedAt(ctx context.Context, userID string) (sql.NullTime, error)
 	GetUserPracBalance(ctx context.Context, userID string) (float64, error)
+	GetUserScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserScoreSummaryRow, error)
 	GetVerifyEmails(ctx context.Context, arg GetVerifyEmailsParams) (VerifyEmail, error)
 	Insert15mCandles(ctx context.Context, arg Insert15mCandlesParams) (sql.Result, error)
 	Insert1dCandles(ctx context.Context, arg Insert1dCandlesParams) (sql.Result, error)

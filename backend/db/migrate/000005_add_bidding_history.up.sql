@@ -8,13 +8,13 @@ CREATE TABLE `bidding_history` (
 );
 
 /* TODO: update transfers table */
-CREATE TABLE "transfers" (
-  "id" bigserial PRIMARY KEY,
-  "from" bigint NOT NULL,
-  "to" bigint NOT NULL,
-  "amount" bigint NOT NULL,
-  "title" varchar(255) NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+CREATE TABLE `transfers` (
+  `id` bigint AUTO_INCREMENT PRIMARY KEY,
+  `from` bigint NOT NULL,
+  `to` bigint NOT NULL,
+  `amount` bigint NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
-ALTER TABLE "transfers" ADD FOREIGN KEY ("to") REFERENCES "users" ("id");
+ALTER TABLE `transfers` ADD FOREIGN KEY (`to`) REFERENCES `users` (`id`);

@@ -210,6 +210,29 @@ func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]
 	return items, nil
 }
 
+const getUserScoreSummary = `-- name: GetUserScoreSummary :one
+SELECT 
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH THEN pnl ELSE 0 END) AS pnl_sum,
+  COUNT(CASE WHEN pnl > 0 THEN 1 END) AS win,
+  COUNT(CASE WHEN pnl < 0 THEN 1 END) AS lose
+FROM prac_score s
+JOIN users u ON s.user_id = u.user_id
+WHERE u.nickname = ?
+`
+
+type GetUserScoreSummaryRow struct {
+	PnlSum interface{} `json:"pnl_sum"`
+	Win    int64       `json:"win"`
+	Lose   int64       `json:"lose"`
+}
+
+func (q *Queries) GetUserScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserScoreSummaryRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserScoreSummary, nickname)
+	var i GetUserScoreSummaryRow
+	err := row.Scan(&i.PnlSum, &i.Win, &i.Lose)
+	return i, err
+}
+
 const insertPracScore = `-- name: InsertPracScore :execresult
 INSERT INTO prac_score (
     score_id,

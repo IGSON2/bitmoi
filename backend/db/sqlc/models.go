@@ -130,6 +130,15 @@ type Session struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
+type Transfer struct {
+	ID        int64     `json:"id"`
+	From      int64     `json:"from"`
+	To        int64     `json:"to"`
+	Amount    int64     `json:"amount"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type UsedToken struct {
 	ScoreID         string    `json:"score_id"`
 	UserID          string    `json:"user_id"`

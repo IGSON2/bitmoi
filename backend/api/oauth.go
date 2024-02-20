@@ -163,6 +163,6 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		rPath = "practice"
 	}
 
-	url := s.oauthConfig.AuthCodeURL(rPath) // TODO: 토큰 생성 시, time.now()가 클라이언트의 캐시의 영향을 받는 것 같음.
+	url := s.oauthConfig.AuthCodeURL(rPath) // TODO: 토큰 생성 시, time.now()가 클라이언트 캐시의 영향을 받는 것 같음.
 	return c.Redirect(url, fiber.StatusMovedPermanently)
 }
