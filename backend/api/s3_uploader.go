@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	errCannotUpdateUntil24H = errors.New("profile picture can updated after 24 hours until last modified")
+	errCannotUpdateUntil24H = errors.New("Profile pictures can be updated once every 24 hours, counting from the last modification.")
 	allowedImageExtensions  = map[string]bool{
 		"jpg":  true,
 		"jpeg": true,
@@ -88,7 +88,7 @@ func (s *Server) uploadProfileImageToS3(f *multipart.FileHeader, userId string) 
 	}
 
 	contentType := mime.TypeByExtension("." + kind.Extension)
-	fileUrl := fmt.Sprintf("%s/%s", cloudFront, userId)
+	fileUrl := fmt.Sprintf("%s/users/%s", cloudFront, userId)
 
 	resp, err := s.s3Uploader.GetObject(&s3.GetObjectInput{
 		Bucket: &bucketName,
@@ -104,7 +104,7 @@ func (s *Server) uploadProfileImageToS3(f *multipart.FileHeader, userId string) 
 				ContentType: &contentType,
 			})
 			if createErr == nil {
-				log.Info().Msgf("%s's new photo stored in s3 bucket successfully", userId)
+				s.logger.Info().Msgf("%s's new photo stored in s3 bucket successfully", userId)
 				return fileUrl, createErr
 			} else {
 				return "", createErr
@@ -161,7 +161,7 @@ func (s *Server) uploadADImageToS3(f *multipart.FileHeader, userId, location str
 	}
 
 	contentType := mime.TypeByExtension("." + kind.Extension)
-	fileUrl := fmt.Sprintf("%s/%s", cloudFront, filePath)
+	fileUrl := fmt.Sprintf("%s/bidding/%s", cloudFront, filePath)
 
 	_, updateErr := s.s3Uploader.PutObject(&s3.PutObjectInput{
 		Bucket:      &bucketName,

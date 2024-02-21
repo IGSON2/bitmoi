@@ -276,6 +276,22 @@ func (q *Queries) UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserM
 	return q.db.ExecContext(ctx, updateUserMetamaskAddress, arg.MetamaskAddress, arg.AddressChangedAt, arg.UserID)
 }
 
+const updateUserNickname = `-- name: UpdateUserNickname :execresult
+UPDATE users 
+SET 
+    nickname = ?
+WHERE user_id = ?
+`
+
+type UpdateUserNicknameParams struct {
+	Nickname sql.NullString `json:"nickname"`
+	UserID   string         `json:"user_id"`
+}
+
+func (q *Queries) UpdateUserNickname(ctx context.Context, arg UpdateUserNicknameParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateUserNickname, arg.Nickname, arg.UserID)
+}
+
 const updateUserPhotoURL = `-- name: UpdateUserPhotoURL :execresult
 UPDATE users SET photo_url = ?
 WHERE user_id = ?

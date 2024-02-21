@@ -232,7 +232,6 @@ type GetUserPracScoreSummaryRow struct {
 	MonthlyLose int64       `json:"monthly_lose"`
 }
 
-// monthly_winrate: float64
 func (q *Queries) GetUserPracScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserPracScoreSummaryRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserPracScoreSummary, nickname)
 	var i GetUserPracScoreSummaryRow

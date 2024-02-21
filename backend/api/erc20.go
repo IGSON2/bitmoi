@@ -35,7 +35,7 @@ type TransactionResponse struct {
 // @Success		200		{object}	string
 // @Router      /freeToken [post]
 func (s *Server) sendFreeErc20(c *fiber.Ctx) error {
-	r := new(MetamaskAddressRequest)
+	r := new(UpdateMetamaskRequest)
 	err := c.BodyParser(r)
 	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))

@@ -88,6 +88,7 @@ type Querier interface {
 	UpdateUserCompBalance(ctx context.Context, arg UpdateUserCompBalanceParams) (sql.Result, error)
 	UpdateUserLastAccessedAt(ctx context.Context, arg UpdateUserLastAccessedAtParams) (sql.Result, error)
 	UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error)
+	UpdateUserNickname(ctx context.Context, arg UpdateUserNicknameParams) (sql.Result, error)
 	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
 	UpdateUserPracBalance(ctx context.Context, arg UpdateUserPracBalanceParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)

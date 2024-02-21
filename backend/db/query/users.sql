@@ -58,6 +58,12 @@ SET
     address_changed_at = ?
 WHERE user_id = ?;
 
+-- name: UpdateUserNickname :execresult
+UPDATE users 
+SET 
+    nickname = ?
+WHERE user_id = ?;
+
 -- name: UpdateUserPracBalance :execresult
 UPDATE users SET prac_balance = ?
 WHERE user_id = ?;

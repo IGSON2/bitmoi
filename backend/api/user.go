@@ -5,7 +5,6 @@ import (
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
-	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -15,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
-	"github.com/rs/zerolog/log"
 )
 
 type UserResponse struct {
@@ -127,7 +125,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 
 	f, err := c.FormFile(formFileKey)
 	if err != nil {
-		log.Debug().Msgf("%s dosen't upload profile image.", req.UserID)
+		s.logger.Debug().Msgf("%s dosen't upload profile image.", req.UserID)
 	} else {
 		fileURL, uploadErr = s.uploadProfileImageToS3(f, req.UserID)
 	}
@@ -141,7 +139,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 	if uploadErr == nil {
 		arg.PhotoUrl = sql.NullString{String: fileURL, Valid: true}
 	} else {
-		log.Err(uploadErr).Msgf("cannot upload image to S3. user: %s", req.UserID)
+		s.logger.Error().Err(uploadErr).Msgf("cannot upload image to S3. user: %s", req.UserID)
 	}
 
 	if req.OauthUid != "" {
@@ -282,7 +280,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 // @Success		200
 // @Router      /user/address [post]
 func (s *Server) updateMetamaskAddress(c *fiber.Ctx) error {
-	r := new(MetamaskAddressRequest)
+	r := new(UpdateMetamaskRequest)
 	err := c.BodyParser(r)
 	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
@@ -343,7 +341,8 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 
 	url, err := s.uploadProfileImageToS3(f, user.UserID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		s.logger.Error().Err(err).Msgf("cannot upload image to S3. user: %s", user.UserID)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
 	_, err = s.store.UpdateUserPhotoURL(c.Context(), db.UpdateUserPhotoURLParams{
@@ -353,21 +352,53 @@ func (s *Server) updateProfileImg(c *fiber.Ctx) error {
 
 	if err != nil {
 		s.deleteObject(user.UserID)
-		errmsg := fmt.Sprintf("cannot update photo url. user: %s", user.UserID)
-		log.Err(err).Msg(errmsg)
-		return c.Status(fiber.StatusInternalServerError).SendString(errmsg)
+		s.logger.Error().Err(err).Msgf("cannot update photo url. user: %s", user.UserID)
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot update profile image.")
 	}
 
 	return c.Status(fiber.StatusOK).SendString(url)
 }
 
-func (s *Server) GetLastUserID(ctx context.Context) (int64, error) {
-	lastID, err := s.store.GetLastUserID(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
-		return 0, err
+// updateNickname godoc
+// @Summary		사용자의 닉네임을 업데이트 합니다.
+// @Tags		user
+// @Accept		json
+// @Produce		json
+// @Param		LoginUserRequest	body		api.UpdateNicknameRequest	true	"New nickname"
+// @param 		Authorization header string true "Authorization"
+// @Success		200
+// @Router      /user/profile [post]
+func (s *Server) updateNickname(c *fiber.Ctx) error {
+	r := new(UpdateNicknameRequest)
+	err := c.BodyParser(r)
+	if errs := utilities.ValidateStruct(r); err != nil || errs != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("parsing err : %s, validation err : %s", err, errs.Error()))
 	}
-	return lastID, nil
+
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
+	}
+
+	checkUser, _ := s.store.GetUserByNickName(c.Context(), sql.NullString{Valid: true, String: r.Nickname})
+	if checkUser.Nickname.String == r.Nickname {
+		return c.Status(fiber.StatusBadRequest).SendString("nickname already exist")
+	}
+
+	user, err := s.store.GetUser(c.Context(), payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get user by authorization payload")
+	}
+
+	_, err = s.store.UpdateUserNickname(c.Context(), db.UpdateUserNicknameParams{
+		Nickname: sql.NullString{Valid: true, String: r.Nickname},
+		UserID:   user.UserID,
+	})
+
+	if err != nil {
+		s.logger.Error().Err(err).Msgf("cannot update nickname. user: %s", user.UserID)
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot update nickname")
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }

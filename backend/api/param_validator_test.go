@@ -262,7 +262,7 @@ func TestMoreInfoRequestValidation(t *testing.T) {
 }
 
 func TestMetamaskAddrFormat(t *testing.T) {
-	r := new(MetamaskAddressRequest)
+	r := new(UpdateMetamaskRequest)
 	type testcase struct {
 		addr    string
 		success bool

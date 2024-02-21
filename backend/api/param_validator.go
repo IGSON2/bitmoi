@@ -47,8 +47,12 @@ type UpdateUsingTokenRequest struct {
 	ScoreId string `json:"score_id" validate:"required,numeric"`
 }
 
-type MetamaskAddressRequest struct {
+type UpdateMetamaskRequest struct {
 	Addr string `json:"addr" validate:"required,eth_addr"`
+}
+
+type UpdateNicknameRequest struct {
+	Nickname string `json:"nickname" validate:"required,min=1,max=10"`
 }
 
 type GetBidderByLocRequest struct {

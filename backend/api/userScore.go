@@ -3,6 +3,7 @@ package api
 import (
 	"bitmoi/backend/contract"
 	db "bitmoi/backend/db/sqlc"
+	"bitmoi/backend/token"
 	"context"
 	"database/sql"
 	"errors"
@@ -357,17 +358,17 @@ func (s *Server) GetSpendCount(c *fiber.Ctx) error {
 }
 
 func (s *Server) SettleImdScore(c *fiber.Ctx) error {
-	userID := c.Locals(authorizedUserKey)
-	if userID == nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
-	}
-
-	userIDstr, ok := userID.(string)
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
 	}
 
-	totalPnl, err := s.store.SettleImdPracScoreTx(c.Context(), db.SettleImdScoreTxParams{UserID: userIDstr})
+	userID := payload.UserID
+	if userID == "" {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot find user")
+	}
+
+	totalPnl, err := s.store.SettleImdPracScoreTx(c.Context(), db.SettleImdScoreTxParams{UserID: userID})
 	if err != nil {
 		s.logger.Error().Err(err).Msg("cannot settle immediate score")
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())

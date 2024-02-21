@@ -1281,6 +1281,21 @@ func (mr *MockStoreMockRecorder) UpdateUserMetamaskAddress(arg0, arg1 interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserMetamaskAddress", reflect.TypeOf((*MockStore)(nil).UpdateUserMetamaskAddress), arg0, arg1)
 }
 
+// UpdateUserNickname mocks base method.
+func (m *MockStore) UpdateUserNickname(arg0 context.Context, arg1 db.UpdateUserNicknameParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserNickname", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserNickname indicates an expected call of UpdateUserNickname.
+func (mr *MockStoreMockRecorder) UpdateUserNickname(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserNickname", reflect.TypeOf((*MockStore)(nil).UpdateUserNickname), arg0, arg1)
+}
+
 // UpdateUserPhotoURL mocks base method.
 func (m *MockStore) UpdateUserPhotoURL(arg0 context.Context, arg1 db.UpdateUserPhotoURLParams) (sql.Result, error) {
 	m.ctrl.T.Helper()

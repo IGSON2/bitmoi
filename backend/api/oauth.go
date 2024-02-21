@@ -5,6 +5,7 @@ import (
 	btoken "bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -165,4 +166,15 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 
 	url := s.oauthConfig.AuthCodeURL(rPath) // TODO: 토큰 생성 시, time.now()가 클라이언트 캐시의 영향을 받는 것 같음.
 	return c.Redirect(url, fiber.StatusMovedPermanently)
+}
+
+func (s *Server) GetLastUserID(ctx context.Context) (int64, error) {
+	lastID, err := s.store.GetLastUserID(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return lastID, nil
 }
