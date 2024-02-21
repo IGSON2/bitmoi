@@ -407,6 +407,7 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 
 	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
 
+	// 추상화 필요
 	if r.Mode == practice {
 		scores, err := s.getMyPracScores(payload.UserID, int32(r.Page), c)
 		if err != nil {

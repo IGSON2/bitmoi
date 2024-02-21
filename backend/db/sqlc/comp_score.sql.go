@@ -259,6 +259,43 @@ func (q *Queries) GetUnsettledCompScores(ctx context.Context, userID string) ([]
 	return items, nil
 }
 
+const getUserCompScoreSummary = `-- name: GetUserCompScoreSummary :one
+SELECT 
+  SUM(pnl) AS total_pnl,
+  COUNT(CASE WHEN  pnl > 0 THEN 1 END) AS total_win,
+  COUNT(CASE WHEN s.pnl < 0 THEN 1 END) AS total_lose,
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH THEN s.pnl ELSE 0 END) AS monthly_pnl,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl > 0 THEN 1 END) AS monthly_win,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl < 0 THEN 1 END) AS monthly_lose
+FROM comp_score s
+JOIN users u ON s.user_id = u.user_id
+WHERE u.nickname = ?
+`
+
+type GetUserCompScoreSummaryRow struct {
+	TotalPnl    interface{} `json:"total_pnl"`
+	TotalWin    int64       `json:"total_win"`
+	TotalLose   int64       `json:"total_lose"`
+	MonthlyPnl  interface{} `json:"monthly_pnl"`
+	MonthlyWin  int64       `json:"monthly_win"`
+	MonthlyLose int64       `json:"monthly_lose"`
+}
+
+// monthly_winrate: float64
+func (q *Queries) GetUserCompScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserCompScoreSummaryRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserCompScoreSummary, nickname)
+	var i GetUserCompScoreSummaryRow
+	err := row.Scan(
+		&i.TotalPnl,
+		&i.TotalWin,
+		&i.TotalLose,
+		&i.MonthlyPnl,
+		&i.MonthlyWin,
+		&i.MonthlyLose,
+	)
+	return i, err
+}
+
 const insertCompScore = `-- name: InsertCompScore :execresult
 INSERT INTO comp_score (
     score_id,

@@ -180,30 +180,43 @@ func (s *Server) getMyCompScores(userId string, pages int32, c *fiber.Ctx) ([]db
 	})
 }
 
+type UserScoreSummary struct {
+	db.GetUserPracScoreSummaryRow         // 경쟁모드를 포함하는 추상화 인터페이스 필요
+	MonthlyRate                   float64 `json:"monthly_winrate"`
+}
+
 // getUserScoreSummary godoc
 // @Summary      요청한 닉네임을 가진 사용자의 점수 요약을 반환합니다.
 // @Tags         rank
-// @Param 		 user path string true "유저 ID"
+// @Param 		 user path string true "User Nickname"
 // @Produce      json
-// @Success      200  {array}  db.GetUserScoreSummaryRow
+// @Success      200  {array}  UserScoreSummary
 // @Router       /score/{user} [get]
 func (s *Server) getUserScoreSummary(c *fiber.Ctx) error {
+	// mode := c.Query("mode", practice)
+
 	nickname, err := url.QueryUnescape(c.Params("nickname"))
 	if err != nil {
 		s.logger.Error().Err(err).Msg("cannot unescape nickname")
 		return c.Status(fiber.StatusBadRequest).SendString("invalid nickname parameter")
 	}
 
-	s.logger.Info().Msgf("nickname: %s", nickname)
 	if nickname == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("user id is required")
 	}
 
-	result, err := s.store.GetUserScoreSummary(c.Context(), sql.NullString{String: nickname, Valid: true})
+	result, err := s.store.GetUserPracScoreSummary(c.Context(), sql.NullString{String: nickname, Valid: true})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.Status(fiber.StatusOK).JSON(result)
+
+	var monthlyRate float64
+	if result.MonthlyLose > 0 {
+		floatRate := float64(result.MonthlyWin) / float64(result.MonthlyWin+result.MonthlyLose)
+		monthlyRate = math.Floor(10000*floatRate) / 100
+	}
+
+	return c.Status(fiber.StatusOK).JSON(UserScoreSummary{result, monthlyRate})
 }
 
 func (s *Server) getCompScoresByScoreID(scoreId, userId string, c context.Context) ([]db.CompScore, error) {

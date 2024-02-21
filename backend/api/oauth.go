@@ -99,7 +99,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		_, createErr := s.store.CreateUser(c.Context(), db.CreateUserParams{
 			UserID:          od.Email,
 			OauthUid:        sql.NullString{String: od.ID, Valid: true},
-			Nickname:        sql.NullString{String: fmt.Sprintf("Chartist %d", idNum+1), Valid: true},
+			Nickname:        sql.NullString{String: fmt.Sprintf("Chartist%02d", idNum+1), Valid: true},
 			Email:           od.Email,
 			PhotoUrl:        sql.NullString{String: od.Picture, Valid: true},
 			RecommenderCode: sql.NullString{String: code, Valid: true},
