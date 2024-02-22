@@ -119,6 +119,13 @@ type RankingBoard struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
+type RecommendHistory struct {
+	ID        int64     `json:"id"`
+	FromUser  string    `json:"from_user"`
+	ToUser    string    `json:"to_user"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Session struct {
 	SessionID    string    `json:"session_id"`
 	UserID       string    `json:"user_id"`
@@ -128,15 +135,6 @@ type Session struct {
 	IsBlocked    bool      `json:"is_blocked"`
 	ExpiresAt    time.Time `json:"expires_at"`
 	CreatedAt    time.Time `json:"created_at"`
-}
-
-type Transfer struct {
-	ID        int64     `json:"id"`
-	From      int64     `json:"from"`
-	To        int64     `json:"to"`
-	Amount    int64     `json:"amount"`
-	Title     string    `json:"title"`
-	CreatedAt time.Time `json:"created_at"`
 }
 
 type UsedToken struct {
@@ -157,6 +155,7 @@ type User struct {
 	PhotoUrl          sql.NullString `json:"photo_url"`
 	PracBalance       float64        `json:"prac_balance"`
 	CompBalance       float64        `json:"comp_balance"`
+	WmoiBalance       float64        `json:"wmoi_balance"`
 	RecommenderCode   sql.NullString `json:"recommender_code"`
 	CreatedAt         time.Time      `json:"created_at"`
 	LastAccessedAt    sql.NullTime   `json:"last_accessed_at"`
@@ -172,4 +171,13 @@ type VerifyEmail struct {
 	IsUsed     bool      `json:"is_used"`
 	CreatedAt  time.Time `json:"created_at"`
 	ExpiredAt  time.Time `json:"expired_at"`
+}
+
+type WmoiTransaction struct {
+	ID        int64     `json:"id"`
+	FromUser  string    `json:"from_user"`
+	ToUser    string    `json:"to_user"`
+	Amount    int64     `json:"amount"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
 }

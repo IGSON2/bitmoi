@@ -1,7 +1,7 @@
 -- name: CreateWmoiTransaction :execresult
 INSERT INTO wmoi_transaction (
-    user_id,
-    to,
+    from_user,
+    to_user,
     amount,
     title
 ) VALUES (

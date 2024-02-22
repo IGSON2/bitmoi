@@ -65,6 +65,21 @@ func (mr *MockStoreMockRecorder) CreateBiddingHistory(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBiddingHistory", reflect.TypeOf((*MockStore)(nil).CreateBiddingHistory), arg0, arg1)
 }
 
+// CreateRecommendHistory mocks base method.
+func (m *MockStore) CreateRecommendHistory(arg0 context.Context, arg1 db.CreateRecommendHistoryParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRecommendHistory", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRecommendHistory indicates an expected call of CreateRecommendHistory.
+func (mr *MockStoreMockRecorder) CreateRecommendHistory(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRecommendHistory", reflect.TypeOf((*MockStore)(nil).CreateRecommendHistory), arg0, arg1)
+}
+
 // CreateSession mocks base method.
 func (m *MockStore) CreateSession(arg0 context.Context, arg1 db.CreateSessionParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -138,6 +153,21 @@ func (m *MockStore) CreateVerifyEmail(arg0 context.Context, arg1 db.CreateVerify
 func (mr *MockStoreMockRecorder) CreateVerifyEmail(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVerifyEmail", reflect.TypeOf((*MockStore)(nil).CreateVerifyEmail), arg0, arg1)
+}
+
+// CreateWmoiTransaction mocks base method.
+func (m *MockStore) CreateWmoiTransaction(arg0 context.Context, arg1 db.CreateWmoiTransactionParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateWmoiTransaction", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateWmoiTransaction indicates an expected call of CreateWmoiTransaction.
+func (mr *MockStoreMockRecorder) CreateWmoiTransaction(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiTransaction", reflect.TypeOf((*MockStore)(nil).CreateWmoiTransaction), arg0, arg1)
 }
 
 // Get15mCandles mocks base method.
@@ -935,6 +965,21 @@ func (mr *MockStoreMockRecorder) GetUserByNickName(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByNickName", reflect.TypeOf((*MockStore)(nil).GetUserByNickName), arg0, arg1)
 }
 
+// GetUserByRecommenderCode mocks base method.
+func (m *MockStore) GetUserByRecommenderCode(arg0 context.Context, arg1 sql.NullString) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByRecommenderCode", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByRecommenderCode indicates an expected call of GetUserByRecommenderCode.
+func (mr *MockStoreMockRecorder) GetUserByRecommenderCode(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByRecommenderCode", reflect.TypeOf((*MockStore)(nil).GetUserByRecommenderCode), arg0, arg1)
+}
+
 // GetUserCompScoreSummary mocks base method.
 func (m *MockStore) GetUserCompScoreSummary(arg0 context.Context, arg1 sql.NullString) (db.GetUserCompScoreSummaryRow, error) {
 	m.ctrl.T.Helper()
@@ -1339,6 +1384,36 @@ func (m *MockStore) UpdateUserRank(arg0 context.Context, arg1 db.UpdateUserRankP
 func (mr *MockStoreMockRecorder) UpdateUserRank(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserRank", reflect.TypeOf((*MockStore)(nil).UpdateUserRank), arg0, arg1)
+}
+
+// UpdateUserWmoiBalance mocks base method.
+func (m *MockStore) UpdateUserWmoiBalance(arg0 context.Context, arg1 db.UpdateUserWmoiBalanceParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserWmoiBalance", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserWmoiBalance indicates an expected call of UpdateUserWmoiBalance.
+func (mr *MockStoreMockRecorder) UpdateUserWmoiBalance(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserWmoiBalance", reflect.TypeOf((*MockStore)(nil).UpdateUserWmoiBalance), arg0, arg1)
+}
+
+// UpdateUserWmoiBalanceByRecom mocks base method.
+func (m *MockStore) UpdateUserWmoiBalanceByRecom(arg0 context.Context, arg1 db.UpdateUserWmoiBalanceByRecomParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserWmoiBalanceByRecom", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserWmoiBalanceByRecom indicates an expected call of UpdateUserWmoiBalanceByRecom.
+func (mr *MockStoreMockRecorder) UpdateUserWmoiBalanceByRecom(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserWmoiBalanceByRecom", reflect.TypeOf((*MockStore)(nil).UpdateUserWmoiBalanceByRecom), arg0, arg1)
 }
 
 // UpdateVerifyEmail mocks base method.

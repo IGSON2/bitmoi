@@ -29,6 +29,10 @@ WHERE metamask_address = ?;
 SELECT * FROM users
 WHERE email = ?;
 
+-- name: GetUserByRecommenderCode :one
+SELECT * FROM users
+WHERE recommender_code = ?;
+
 -- name: GetRandomUser :one
 SELECT * FROM users
 ORDER BY RAND()
@@ -70,6 +74,14 @@ WHERE user_id = ?;
 
 -- name: UpdateUserCompBalance :execresult
 UPDATE users SET comp_balance = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserWmoiBalance :execresult
+UPDATE users SET wmoi_balance = ?
+WHERE user_id = ?;
+
+-- name: UpdateUserWmoiBalanceByRecom :execresult
+UPDATE users SET wmoi_balance = ?
 WHERE user_id = ?;
 
 -- name: UpdateUserLastAccessedAt :execresult

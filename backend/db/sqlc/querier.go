@@ -11,10 +11,12 @@ import (
 
 type Querier interface {
 	CreateBiddingHistory(ctx context.Context, arg CreateBiddingHistoryParams) (sql.Result, error)
+	CreateRecommendHistory(ctx context.Context, arg CreateRecommendHistoryParams) (sql.Result, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (sql.Result, error)
 	CreateUsedToken(ctx context.Context, arg CreateUsedTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (sql.Result, error)
+	CreateWmoiTransaction(ctx context.Context, arg CreateWmoiTransactionParams) (sql.Result, error)
 	Get15mCandles(ctx context.Context, arg Get15mCandlesParams) ([]Candles15m, error)
 	Get15mCandlesRnage(ctx context.Context, arg Get15mCandlesRnageParams) ([]Candles15m, error)
 	Get15mMinMaxTime(ctx context.Context, name string) (Get15mMinMaxTimeRow, error)
@@ -68,6 +70,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByMetamaskAddress(ctx context.Context, metamaskAddress sql.NullString) (User, error)
 	GetUserByNickName(ctx context.Context, nickname sql.NullString) (User, error)
+	GetUserByRecommenderCode(ctx context.Context, recommenderCode sql.NullString) (User, error)
 	GetUserCompScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserCompScoreSummaryRow, error)
 	GetUserLastAccessedAt(ctx context.Context, userID string) (sql.NullTime, error)
 	GetUserPracBalance(ctx context.Context, userID string) (float64, error)
@@ -92,6 +95,8 @@ type Querier interface {
 	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
 	UpdateUserPracBalance(ctx context.Context, arg UpdateUserPracBalanceParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
+	UpdateUserWmoiBalance(ctx context.Context, arg UpdateUserWmoiBalanceParams) (sql.Result, error)
+	UpdateUserWmoiBalanceByRecom(ctx context.Context, arg UpdateUserWmoiBalanceByRecomParams) (sql.Result, error)
 	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (sql.Result, error)
 }
 

@@ -9,6 +9,7 @@ CREATE TABLE `users` (
   `photo_url` varchar(255),
   `prac_balance` double NOT NULL,
   `comp_balance` double NOT NULL,
+  `wmoi_balance` double NOT NULL,
   `recommender_code` varchar(255),
   `created_at` timestamp NOT NULL DEFAULT (now()),
   `last_accessed_at` timestamp,
@@ -76,6 +77,8 @@ CREATE UNIQUE INDEX `users_index_1` ON `users` (`user_id`);
 CREATE UNIQUE INDEX `users_index_2` ON `users` (`email`);
 
 CREATE UNIQUE INDEX `users_index_3` ON `users` (`metamask_address`);
+
+CREATE UNIQUE INDEX `users_index_4` ON `users` (`recommender_code`);
 
 CREATE INDEX `prac_score_index_1` ON `prac_score` (`user_id`);
 

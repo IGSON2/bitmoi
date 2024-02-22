@@ -402,3 +402,9 @@ func (s *Server) updateNickname(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+
+func (s *Server) rewardRecommender(c *fiber.Ctx) error {
+	// s.store.CreateRecommendHistory(c.Context(), db.CreateRecommendHistoryParams{})
+	// s.store.CreateWmoiTransaction(c.Context(), db.CreateWmoiTransactionParams{})
+	return nil
+}

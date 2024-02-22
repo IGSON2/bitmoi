@@ -6,6 +6,7 @@ endif
 
 sqlc:
 	sqlc generate
+	make mock
 
 migrateup:
 	migrate -path backend/db/migrate -database "mysql://root:123@tcp(localhost:3306)/bitmoi" -verbose up
