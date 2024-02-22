@@ -32,7 +32,7 @@ CREATE TABLE `prac_score` (
   `roe` double NOT NULL,
   `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-   FOREIGN KEY (user_id) REFERENCES users(user_id)
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );
 
 CREATE TABLE `comp_score` (
@@ -51,7 +51,7 @@ CREATE TABLE `comp_score` (
   `roe` double NOT NULL,
   `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-   FOREIGN KEY (user_id) REFERENCES users(user_id)
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );
 
 CREATE TABLE `ranking_board` (

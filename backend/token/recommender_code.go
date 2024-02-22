@@ -13,5 +13,5 @@ func GenerateRecCode() (string, error) {
 		return "", err
 	}
 
-	return strings.ToUpper(hex.EncodeToString(b)), nil
+	return strings.ToUpper(hex.EncodeToString(b[:4])), nil
 }
