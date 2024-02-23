@@ -14,6 +14,7 @@ func TestExchangeInfo(t *testing.T) {
 	}
 	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
+	require.NoError(t, f.InitPairs(true))
 	require.NotNil(t, f.Store)
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
 	require.NoError(t, err)
@@ -31,5 +32,6 @@ func TestGetInfo(t *testing.T) {
 	}
 	f, err := NewFutureClient(utilities.GetConfig("../../."))
 	require.NoError(t, err)
+	require.NoError(t, f.InitPairs(true))
 	require.NotNil(t, f.Store)
 }

@@ -32,6 +32,10 @@ func GetCandleData(ctx *cli.Context) error {
 		return fmt.Errorf("cannot create future client, err : %w", err)
 	}
 
+	if err = f.InitPairs(ctx.Bool("binance")); err != nil {
+		return fmt.Errorf("cannot init pairs, err : %w", err)
+	}
+
 	if ctx.Bool("all") {
 		names = f.Pairs
 	} else {
@@ -68,6 +72,10 @@ func PruneCandleData(ctx *cli.Context) error {
 	f, err := futureclient.NewFutureClient(utilities.GetConfig("./"))
 	if err != nil {
 		return fmt.Errorf("cannot create future client, err : %w", err)
+	}
+
+	if err = f.InitPairs(false); err != nil {
+		return fmt.Errorf("cannot init pairs, err : %w", err)
 	}
 
 	err = f.PruneCandles()

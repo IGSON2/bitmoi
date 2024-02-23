@@ -38,10 +38,14 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
 	}
-	if getErr := f.GetAllPairsFromBinance(); getErr != nil {
-		return nil, getErr
-	}
 	return f, nil
+}
+
+func (f *FutureClient) InitPairs(isBinance bool) error {
+	if isBinance {
+		return f.GetAllPairsFromBinance()
+	}
+	return f.GetAllPairsFromStore()
 }
 
 // GetAllPairsFromBinance is storing pairnames from binance server but "deprecated" now.
