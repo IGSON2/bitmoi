@@ -165,11 +165,11 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 	return err
 }
 
-func (s *Server) getMyPracScores(userId string, pages int32, c *fiber.Ctx) ([]db.PracScore, error) {
+func (s *Server) getMyPracScores(userId string, page int32, c *fiber.Ctx) ([]db.PracScore, error) {
 	return s.store.GetPracScoresByUserID(c.Context(), db.GetPracScoresByUserIDParams{
 		UserID: userId,
 		Limit:  myscoreRows,
-		Offset: (pages - 1) * myscoreRows,
+		Offset: (page - 1) * myscoreRows,
 	})
 }
 
@@ -268,8 +268,6 @@ func (s *Server) insertCompScoreToRankBoard(req *RankInsertRequest, user *db.Use
 			_, err = s.store.InsertRank(c.Context(), db.InsertRankParams{
 				UserID:       user.UserID,
 				ScoreID:      req.ScoreId,
-				Nickname:     user.Nickname.String,
-				PhotoUrl:     user.PhotoUrl.String,
 				Comment:      req.Comment,
 				FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 			})
@@ -283,7 +281,6 @@ func (s *Server) insertCompScoreToRankBoard(req *RankInsertRequest, user *db.Use
 	_, err = s.store.UpdateUserRank(c.Context(), db.UpdateUserRankParams{
 		UserID:       user.UserID,
 		ScoreID:      req.ScoreId,
-		Nickname:     user.Nickname.String,
 		Comment:      req.Comment,
 		FinalBalance: math.Floor(100*(totalScore+defaultBalance)) / 100,
 	})

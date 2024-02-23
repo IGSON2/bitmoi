@@ -12,18 +12,18 @@ import (
 
 const createRecommendHistory = `-- name: CreateRecommendHistory :execresult
 INSERT INTO recommend_history (
-    from_user,
-    to_user
+    recommender,
+    new_member
 ) VALUES (
     ?, ?
 )
 `
 
 type CreateRecommendHistoryParams struct {
-	FromUser string `json:"from_user"`
-	ToUser   string `json:"to_user"`
+	Recommender string `json:"recommender"`
+	NewMember   string `json:"new_member"`
 }
 
 func (q *Queries) CreateRecommendHistory(ctx context.Context, arg CreateRecommendHistoryParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createRecommendHistory, arg.FromUser, arg.ToUser)
+	return q.db.ExecContext(ctx, createRecommendHistory, arg.Recommender, arg.NewMember)
 }

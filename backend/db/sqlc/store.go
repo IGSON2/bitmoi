@@ -14,6 +14,7 @@ type Store interface {
 	SpendTokenTx(ctx context.Context, arg SpendTokenTxParams) (SpendTokenTxResult, error)
 	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error
 	SettleImdPracScoreTx(ctx context.Context, arg SettleImdScoreTxParams) (float64, error)
+	RewardRecommenderTx(ctx context.Context, arg RewardRecommenderTxParams) (string, error)
 }
 
 type SqlStore struct {

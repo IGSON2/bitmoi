@@ -42,7 +42,7 @@ func (q *Queries) CreateBiddingHistory(ctx context.Context, arg CreateBiddingHis
 }
 
 const getHighestBidder = `-- name: GetHighestBidder :one
-SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
+SELECT tx_hash, user_id, amount, location, expires_at, created_at FROM bidding_history 
 WHERE location = ? AND expires_at >= ? AND expires_at < now()
 ORDER BY amount DESC
 LIMIT 1
@@ -57,10 +57,10 @@ func (q *Queries) GetHighestBidder(ctx context.Context, arg GetHighestBidderPara
 	row := q.db.QueryRowContext(ctx, getHighestBidder, arg.Location, arg.ExpiresAt)
 	var i BiddingHistory
 	err := row.Scan(
+		&i.TxHash,
 		&i.UserID,
 		&i.Amount,
 		&i.Location,
-		&i.TxHash,
 		&i.ExpiresAt,
 		&i.CreatedAt,
 	)
@@ -68,7 +68,7 @@ func (q *Queries) GetHighestBidder(ctx context.Context, arg GetHighestBidderPara
 }
 
 const getHistoryByLocation = `-- name: GetHistoryByLocation :many
-SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
+SELECT tx_hash, user_id, amount, location, expires_at, created_at FROM bidding_history 
 WHERE location = ? AND expires_at >= now()
 ORDER BY amount DESC 
 LIMIT ?
@@ -89,10 +89,10 @@ func (q *Queries) GetHistoryByLocation(ctx context.Context, arg GetHistoryByLoca
 	for rows.Next() {
 		var i BiddingHistory
 		if err := rows.Scan(
+			&i.TxHash,
 			&i.UserID,
 			&i.Amount,
 			&i.Location,
-			&i.TxHash,
 			&i.ExpiresAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -110,7 +110,7 @@ func (q *Queries) GetHistoryByLocation(ctx context.Context, arg GetHistoryByLoca
 }
 
 const getHistoryByUser = `-- name: GetHistoryByUser :many
-SELECT user_id, amount, location, tx_hash, expires_at, created_at FROM bidding_history 
+SELECT tx_hash, user_id, amount, location, expires_at, created_at FROM bidding_history 
 WHERE user_id = ?
 ORDER BY created_at DESC
 `
@@ -125,10 +125,10 @@ func (q *Queries) GetHistoryByUser(ctx context.Context, userID string) ([]Biddin
 	for rows.Next() {
 		var i BiddingHistory
 		if err := rows.Scan(
+			&i.TxHash,
 			&i.UserID,
 			&i.Amount,
 			&i.Location,
-			&i.TxHash,
 			&i.ExpiresAt,
 			&i.CreatedAt,
 		); err != nil {

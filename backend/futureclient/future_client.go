@@ -38,7 +38,7 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
 	}
-	if getErr := f.GetAllPairsFromStore(); getErr != nil {
+	if getErr := f.GetAllPairsFromBinance(); getErr != nil {
 		return nil, getErr
 	}
 	return f, nil
@@ -56,7 +56,7 @@ func (f *FutureClient) GetAllPairsFromBinance() error {
 			f.Pairs = append(f.Pairs, s.Symbol)
 		}
 	}
-	log.Info().Msg("init all pair names completely")
+	log.Info().Msgf("init all pair names completely, total %d pairs.\n %v", len(f.Pairs), f.Pairs)
 	return nil
 }
 

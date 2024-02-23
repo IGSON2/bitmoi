@@ -6,5 +6,16 @@ CREATE TABLE `sessions` (
   `client_ip` varchar(255) NOT NULL,
   `is_blocked` boolean NOT NULL DEFAULT false,
   `expires_at` timestamp NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+);
+
+CREATE TABLE `verify_emails` (
+  `id` bigint AUTO_INCREMENT PRIMARY KEY,
+  `user_id` varchar(255) NOT NULL,
+  `secret_code` varchar(255) NOT NULL,
+  `is_used` boolean NOT NULL DEFAULT false,
+  `created_at` timestamp NOT NULL,
+  `expired_at` timestamp NOT NULL,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
 );

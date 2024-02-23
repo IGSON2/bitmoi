@@ -153,6 +153,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Post("/intermediate/close", server.closeImdScore)
 	authGroup.Get("/intermediate/interval", server.getImdInterval)
 	authGroup.Put("/intermediate/settle", server.SettleImdScore)
+	authGroup.Get("/wmoi-transactions", server.getRecomendationRewards)
 
 	server.router = router
 

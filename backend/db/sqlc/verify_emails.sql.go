@@ -14,18 +14,16 @@ import (
 const createVerifyEmail = `-- name: CreateVerifyEmail :execresult
 INSERT INTO verify_emails (
     user_id,
-    email,
     secret_code,
     created_at,
     expired_at
 ) VALUES (
-    ?, ?, ?, ?, ?
+    ?, ?, ?, ?
 )
 `
 
 type CreateVerifyEmailParams struct {
 	UserID     string    `json:"user_id"`
-	Email      string    `json:"email"`
 	SecretCode string    `json:"secret_code"`
 	CreatedAt  time.Time `json:"created_at"`
 	ExpiredAt  time.Time `json:"expired_at"`
@@ -34,7 +32,6 @@ type CreateVerifyEmailParams struct {
 func (q *Queries) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createVerifyEmail,
 		arg.UserID,
-		arg.Email,
 		arg.SecretCode,
 		arg.CreatedAt,
 		arg.ExpiredAt,
@@ -42,7 +39,7 @@ func (q *Queries) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailPa
 }
 
 const getVerifyEmails = `-- name: GetVerifyEmails :one
-SELECT id, user_id, email, secret_code, is_used, created_at, expired_at FROM verify_emails
+SELECT id, user_id, secret_code, is_used, created_at, expired_at FROM verify_emails
 WHERE id = ? AND secret_code= ?
 `
 
@@ -57,7 +54,6 @@ func (q *Queries) GetVerifyEmails(ctx context.Context, arg GetVerifyEmailsParams
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.Email,
 		&i.SecretCode,
 		&i.IsUsed,
 		&i.CreatedAt,

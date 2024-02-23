@@ -63,3 +63,7 @@ type BidTokenRequest struct {
 	Amount   int    `json:"amount" validate:"required,number,min=1"`
 	Location string `json:"location" validate:"required,oneof=practice rank freetoken"`
 }
+
+type CreateRecommendHistoryRequest struct {
+	Code string `json:"code" validate:"required,hexadecimal"`
+}

@@ -155,19 +155,19 @@ func (mr *MockStoreMockRecorder) CreateVerifyEmail(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVerifyEmail", reflect.TypeOf((*MockStore)(nil).CreateVerifyEmail), arg0, arg1)
 }
 
-// CreateWmoiTransaction mocks base method.
-func (m *MockStore) CreateWmoiTransaction(arg0 context.Context, arg1 db.CreateWmoiTransactionParams) (sql.Result, error) {
+// CreateWmoiMintinghist mocks base method.
+func (m *MockStore) CreateWmoiMintinghist(arg0 context.Context, arg1 db.CreateWmoiMintinghistParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateWmoiTransaction", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateWmoiMintinghist", arg0, arg1)
 	ret0, _ := ret[0].(sql.Result)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateWmoiTransaction indicates an expected call of CreateWmoiTransaction.
-func (mr *MockStoreMockRecorder) CreateWmoiTransaction(arg0, arg1 interface{}) *gomock.Call {
+// CreateWmoiMintinghist indicates an expected call of CreateWmoiMintinghist.
+func (mr *MockStoreMockRecorder) CreateWmoiMintinghist(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiTransaction", reflect.TypeOf((*MockStore)(nil).CreateWmoiTransaction), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiMintinghist", reflect.TypeOf((*MockStore)(nil).CreateWmoiMintinghist), arg0, arg1)
 }
 
 // Get15mCandles mocks base method.
@@ -966,7 +966,7 @@ func (mr *MockStoreMockRecorder) GetUserByNickName(arg0, arg1 interface{}) *gomo
 }
 
 // GetUserByRecommenderCode mocks base method.
-func (m *MockStore) GetUserByRecommenderCode(arg0 context.Context, arg1 sql.NullString) (db.User, error) {
+func (m *MockStore) GetUserByRecommenderCode(arg0 context.Context, arg1 string) (db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByRecommenderCode", arg0, arg1)
 	ret0, _ := ret[0].(db.User)
@@ -1053,6 +1053,21 @@ func (m *MockStore) GetVerifyEmails(arg0 context.Context, arg1 db.GetVerifyEmail
 func (mr *MockStoreMockRecorder) GetVerifyEmails(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVerifyEmails", reflect.TypeOf((*MockStore)(nil).GetVerifyEmails), arg0, arg1)
+}
+
+// GetWmoiMintingHist mocks base method.
+func (m *MockStore) GetWmoiMintingHist(arg0 context.Context, arg1 db.GetWmoiMintingHistParams) ([]db.WmoiMintingHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWmoiMintingHist", arg0, arg1)
+	ret0, _ := ret[0].([]db.WmoiMintingHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWmoiMintingHist indicates an expected call of GetWmoiMintingHist.
+func (mr *MockStoreMockRecorder) GetWmoiMintingHist(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWmoiMintingHist", reflect.TypeOf((*MockStore)(nil).GetWmoiMintingHist), arg0, arg1)
 }
 
 // Insert15mCandles mocks base method.
@@ -1173,6 +1188,21 @@ func (m *MockStore) InsertRank(arg0 context.Context, arg1 db.InsertRankParams) (
 func (mr *MockStoreMockRecorder) InsertRank(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRank", reflect.TypeOf((*MockStore)(nil).InsertRank), arg0, arg1)
+}
+
+// RewardRecommenderTx mocks base method.
+func (m *MockStore) RewardRecommenderTx(arg0 context.Context, arg1 db.RewardRecommenderTxParams) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RewardRecommenderTx", arg0, arg1)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RewardRecommenderTx indicates an expected call of RewardRecommenderTx.
+func (mr *MockStoreMockRecorder) RewardRecommenderTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RewardRecommenderTx", reflect.TypeOf((*MockStore)(nil).RewardRecommenderTx), arg0, arg1)
 }
 
 // SelectMinMaxTime mocks base method.

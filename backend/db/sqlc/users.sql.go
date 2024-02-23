@@ -35,7 +35,7 @@ type CreateUserParams struct {
 	PhotoUrl        sql.NullString `json:"photo_url"`
 	PracBalance     float64        `json:"prac_balance"`
 	CompBalance     float64        `json:"comp_balance"`
-	RecommenderCode sql.NullString `json:"recommender_code"`
+	RecommenderCode string         `json:"recommender_code"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error) {
@@ -216,7 +216,7 @@ SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_addres
 WHERE recommender_code = ?
 `
 
-func (q *Queries) GetUserByRecommenderCode(ctx context.Context, recommenderCode sql.NullString) (User, error) {
+func (q *Queries) GetUserByRecommenderCode(ctx context.Context, recommenderCode string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByRecommenderCode, recommenderCode)
 	var i User
 	err := row.Scan(

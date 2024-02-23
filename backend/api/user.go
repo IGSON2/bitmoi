@@ -37,6 +37,7 @@ func convertUserResponse(user db.User) UserResponse {
 		Email:             user.Email,
 		PracBalance:       user.PracBalance,
 		CompBalance:       user.CompBalance,
+		RecommenderCode:   user.RecommenderCode,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
@@ -49,10 +50,6 @@ func convertUserResponse(user db.User) UserResponse {
 	if user.LastAccessedAt.Valid {
 		uR.LastAccessedAt = user.LastAccessedAt.Time
 	}
-	if user.RecommenderCode.Valid {
-		uR.RecommenderCode = user.RecommenderCode.String
-	}
-
 	return uR
 }
 
@@ -401,10 +398,4 @@ func (s *Server) updateNickname(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
-}
-
-func (s *Server) rewardRecommender(c *fiber.Ctx) error {
-	// s.store.CreateRecommendHistory(c.Context(), db.CreateRecommendHistoryParams{})
-	// s.store.CreateWmoiTransaction(c.Context(), db.CreateWmoiTransactionParams{})
-	return nil
 }

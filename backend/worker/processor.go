@@ -75,7 +75,6 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 
 	r, err := processor.store.CreateVerifyEmail(ctx, db.CreateVerifyEmailParams{
 		UserID:     user.UserID,
-		Email:      user.Email,
 		SecretCode: secretCode,
 		CreatedAt:  time.Now(),
 		ExpiredAt:  time.Now().Add(processor.accessDuration),

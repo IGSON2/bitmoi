@@ -1,12 +1,11 @@
 -- name: CreateVerifyEmail :execresult
 INSERT INTO verify_emails (
     user_id,
-    email,
     secret_code,
     created_at,
     expired_at
 ) VALUES (
-    ?, ?, ?, ?, ?
+    ?, ?, ?, ?
 );
 
 -- name: UpdateVerifyEmail :execresult

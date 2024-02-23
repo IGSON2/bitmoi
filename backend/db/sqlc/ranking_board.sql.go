@@ -12,7 +12,7 @@ import (
 )
 
 const getAllRanks = `-- name: GetAllRanks :many
-SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
+SELECT user_id, score_id, final_balance, comment, created_at FROM ranking_board
 ORDER BY final_balance DESC
 LIMIT ?
 OFFSET ?
@@ -34,9 +34,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 		var i RankingBoard
 		if err := rows.Scan(
 			&i.UserID,
-			&i.PhotoUrl,
 			&i.ScoreID,
-			&i.Nickname,
 			&i.FinalBalance,
 			&i.Comment,
 			&i.CreatedAt,
@@ -55,7 +53,7 @@ func (q *Queries) GetAllRanks(ctx context.Context, arg GetAllRanksParams) ([]Ran
 }
 
 const getRankByUserID = `-- name: GetRankByUserID :one
-SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
+SELECT user_id, score_id, final_balance, comment, created_at FROM ranking_board
 WHERE user_id = ?
 `
 
@@ -64,9 +62,7 @@ func (q *Queries) GetRankByUserID(ctx context.Context, userID string) (RankingBo
 	var i RankingBoard
 	err := row.Scan(
 		&i.UserID,
-		&i.PhotoUrl,
 		&i.ScoreID,
-		&i.Nickname,
 		&i.FinalBalance,
 		&i.Comment,
 		&i.CreatedAt,
@@ -75,7 +71,7 @@ func (q *Queries) GetRankByUserID(ctx context.Context, userID string) (RankingBo
 }
 
 const getTopRankers = `-- name: GetTopRankers :many
-SELECT user_id, photo_url, score_id, nickname, final_balance, comment, created_at FROM ranking_board
+SELECT user_id, score_id, final_balance, comment, created_at FROM ranking_board
 WHERE created_at > ?
 ORDER BY final_balance DESC
 LIMIT ?
@@ -99,9 +95,7 @@ func (q *Queries) GetTopRankers(ctx context.Context, arg GetTopRankersParams) ([
 		var i RankingBoard
 		if err := rows.Scan(
 			&i.UserID,
-			&i.PhotoUrl,
 			&i.ScoreID,
-			&i.Nickname,
 			&i.FinalBalance,
 			&i.Comment,
 			&i.CreatedAt,
@@ -123,20 +117,16 @@ const insertRank = `-- name: InsertRank :execresult
 INSERT INTO ranking_board (
     user_id,
     score_id,
-    nickname,
-    photo_url,
     comment,
     final_balance
 ) VALUES (
-   ?, ?, ?, ?, ?, ?
+   ?, ?, ?, ?
 )
 `
 
 type InsertRankParams struct {
 	UserID       string  `json:"user_id"`
 	ScoreID      string  `json:"score_id"`
-	Nickname     string  `json:"nickname"`
-	PhotoUrl     string  `json:"photo_url"`
 	Comment      string  `json:"comment"`
 	FinalBalance float64 `json:"final_balance"`
 }
@@ -145,8 +135,6 @@ func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Res
 	return q.db.ExecContext(ctx, insertRank,
 		arg.UserID,
 		arg.ScoreID,
-		arg.Nickname,
-		arg.PhotoUrl,
 		arg.Comment,
 		arg.FinalBalance,
 	)
@@ -154,7 +142,7 @@ func (q *Queries) InsertRank(ctx context.Context, arg InsertRankParams) (sql.Res
 
 const updateUserRank = `-- name: UpdateUserRank :execresult
 UPDATE ranking_board 
-SET score_id = ?, final_balance = ?, comment = ?, nickname = ?
+SET score_id = ?, final_balance = ?, comment = ?
 WHERE user_id = ?
 `
 
@@ -162,7 +150,6 @@ type UpdateUserRankParams struct {
 	ScoreID      string  `json:"score_id"`
 	FinalBalance float64 `json:"final_balance"`
 	Comment      string  `json:"comment"`
-	Nickname     string  `json:"nickname"`
 	UserID       string  `json:"user_id"`
 }
 
@@ -171,7 +158,6 @@ func (q *Queries) UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) 
 		arg.ScoreID,
 		arg.FinalBalance,
 		arg.Comment,
-		arg.Nickname,
 		arg.UserID,
 	)
 }

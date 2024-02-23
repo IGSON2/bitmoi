@@ -2,12 +2,10 @@
 INSERT INTO ranking_board (
     user_id,
     score_id,
-    nickname,
-    photo_url,
     comment,
     final_balance
 ) VALUES (
-   ?, ?, ?, ?, ?, ?
+   ?, ?, ?, ?
 );
 
 -- name: GetAllRanks :many
@@ -22,7 +20,7 @@ WHERE user_id = ?;
 
 -- name: UpdateUserRank :execresult
 UPDATE ranking_board 
-SET score_id = ?, final_balance = ?, comment = ?, nickname = ?
+SET score_id = ?, final_balance = ?, comment = ?
 WHERE user_id = ?;
 
 -- name: GetTopRankers :many

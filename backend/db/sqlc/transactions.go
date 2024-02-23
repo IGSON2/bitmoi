@@ -203,3 +203,46 @@ func (store *SqlStore) SettleImdPracScoreTx(ctx context.Context, arg SettleImdSc
 	})
 	return totalPnl, err
 }
+
+type RewardRecommenderTxParams struct {
+	NewMember       string
+	RecommenderCode string
+}
+
+const (
+	RecommendationReward = 10
+	RecommendationTitle  = "추천 보상"
+)
+
+var ErrRecommenderNotFound = fmt.Errorf("recommender not found")
+
+func (store *SqlStore) RewardRecommenderTx(ctx context.Context, arg RewardRecommenderTxParams) (string, error) {
+	recmNick := ""
+	err := store.execTx(ctx, func(q *Queries) error {
+		recommender, err := store.GetUserByRecommenderCode(ctx, arg.RecommenderCode)
+		if err != nil {
+			return ErrRecommenderNotFound
+		}
+
+		_, err = store.CreateRecommendHistory(ctx, CreateRecommendHistoryParams{
+			Recommender: recommender.UserID,
+			NewMember:   arg.NewMember,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to reward recommender due to cannot create recommend history. err: %w, recommender: %s, new_member: %s", err, recommender.UserID, arg.NewMember)
+		}
+
+		_, err = store.CreateWmoiMintinghist(ctx, CreateWmoiMintinghistParams{
+			ToUser: recommender.UserID,
+			Amount: RecommendationReward,
+			Title:  RecommendationTitle,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to reward recommender due to cannot create wmoi minting history. err: %w, recommender: %s", err, recommender.UserID)
+		}
+
+		recmNick = recommender.Nickname.String
+		return nil
+	})
+	return recmNick, err
+}

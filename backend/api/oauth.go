@@ -103,7 +103,7 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 			Nickname:        sql.NullString{String: fmt.Sprintf("Chartist%02d", idNum+1), Valid: true},
 			Email:           od.Email,
 			PhotoUrl:        sql.NullString{String: od.Picture, Valid: true},
-			RecommenderCode: sql.NullString{String: code, Valid: true},
+			RecommenderCode: code,
 		})
 		if createErr != nil {
 			s.logger.Error().Err(err).Str("user id", userId).Msg("cannot create user")

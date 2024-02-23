@@ -10,10 +10,10 @@ import (
 )
 
 type BiddingHistory struct {
+	TxHash    string    `json:"tx_hash"`
 	UserID    string    `json:"user_id"`
 	Amount    int64     `json:"amount"`
 	Location  string    `json:"location"`
-	TxHash    string    `json:"tx_hash"`
 	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -111,19 +111,16 @@ type PracScore struct {
 
 type RankingBoard struct {
 	UserID       string    `json:"user_id"`
-	PhotoUrl     string    `json:"photo_url"`
 	ScoreID      string    `json:"score_id"`
-	Nickname     string    `json:"nickname"`
 	FinalBalance float64   `json:"final_balance"`
 	Comment      string    `json:"comment"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 type RecommendHistory struct {
-	ID        int64     `json:"id"`
-	FromUser  string    `json:"from_user"`
-	ToUser    string    `json:"to_user"`
-	CreatedAt time.Time `json:"created_at"`
+	Recommender string    `json:"recommender"`
+	NewMember   string    `json:"new_member"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type Session struct {
@@ -156,7 +153,7 @@ type User struct {
 	PracBalance       float64        `json:"prac_balance"`
 	CompBalance       float64        `json:"comp_balance"`
 	WmoiBalance       float64        `json:"wmoi_balance"`
-	RecommenderCode   sql.NullString `json:"recommender_code"`
+	RecommenderCode   string         `json:"recommender_code"`
 	CreatedAt         time.Time      `json:"created_at"`
 	LastAccessedAt    sql.NullTime   `json:"last_accessed_at"`
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
@@ -166,16 +163,14 @@ type User struct {
 type VerifyEmail struct {
 	ID         int64     `json:"id"`
 	UserID     string    `json:"user_id"`
-	Email      string    `json:"email"`
 	SecretCode string    `json:"secret_code"`
 	IsUsed     bool      `json:"is_used"`
 	CreatedAt  time.Time `json:"created_at"`
 	ExpiredAt  time.Time `json:"expired_at"`
 }
 
-type WmoiTransaction struct {
+type WmoiMintingHistory struct {
 	ID        int64     `json:"id"`
-	FromUser  string    `json:"from_user"`
 	ToUser    string    `json:"to_user"`
 	Amount    int64     `json:"amount"`
 	Title     string    `json:"title"`

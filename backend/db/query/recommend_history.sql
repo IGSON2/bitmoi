@@ -1,7 +1,7 @@
 -- name: CreateRecommendHistory :execresult
 INSERT INTO recommend_history (
-    from_user,
-    to_user
+    recommender,
+    new_member
 ) VALUES (
     ?, ?
 );
