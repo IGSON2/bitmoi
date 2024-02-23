@@ -63,7 +63,7 @@ func (f *FutureClient) GetAllPairsFromBinance() error {
 func (f *FutureClient) GetAllPairsFromStore() error {
 	log.Info().Msg("start to get all pair names from database store")
 	var err error
-	f.Pairs, err = f.Store.GetAllParisInDB(context.Background())
+	f.Pairs, err = f.Store.GetAllPairsInDB1D(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
 	}
@@ -238,5 +238,43 @@ func initInsertInfo(interval string) db.InsertQueryInterface {
 	case db.FiveM:
 		return &db.Insert5mCandlesParams{}
 	}
+	return nil
+}
+
+func (f *FutureClient) PruneCandles() error {
+	pairs, err := f.Store.GetUnder1YPairs(context.Background())
+	if err != nil {
+		return fmt.Errorf("cannot get pairs, err : %w", err)
+	}
+
+	log.Info().Msgf("start to prune candles, total %d pairs", len(pairs))
+	for _, p := range pairs {
+		_, err = f.Store.DeletePairs1d(context.Background(), p)
+		if err != nil {
+			return fmt.Errorf("cannot prune candles, err : %w", err)
+		}
+
+		_, err = f.Store.DeletePairs4h(context.Background(), p)
+		if err != nil {
+			return fmt.Errorf("cannot prune candles, err : %w", err)
+		}
+
+		_, err = f.Store.DeletePairs1h(context.Background(), p)
+		if err != nil {
+			return fmt.Errorf("cannot prune candles, err : %w", err)
+		}
+
+		_, err = f.Store.DeletePairs15m(context.Background(), p)
+		if err != nil {
+			return fmt.Errorf("cannot prune candles, err : %w", err)
+		}
+
+		_, err = f.Store.DeletePairs5m(context.Background(), p)
+		if err != nil {
+			return fmt.Errorf("cannot prune candles, err : %w", err)
+		}
+		log.Info().Msgf("prune candles complete, pair : %s", p)
+	}
+
 	return nil
 }

@@ -81,7 +81,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 		faucetTimeouts:  make(map[string]int64),
 	}
 
-	ps, err := server.store.GetAllParisInDB(context.Background())
+	ps, err := server.store.GetAllPairsInDB1H(context.Background())
 	if err != nil {
 		return nil, err
 	}

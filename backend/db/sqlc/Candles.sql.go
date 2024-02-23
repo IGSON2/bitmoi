@@ -10,6 +10,46 @@ import (
 	"database/sql"
 )
 
+const deletePairs15m = `-- name: DeletePairs15m :execresult
+DELETE FROM candles_15m WHERE name = ?
+`
+
+func (q *Queries) DeletePairs15m(ctx context.Context, name string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePairs15m, name)
+}
+
+const deletePairs1d = `-- name: DeletePairs1d :execresult
+DELETE FROM candles_1d WHERE name = ?
+`
+
+func (q *Queries) DeletePairs1d(ctx context.Context, name string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePairs1d, name)
+}
+
+const deletePairs1h = `-- name: DeletePairs1h :execresult
+DELETE FROM candles_1h WHERE name = ?
+`
+
+func (q *Queries) DeletePairs1h(ctx context.Context, name string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePairs1h, name)
+}
+
+const deletePairs4h = `-- name: DeletePairs4h :execresult
+DELETE FROM candles_4h WHERE name = ?
+`
+
+func (q *Queries) DeletePairs4h(ctx context.Context, name string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePairs4h, name)
+}
+
+const deletePairs5m = `-- name: DeletePairs5m :execresult
+DELETE FROM candles_5m WHERE name = ?
+`
+
+func (q *Queries) DeletePairs5m(ctx context.Context, name string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePairs5m, name)
+}
+
 const get15mCandles = `-- name: Get15mCandles :many
 SELECT name, open, close, high, low, time, volume, color FROM candles_15m 
 WHERE name = ?  AND time <= ?
@@ -894,13 +934,73 @@ func (q *Queries) Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceA
 	return i, err
 }
 
-const getAllParisInDB = `-- name: GetAllParisInDB :many
+const getAllPairsInDB1D = `-- name: GetAllPairsInDB1D :many
+SELECT DISTINCT name from candles_1d
+ORDER BY name
+`
+
+func (q *Queries) GetAllPairsInDB1D(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getAllPairsInDB1D)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllPairsInDB1H = `-- name: GetAllPairsInDB1H :many
+
 SELECT DISTINCT name from candles_1h
 ORDER BY name
 `
 
-func (q *Queries) GetAllParisInDB(ctx context.Context) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, getAllParisInDB)
+// --------utils----------------
+func (q *Queries) GetAllPairsInDB1H(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getAllPairsInDB1H)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUnder1YPairs = `-- name: GetUnder1YPairs :many
+SELECT name
+FROM candles_1d
+GROUP BY name
+HAVING COUNT(name) < 365
+`
+
+func (q *Queries) GetUnder1YPairs(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getUnder1YPairs)
 	if err != nil {
 		return nil, err
 	}

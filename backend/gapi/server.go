@@ -49,7 +49,7 @@ func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
 		tokenMaker: tm,
 	}
 
-	ps, err := server.store.GetAllParisInDB(context.Background())
+	ps, err := server.store.GetAllPairsInDB1H(context.Background())
 	if err != nil {
 		return nil, err
 	}

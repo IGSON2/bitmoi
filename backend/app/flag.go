@@ -24,6 +24,11 @@ var (
 		Usage: "If it's true, get all pairs",
 		Value: false,
 	}
+	FromBinanceFlag = &cli.BoolFlag{
+		Name:  "binance",
+		Usage: "If it's true, init future client's pair list from binance. if it's false, init from db.",
+		Value: false,
+	}
 	BackwardFlag = &cli.BoolFlag{
 		Name:  "backward",
 		Usage: "If it's true, store candles before minimum timestamp otherwise, store candles after maximum timestamp",
@@ -34,6 +39,8 @@ var (
 		Usage: "Specify pairs to get, type symbal and seperate by comma e.b : BTC,ETH",
 		Value: "",
 	}
+)
+var (
 	DatadirFlag = &cli.StringFlag{
 		Name:  "datadir",
 		Usage: "Specify pairs to datadir path.",

@@ -23,6 +23,7 @@ var bApp = app.NewApp()
 func init() {
 	bApp.Commands = []*cli.Command{
 		app.StoreCommand,
+		app.PruneCommand,
 	}
 	bApp.Flags = []cli.Flag{
 		app.DatadirFlag,

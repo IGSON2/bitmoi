@@ -170,6 +170,81 @@ func (mr *MockStoreMockRecorder) CreateWmoiMintinghist(arg0, arg1 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiMintinghist", reflect.TypeOf((*MockStore)(nil).CreateWmoiMintinghist), arg0, arg1)
 }
 
+// DeletePairs15m mocks base method.
+func (m *MockStore) DeletePairs15m(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePairs15m", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePairs15m indicates an expected call of DeletePairs15m.
+func (mr *MockStoreMockRecorder) DeletePairs15m(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs15m", reflect.TypeOf((*MockStore)(nil).DeletePairs15m), arg0, arg1)
+}
+
+// DeletePairs1d mocks base method.
+func (m *MockStore) DeletePairs1d(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePairs1d", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePairs1d indicates an expected call of DeletePairs1d.
+func (mr *MockStoreMockRecorder) DeletePairs1d(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs1d", reflect.TypeOf((*MockStore)(nil).DeletePairs1d), arg0, arg1)
+}
+
+// DeletePairs1h mocks base method.
+func (m *MockStore) DeletePairs1h(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePairs1h", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePairs1h indicates an expected call of DeletePairs1h.
+func (mr *MockStoreMockRecorder) DeletePairs1h(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs1h", reflect.TypeOf((*MockStore)(nil).DeletePairs1h), arg0, arg1)
+}
+
+// DeletePairs4h mocks base method.
+func (m *MockStore) DeletePairs4h(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePairs4h", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePairs4h indicates an expected call of DeletePairs4h.
+func (mr *MockStoreMockRecorder) DeletePairs4h(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs4h", reflect.TypeOf((*MockStore)(nil).DeletePairs4h), arg0, arg1)
+}
+
+// DeletePairs5m mocks base method.
+func (m *MockStore) DeletePairs5m(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePairs5m", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePairs5m indicates an expected call of DeletePairs5m.
+func (mr *MockStoreMockRecorder) DeletePairs5m(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs5m", reflect.TypeOf((*MockStore)(nil).DeletePairs5m), arg0, arg1)
+}
+
 // Get15mCandles mocks base method.
 func (m *MockStore) Get15mCandles(arg0 context.Context, arg1 db.Get15mCandlesParams) ([]db.Candles15m, error) {
 	m.ctrl.T.Helper()
@@ -560,19 +635,34 @@ func (mr *MockStoreMockRecorder) Get5mVolSumPriceAVG(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get5mVolSumPriceAVG), arg0, arg1)
 }
 
-// GetAllParisInDB mocks base method.
-func (m *MockStore) GetAllParisInDB(arg0 context.Context) ([]string, error) {
+// GetAllPairsInDB1D mocks base method.
+func (m *MockStore) GetAllPairsInDB1D(arg0 context.Context) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllParisInDB", arg0)
+	ret := m.ctrl.Call(m, "GetAllPairsInDB1D", arg0)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAllParisInDB indicates an expected call of GetAllParisInDB.
-func (mr *MockStoreMockRecorder) GetAllParisInDB(arg0 interface{}) *gomock.Call {
+// GetAllPairsInDB1D indicates an expected call of GetAllPairsInDB1D.
+func (mr *MockStoreMockRecorder) GetAllPairsInDB1D(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllParisInDB", reflect.TypeOf((*MockStore)(nil).GetAllParisInDB), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPairsInDB1D", reflect.TypeOf((*MockStore)(nil).GetAllPairsInDB1D), arg0)
+}
+
+// GetAllPairsInDB1H mocks base method.
+func (m *MockStore) GetAllPairsInDB1H(arg0 context.Context) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllPairsInDB1H", arg0)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllPairsInDB1H indicates an expected call of GetAllPairsInDB1H.
+func (mr *MockStoreMockRecorder) GetAllPairsInDB1H(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPairsInDB1H", reflect.TypeOf((*MockStore)(nil).GetAllPairsInDB1H), arg0)
 }
 
 // GetAllRanks mocks base method.
@@ -873,6 +963,21 @@ func (m *MockStore) GetTopRankers(arg0 context.Context, arg1 db.GetTopRankersPar
 func (mr *MockStoreMockRecorder) GetTopRankers(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopRankers", reflect.TypeOf((*MockStore)(nil).GetTopRankers), arg0, arg1)
+}
+
+// GetUnder1YPairs mocks base method.
+func (m *MockStore) GetUnder1YPairs(arg0 context.Context) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUnder1YPairs", arg0)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUnder1YPairs indicates an expected call of GetUnder1YPairs.
+func (mr *MockStoreMockRecorder) GetUnder1YPairs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnder1YPairs", reflect.TypeOf((*MockStore)(nil).GetUnder1YPairs), arg0)
 }
 
 // GetUnsettledCompScores mocks base method.

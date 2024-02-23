@@ -14,7 +14,14 @@ var (
 		Action: GetCandleData,
 		Name:   "store",
 		Usage:  "Store candles data form binance",
-		Flags:  []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, BackwardFlag, PairListFlag},
+		Flags:  []cli.Flag{IntervalFlag, TimestampFlag, GetAllFlag, FromBinanceFlag, BackwardFlag, PairListFlag},
+	}
+
+	PruneCommand = &cli.Command{
+		Action: PruneCandleData,
+		Name:   "prune",
+		Usage:  "Prune candles data with a period of less than a year",
+		Flags:  []cli.Flag{},
 	}
 )
 
@@ -54,5 +61,19 @@ func GetCandleData(ctx *cli.Context) error {
 		}
 	}
 	log.Info().Msg("All pairs are stored completely")
+	return nil
+}
+
+func PruneCandleData(ctx *cli.Context) error {
+	f, err := futureclient.NewFutureClient(utilities.GetConfig("./"))
+	if err != nil {
+		return fmt.Errorf("cannot create future client, err : %w", err)
+	}
+
+	err = f.PruneCandles()
+	if err != nil {
+		return fmt.Errorf("cannot prune candles, err : %w", err)
+	}
+	log.Info().Msg("Pruned all pairs completely")
 	return nil
 }

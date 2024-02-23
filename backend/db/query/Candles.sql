@@ -37,6 +37,9 @@ WHERE name = ?;
 -- name: Get1dVolSumPriceAVG :one
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1d WHERE name = ? AND time <= ?;
 
+-- name: DeletePairs1d :execresult
+DELETE FROM candles_1d WHERE name = ?;
+
 -- name: Insert4hCandles :execresult
 INSERT INTO candles_4h (
     name,
@@ -75,6 +78,9 @@ WHERE name = ?;
 
 -- name: Get4hVolSumPriceAVG :one
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_4h WHERE name = ? AND time <= ?;
+
+-- name: DeletePairs4h :execresult
+DELETE FROM candles_4h WHERE name = ?;
 
 -- name: Insert1hCandles :execresult
 INSERT INTO candles_1h (
@@ -121,6 +127,9 @@ WHERE name = ?;
 -- name: Get1hVolSumPriceAVG :one
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_1h WHERE name = ? AND time <= ?;
 
+-- name: DeletePairs1h :execresult
+DELETE FROM candles_1h WHERE name = ?;
+
 -- name: Insert15mCandles :execresult
 INSERT INTO candles_15m (
     name,
@@ -159,6 +168,9 @@ WHERE name = ?;
 
 -- name: Get15mVolSumPriceAVG :one
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_15m WHERE name = ? AND time <= ?;
+
+-- name: DeletePairs15m :execresult
+DELETE FROM candles_15m WHERE name = ?;
 
 -- name: Insert5mCandles :execresult
 INSERT INTO candles_5m (
@@ -199,6 +211,21 @@ WHERE name = ?;
 -- name: Get5mVolSumPriceAVG :one
 SELECT SUM(volume) AS volsum, AVG(close) AS priceavg FROM candles_5m WHERE name = ? AND time <= ?;
 
--- name: GetAllParisInDB :many
+-- name: DeletePairs5m :execresult
+DELETE FROM candles_5m WHERE name = ?;
+
+-- --------utils----------------
+
+-- name: GetAllPairsInDB1H :many
 SELECT DISTINCT name from candles_1h
 ORDER BY name;
+
+-- name: GetAllPairsInDB1D :many
+SELECT DISTINCT name from candles_1d
+ORDER BY name;
+
+-- name: GetUnder1YPairs :many
+SELECT name
+FROM candles_1d
+GROUP BY name
+HAVING COUNT(name) < 365;
