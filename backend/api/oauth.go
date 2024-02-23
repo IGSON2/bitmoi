@@ -154,6 +154,8 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		rewardStr = ""
 	}
 
+	s.logger.Info().Msgf("redirect to %s", redirectURL+rewardStr)
+
 	return c.Redirect(redirectURL+rewardStr, fiber.StatusMovedPermanently)
 }
 
