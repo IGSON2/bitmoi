@@ -12,7 +12,7 @@ CREATE TABLE `recommend_history` (
   `recommender` varchar(255) NOT NULL,
   `new_member` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  PRIMARY KEY (`recommender`, `new_member`),
+  PRIMARY KEY (`new_member`),
   FOREIGN KEY (`recommender`) REFERENCES `users`(`user_id`),
   FOREIGN KEY (`new_member`) REFERENCES `users`(`user_id`)
 );

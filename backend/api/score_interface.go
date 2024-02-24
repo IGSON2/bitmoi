@@ -120,6 +120,8 @@ func validateOrderRequest(s ScoreReqInterface) error {
 
 	if (balance * float64(leverage)) < (quantity * entryPrice) {
 		return fmt.Errorf("invalid order. check your balance. order amount : %.5f, limit amount : %.5f ", quantity*entryPrice, balance*float64(leverage))
+	} else if balance < 10 {
+		return fmt.Errorf("insufficient balance. check your balance. balance : %.5f", balance)
 	}
 	return nil
 }

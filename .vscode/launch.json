@@ -10,9 +10,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            // "args": ["--http"]
+            "args": ["--http"]
             // "args": ["store", "--all","--interval=1d","--timestamp=1502928000000"]
-            "args": ["prune"]
+            // "args": ["prune"]
         }
     ]
 }
