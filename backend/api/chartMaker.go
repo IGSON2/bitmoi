@@ -169,11 +169,11 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
-	ratio, err := s.calcBtcRatio(interval, name, refTimestamp, c)
-	if err != nil {
-		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
-			name, interval, refTimestamp, err)
-	}
+	// ratio, err := s.calcBtcRatio(interval, name, refTimestamp, c)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
+	// 		name, interval, refTimestamp, err)
+	// }
 
 	var oc = &OnePairChart{
 		Name:         name,
@@ -181,7 +181,8 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		interval:     interval,
 		refTimestamp: refTimestamp,
-		BtcRatio:     common.CeilDecimal(ratio) * 100,
+		// BtcRatio:     common.CeilDecimal(ratio) * 100,
+		BtcRatio: 0,
 	}
 
 	if mode == competition {

@@ -3,7 +3,6 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"bitmoi/backend/utilities/common"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,17 +29,18 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", originInfo.Name, a.ReqInterval, err)
 	}
 
-	ratio, err := s.calcBtcRatio(a.ReqInterval, originInfo.Name, originInfo.RefTimestamp, c)
-	if err != nil {
-		return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
-			originInfo.Name, a.ReqInterval, originInfo.RefTimestamp, err)
-	}
+	// ratio, err := s.calcBtcRatio(a.ReqInterval, originInfo.Name, originInfo.RefTimestamp, c)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
+	// 		originInfo.Name, a.ReqInterval, originInfo.RefTimestamp, err)
+	// }
 
 	var oc = &OnePairChart{
-		Name:         originInfo.Name,
-		OneChart:     cdd,
-		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
-		BtcRatio:     common.CeilDecimal(ratio) * 100,
+		Name:      originInfo.Name,
+		OneChart:  cdd,
+		EntryTime: utilities.EntryTimeFormatter(cdd.PData[0].Time),
+		// BtcRatio:     common.CeilDecimal(ratio) * 100,
+		BtcRatio:     0,
 		refTimestamp: originInfo.RefTimestamp,
 		interval:     a.ReqInterval,
 	}

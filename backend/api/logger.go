@@ -26,7 +26,7 @@ func (s *Server) createLoggerMiddleware() fiber.Handler {
 		log.Panicf("cannot create logger middleware: %s", err.Error())
 	}
 
-	w := io.MultiWriter(f, os.Stdout)
+	w := io.MultiWriter(f, os.Stdout, os.Stderr)
 	log.Printf("HTTP multi logger has created successfully. PATH=%s", logfilePath)
 
 	lm := logger.New(logger.Config{

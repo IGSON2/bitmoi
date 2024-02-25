@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/adshao/go-binance/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/zerolog/log"
-
-	"github.com/adshao/go-binance/v2/futures"
+	// "github.com/adshao/go-binance/v2/futures"
 )
 
 const (
@@ -20,7 +20,8 @@ const (
 )
 
 type FutureClient struct {
-	Client    *futures.Client
+	// Client    *futures.Client
+	Client    *binance.Client
 	Store     db.Store
 	Pairs     []string
 	Yesterday int64
@@ -34,7 +35,8 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 	}
 
 	f := &FutureClient{
-		Client:    futures.NewClient("", ""),
+		// Client:    futures.NewClient("", ""),
+		Client:    binance.NewClient("", ""),
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
 	}

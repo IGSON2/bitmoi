@@ -5,14 +5,32 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Package",
+            "name": "HTTP",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["--http"]
-            // "args": ["store", "--all","--interval=1d","--timestamp=1502928000000"]
-            // "args": ["prune"]
-        }
+            "args": ["--http"],
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Store",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["store", "--all","--binance","--interval=1d","--timestamp=1502928000000"],
+            // "args": ["store", "--all","--interval=4h,1h,15m","--timestamp=1502928000000"],
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Prune",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["prune"],
+            "console": "integratedTerminal",
+        },
     ]
 }

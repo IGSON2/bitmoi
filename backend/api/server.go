@@ -199,12 +199,16 @@ func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 	if len(history) >= finalstage {
 		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 	}
-	for {
+	for i := 1; ; i++ {
 		nextPair := utilities.FindDiffPair(s.pairs, history)
 		oc, err = s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
 		if err != nil || oc == nil {
 			if err == ErrShortRange {
-				s.logger.Warn().Str("parname", nextPair).Msg(err.Error())
+				s.logger.Warn().Str("parname", nextPair).Msgf("%s, Cnt: %d", err.Error(), i)
+				if i > 10 {
+					s.logger.Error().Str("parname", nextPair).Msg("DB is not ready. not another longer chart.")
+					return c.Status(fiber.StatusInternalServerError).SendString("cannot make chart.")
+				}
 				continue
 			}
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -270,12 +274,16 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	if len(history) >= finalstage {
 		return c.Status(fiber.StatusBadRequest).SendString("invalid current stage")
 	}
-	for {
+	for i := 1; ; i++ {
 		nextPair := utilities.FindDiffPair(s.pairs, history)
 		oc, err = s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
 		if err != nil || oc == nil {
 			if err == ErrShortRange {
-				s.logger.Warn().Str("parname", nextPair).Msg(err.Error())
+				s.logger.Warn().Str("parname", nextPair).Msgf("%s, Cnt: %d", err.Error(), i)
+				if i > 10 {
+					s.logger.Error().Str("parname", nextPair).Msg("DB is not ready. not another longer chart.")
+					return c.Status(fiber.StatusInternalServerError).SendString("cannot make chart.")
+				}
 				continue
 			}
 			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())

@@ -50,8 +50,16 @@ func NewOauthConfig(c *utilities.Config) *oauth2.Config {
 
 func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 	rPath := c.Query("state")
-	if rPath == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("state is required.")
+	if rPath == "" || !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
+		s.logger.Warn().Msgf("path is invalid. rPath: %s", rPath)
+		if strings.HasPrefix("v2", rPath) {
+			p, err := s.tokenMaker.VerifyToken(rPath)
+			if err != nil {
+				rPath = p.UserID
+			}
+		} else {
+			rPath = "practice"
+		}
 	}
 
 	code := c.Query("code")
@@ -154,8 +162,6 @@ func (s *Server) CallBackLogin(c *fiber.Ctx) error {
 		rewardStr = ""
 	}
 
-	s.logger.Info().Msgf("redirect to %s", redirectURL+rewardStr)
-
 	return c.Redirect(redirectURL+rewardStr, fiber.StatusMovedPermanently)
 }
 
@@ -166,7 +172,7 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		rPath = "practice"
 	}
 
-	url := s.oauthConfig.AuthCodeURL(rPath) // TODO: 토큰 생성 시, time.now()가 클라이언트 캐시의 영향을 받는 것 같음.
+	url := s.oauthConfig.AuthCodeURL(rPath, oauth2.SetAuthURLParam("prompt", "select_account")) // TODO: 토큰 생성 시, time.now()가 클라이언트 캐시의 영향을 받는 것 같음.
 	return c.Redirect(url, fiber.StatusMovedPermanently)
 }
 
