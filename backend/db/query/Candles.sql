@@ -228,4 +228,4 @@ ORDER BY name;
 SELECT name
 FROM candles_1d
 GROUP BY name
-HAVING COUNT(name) < 365;
+HAVING COUNT(name) < ?;

@@ -6,12 +6,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/adshao/go-binance/v2"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 	// "github.com/adshao/go-binance/v2/futures"
 )
 
@@ -25,6 +27,7 @@ type FutureClient struct {
 	Store     db.Store
 	Pairs     []string
 	Yesterday int64
+	Logger    *zerolog.Logger
 }
 
 func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
@@ -34,11 +37,13 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 		return nil, fmt.Errorf("cannot open db store %w", err)
 	}
 
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: io.MultiWriter(os.Stdout, os.Stderr)}).With().Timestamp().Logger().Level(c.LogLevel)
 	f := &FutureClient{
 		// Client:    futures.NewClient("", ""),
 		Client:    binance.NewClient("", ""),
 		Store:     db.NewStore(dbConn),
 		Yesterday: utilities.Yesterday9AM(),
+		Logger:    &logger,
 	}
 	return f, nil
 }
@@ -52,7 +57,7 @@ func (f *FutureClient) InitPairs(isBinance bool) error {
 
 // GetAllPairsFromBinance is storing pairnames from binance server but "deprecated" now.
 func (f *FutureClient) GetAllPairsFromBinance() error {
-	log.Info().Msg("start to get all pair names from binance server")
+	f.Logger.Info().Msg("start to get all pair names from binance server")
 	info, err := f.Client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
@@ -62,29 +67,29 @@ func (f *FutureClient) GetAllPairsFromBinance() error {
 			f.Pairs = append(f.Pairs, s.Symbol)
 		}
 	}
-	log.Info().Msgf("init all pair names completely, total %d pairs.\n %v", len(f.Pairs), f.Pairs)
+	f.Logger.Info().Msgf("init all pair names completely, total %d pairs.\n %v", len(f.Pairs), f.Pairs)
 	return nil
 }
 
 func (f *FutureClient) GetAllPairsFromStore() error {
-	log.Info().Msg("start to get all pair names from database store")
+	f.Logger.Info().Msg("start to get all pair names from database store")
 	var err error
 	f.Pairs, err = f.Store.GetAllPairsInDB1D(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
 	}
-	log.Info().Msg("init all pair names completely")
+	f.Logger.Info().Msg("init all pair names completely")
 	return nil
 }
 
 // StoreCandles retrieves the candle data from the binance and stores it in db.
 func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, backward bool, cnt *int) error {
-	log.Info().Any("pair", name).Any("interval", interval).Msg("Start to store")
+	f.Logger.Info().Any("pair", name).Any("interval", interval).Msg("Start to store")
 	c := context.Background()
 	min, max, err := f.Store.SelectMinMaxTime(interval, name, c)
 	min, max = (min-32400)*1000, (max-32400)*1000
 	if err != nil {
-		log.Err(err).Msgf("cannot get min max timestamp name:%s interval:%s", name, interval)
+		f.Logger.Error().Err(err).Msgf("cannot get min max timestamp name:%s interval:%s", name, interval)
 		return err
 	}
 
@@ -98,39 +103,39 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 		if min < timestamp {
 			if min <= 0 {
 				startTime = timestamp
-				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+				f.Logger.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			} else {
-				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is more futuristic than minimum timestamp.")
+				f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is more futuristic than minimum timestamp.")
 				return nil
 			}
 		} else if min == timestamp {
 			startTime = max + 1
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
 				Msg("given timestamp is equal with minimum timestamp. set to maximum timestamp + 1")
 		} else {
 			startTime = timestamp
 			endTime = min - 1
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
 				Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 		}
 	} else {
 		startTime = getStartTime(max, interval, 1)
 		if timestamp <= max {
-			log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or more past than maximum timestamp.")
+			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or more past than maximum timestamp.")
 			return nil
 		} else {
 			if max <= 0 {
 				startTime = getStartTime(f.Yesterday, interval, -1*LimitCandlesNum)
 				endTime = f.Yesterday
-				log.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
+				f.Logger.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			} else {
 				if startTime > f.Yesterday {
-					log.Info().Any("Start time", utilities.TransMilli(startTime)).Any("Yesterday", utilities.TransMilli(f.Yesterday)).
+					f.Logger.Info().Any("Start time", utilities.TransMilli(startTime)).Any("Yesterday", utilities.TransMilli(f.Yesterday)).
 						Msg("start time is more futureistic than yesterday 9am")
 					return nil
 				}
 				endTime = f.Yesterday
-				log.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+				f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
 					Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			}
 		}
@@ -139,7 +144,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 	info := initInsertInfo(interval)
 
 	for startTime <= endTime {
-		log.Info().Any("Start", utilities.TransMilli(startTime)).Any("End", utilities.TransMilli(endTime)).Msg("get klines")
+		f.Logger.Info().Any("Start", utilities.TransMilli(startTime)).Any("End", utilities.TransMilli(endTime)).Msg("get klines")
 
 		klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTime).EndTime(endTime).Limit(LimitCandlesNum).
 			Interval(interval).Do(c)
@@ -189,7 +194,7 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 				_, err = f.Store.Insert5mCandles(c, *param)
 			default:
 				err := fmt.Errorf("unsupported interval: %s", interval)
-				log.Err(err)
+				f.Logger.Error().Err(err)
 				return err
 			}
 
@@ -205,11 +210,11 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 
 		*cnt++
 		if *cnt%900 == 0 {
-			log.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
+			f.Logger.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
 			time.Sleep(1 * time.Minute)
 		}
 	}
-	log.Info().Any("pair", name).Msg("stored complete.")
+	f.Logger.Info().Any("pair", name).Msg("stored complete.")
 	return nil
 }
 
@@ -247,13 +252,13 @@ func initInsertInfo(interval string) db.InsertQueryInterface {
 	return nil
 }
 
-func (f *FutureClient) PruneCandles() error {
-	pairs, err := f.Store.GetUnder1YPairs(context.Background())
+func (f *FutureClient) PruneCandles(term string) error {
+	pairs, err := f.Store.GetUnder1YPairs(context.Background(), term)
 	if err != nil {
 		return fmt.Errorf("cannot get pairs, err : %w", err)
 	}
 
-	log.Info().Msgf("start to prune candles, total %d pairs", len(pairs))
+	f.Logger.Info().Msgf("start to prune candles, total %d pairs", len(pairs))
 	for _, p := range pairs {
 		_, err = f.Store.DeletePairs1d(context.Background(), p)
 		if err != nil {
@@ -279,7 +284,7 @@ func (f *FutureClient) PruneCandles() error {
 		if err != nil {
 			return fmt.Errorf("cannot prune candles, err : %w", err)
 		}
-		log.Info().Msgf("prune candles complete, pair : %s", p)
+		f.Logger.Info().Msgf("prune candles complete, pair : %s", p)
 	}
 
 	return nil

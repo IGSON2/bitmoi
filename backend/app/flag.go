@@ -41,6 +41,14 @@ var (
 	}
 )
 var (
+	TermFlag = &cli.StringFlag{
+		Name:  "term",
+		Usage: "Specifies the period of time for which the deletion will be targeted.",
+		Value: "365",
+	}
+)
+
+var (
 	DatadirFlag = &cli.StringFlag{
 		Name:  "datadir",
 		Usage: "Specify pairs to datadir path.",

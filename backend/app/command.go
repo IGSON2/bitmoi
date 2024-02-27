@@ -21,7 +21,7 @@ var (
 		Action: PruneCandleData,
 		Name:   "prune",
 		Usage:  "Prune candles data with a period of less than a year",
-		Flags:  []cli.Flag{},
+		Flags:  []cli.Flag{TermFlag},
 	}
 )
 
@@ -78,7 +78,7 @@ func PruneCandleData(ctx *cli.Context) error {
 		return fmt.Errorf("cannot init pairs, err : %w", err)
 	}
 
-	err = f.PruneCandles()
+	err = f.PruneCandles(ctx.String("term"))
 	if err != nil {
 		return fmt.Errorf("cannot prune candles, err : %w", err)
 	}

@@ -966,18 +966,18 @@ func (mr *MockStoreMockRecorder) GetTopRankers(arg0, arg1 interface{}) *gomock.C
 }
 
 // GetUnder1YPairs mocks base method.
-func (m *MockStore) GetUnder1YPairs(arg0 context.Context) ([]string, error) {
+func (m *MockStore) GetUnder1YPairs(arg0 context.Context, arg1 string) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUnder1YPairs", arg0)
+	ret := m.ctrl.Call(m, "GetUnder1YPairs", arg0, arg1)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUnder1YPairs indicates an expected call of GetUnder1YPairs.
-func (mr *MockStoreMockRecorder) GetUnder1YPairs(arg0 interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) GetUnder1YPairs(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnder1YPairs", reflect.TypeOf((*MockStore)(nil).GetUnder1YPairs), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnder1YPairs", reflect.TypeOf((*MockStore)(nil).GetUnder1YPairs), arg0, arg1)
 }
 
 // GetUnsettledCompScores mocks base method.

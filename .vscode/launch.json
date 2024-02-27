@@ -29,7 +29,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["prune"],
+            "args": ["prune","--term=1000"],
             "console": "integratedTerminal",
         },
     ]
