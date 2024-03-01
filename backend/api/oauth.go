@@ -58,7 +58,7 @@ func NewGoogleOauthConfig(c *utilities.Config) *oauth2.Config {
 func (s *Server) GoogleLogin(c *fiber.Ctx) error {
 	rPath := c.Query("state")
 	if rPath == "" || !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
-		s.logger.Warn().Msgf("path is invalid. rPath: %s", rPath)
+		s.logger.Warn().Str("platform", "google").Msgf("path is invalid. rPath: %s", rPath)
 		if strings.HasPrefix("v2", rPath) {
 			p, err := s.tokenMaker.VerifyToken(rPath)
 			if err != nil {
@@ -182,7 +182,7 @@ type KakaoOauthData struct {
 func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 	rPath := c.Query("state")
 	if rPath == "" || !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
-		s.logger.Warn().Msgf("path is invalid. rPath: %s", rPath)
+		s.logger.Warn().Str("platform", "kakao").Msgf("path is invalid. rPath: %s", rPath)
 		if strings.HasPrefix("v2", rPath) {
 			p, err := s.tokenMaker.VerifyToken(rPath)
 			if err != nil {
