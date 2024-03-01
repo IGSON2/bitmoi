@@ -36,7 +36,7 @@ var (
 
 type Server struct {
 	config          *utilities.Config // 환경 구성 요소
-	oauthConfig     *oauth2.Config    // OAuth2.0 인증 구성 요소
+	googleOauthCfg  *oauth2.Config    // OAuth2.0 인증 구성 요소
 	logger          *zerolog.Logger
 	store           db.Store                // DB 커넥션
 	router          *fiber.App              // 각 Endpoint별 router 집합
@@ -70,7 +70,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	server := &Server{
 		config:          c,
-		oauthConfig:     NewOauthConfig(c),
+		googleOauthCfg:  NewGoogleOauthConfig(c),
 		store:           s,
 		tokenMaker:      tm,
 		taskDistributor: taskDistributor,
@@ -120,7 +120,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/nextBidUnlock", server.getNextUnlockDate)
 	router.Get("/highestBidder", server.getHighestBidder)
 	router.Get("/selectedBidder", server.getSelectedBidder)
-	router.Get("/login/callback", server.CallBackLogin)
+	router.Get("/login/google", server.GoogleLogin)
+	router.Get("/login/kakao", server.KakaoLogin)
 	router.Get("/oauth/:req_url", server.GetLoginURL)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))

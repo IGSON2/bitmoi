@@ -19,8 +19,10 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["store", "--all","--binance","--interval=1d","--timestamp=1502928000000"],
+            // "args": ["store", "--all","--binance","--interval=1d","--timestamp=1502928000000"],
             // "args": ["store", "--all","--interval=4h,1h,15m","--timestamp=1502928000000"],
+            // "args": ["store", "--pairs=1INCH,AGLD,ALCX,","--binance","--interval=1d,4h,15m","--timestamp=1502928000000"],
+            "args": ["store", "--pairs=1INCH,ANT,ADA,AION,ALGO,ANKR,AUD,BTS,COCOS,DASH","--backward=false","--binance","--interval=1d,1h,4h,15m","--timestamp=1502928000000"],
             "console": "integratedTerminal",
         },
         {

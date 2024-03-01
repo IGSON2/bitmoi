@@ -6,7 +6,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"time"
@@ -37,7 +36,7 @@ func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
 		return nil, fmt.Errorf("cannot open db store %w", err)
 	}
 
-	logger := zerolog.New(zerolog.ConsoleWriter{Out: io.MultiWriter(os.Stdout, os.Stderr)}).With().Timestamp().Logger().Level(c.LogLevel)
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger().Level(c.LogLevel)
 	f := &FutureClient{
 		// Client:    futures.NewClient("", ""),
 		Client:    binance.NewClient("", ""),
@@ -67,7 +66,7 @@ func (f *FutureClient) GetAllPairsFromBinance() error {
 			f.Pairs = append(f.Pairs, s.Symbol)
 		}
 	}
-	f.Logger.Info().Msgf("init all pair names completely, total %d pairs.\n %v", len(f.Pairs), f.Pairs)
+	f.Logger.Info().Msgf("init all pair names completely, total %d pairs.", len(f.Pairs))
 	return nil
 }
 
@@ -78,7 +77,7 @@ func (f *FutureClient) GetAllPairsFromStore() error {
 	if err != nil {
 		return fmt.Errorf("cannot get allpairs %w", err)
 	}
-	f.Logger.Info().Msg("init all pair names completely")
+	f.Logger.Info().Msgf("init all pair names completely. total %d pairs.", len(f.Pairs))
 	return nil
 }
 
@@ -105,50 +104,42 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 				startTime = timestamp
 				f.Logger.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 			} else {
-				f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Msg("given timestamp is more futuristic than minimum timestamp.")
+				f.Logger.Info().Str("Given", utilities.TransMilli(timestamp)).Str("Min", utilities.TransMilli(min)).Msg("given timestamp is more futuristic than minimum timestamp.")
 				return nil
 			}
 		} else if min == timestamp {
 			startTime = max + 1
-			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+			f.Logger.Info().Str("Given", utilities.TransMilli(timestamp)).Str("Max", utilities.TransMilli(max)).Str("Min", utilities.TransMilli(min)).
 				Msg("given timestamp is equal with minimum timestamp. set to maximum timestamp + 1")
 		} else {
 			startTime = timestamp
 			endTime = min - 1
-			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
+			f.Logger.Info().Str("Given", utilities.TransMilli(timestamp)).Str("Max", utilities.TransMilli(max)).Str("Min", utilities.TransMilli(min)).
 				Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
 		}
 	} else {
 		startTime = getStartTime(max, interval, 1)
-		if timestamp <= max {
-			f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Max", utilities.TransMilli(max)).Msg("given timestamp is equal or more past than maximum timestamp.")
+		endTime = f.Yesterday
+		f.Logger.Info().Str("Given", utilities.TransMilli(timestamp)).Str("Max", utilities.TransMilli(max)).Str("Min", utilities.TransMilli(min)).Str("EndTime", utilities.TransMilli(endTime)).Str("StartTime", utilities.TransMilli(startTime)).Msg("Get candles from max to yesterday")
+		if startTime > f.Yesterday {
+			f.Logger.Info().Str("Start time", utilities.TransMilli(startTime)).Str("Yesterday", utilities.TransMilli(f.Yesterday)).
+				Msg("start time is more futureistic than yesterday 9am")
 			return nil
-		} else {
-			if max <= 0 {
-				startTime = getStartTime(f.Yesterday, interval, -1*LimitCandlesNum)
-				endTime = f.Yesterday
-				f.Logger.Info().Msgf("there's no candles. start time : %s, end time :%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
-			} else {
-				if startTime > f.Yesterday {
-					f.Logger.Info().Any("Start time", utilities.TransMilli(startTime)).Any("Yesterday", utilities.TransMilli(f.Yesterday)).
-						Msg("start time is more futureistic than yesterday 9am")
-					return nil
-				}
-				endTime = f.Yesterday
-				f.Logger.Info().Any("Given", utilities.TransMilli(timestamp)).Any("Min", utilities.TransMilli(min)).Any("Max", utilities.TransMilli(max)).
-					Msgf("start time has been set to given timestamp start:%s - end:%s", utilities.TransMilli(startTime), utilities.TransMilli(endTime))
-			}
 		}
 	}
 
 	info := initInsertInfo(interval)
 
 	for startTime <= endTime {
-		f.Logger.Info().Any("Start", utilities.TransMilli(startTime)).Any("End", utilities.TransMilli(endTime)).Msg("get klines")
+		f.Logger.Info().Str("End", utilities.TransMilli(endTime)).Str("Start", utilities.TransMilli(startTime)).Msg("get klines")
 
 		klines, err := f.Client.NewKlinesService().Symbol(name).StartTime(startTime).EndTime(endTime).Limit(LimitCandlesNum).
 			Interval(interval).Do(c)
 		if err != nil {
+			if strings.Contains(err.Error(), "connection reset by peer") {
+				time.Sleep(1 * time.Minute)
+				continue
+			}
 			return fmt.Errorf("cannot get kilnes, err :%w", err)
 		}
 		if len(klines) == 0 {
@@ -210,11 +201,11 @@ func (f *FutureClient) StoreCandles(interval, name string, timestamp int64, back
 
 		*cnt++
 		if *cnt%900 == 0 {
-			f.Logger.Info().Any("count", *cnt).Msg("Every 900th request takes a minute off")
+			f.Logger.Info().Int("count", *cnt).Msg("Every 900th request takes a minute off")
 			time.Sleep(1 * time.Minute)
 		}
 	}
-	f.Logger.Info().Any("pair", name).Msg("stored complete.")
+	f.Logger.Info().Str("pair", name).Msg("stored complete.")
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
@@ -29,6 +30,9 @@ func Base64Encode(b []byte) string {
 }
 
 func Base64Decode(s string) []byte {
+	if len(s)%4 != 0 {
+		s += strings.Repeat("=", 4-len(s)%4)
+	}
 	b, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
 		log.Err(err).Msgf("cannot decrypt by Base64. encrypted: %s", s)
