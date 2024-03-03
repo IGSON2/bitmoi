@@ -1,4 +1,4 @@
--- name: CreateWmoiMintinghist :execresult
+-- name: CreateWmoiMintingHist :execresult
 INSERT INTO wmoi_minting_history (
     to_user,
     amount,

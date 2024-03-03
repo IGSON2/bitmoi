@@ -10,13 +10,14 @@ import (
 )
 
 type Querier interface {
+	CreateAccumulationHist(ctx context.Context, arg CreateAccumulationHistParams) (sql.Result, error)
 	CreateBiddingHistory(ctx context.Context, arg CreateBiddingHistoryParams) (sql.Result, error)
 	CreateRecommendHistory(ctx context.Context, arg CreateRecommendHistoryParams) (sql.Result, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (sql.Result, error)
 	CreateUsedToken(ctx context.Context, arg CreateUsedTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (sql.Result, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (sql.Result, error)
-	CreateWmoiMintinghist(ctx context.Context, arg CreateWmoiMintinghistParams) (sql.Result, error)
+	CreateWmoiMintingHist(ctx context.Context, arg CreateWmoiMintingHistParams) (sql.Result, error)
 	DeletePairs15m(ctx context.Context, name string) (sql.Result, error)
 	DeletePairs1d(ctx context.Context, name string) (sql.Result, error)
 	DeletePairs1h(ctx context.Context, name string) (sql.Result, error)
@@ -48,6 +49,7 @@ type Querier interface {
 	Get5mMinMaxTime(ctx context.Context, name string) (Get5mMinMaxTimeRow, error)
 	Get5mResult(ctx context.Context, arg Get5mResultParams) ([]Candles5m, error)
 	Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error)
+	GetAccumulationHist(ctx context.Context, arg GetAccumulationHistParams) ([]AccumulationHistory, error)
 	GetAllPairsInDB1D(ctx context.Context) ([]string, error)
 	// --------utils----------------
 	GetAllPairsInDB1H(ctx context.Context) ([]string, error)

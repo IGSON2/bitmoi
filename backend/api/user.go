@@ -399,3 +399,31 @@ func (s *Server) updateNickname(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+
+const accumulationRows = 10
+
+func (s *Server) getAccumulationHist(c *fiber.Ctx) error {
+	page := c.QueryInt("page")
+	if page < 1 {
+		return c.Status(fiber.StatusBadRequest).SendString("page must be greater than 0")
+	}
+
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
+	}
+
+	histories, err := s.store.GetAccumulationHist(c.Context(), db.GetAccumulationHistParams{
+		ToUser: payload.UserID,
+		Title:  "%",
+		Limit:  accumulationRows,
+		Offset: (int32(page) - 1) * accumulationRows,
+	})
+
+	if err != nil {
+		s.logger.Error().Err(err).Msgf("cannot get accumulation history. user_id: %s", payload.UserID)
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot get accumulation history")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(histories)
+}

@@ -10,7 +10,7 @@ import (
 	"database/sql"
 )
 
-const createWmoiMintinghist = `-- name: CreateWmoiMintinghist :execresult
+const createWmoiMintingHist = `-- name: CreateWmoiMintingHist :execresult
 INSERT INTO wmoi_minting_history (
     to_user,
     amount,
@@ -20,14 +20,14 @@ INSERT INTO wmoi_minting_history (
 )
 `
 
-type CreateWmoiMintinghistParams struct {
+type CreateWmoiMintingHistParams struct {
 	ToUser string `json:"to_user"`
 	Amount int64  `json:"amount"`
 	Title  string `json:"title"`
 }
 
-func (q *Queries) CreateWmoiMintinghist(ctx context.Context, arg CreateWmoiMintinghistParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createWmoiMintinghist, arg.ToUser, arg.Amount, arg.Title)
+func (q *Queries) CreateWmoiMintingHist(ctx context.Context, arg CreateWmoiMintingHistParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createWmoiMintingHist, arg.ToUser, arg.Amount, arg.Title)
 }
 
 const getWmoiMintingHist = `-- name: GetWmoiMintingHist :many

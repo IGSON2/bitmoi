@@ -358,6 +358,7 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 		}
 		url = fmt.Sprintf("https://kauth.kakao.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s", s.config.KakaoOauthClientID, redirURL, rpath)
 	}
+	s.logger.Info().Str("redirect url", url)
 	return c.Redirect(url, fiber.StatusMovedPermanently)
 }
 

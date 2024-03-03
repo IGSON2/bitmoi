@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+type AccumulationHistory struct {
+	ID        int64     `json:"id"`
+	ToUser    string    `json:"to_user"`
+	Amount    float64   `json:"amount"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type BiddingHistory struct {
 	TxHash    string    `json:"tx_hash"`
 	UserID    string    `json:"user_id"`

@@ -11,7 +11,7 @@ const (
 	wmoiRows = 15
 )
 
-func (s *Server) getRecomendationRewards(c *fiber.Ctx) error {
+func (s *Server) getWmoiMintingHist(c *fiber.Ctx) error {
 	page := c.QueryInt("page")
 	if page < 1 {
 		return c.Status(fiber.StatusBadRequest).SendString("page must be greater than 0")

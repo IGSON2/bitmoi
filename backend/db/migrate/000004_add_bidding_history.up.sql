@@ -25,3 +25,12 @@ CREATE TABLE `wmoi_minting_history` (
   `created_at` timestamp NOT NULL DEFAULT (now()),
   FOREIGN KEY (`to_user`) REFERENCES `users`(`user_id`)
 );
+
+CREATE TABLE `accumulation_history` (
+  `id` bigint AUTO_INCREMENT PRIMARY KEY,
+  `to_user` varchar(255) NOT NULL,
+  `amount` DOUBLE NOT NULL DEFAULT 0,
+  `title` VARCHAR(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  FOREIGN KEY (`to_user`) REFERENCES `users`(`user_id`)
+);

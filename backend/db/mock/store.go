@@ -50,6 +50,21 @@ func (mr *MockStoreMockRecorder) CheckAttendTx(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAttendTx", reflect.TypeOf((*MockStore)(nil).CheckAttendTx), arg0, arg1)
 }
 
+// CreateAccumulationHist mocks base method.
+func (m *MockStore) CreateAccumulationHist(arg0 context.Context, arg1 db.CreateAccumulationHistParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateAccumulationHist", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateAccumulationHist indicates an expected call of CreateAccumulationHist.
+func (mr *MockStoreMockRecorder) CreateAccumulationHist(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAccumulationHist", reflect.TypeOf((*MockStore)(nil).CreateAccumulationHist), arg0, arg1)
+}
+
 // CreateBiddingHistory mocks base method.
 func (m *MockStore) CreateBiddingHistory(arg0 context.Context, arg1 db.CreateBiddingHistoryParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -155,19 +170,19 @@ func (mr *MockStoreMockRecorder) CreateVerifyEmail(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVerifyEmail", reflect.TypeOf((*MockStore)(nil).CreateVerifyEmail), arg0, arg1)
 }
 
-// CreateWmoiMintinghist mocks base method.
-func (m *MockStore) CreateWmoiMintinghist(arg0 context.Context, arg1 db.CreateWmoiMintinghistParams) (sql.Result, error) {
+// CreateWmoiMintingHist mocks base method.
+func (m *MockStore) CreateWmoiMintingHist(arg0 context.Context, arg1 db.CreateWmoiMintingHistParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateWmoiMintinghist", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateWmoiMintingHist", arg0, arg1)
 	ret0, _ := ret[0].(sql.Result)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateWmoiMintinghist indicates an expected call of CreateWmoiMintinghist.
-func (mr *MockStoreMockRecorder) CreateWmoiMintinghist(arg0, arg1 interface{}) *gomock.Call {
+// CreateWmoiMintingHist indicates an expected call of CreateWmoiMintingHist.
+func (mr *MockStoreMockRecorder) CreateWmoiMintingHist(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiMintinghist", reflect.TypeOf((*MockStore)(nil).CreateWmoiMintinghist), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWmoiMintingHist", reflect.TypeOf((*MockStore)(nil).CreateWmoiMintingHist), arg0, arg1)
 }
 
 // DeletePairs15m mocks base method.
@@ -633,6 +648,21 @@ func (m *MockStore) Get5mVolSumPriceAVG(arg0 context.Context, arg1 db.Get5mVolSu
 func (mr *MockStoreMockRecorder) Get5mVolSumPriceAVG(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get5mVolSumPriceAVG", reflect.TypeOf((*MockStore)(nil).Get5mVolSumPriceAVG), arg0, arg1)
+}
+
+// GetAccumulationHist mocks base method.
+func (m *MockStore) GetAccumulationHist(arg0 context.Context, arg1 db.GetAccumulationHistParams) ([]db.AccumulationHistory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccumulationHist", arg0, arg1)
+	ret0, _ := ret[0].([]db.AccumulationHistory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAccumulationHist indicates an expected call of GetAccumulationHist.
+func (mr *MockStoreMockRecorder) GetAccumulationHist(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccumulationHist", reflect.TypeOf((*MockStore)(nil).GetAccumulationHist), arg0, arg1)
 }
 
 // GetAllPairsInDB1D mocks base method.

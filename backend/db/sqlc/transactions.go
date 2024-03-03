@@ -142,6 +142,15 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 				return fmt.Errorf("failed to attendence due to cannot update last accessed at. err: %w", err)
 			}
 
+			_, err = q.CreateAccumulationHist(ctx, CreateAccumulationHistParams{
+				ToUser: arg.UserId,
+				Amount: AttendanceReward,
+				Title:  "출석 체크 보상",
+			})
+			if err != nil {
+				return fmt.Errorf("failed to attendence due to cannot create accumulation history. err: %w", err)
+			}
+
 			_, err = q.UpdateUserPracBalance(ctx, UpdateUserPracBalanceParams{
 				PracBalance: user.PracBalance + AttendanceReward,
 				UserID:      arg.UserId,
@@ -232,7 +241,7 @@ func (store *SqlStore) RewardRecommenderTx(ctx context.Context, arg RewardRecomm
 			return fmt.Errorf("failed to reward recommender due to cannot create recommend history. err: %w, recommender: %s, new_member: %s", err, recommender.UserID, arg.NewMember)
 		}
 
-		_, err = store.CreateWmoiMintinghist(ctx, CreateWmoiMintinghistParams{
+		_, err = store.CreateWmoiMintingHist(ctx, CreateWmoiMintingHistParams{
 			ToUser: recommender.UserID,
 			Amount: RecommendationReward,
 			Title:  RecommendationTitle,
