@@ -32,8 +32,8 @@ func (s *Server) getRank(c *fiber.Ctx) error {
 	r := new(GetRankRequest)
 	r.Mode = c.Query("mode", practice)
 	r.Category = c.Query("category", "pnl")
-	r.Start = c.Query("start", time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).Format("06-01-02"))
-	r.End = c.Query("end", time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, now.Location()).Format("06-01-02"))
+	r.Start = c.Query("start", now.AddDate(0, 0, -int(now.Weekday())+1).Format("06-01-02"))
+	r.End = c.Query("end", now.AddDate(0, 0, -int(now.Weekday())+7).Format("06-01-02"))
 	r.Page = int32(c.QueryInt("page", 1))
 
 	errs := utilities.ValidateStruct(r)

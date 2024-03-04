@@ -310,7 +310,7 @@ SELECT
   SUM(pnl) AS total_pnl,
   COUNT(CASE WHEN s.pnl > 0 THEN 1 END) AS total_win,
   COUNT(CASE WHEN s.pnl < 0 THEN 1 END) AS total_lose,
-  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY THEN s.pnl ELSE 0 END) AS monthly_pnl,
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY THEN s.pnl ELSE 0 END) AS weekly_pnl,
   COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl > 0 THEN 1 END) AS weekly_win,
   COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl < 0 THEN 1 END) AS weekly_lose
 FROM prac_score s
@@ -322,7 +322,7 @@ type GetUserPracScoreSummaryRow struct {
 	TotalPnl   interface{} `json:"total_pnl"`
 	TotalWin   int64       `json:"total_win"`
 	TotalLose  int64       `json:"total_lose"`
-	MonthlyPnl interface{} `json:"monthly_pnl"`
+	WeeklyPnl  interface{} `json:"weekly_pnl"`
 	WeeklyWin  int64       `json:"weekly_win"`
 	WeeklyLose int64       `json:"weekly_lose"`
 }
@@ -334,7 +334,7 @@ func (q *Queries) GetUserPracScoreSummary(ctx context.Context, nickname string) 
 		&i.TotalPnl,
 		&i.TotalWin,
 		&i.TotalLose,
-		&i.MonthlyPnl,
+		&i.WeeklyPnl,
 		&i.WeeklyWin,
 		&i.WeeklyLose,
 	)

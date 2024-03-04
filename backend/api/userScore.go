@@ -182,7 +182,7 @@ func (s *Server) getMyCompScores(userId string, pages int32, c *fiber.Ctx) ([]db
 
 type UserScoreSummary struct {
 	db.GetUserPracScoreSummaryRow         // 경쟁모드를 포함하는 추상화 인터페이스 필요
-	MonthlyRate                   float64 `json:"monthly_winrate"`
+	WeeklyRate                    float64 `json:"weekly_winrate"`
 }
 
 // getUserScoreSummary godoc
