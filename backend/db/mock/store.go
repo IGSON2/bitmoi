@@ -1086,7 +1086,7 @@ func (mr *MockStoreMockRecorder) GetUserByMetamaskAddress(arg0, arg1 interface{}
 }
 
 // GetUserByNickName mocks base method.
-func (m *MockStore) GetUserByNickName(arg0 context.Context, arg1 sql.NullString) (db.User, error) {
+func (m *MockStore) GetUserByNickName(arg0 context.Context, arg1 string) (db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByNickName", arg0, arg1)
 	ret0, _ := ret[0].(db.User)
@@ -1116,7 +1116,7 @@ func (mr *MockStoreMockRecorder) GetUserByRecommenderCode(arg0, arg1 interface{}
 }
 
 // GetUserCompScoreSummary mocks base method.
-func (m *MockStore) GetUserCompScoreSummary(arg0 context.Context, arg1 sql.NullString) (db.GetUserCompScoreSummaryRow, error) {
+func (m *MockStore) GetUserCompScoreSummary(arg0 context.Context, arg1 string) (db.GetUserCompScoreSummaryRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserCompScoreSummary", arg0, arg1)
 	ret0, _ := ret[0].(db.GetUserCompScoreSummaryRow)
@@ -1160,8 +1160,38 @@ func (mr *MockStoreMockRecorder) GetUserPracBalance(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPracBalance", reflect.TypeOf((*MockStore)(nil).GetUserPracBalance), arg0, arg1)
 }
 
+// GetUserPracRankByPNL mocks base method.
+func (m *MockStore) GetUserPracRankByPNL(arg0 context.Context, arg1 db.GetUserPracRankByPNLParams) ([]db.GetUserPracRankByPNLRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPracRankByPNL", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetUserPracRankByPNLRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPracRankByPNL indicates an expected call of GetUserPracRankByPNL.
+func (mr *MockStoreMockRecorder) GetUserPracRankByPNL(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPracRankByPNL", reflect.TypeOf((*MockStore)(nil).GetUserPracRankByPNL), arg0, arg1)
+}
+
+// GetUserPracRankByROE mocks base method.
+func (m *MockStore) GetUserPracRankByROE(arg0 context.Context, arg1 db.GetUserPracRankByROEParams) ([]db.GetUserPracRankByROERow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPracRankByROE", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetUserPracRankByROERow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPracRankByROE indicates an expected call of GetUserPracRankByROE.
+func (mr *MockStoreMockRecorder) GetUserPracRankByROE(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPracRankByROE", reflect.TypeOf((*MockStore)(nil).GetUserPracRankByROE), arg0, arg1)
+}
+
 // GetUserPracScoreSummary mocks base method.
-func (m *MockStore) GetUserPracScoreSummary(arg0 context.Context, arg1 sql.NullString) (db.GetUserPracScoreSummaryRow, error) {
+func (m *MockStore) GetUserPracScoreSummary(arg0 context.Context, arg1 string) (db.GetUserPracScoreSummaryRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserPracScoreSummary", arg0, arg1)
 	ret0, _ := ret[0].(db.GetUserPracScoreSummaryRow)

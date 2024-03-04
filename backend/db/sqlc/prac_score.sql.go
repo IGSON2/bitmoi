@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const getPracScore = `-- name: GetPracScore :one
@@ -210,29 +211,123 @@ func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]
 	return items, nil
 }
 
+const getUserPracRankByPNL = `-- name: GetUserPracRankByPNL :many
+SELECT users.nickname, ranks.sum AS "sum" FROM 
+(SELECT user_id,SUM(pnl) AS "sum" FROM prac_score WHERE prac_score.created_at >= ? AND prac_score.created_at < ? GROUP BY user_id) ranks
+JOIN users ON ranks.user_id = users.user_id
+ORDER BY ranks.sum DESC LIMIT ? OFFSET ?
+`
+
+type GetUserPracRankByPNLParams struct {
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt_2 time.Time `json:"created_at_2"`
+	Limit       int32     `json:"limit"`
+	Offset      int32     `json:"offset"`
+}
+
+type GetUserPracRankByPNLRow struct {
+	Nickname string      `json:"nickname"`
+	Sum      interface{} `json:"sum"`
+}
+
+func (q *Queries) GetUserPracRankByPNL(ctx context.Context, arg GetUserPracRankByPNLParams) ([]GetUserPracRankByPNLRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserPracRankByPNL,
+		arg.CreatedAt,
+		arg.CreatedAt_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserPracRankByPNLRow{}
+	for rows.Next() {
+		var i GetUserPracRankByPNLRow
+		if err := rows.Scan(&i.Nickname, &i.Sum); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserPracRankByROE = `-- name: GetUserPracRankByROE :many
+SELECT users.nickname, ranks.sum AS "sum" FROM 
+(SELECT user_id,SUM(roe) AS "sum" FROM prac_score WHERE prac_score.created_at >= ? AND prac_score.created_at < ? GROUP BY user_id) ranks
+JOIN users ON ranks.user_id = users.user_id
+ORDER BY ranks.sum DESC LIMIT ? OFFSET ?
+`
+
+type GetUserPracRankByROEParams struct {
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt_2 time.Time `json:"created_at_2"`
+	Limit       int32     `json:"limit"`
+	Offset      int32     `json:"offset"`
+}
+
+type GetUserPracRankByROERow struct {
+	Nickname string      `json:"nickname"`
+	Sum      interface{} `json:"sum"`
+}
+
+func (q *Queries) GetUserPracRankByROE(ctx context.Context, arg GetUserPracRankByROEParams) ([]GetUserPracRankByROERow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserPracRankByROE,
+		arg.CreatedAt,
+		arg.CreatedAt_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserPracRankByROERow{}
+	for rows.Next() {
+		var i GetUserPracRankByROERow
+		if err := rows.Scan(&i.Nickname, &i.Sum); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserPracScoreSummary = `-- name: GetUserPracScoreSummary :one
 SELECT 
   SUM(pnl) AS total_pnl,
   COUNT(CASE WHEN s.pnl > 0 THEN 1 END) AS total_win,
   COUNT(CASE WHEN s.pnl < 0 THEN 1 END) AS total_lose,
-  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH THEN s.pnl ELSE 0 END) AS monthly_pnl,
-  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl > 0 THEN 1 END) AS monthly_win,
-  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl < 0 THEN 1 END) AS monthly_lose
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY THEN s.pnl ELSE 0 END) AS monthly_pnl,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl > 0 THEN 1 END) AS weekly_win,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl < 0 THEN 1 END) AS weekly_lose
 FROM prac_score s
 JOIN users u ON s.user_id = u.user_id
 WHERE u.nickname = ?
 `
 
 type GetUserPracScoreSummaryRow struct {
-	TotalPnl    interface{} `json:"total_pnl"`
-	TotalWin    int64       `json:"total_win"`
-	TotalLose   int64       `json:"total_lose"`
-	MonthlyPnl  interface{} `json:"monthly_pnl"`
-	MonthlyWin  int64       `json:"monthly_win"`
-	MonthlyLose int64       `json:"monthly_lose"`
+	TotalPnl   interface{} `json:"total_pnl"`
+	TotalWin   int64       `json:"total_win"`
+	TotalLose  int64       `json:"total_lose"`
+	MonthlyPnl interface{} `json:"monthly_pnl"`
+	WeeklyWin  int64       `json:"weekly_win"`
+	WeeklyLose int64       `json:"weekly_lose"`
 }
 
-func (q *Queries) GetUserPracScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserPracScoreSummaryRow, error) {
+func (q *Queries) GetUserPracScoreSummary(ctx context.Context, nickname string) (GetUserPracScoreSummaryRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserPracScoreSummary, nickname)
 	var i GetUserPracScoreSummaryRow
 	err := row.Scan(
@@ -240,8 +335,8 @@ func (q *Queries) GetUserPracScoreSummary(ctx context.Context, nickname sql.Null
 		&i.TotalWin,
 		&i.TotalLose,
 		&i.MonthlyPnl,
-		&i.MonthlyWin,
-		&i.MonthlyLose,
+		&i.WeeklyWin,
+		&i.WeeklyLose,
 	)
 	return i, err
 }

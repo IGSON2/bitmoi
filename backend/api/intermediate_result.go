@@ -27,7 +27,8 @@ func calcImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilit
 	// maxQuantity := (float64(order.Leverage) * order.Balance) / order.EntryPrice
 	// levQuanRate := float64(order.Leverage) * (order.Quantity / maxQuantity)
 
-	for idx, candle := range resultchart.PData {
+	for idx := len(resultchart.PData) - 1; idx >= 0; idx-- {
+		candle := resultchart.PData[idx]
 		if *order.IsLong {
 			// 꼬리가 길어 수익, 손실가를 모두 터치한 경우엔 작은 단위에서 한번 더 분석해야 할듯, 현재는 수익 실현이 우선 적용됨
 			if candle.High >= order.ProfitPrice {
@@ -42,7 +43,7 @@ func calcImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilit
 				endPrice = candle.Low
 				break
 			}
-			if idx == len(resultchart.PData)-1 {
+			if idx == 0 {
 				roe = float64(order.Leverage) * ((candle.Close - order.EntryPrice) / order.EntryPrice)
 				break
 			}
@@ -59,7 +60,7 @@ func calcImdResult(resultchart *CandleData, order *ImdScoreRequest, info *utilit
 				endPrice = candle.High
 				break
 			}
-			if idx == len(resultchart.PData)-1 {
+			if idx == 0 {
 				roe = float64(order.Leverage) * ((order.EntryPrice - candle.Close) / order.EntryPrice)
 				break
 			}

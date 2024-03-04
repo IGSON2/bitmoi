@@ -2,7 +2,7 @@ CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY,
   `user_id` varchar(255) NOT NULL UNIQUE,
   `oauth_uid` varchar(255) UNIQUE,
-  `nickname` varchar(50) UNIQUE,
+  `nickname` varchar(50) NOT NULL UNIQUE,
   `hashed_password` varchar(255) UNIQUE,
   `email` varchar(255) NOT NULL UNIQUE,
   `metamask_address` varchar(100) UNIQUE,

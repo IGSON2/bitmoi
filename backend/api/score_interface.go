@@ -70,6 +70,15 @@ type ImdScoreRequest struct {
 
 type ImdStepRequest struct {
 	ImdScoreRequest
+	CurInterval  string `json:"curinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"curinterval"`
+	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
+	CurTimestamp int64  `json:"cur_timestamp" validate:"required,number" query:"cur_timestamp"`
+	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
+	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`
+}
+
+type ImdCloseRequest struct {
+	ImdScoreRequest
 	ReqInterval  string `json:"reqinterval" validate:"required,oneof=5m 15m 1h 4h 1d" query:"reqinterval"`
 	MinTimestamp int64  `json:"min_timestamp" validate:"required,number" query:"min_timestamp"`
 	MaxTimestamp int64  `json:"max_timestamp" validate:"required,number" query:"max_timestamp"`

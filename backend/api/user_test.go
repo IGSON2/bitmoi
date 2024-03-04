@@ -97,7 +97,7 @@ func TestCreateUser(t *testing.T) {
 	req := CreateUserRequest{
 		UserID:   user.UserID,
 		Password: password,
-		Nickname: user.Nickname.String,
+		Nickname: user.Nickname,
 		Email:    user.Email,
 	}
 	b, err := json.Marshal(req)

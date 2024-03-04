@@ -29,7 +29,7 @@ INSERT INTO users (
 type CreateUserParams struct {
 	UserID          string         `json:"user_id"`
 	OauthUid        sql.NullString `json:"oauth_uid"`
-	Nickname        sql.NullString `json:"nickname"`
+	Nickname        string         `json:"nickname"`
 	HashedPassword  sql.NullString `json:"hashed_password"`
 	Email           string         `json:"email"`
 	PhotoUrl        sql.NullString `json:"photo_url"`
@@ -187,7 +187,7 @@ SELECT id, user_id, oauth_uid, nickname, hashed_password, email, metamask_addres
 WHERE nickname = ?
 `
 
-func (q *Queries) GetUserByNickName(ctx context.Context, nickname sql.NullString) (User, error) {
+func (q *Queries) GetUserByNickName(ctx context.Context, nickname string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByNickName, nickname)
 	var i User
 	err := row.Scan(
@@ -318,8 +318,8 @@ WHERE user_id = ?
 `
 
 type UpdateUserNicknameParams struct {
-	Nickname sql.NullString `json:"nickname"`
-	UserID   string         `json:"user_id"`
+	Nickname string `json:"nickname"`
+	UserID   string `json:"user_id"`
 }
 
 func (q *Queries) UpdateUserNickname(ctx context.Context, arg UpdateUserNicknameParams) (sql.Result, error) {

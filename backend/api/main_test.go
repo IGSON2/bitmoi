@@ -43,7 +43,7 @@ func randomUser(t *testing.T) (user db.User, password string) {
 	user = db.User{
 		UserID:            utilities.MakeRanString(8),
 		HashedPassword:    sql.NullString{Valid: true, String: hashed},
-		Nickname:          sql.NullString{Valid: true, String: utilities.MakeRanString(10)},
+		Nickname:          utilities.MakeRanString(10),
 		Email:             utilities.MakeRanEmail(),
 		PasswordChangedAt: defaultTime,
 		CreatedAt:         defaultTime,

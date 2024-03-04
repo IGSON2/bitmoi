@@ -11,7 +11,7 @@ type RankInsertRequest struct {
 
 type MyscoreRequest struct {
 	Mode string `json:"mode" validate:"required,oneof=competition practice" query:"mode"`
-	Page int32  `json:"page" validate:"min=0,number" query:"page"`
+	Page int32  `json:"page" validate:"min=1,number" query:"page"`
 }
 
 type MoreInfoRequest struct {
@@ -66,4 +66,12 @@ type BidTokenRequest struct {
 
 type CreateRecommendHistoryRequest struct {
 	Code string `json:"code" validate:"required,hexadecimal"`
+}
+
+type GetRankRequest struct {
+	Mode     string `json:"mode" validate:"oneof=competition practice" query:"mode"`
+	Category string `json:"category" validate:"oneof=pnl roe" query:"category"`
+	Start    string `json:"start" validate:"datetime=06-01-02" query:"start"`
+	End      string `json:"end" validate:"datetime=06-01-02" query:"end"`
+	Page     int32  `json:"page" validate:"min=1,number" query:"page"`
 }

@@ -4,7 +4,6 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,28 +17,19 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
 
-	oneHentry, err := s.store.Get1hEntryTimestamp(c.Context(), db.Get1hEntryTimestampParams{Name: originInfo.Name, Time: originInfo.RefTimestamp})
-	if err != nil {
-		s.logger.Error().Err(err).Msgf("cannot get 1h entry timestamp. name : %s, refTime : %d", originInfo.Name, originInfo.RefTimestamp)
-		return nil, errors.New("cannot get 1h entry timestamp")
-	}
-
-	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, oneHentry+db.GetIntervalStep(db.OneH)-1, c)
+	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, originInfo.RefTimestamp+db.GetIntervalStep(db.OneH)-1, c)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", originInfo.Name, a.ReqInterval, err)
 	}
 
-	// ratio, err := s.calcBtcRatio(a.ReqInterval, originInfo.Name, originInfo.RefTimestamp, c)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("cannot calculate btc ratio. name : %s, interval : %s, refTime : %d, err : %w",
-	// 		originInfo.Name, a.ReqInterval, originInfo.RefTimestamp, err)
-	// }
+	if a.ReqInterval == db.OneD || a.ReqInterval == db.FourH {
+		s.cutImdExeedChart(originInfo.RefTimestamp, cdd)
+	}
 
 	var oc = &OnePairChart{
-		Name:      originInfo.Name,
-		OneChart:  cdd,
-		EntryTime: utilities.EntryTimeFormatter(cdd.PData[0].Time),
-		// BtcRatio:     common.CeilDecimal(ratio) * 100,
+		Name:         originInfo.Name,
+		OneChart:     cdd,
+		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		BtcRatio:     0,
 		refTimestamp: originInfo.RefTimestamp,
 		interval:     a.ReqInterval,
@@ -55,4 +45,20 @@ func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*
 		oc.EntryPrice = oc.OneChart.PData[0].Close
 	}
 	return oc, nil
+}
+
+// 작은단위 뷰 -> 큰단위 요청 => 큰단위 마지막 캔들 + 1Step < 이 작은단위 뷰 마지막 캔들의 timestamp
+// 큰단위 뷰 -> 작은단위 뷰 => 큰단위 마지막 캔들의 timestamp를 - 작은단위 1Step 까지 캔들은 이미 반환되고 있음.
+func (s *Server) cutImdExeedChart(refTimestamp int64, cdd *CandleData) {
+	var cuttingCnt int
+	pdatas := cdd.PData
+
+	intv := db.GetIntervalFromRange(pdatas[1].Time, pdatas[0].Time+1)
+
+	step := db.GetIntervalStep(intv)
+	for i := 0; pdatas[i].Time+step > refTimestamp; i++ {
+		cuttingCnt++
+	}
+	cdd.PData = cdd.PData[cuttingCnt:]
+	cdd.VData = cdd.VData[cuttingCnt:]
 }

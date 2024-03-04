@@ -33,7 +33,7 @@ type UserResponse struct {
 func convertUserResponse(user db.User) UserResponse {
 	uR := UserResponse{
 		UserID:            user.UserID,
-		Nickname:          user.Nickname.String,
+		Nickname:          user.Nickname,
 		Email:             user.Email,
 		PracBalance:       user.PracBalance,
 		CompBalance:       user.CompBalance,
@@ -81,8 +81,8 @@ func (s *Server) checkNickname(c *fiber.Ctx) error {
 	if nickname == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("nickname is empty")
 	}
-	user, _ := s.store.GetUserByNickName(c.Context(), sql.NullString{Valid: true, String: nickname})
-	if user.Nickname.String == nickname {
+	user, _ := s.store.GetUserByNickName(c.Context(), nickname)
+	if user.Nickname == nickname {
 		return c.Status(fiber.StatusBadRequest).SendString("full name already exist")
 	}
 	return c.Status(fiber.StatusOK).SendString(nickname)
@@ -130,7 +130,7 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 	arg := db.CreateUserParams{
 		UserID:         req.UserID,
 		HashedPassword: sql.NullString{Valid: true, String: hashedPassword},
-		Nickname:       sql.NullString{Valid: true, String: req.Nickname},
+		Nickname:       req.Nickname,
 		Email:          req.Email,
 	}
 	if uploadErr == nil {
@@ -377,8 +377,8 @@ func (s *Server) updateNickname(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
 	}
 
-	checkUser, _ := s.store.GetUserByNickName(c.Context(), sql.NullString{Valid: true, String: r.Nickname})
-	if checkUser.Nickname.String == r.Nickname {
+	checkUser, _ := s.store.GetUserByNickName(c.Context(), r.Nickname)
+	if checkUser.Nickname == r.Nickname {
 		return c.Status(fiber.StatusBadRequest).SendString("nickname already exist")
 	}
 
@@ -388,7 +388,7 @@ func (s *Server) updateNickname(c *fiber.Ctx) error {
 	}
 
 	_, err = s.store.UpdateUserNickname(c.Context(), db.UpdateUserNicknameParams{
-		Nickname: sql.NullString{Valid: true, String: r.Nickname},
+		Nickname: r.Nickname,
 		UserID:   user.UserID,
 	})
 

@@ -108,7 +108,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Post("/practice", server.postPracticeScore)
 	router.Get("/interval", server.getAnotherInterval)
 	router.Get("/score/:nickname", server.getUserScoreSummary)
-	router.Get("/rank/:page", server.getRank)
 	router.Get("/moreinfo", server.moreinfo)
 	router.Post("/user", server.createUser)
 	router.Post("/user/login", server.loginUser)
@@ -123,6 +122,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/login/google", server.GoogleLogin)
 	router.Get("/login/kakao", server.KakaoLogin)
 	router.Get("/oauth/:req_url", server.GetLoginURL)
+	router.Get("/rank", server.getRank)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
 
@@ -141,7 +141,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
-	authGroup.Post("/rank", server.postRank)
 	authGroup.Get("/myscore", server.myscore)
 	authGroup.Post("/freeToken", server.sendFreeErc20)
 	authGroup.Post("/user/address", server.updateMetamaskAddress)
@@ -434,61 +433,6 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.Status(fiber.StatusOK).JSON(scores)
-}
-
-// getRank godoc
-// @Summary      랭크에 등재된 사용자들을 불러옵니다.
-// @Tags         rank
-// @Param 		 page path int true "페이지 번호"
-// @Produce      json
-// @Success      200  {array}  db.RankingBoard
-// @Router       /rank/{page} [get]
-func (s *Server) getRank(c *fiber.Ctx) error {
-	pageNum, err := c.ParamsInt("page")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(fmt.Sprintf("invalid page number: %d", pageNum))
-	}
-	if pageNum == 0 {
-		pageNum = 1
-	}
-	ranks, err := s.getAllRanks(int32(pageNum), c)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-	return c.Status(fiber.StatusOK).JSON(ranks)
-}
-
-// postRank godoc
-// @Summary      사용자를 랭크에 등재합니다.
-// @Tags         rank
-// @Param 		 rankInsertRequest body api.RankInsertRequest true "랭크 등재 요청에 대한 정보"
-// @param 		 Authorization header string true "Authorization"
-// @Produce      json
-// @Success      200
-// @Router       /rank [post]
-func (s *Server) postRank(c *fiber.Ctx) error {
-	payload := c.Locals(authorizationPayloadKey).(*token.Payload)
-	user, err := s.store.GetUser(c.Context(), payload.UserID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("cannot get user by token payload. err: %w", err).Error())
-	}
-
-	var r RankInsertRequest
-	err = c.BodyParser(&r)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-
-	errs := utilities.ValidateStruct(r)
-	if errs != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(errs.Error())
-	}
-
-	err = s.insertCompScoreToRankBoard(&r, &user, c)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-	return c.SendStatus(fiber.StatusOK)
 }
 
 // moreinfo godoc

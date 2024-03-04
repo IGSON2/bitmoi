@@ -281,7 +281,7 @@ type GetUserCompScoreSummaryRow struct {
 	MonthlyLose int64       `json:"monthly_lose"`
 }
 
-func (q *Queries) GetUserCompScoreSummary(ctx context.Context, nickname sql.NullString) (GetUserCompScoreSummaryRow, error) {
+func (q *Queries) GetUserCompScoreSummary(ctx context.Context, nickname string) (GetUserCompScoreSummaryRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserCompScoreSummary, nickname)
 	var i GetUserCompScoreSummaryRow
 	err := row.Scan(

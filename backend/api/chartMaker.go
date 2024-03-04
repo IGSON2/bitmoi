@@ -180,7 +180,7 @@ func (s *Server) makeChartToRef(interval, name string, mode string, prevStage in
 		OneChart:     cdd,
 		EntryTime:    utilities.EntryTimeFormatter(cdd.PData[0].Time),
 		interval:     interval,
-		refTimestamp: refTimestamp,
+		refTimestamp: cdd.PData[0].Time,
 		// BtcRatio:     common.CeilDecimal(ratio) * 100,
 		BtcRatio: 0,
 	}

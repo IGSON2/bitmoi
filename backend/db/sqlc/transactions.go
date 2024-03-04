@@ -250,7 +250,7 @@ func (store *SqlStore) RewardRecommenderTx(ctx context.Context, arg RewardRecomm
 			return fmt.Errorf("failed to reward recommender due to cannot create wmoi minting history. err: %w, recommender: %s", err, recommender.UserID)
 		}
 
-		recmNick = recommender.Nickname.String
+		recmNick = recommender.Nickname
 		return nil
 	})
 	return recmNick, err

@@ -57,9 +57,21 @@ SELECT
   SUM(pnl) AS total_pnl,
   COUNT(CASE WHEN s.pnl > 0 THEN 1 END) AS total_win,
   COUNT(CASE WHEN s.pnl < 0 THEN 1 END) AS total_lose,
-  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH THEN s.pnl ELSE 0 END) AS monthly_pnl,
-  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl > 0 THEN 1 END) AS monthly_win,
-  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL 1 MONTH AND s.pnl < 0 THEN 1 END) AS monthly_lose
+  SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY THEN s.pnl ELSE 0 END) AS monthly_pnl,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl > 0 THEN 1 END) AS weekly_win,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl < 0 THEN 1 END) AS weekly_lose
 FROM prac_score s
 JOIN users u ON s.user_id = u.user_id
 WHERE u.nickname = ?;
+
+-- name: GetUserPracRankByPNL :many
+SELECT users.nickname, ranks.sum AS "sum" FROM 
+(SELECT user_id,SUM(pnl) AS "sum" FROM prac_score WHERE prac_score.created_at >= ? AND prac_score.created_at < ? GROUP BY user_id) ranks
+JOIN users ON ranks.user_id = users.user_id
+ORDER BY ranks.sum DESC LIMIT ? OFFSET ?;
+
+-- name: GetUserPracRankByROE :many
+SELECT users.nickname, ranks.sum AS "sum" FROM 
+(SELECT user_id,SUM(roe) AS "sum" FROM prac_score WHERE prac_score.created_at >= ? AND prac_score.created_at < ? GROUP BY user_id) ranks
+JOIN users ON ranks.user_id = users.user_id
+ORDER BY ranks.sum DESC LIMIT ? OFFSET ?;

@@ -54,23 +54,6 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot select intermediate chart to reference timestamp. name : %s, interval : %s, err : %s", info.Name, req.ReqInterval, err.Error()))
 	}
 
-	result := calcImdResult(cdd, &req.ImdScoreRequest, info)
-
-	// 어뷰징 행위 방지를 위해 스코어는 캔들 요청시 매번 업데이트 되어야 함
-	err = s.updateScore(req, result, c.Context())
-	if err != nil {
-		s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot update score. Not initialized.")
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
-	}
-
-	if result.OutTime > 0 {
-		err = s.updateUserBalance(req, result, c.Context())
-		if err != nil {
-			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Str("mode", req.Mode).Msg("cannot update user balance.")
-			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
-		}
-	}
-
 	if !info.IsPracticeMode() {
 		cdd.encodeChart(info.PriceFactor, info.VolumeFactor, info.TimeFactor)
 	}
@@ -92,6 +75,37 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 		anotherIntvMap[it] = anotherCdd
 	}
 
+	var (
+		result    *InterMediateResult
+		resultCdd *CandleData
+	)
+
+	// 작은단위로
+	if oc, ok := anotherIntvMap[req.CurInterval]; !ok || oc.PData == nil {
+		resultCdd = cdd
+	} else {
+		// 큰 단위에서 작은단위로 요청하여 현재의 큰 단위의 새로운 캔들이 없는 경우
+		resultCdd = anotherIntvMap[req.CurInterval]
+	}
+
+	pCutCdd := cutResultChart(resultCdd, req.CurTimestamp, true)
+	result = calcImdResult(pCutCdd, &req.ImdScoreRequest, info)
+
+	// 어뷰징 행위 방지를 위해 스코어는 캔들 요청시 매번 업데이트 되어야 함
+	err = s.updateScore(req, result, c.Context())
+	if err != nil {
+		s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot update score. Not initialized.")
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
+	}
+
+	if result.OutTime > 0 {
+		err = s.updateUserBalance(req, result, c.Context())
+		if err != nil {
+			s.logger.Error().Str("user id", req.UserId).Str("score id", req.ScoreId).Str("mode", req.Mode).Msg("cannot update user balance.")
+			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
+		}
+		cutResultChart(resultCdd, result.OutTime, false)
+	}
 	res = &InterScoreResponse{
 		ResultChart:   cdd,
 		Score:         result,
@@ -137,7 +151,7 @@ func (s *Server) initImdScore(c *fiber.Ctx) error {
 }
 
 func (s *Server) closeImdScore(c *fiber.Ctx) error {
-	req := new(ImdStepRequest)
+	req := new(ImdCloseRequest)
 	code, errStr := s.validateInterScoreReq(req, c)
 	if code != fiber.StatusOK {
 		return c.Status(code).SendString(errStr)
@@ -215,4 +229,29 @@ func (s *Server) validateInterScoreReq(req ScoreReqInterface, c *fiber.Ctx) (int
 		return fiber.StatusBadRequest, err.Error()
 	}
 	return fiber.StatusOK, ""
+}
+
+func cutResultChart(cdd *CandleData, targetTimestamp int64, isPast bool) *CandleData {
+	if cdd == nil {
+		return nil
+	}
+	var cuttingCnt int
+	pdatas := cdd.PData
+
+	if plen := len(pdatas); plen > 0 {
+		if isPast {
+			for i := plen - 1; pdatas[i].Time <= targetTimestamp; i-- {
+				cuttingCnt++
+			}
+			cdd.PData = cdd.PData[:plen-cuttingCnt]
+			cdd.VData = cdd.VData[:plen-cuttingCnt]
+		} else {
+			for i := 0; pdatas[i].Time > targetTimestamp; i++ {
+				cuttingCnt++
+			}
+			cdd.PData = cdd.PData[cuttingCnt:]
+			cdd.VData = cdd.VData[cuttingCnt:]
+		}
+	}
+	return cdd
 }

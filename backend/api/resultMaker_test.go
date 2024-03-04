@@ -5,17 +5,17 @@ import (
 	"bitmoi/backend/utilities/common"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	localAPI = "http://localhost:5001"
-)
+const ()
 
 func TestEntryPrice(t *testing.T) {
 	if testing.Short() {
@@ -23,6 +23,8 @@ func TestEntryPrice(t *testing.T) {
 	}
 	s := newTestServer(t, newTestStore(t), nil)
 	client := http.DefaultClient
+
+	localAPI := fmt.Sprintf("http://localhost:%s", strings.Split(s.config.HTTPAddress, ":")[1])
 
 	req, err := http.NewRequest("GET", localAPI+"/competition", nil)
 	require.NoError(t, err)

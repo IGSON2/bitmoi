@@ -22,7 +22,6 @@ const (
 	long                    = "LONG"
 	short                   = "SHORT"
 	defaultBalance  float64 = 1000
-	rankRows                = 100
 	myscoreRows             = 15
 	rewardReceivers         = 3
 )
@@ -206,31 +205,24 @@ func (s *Server) getUserScoreSummary(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("user id is required")
 	}
 
-	result, err := s.store.GetUserPracScoreSummary(c.Context(), sql.NullString{String: nickname, Valid: true})
+	result, err := s.store.GetUserPracScoreSummary(c.Context(), nickname)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	var monthlyRate float64
-	if result.MonthlyLose > 0 {
-		floatRate := float64(result.MonthlyWin) / float64(result.MonthlyWin+result.MonthlyLose)
-		monthlyRate = math.Floor(10000*floatRate) / 100
+	var weeklyRate float64
+	if result.WeeklyWin > 0 || result.WeeklyLose > 0 {
+		floatRate := float64(result.WeeklyWin) / float64(result.WeeklyWin+result.WeeklyLose)
+		weeklyRate = math.Floor(10000*floatRate) / 100
 	}
 
-	return c.Status(fiber.StatusOK).JSON(UserScoreSummary{result, monthlyRate})
+	return c.Status(fiber.StatusOK).JSON(UserScoreSummary{result, weeklyRate})
 }
 
 func (s *Server) getCompScoresByScoreID(scoreId, userId string, c context.Context) ([]db.CompScore, error) {
 	return s.store.GetCompScoresByScoreID(c, db.GetCompScoresByScoreIDParams{
 		ScoreID: scoreId,
 		UserID:  userId,
-	})
-}
-
-func (s *Server) getAllRanks(pages int32, c *fiber.Ctx) ([]db.RankingBoard, error) {
-	return s.store.GetAllRanks(context.Background(), db.GetAllRanksParams{
-		Limit:  rankRows,
-		Offset: (pages - 1) * rankRows,
 	})
 }
 
