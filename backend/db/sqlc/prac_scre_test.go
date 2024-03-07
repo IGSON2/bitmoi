@@ -9,6 +9,9 @@ import (
 )
 
 func TestPracRanks(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	store := newTestStore(t)
 
 	time1 := time.Now().Add(-3 * 24 * time.Hour)

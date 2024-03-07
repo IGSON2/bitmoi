@@ -88,7 +88,10 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 		resultCdd = anotherIntvMap[req.CurInterval]
 	}
 
-	pCutCdd := cutResultChart(resultCdd, req.CurTimestamp, true)
+	pCutCdd, err := cutResultChart(resultCdd, req.CurTimestamp, true)
+	if err != nil {
+		s.logger.Warn().Err(err).Str("name", info.Name).Int64("timestamp", req.CurTimestamp).Msg("cannot cut result chart.")
+	}
 	result = calcImdResult(pCutCdd, &req.ImdScoreRequest, info)
 
 	// 어뷰징 행위 방지를 위해 스코어는 캔들 요청시 매번 업데이트 되어야 함
@@ -231,27 +234,31 @@ func (s *Server) validateInterScoreReq(req ScoreReqInterface, c *fiber.Ctx) (int
 	return fiber.StatusOK, ""
 }
 
-func cutResultChart(cdd *CandleData, targetTimestamp int64, isPast bool) *CandleData {
-	if cdd == nil {
-		return nil
+func cutResultChart(cdd *CandleData, targetTimestamp int64, isPast bool) (*CandleData, error) {
+	if cdd == nil || len(cdd.PData) == 0 {
+		return nil, fmt.Errorf("invalid intermediate chart data. %v", cdd)
 	}
 	var cuttingCnt int
 	pdatas := cdd.PData
 
 	if plen := len(pdatas); plen > 0 {
 		if isPast {
-			for i := plen - 1; pdatas[i].Time <= targetTimestamp; i-- {
-				cuttingCnt++
+			for i := plen - 1; i > 0; i-- {
+				if pdatas[i].Time <= targetTimestamp {
+					cuttingCnt++
+				}
 			}
 			cdd.PData = cdd.PData[:plen-cuttingCnt]
 			cdd.VData = cdd.VData[:plen-cuttingCnt]
 		} else {
-			for i := 0; pdatas[i].Time > targetTimestamp; i++ {
-				cuttingCnt++
+			for i := 0; i < plen; i++ {
+				if pdatas[i].Time > targetTimestamp {
+					cuttingCnt++
+				}
 			}
 			cdd.PData = cdd.PData[cuttingCnt:]
 			cdd.VData = cdd.VData[cuttingCnt:]
 		}
 	}
-	return cdd
+	return cdd, nil
 }
