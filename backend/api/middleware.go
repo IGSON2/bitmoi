@@ -95,7 +95,7 @@ func createNewLimitMiddleware(cnt int, logger *zerolog.Logger) fiber.Handler {
 			return c.Get("x-forwarded-for")
 		},
 		LimitReached: func(c *fiber.Ctx) error {
-			logger.Warn().Str("ip", c.Get("x-forwarded-for")).Str("path", c.Path()).Str("method", c.Method()).Str("ua", c.Get("user-agent")).Str("authorization", c.Get(authorizationHeaderKey)).Msg("too many request.")
+			logger.Warn().Str("ip", c.Get("x-forwarded-for")).Str("path", c.Path()).Str("method", c.Method()).Str("ua", c.Get("user-agent")).Msg("too many request.")
 			return c.Status(fiber.StatusTooManyRequests).SendString("Too many request.")
 		},
 	})

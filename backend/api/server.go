@@ -91,8 +91,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	lgr := server.createLoggerMiddleware()
 
-	router.Use(createNewLimitMiddleware(70, server.logger))
-
 	if c.Environment == bitmoicommon.EnvProduction {
 		router.Use(createNewOriginMiddleware(), lgr)
 	} else {
@@ -103,6 +101,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 			}),
 		)
 	}
+
+	router.Use(createNewLimitMiddleware(50, server.logger))
 
 	router.Get("/practice", server.getPracticeChart)
 	router.Post("/practice", server.postPracticeScore)
@@ -125,20 +125,6 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	router.Get("/rank", server.getRank)
 
 	authGroup := router.Group("/", authMiddleware(server.tokenMaker))
-
-	if c.Environment == bitmoicommon.EnvProduction {
-		authGroup.Use(createNewOriginMiddleware(), lgr)
-	} else {
-		authGroup.Use(
-			logger.New(logger.Config{Format: "[${ip}]:${port} ${time} ${status} - ${method} ${path} - ${latency}\n"}),
-			cors.New(cors.Config{
-				AllowOrigins: "*",
-			}),
-		)
-	}
-
-	authGroup.Use(lgr)
-
 	authGroup.Get("/competition", server.getCompetitionChart)
 	authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Get("/myscore", server.myscore)
@@ -148,13 +134,15 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Put("/user/profile", server.updateProfileImg)
 	authGroup.Put("/user/nickname", server.updateNickname)
 	authGroup.Post("/bidToken", server.bidToken)
-	authGroup.Post("/intermediate", server.getImdChart)
-	authGroup.Post("/intermediate/init", server.initImdScore)
-	authGroup.Post("/intermediate/close", server.closeImdScore)
-	authGroup.Get("/intermediate/interval", server.getImdInterval)
-	authGroup.Put("/intermediate/settle", server.SettleImdScore)
 	authGroup.Get("/user/wmoi-transactions", server.getWmoiMintingHist)
 	authGroup.Get("/user/accumulation", server.getAccumulationHist)
+
+	upperLimitGroup := authGroup.Group("/intermediate", createNewLimitMiddleware(100, server.logger))
+	upperLimitGroup.Post("/", server.getImdChart)
+	upperLimitGroup.Post("/init", server.initImdScore)
+	upperLimitGroup.Post("/close", server.closeImdScore)
+	upperLimitGroup.Get("/interval", server.getImdInterval)
+	upperLimitGroup.Put("/settle", server.SettleImdScore)
 
 	server.router = router
 
