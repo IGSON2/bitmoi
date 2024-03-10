@@ -55,10 +55,10 @@ WHERE user_id = ? AND score_id = ?;
 -- name: GetUserPracScoreSummary :one
 SELECT 
   SUM(pnl) AS total_pnl,
-  COUNT(CASE WHEN s.pnl > 0 THEN 1 END) AS total_win,
+  COUNT(CASE WHEN s.pnl >= 0 THEN 1 END) AS total_win,
   COUNT(CASE WHEN s.pnl < 0 THEN 1 END) AS total_lose,
   SUM(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY THEN s.pnl ELSE 0 END) AS weekly_pnl,
-  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl > 0 THEN 1 END) AS weekly_win,
+  COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl >= 0 THEN 1 END) AS weekly_win,
   COUNT(CASE WHEN s.created_at >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY AND s.pnl < 0 THEN 1 END) AS weekly_lose
 FROM prac_score s
 JOIN users u ON s.user_id = u.user_id
