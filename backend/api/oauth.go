@@ -195,9 +195,9 @@ func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 
 	code := c.Query("code")
 
-	redirURL := fmt.Sprintf("http://localhost:%s/login/kakao", strings.Split(s.config.HTTPAddress, ":")[1])
+	redirURL := fmt.Sprintf("http://localhost:%s/basic/login/kakao", strings.Split(s.config.HTTPAddress, ":")[1])
 	if s.config.Environment == common.EnvProduction {
-		redirURL = "https://api.bitmoi.co.kr/login/kakao"
+		redirURL = "https://api.bitmoi.co.kr/basic/login/kakao"
 	}
 
 	v := url.Values{}
@@ -232,7 +232,7 @@ func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 	}{}
 	err = json.Unmarshal(contents, &td)
 	if err != nil || td.IdToken == "" {
-		return c.Status(fiber.StatusForbidden).SendString(err.Error())
+		return c.Status(fiber.StatusForbidden).SendString("invalid id token")
 	}
 
 	payload := strings.Split(td.IdToken, ".")[1]
