@@ -42,9 +42,9 @@ type GoogleOauthData struct {
 }
 
 func NewGoogleOauthConfig(c *utilities.Config) *oauth2.Config {
-	redirURL := fmt.Sprintf("http://localhost:%s/login/google", strings.Split(c.HTTPAddress, ":")[1])
+	redirURL := fmt.Sprintf("http://localhost:%s/basic/login/google", strings.Split(c.HTTPAddress, ":")[1])
 	if c.Environment == common.EnvProduction {
-		redirURL = "https://api.bitmoi.co.kr/login/google"
+		redirURL = "https://api.bitmoi.co.kr/basic/login/google"
 	}
 	return &oauth2.Config{
 		RedirectURL:  redirURL,
@@ -352,9 +352,9 @@ func (s *Server) GetLoginURL(c *fiber.Ctx) error {
 	case PlatformGoogle:
 		url = s.googleOauthCfg.AuthCodeURL(rpath, oauth2.SetAuthURLParam("prompt", "select_account"))
 	case PlatformKakao:
-		redirURL := fmt.Sprintf("http://localhost:%s/login/kakao", strings.Split(s.config.HTTPAddress, ":")[1])
+		redirURL := fmt.Sprintf("http://localhost:%s/basic/login/kakao", strings.Split(s.config.HTTPAddress, ":")[1])
 		if s.config.Environment == common.EnvProduction {
-			redirURL = "https://api.bitmoi.co.kr/login/kakao"
+			redirURL = "https://api.bitmoi.co.kr/basic/login/kakao"
 		}
 		url = fmt.Sprintf("https://kauth.kakao.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s", s.config.KakaoOauthClientID, redirURL, rpath)
 	}
