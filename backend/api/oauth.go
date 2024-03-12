@@ -59,9 +59,9 @@ func (s *Server) GoogleLogin(c *fiber.Ctx) error {
 	rPath := c.Query("state")
 	if rPath == "" || !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
 		s.logger.Warn().Str("platform", "google").Msgf("path is invalid. rPath: %s", rPath)
-		if strings.HasPrefix("v2", rPath) {
+		if strings.HasPrefix(rPath, "v2") {
 			p, err := s.tokenMaker.VerifyToken(rPath)
-			if err != nil {
+			if p != nil && err != nil {
 				rPath = p.UserID
 			}
 		} else {
@@ -183,9 +183,9 @@ func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 	rPath := c.Query("state")
 	if rPath == "" || !strings.Contains(strings.Join(allowRpathes, ""), rPath) {
 		s.logger.Warn().Str("platform", "kakao").Msgf("path is invalid. rPath: %s", rPath)
-		if strings.HasPrefix("v2", rPath) {
+		if strings.HasPrefix(rPath, "v2") {
 			p, err := s.tokenMaker.VerifyToken(rPath)
-			if err != nil {
+			if p != nil && err != nil {
 				rPath = p.UserID
 			}
 		} else {
