@@ -32,6 +32,7 @@ type Config struct {
 	GoogleOauthClientID     string        `mapstructure:"GOOGLE_OAUTH_CLIENT_ID"`
 	GoogleOauthClientSecret string        `mapstructure:"GOOGLE_OAUTH_CLIENT_SECRET"`
 	KakaoOauthClientID      string        `mapstructure:"KAKAO_OAUTH_CLIENT_ID"`
+	AdminID                 string        `mapstructure:"ADMIN_ID"`
 	OauthRedirectURL        string
 	DataDir                 string
 	LogLevel                zerolog.Level

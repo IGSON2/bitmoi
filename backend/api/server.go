@@ -143,6 +143,13 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	upperLimitedGroup.Get("/interval", server.getImdInterval)
 	upperLimitedGroup.Put("/settle", server.SettleImdScore)
 
+	adminGroup := router.Group("/admin", adminAuthMiddleware(c.AdminID, server.tokenMaker), createNewLimitMiddleware(100, server.logger))
+	adminGroup.Get("/users", server.GetUsers)
+	adminGroup.Get("/invest", server.GetInvestInfo)
+	adminGroup.Get("/usdp", server.GetUsdpInfo)
+	adminGroup.Get("/token", server.GetTokenInfo)
+	adminGroup.Get("/referral", server.GetReferralInfo)
+
 	server.router = router
 
 	go server.BiddingLoop()
