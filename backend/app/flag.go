@@ -1,8 +1,9 @@
 package app
 
 import (
+	"bitmoi/backend/config"
 	db "bitmoi/backend/db/sqlc"
-	"bitmoi/backend/utilities"
+
 	"time"
 
 	"github.com/urfave/cli/v2"
@@ -52,7 +53,7 @@ var (
 	DatadirFlag = &cli.StringFlag{
 		Name:  "datadir",
 		Usage: "Specify pairs to datadir path.",
-		Value: utilities.DefaultDataDir(),
+		Value: config.DefaultDataDir(),
 	}
 	GRPCFlag = &cli.BoolFlag{
 		Name:  "grpc",

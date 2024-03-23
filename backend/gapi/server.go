@@ -1,10 +1,10 @@
 package gapi
 
 import (
+	bConfig "bitmoi/backend/config"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/token"
-	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
 	"context"
 	"fmt"
@@ -28,13 +28,13 @@ const (
 
 type Server struct {
 	pb.UnimplementedBitmoiServer
-	config     *utilities.Config
+	config     *bConfig.Config
 	store      db.Store
 	tokenMaker *token.PasetoMaker
 	pairs      []string
 }
 
-func NewServer(c *utilities.Config, s db.Store) (*Server, error) {
+func NewServer(c *bConfig.Config, s db.Store) (*Server, error) {
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker : %w", err)

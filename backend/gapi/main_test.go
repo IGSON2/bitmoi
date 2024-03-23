@@ -1,9 +1,9 @@
 package gapi
 
 import (
+	"bitmoi/backend/config"
 	"bitmoi/backend/gapi/pb"
 	"bitmoi/backend/token"
-	"bitmoi/backend/utilities"
 	"context"
 	"fmt"
 	"os"
@@ -28,7 +28,7 @@ var (
 )
 
 func newTestPasetoMaker(t *testing.T) *token.PasetoMaker {
-	c := utilities.GetConfig("../../.")
+	c := config.GetConfig("../../.")
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	require.NoError(t, err)
 	return tm

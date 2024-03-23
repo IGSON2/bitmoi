@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strings"
 
+	"bitmoi/backend/config"
+
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -48,7 +50,7 @@ func EncrtpByASE[T any](data T) string {
 		return ""
 	}
 
-	block, err := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
+	block, err := aes.NewCipher([]byte(config.GetConfig("../../.").SymmetricKey))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -63,7 +65,7 @@ func EncrtpByASE[T any](data T) string {
 
 func DecryptByASE(encrypted string) []byte {
 	b := Base64Decode(encrypted)
-	block, err := aes.NewCipher([]byte(GetConfig("../../.").SymmetricKey))
+	block, err := aes.NewCipher([]byte(config.GetConfig("../../.").SymmetricKey))
 	if err != nil {
 		log.Err(err).Msgf("cannot decrypt by ASE. encrypted: %s", encrypted)
 	}

@@ -1,7 +1,6 @@
 package gapi
 
 import (
-	"bitmoi/backend/utilities"
 	"context"
 	"fmt"
 	"net/http"
@@ -10,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"bitmoi/backend/config"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -17,7 +18,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func setMultiLogger(config *utilities.Config) error {
+func setMultiLogger(config *config.Config) error {
 	folderPath := filepath.Join(config.DataDir, "logs", "grpc")
 	if err := os.MkdirAll(folderPath, 0700); err != nil {
 		return fmt.Errorf("cannot make grpc logs datadir: %w", err)

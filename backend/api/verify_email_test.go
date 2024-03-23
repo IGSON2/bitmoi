@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bitmoi/backend/config"
 	"bitmoi/backend/mail"
 	"bitmoi/backend/utilities"
 	mocktask "bitmoi/backend/worker/mock"
@@ -22,7 +23,7 @@ func TestAsyncWorker(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	config := utilities.GetConfig("../..")
+	config := config.GetConfig("../..")
 	store := newTestStore(t)
 
 	taskCtrl := gomock.NewController(t)
@@ -61,7 +62,7 @@ func TestNotVerifiedLogin(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	config := utilities.GetConfig("../..")
+	config := config.GetConfig("../..")
 	store := newTestStore(t)
 
 	taskCtrl := gomock.NewController(t)

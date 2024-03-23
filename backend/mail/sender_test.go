@@ -1,7 +1,7 @@
 package mail
 
 import (
-	"bitmoi/backend/utilities"
+	"bitmoi/backend/config"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,7 +12,7 @@ func TestSendEmailWithGmail(t *testing.T) {
 		t.Skip()
 	}
 
-	config := utilities.GetConfig("../..")
+	config := config.GetConfig("../..")
 	require.NotNil(t, config)
 
 	gSender := NewGmailSender(config)

@@ -1,4 +1,4 @@
-package utilities
+package config
 
 import (
 	"os"

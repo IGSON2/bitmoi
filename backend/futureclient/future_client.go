@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"bitmoi/backend/config"
+
 	"github.com/adshao/go-binance/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/zerolog"
@@ -29,7 +31,7 @@ type FutureClient struct {
 	Logger    *zerolog.Logger
 }
 
-func NewFutureClient(c *utilities.Config) (*FutureClient, error) {
+func NewFutureClient(c *config.Config) (*FutureClient, error) {
 	dbConn, err := sql.Open(c.DBDriver, c.DBSource)
 
 	if err != nil {

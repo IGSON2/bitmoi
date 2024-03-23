@@ -1,4 +1,4 @@
-package utilities
+package config
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	bitmoicommon "bitmoi/backend/utilities/common"
+	"bitmoi/backend/utilities/common"
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
@@ -48,7 +48,7 @@ func (c *Config) SetLogLevel(level int8) {
 }
 
 func (c *Config) SwitchOauthRedirectURL() {
-	if c.Environment == bitmoicommon.EnvProduction {
+	if c.Environment == common.EnvProduction {
 		c.OauthRedirectURL = "https://m.bitmoi.co.kr"
 	} else {
 		c.OauthRedirectURL = "http://localhost:3000"

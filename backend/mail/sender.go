@@ -1,9 +1,10 @@
 package mail
 
 import (
-	"bitmoi/backend/utilities"
 	"fmt"
 	"net/smtp"
+
+	"bitmoi/backend/config"
 
 	"github.com/jordan-wright/email"
 )
@@ -32,7 +33,7 @@ type GmailSender struct {
 	fromEmailPassword string
 }
 
-func NewGmailSender(c *utilities.Config) *GmailSender {
+func NewGmailSender(c *config.Config) *GmailSender {
 	return &GmailSender{
 		emailSenderName,
 		emailSenderAddress,

@@ -133,15 +133,6 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 			return fmt.Errorf("failed to attendence due to cannot find user. err: %w", err)
 		}
 		if !user.LastAccessedAt.Valid || user.LastAccessedAt.Time.Before(arg.TodayMidnight) {
-			_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
-				LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
-				UserID:         arg.UserId,
-			})
-
-			if err != nil {
-				return fmt.Errorf("failed to attendence due to cannot update last accessed at. err: %w", err)
-			}
-
 			_, err = q.CreateAccumulationHist(ctx, CreateAccumulationHistParams{
 				ToUser: arg.UserId,
 				Amount: AttendanceReward,
@@ -161,7 +152,12 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 			}
 			return nil
 		}
-		return fmt.Errorf("not time to attend yet")
+		_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
+			LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
+			UserID:         arg.UserId,
+		})
+
+		return err
 	})
 
 	return err

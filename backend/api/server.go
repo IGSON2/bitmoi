@@ -15,6 +15,8 @@ import (
 	"math"
 	"time"
 
+	"bitmoi/backend/config"
+
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gofiber/fiber/v2"
@@ -35,8 +37,8 @@ var (
 )
 
 type Server struct {
-	config          *utilities.Config // 환경 구성 요소
-	googleOauthCfg  *oauth2.Config    // OAuth2.0 인증 구성 요소
+	config          *config.Config // 환경 구성 요소
+	googleOauthCfg  *oauth2.Config // OAuth2.0 인증 구성 요소
 	logger          *zerolog.Logger
 	store           db.Store                // DB 커넥션
 	router          *fiber.App              // 각 Endpoint별 router 집합
@@ -51,7 +53,7 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server and setup routing.
-func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
+func NewServer(c *config.Config, s db.Store, taskDistributor worker.TaskDistributor) (*Server, error) {
 	log.Printf("Environment: %s", c.Environment)
 	tm, err := token.NewPasetoTokenMaker(c.SymmetricKey)
 	if err != nil {
@@ -142,6 +144,8 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	upperLimitedGroup.Post("/close", server.closeImdScore)
 	upperLimitedGroup.Get("/interval", server.getImdInterval)
 	upperLimitedGroup.Put("/settle", server.SettleImdScore)
+
+	// adminGroup := router.Group("/admin", authMiddleware(server.tokenMaker), createNewLimitMiddleware(100, server.logger))
 
 	server.router = router
 

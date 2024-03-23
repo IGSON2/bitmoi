@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bitmoi/backend/config"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
@@ -18,14 +19,14 @@ const (
 )
 
 func newTestServer(t *testing.T, store db.Store, taskDistributor worker.TaskDistributor) *Server {
-	c := utilities.GetConfig("../../.")
+	c := config.GetConfig("../../.")
 	s, err := NewServer(c, store, taskDistributor)
 	require.NoError(t, err)
 	return s
 }
 
 func newTestStore(t *testing.T) db.Store {
-	c := utilities.GetConfig("../../.")
+	c := config.GetConfig("../../.")
 	conn, err := sql.Open(c.DBDriver, c.DBSource)
 	require.NoError(t, err)
 	return db.NewStore(conn)

@@ -14,6 +14,8 @@ import (
 	"net/url"
 	"strings"
 
+	"bitmoi/backend/config"
+
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -41,7 +43,7 @@ type GoogleOauthData struct {
 	VerifiedEmail bool   `json:"verified_email"`
 }
 
-func NewGoogleOauthConfig(c *utilities.Config) *oauth2.Config {
+func NewGoogleOauthConfig(c *config.Config) *oauth2.Config {
 	redirURL := fmt.Sprintf("http://localhost:%s/basic/login/google", strings.Split(c.HTTPAddress, ":")[1])
 	if c.Environment == common.EnvProduction {
 		redirURL = "https://api.bitmoi.co.kr/basic/login/google"

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bitmoi/backend/config"
 	"bitmoi/backend/futureclient"
 	"bitmoi/backend/utilities"
 	"fmt"
@@ -27,7 +28,7 @@ var (
 
 func GetCandleData(ctx *cli.Context) error {
 	var names []string
-	f, err := futureclient.NewFutureClient(utilities.GetConfig("./"))
+	f, err := futureclient.NewFutureClient(config.GetConfig("./"))
 	if err != nil {
 		return fmt.Errorf("cannot create future client, err : %w", err)
 	}
@@ -69,7 +70,7 @@ func GetCandleData(ctx *cli.Context) error {
 }
 
 func PruneCandleData(ctx *cli.Context) error {
-	f, err := futureclient.NewFutureClient(utilities.GetConfig("./"))
+	f, err := futureclient.NewFutureClient(config.GetConfig("./"))
 	if err != nil {
 		return fmt.Errorf("cannot create future client, err : %w", err)
 	}

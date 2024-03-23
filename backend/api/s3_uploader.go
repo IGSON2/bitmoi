@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bitmoi/backend/utilities"
 	"errors"
 	"fmt"
 	"mime"
@@ -12,6 +11,8 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+
+	"bitmoi/backend/config"
 
 	"github.com/h2non/filetype"
 
@@ -44,7 +45,7 @@ const (
 
 var bucketName = "bitmoi"
 
-func NewS3Uploader(c *utilities.Config) (*s3.S3, error) {
+func NewS3Uploader(c *config.Config) (*s3.S3, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(c.S3AccessKey, c.S3SecretKey, ""),

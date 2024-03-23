@@ -1,7 +1,7 @@
 package futureclient
 
 import (
-	"bitmoi/backend/utilities"
+	"bitmoi/backend/config"
 	"context"
 	"testing"
 
@@ -12,7 +12,7 @@ func TestExchangeInfo(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	f, err := NewFutureClient(utilities.GetConfig("../../."))
+	f, err := NewFutureClient(config.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NoError(t, f.InitPairs(true))
 	require.NotNil(t, f.Store)
@@ -30,7 +30,7 @@ func TestGetInfo(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
-	f, err := NewFutureClient(utilities.GetConfig("../../."))
+	f, err := NewFutureClient(config.GetConfig("../../."))
 	require.NoError(t, err)
 	require.NoError(t, f.InitPairs(true))
 	require.NotNil(t, f.Store)

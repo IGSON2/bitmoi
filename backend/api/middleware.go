@@ -81,6 +81,25 @@ func checkAuthorization(c *fiber.Ctx, maker *token.PasetoMaker) error {
 	return nil
 }
 
+func createAdminAuthMiddleware(maker *token.PasetoMaker) fiber.Handler {
+	abort := func(c *fiber.Ctx, err string) error {
+		return c.Status(fiber.StatusUnauthorized).SendString(err)
+	}
+
+	return func(c *fiber.Ctx) error {
+		if err := checkAuthorization(c, maker); err != nil {
+			return abort(c, err.Error())
+		}
+
+		payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+		if payload == nil || !ok {
+			return abort(c, "admin token is required")
+		}
+
+		return c.Next()
+	}
+}
+
 func createNewOriginMiddleware() fiber.Handler {
 	return cors.New(cors.Config{
 		AllowOrigins: "https://bitmoi.co.kr, https://m.bitmoi.co.kr, http://localhost:3000",

@@ -3,10 +3,10 @@ package main
 import (
 	"bitmoi/backend/api"
 	"bitmoi/backend/app"
+	"bitmoi/backend/config"
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi"
 	"bitmoi/backend/mail"
-	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
 	"bitmoi/backend/worker"
 	"database/sql"
@@ -51,7 +51,7 @@ func main() {
 }
 
 func bitmoi(ctx *cli.Context) error {
-	config := utilities.GetConfig("./")
+	config := config.GetConfig("./")
 
 	if path := ctx.String(app.DatadirFlag.Name); path != "" {
 		config.SetDataDir(path)
@@ -85,7 +85,7 @@ func bitmoi(ctx *cli.Context) error {
 	return <-errCh
 }
 
-func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
+func runHttpServer(config *config.Config, store db.Store, errCh chan error) {
 	redisOpt := asynq.RedisClientOpt{
 		Addr: config.RedisAddress,
 	}
@@ -104,7 +104,7 @@ func runHttpServer(config *utilities.Config, store db.Store, errCh chan error) {
 	errCh <- server.Listen()
 }
 
-func runTaskProcessor(config *utilities.Config, store db.Store) {
+func runTaskProcessor(config *config.Config, store db.Store) {
 	gmailSender := mail.NewGmailSender(config)
 	taskProcessor := worker.NewRedisTaskProcessor(asynq.RedisClientOpt{Addr: config.RedisAddress}, store, gmailSender, config.AccessTokenDuration)
 	log.Info().Msg("start task processor")
