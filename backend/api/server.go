@@ -109,7 +109,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	nomalGroup.Get("/score/:nickname", server.getUserScoreSummary)
 	// nomalGroup.Get("/moreinfo", server.moreinfo)
 	// nomalGroup.Post("/user", server.createUser)
-	// nomalGroup.Post("/user/login", server.loginUser)
+	nomalGroup.Post("/user/login", server.loginUser)
 	nomalGroup.Get("/user/checkId", server.checkID)
 	nomalGroup.Get("/user/checkNickname", server.checkNickname)
 	// nomalGroup.Get("/user/verifyEmail", server.verifyEmail)
@@ -143,10 +143,12 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	upperLimitedGroup.Get("/interval", server.getImdInterval)
 	upperLimitedGroup.Put("/settle", server.SettleImdScore)
 
-	adminGroup := router.Group("/admin", adminAuthMiddleware(c.AdminID, server.tokenMaker), createNewLimitMiddleware(100, server.logger))
+	// adminGroup := router.Group("/admin", adminAuthMiddleware(c.AdminID, server.tokenMaker), createNewLimitMiddleware(100, server.logger))
+	adminGroup := router.Group("/admin", createNewLimitMiddleware(100, server.logger))
 	adminGroup.Get("/users", server.GetUsers)
 	adminGroup.Get("/invest", server.GetInvestInfo)
 	adminGroup.Get("/usdp", server.GetUsdpInfo)
+	adminGroup.Post("/usdp", server.SetUsdpInfo)
 	adminGroup.Get("/token", server.GetTokenInfo)
 	adminGroup.Get("/referral", server.GetReferralInfo)
 

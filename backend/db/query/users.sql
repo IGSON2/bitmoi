@@ -17,6 +17,9 @@ INSERT INTO users (
 SELECT * FROM users
 WHERE user_id = ?;
 
+-- name: GetUsers :many
+SELECT * FROM users LIMIT ? OFFSET ?;
+
 -- name: GetUserByNickName :one
 SELECT * FROM users
 WHERE nickname = ?;

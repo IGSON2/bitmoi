@@ -1205,6 +1205,21 @@ func (mr *MockStoreMockRecorder) GetUserPracScoreSummary(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPracScoreSummary", reflect.TypeOf((*MockStore)(nil).GetUserPracScoreSummary), arg0, arg1)
 }
 
+// GetUsers mocks base method.
+func (m *MockStore) GetUsers(arg0 context.Context, arg1 db.GetUsersParams) ([]db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsers", arg0, arg1)
+	ret0, _ := ret[0].([]db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockStoreMockRecorder) GetUsers(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockStore)(nil).GetUsers), arg0, arg1)
+}
+
 // GetVerifyEmails mocks base method.
 func (m *MockStore) GetVerifyEmails(arg0 context.Context, arg1 db.GetVerifyEmailsParams) (db.VerifyEmail, error) {
 	m.ctrl.T.Helper()
