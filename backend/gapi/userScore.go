@@ -18,11 +18,11 @@ func (s *Server) insertUserScore(o *pb.ScoreRequest, r *pb.Score, c context.Cont
 	_, err := s.store.InsertPracScore(c, db.InsertPracScoreParams{
 		ScoreID:    o.ScoreId,
 		UserID:     o.UserId,
-		Stage:      o.Stage,
+		Stage:      int8(o.Stage),
 		Pairname:   r.Name,
 		Entrytime:  r.Entrytime,
 		Position:   position,
-		Leverage:   o.Leverage,
+		Leverage:   int8(o.Leverage),
 		Outtime:    r.OutTime,
 		Entryprice: r.EntryPrice,
 		Endprice:   r.EndPrice,

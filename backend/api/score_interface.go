@@ -11,13 +11,13 @@ type ScoreReqInterface interface {
 	GetUserID() string
 	GetScoreID() string
 	GetPairName() string
-	GetStage() int32
+	GetStage() int8
 	GetEntryPrice() float64
 	GetProfitPrice() float64
 	GetLossPrice() float64
 	GetIsLong() bool
 	GetQuantity() float64
-	GetLeverage() int32
+	GetLeverage() int8
 	GetBalance() float64
 	SetBalance(float64)
 }
@@ -27,29 +27,29 @@ type ScoreRequest struct {
 	UserId      string  `json:"user_id" validate:"required,alphanum"`
 	ScoreId     string  `json:"score_id" validate:"required,numeric"`
 	Name        string  `json:"name" validate:"required"`
-	Stage       int32   `json:"stage" validate:"required,number,min=1,max=10"` //TODO : deprecate stage field
+	Stage       int8    `json:"stage" validate:"required,number,min=1,max=10"` //TODO : deprecate stage field
 	IsLong      *bool   `json:"is_long"  validate:"required,boolean"`
 	EntryPrice  float64 `json:"entry_price" validate:"required,number,gt=0"`
 	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
 	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
 	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
-	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
+	Leverage    int8    `json:"leverage" validate:"required,number,min=1,max=100"`
 	Balance     float64 `json:"balance" validate:"required,number,gt=0"`
 	Identifier  string  `json:"identifier"  validate:"required"`
-	WaitingTerm int32   `json:"waiting_term" validate:"required,number,min=1,max=1"`
+	WaitingTerm int8    `json:"waiting_term" validate:"required,number,min=1,max=1"`
 }
 
 func (s *ScoreRequest) GetMode() string         { return s.Mode }
 func (s *ScoreRequest) GetUserID() string       { return s.UserId }
 func (s *ScoreRequest) GetScoreID() string      { return s.ScoreId }
 func (s *ScoreRequest) GetPairName() string     { return s.Name }
-func (s *ScoreRequest) GetStage() int32         { return s.Stage }
+func (s *ScoreRequest) GetStage() int8          { return s.Stage }
 func (s *ScoreRequest) GetEntryPrice() float64  { return s.EntryPrice }
 func (s *ScoreRequest) GetProfitPrice() float64 { return s.ProfitPrice }
 func (s *ScoreRequest) GetLossPrice() float64   { return s.LossPrice }
 func (s *ScoreRequest) GetIsLong() bool         { return *s.IsLong }
 func (s *ScoreRequest) GetQuantity() float64    { return s.Quantity }
-func (s *ScoreRequest) GetLeverage() int32      { return s.Leverage }
+func (s *ScoreRequest) GetLeverage() int8       { return s.Leverage }
 func (s *ScoreRequest) GetBalance() float64     { return s.Balance }
 func (s *ScoreRequest) SetBalance(b float64)    { s.Balance = b }
 
@@ -63,7 +63,7 @@ type ImdScoreRequest struct {
 	Quantity    float64 `json:"quantity" validate:"required,number,gt=0"`
 	ProfitPrice float64 `json:"profit_price" validate:"number,min=0"`
 	LossPrice   float64 `json:"loss_price" validate:"number,min=0"`
-	Leverage    int32   `json:"leverage" validate:"required,number,min=1,max=100"`
+	Leverage    int8    `json:"leverage" validate:"required,number,min=1,max=100"`
 	Identifier  string  `json:"identifier"  validate:"required"`
 	balance     float64
 }
@@ -88,13 +88,13 @@ func (i *ImdScoreRequest) GetMode() string         { return i.Mode }
 func (i *ImdScoreRequest) GetUserID() string       { return i.UserId }
 func (i *ImdScoreRequest) GetScoreID() string      { return i.ScoreId }
 func (i *ImdScoreRequest) GetPairName() string     { return i.Name }
-func (i *ImdScoreRequest) GetStage() int32         { return 1 }
+func (i *ImdScoreRequest) GetStage() int8          { return 1 }
 func (i *ImdScoreRequest) GetEntryPrice() float64  { return i.EntryPrice }
 func (i *ImdScoreRequest) GetProfitPrice() float64 { return i.ProfitPrice }
 func (i *ImdScoreRequest) GetLossPrice() float64   { return i.LossPrice }
 func (i *ImdScoreRequest) GetIsLong() bool         { return *i.IsLong }
 func (i *ImdScoreRequest) GetQuantity() float64    { return i.Quantity }
-func (i *ImdScoreRequest) GetLeverage() int32      { return i.Leverage }
+func (i *ImdScoreRequest) GetLeverage() int8       { return i.Leverage }
 func (i *ImdScoreRequest) GetBalance() float64     { return i.balance }
 func (i *ImdScoreRequest) SetBalance(b float64)    { i.balance = b }
 
@@ -149,7 +149,7 @@ type OrderResultInterface interface {
 type OrderResult struct {
 	Name         string  `json:"name"`
 	Entrytime    string  `json:"entry_time"`
-	Leverage     int32   `json:"leverage"`
+	Leverage     int8    `json:"leverage"`
 	EndPrice     float64 `json:"end_price"`
 	OutTime      int32   `json:"out_time"`
 	Roe          float64 `json:"roe"`
@@ -171,7 +171,7 @@ type InterMediateResult struct {
 	Name         string  `json:"name"`
 	IsLong       bool    `json:"is_long"`
 	Entrytime    string  `json:"entry_time"`
-	Leverage     int32   `json:"leverage"`
+	Leverage     int8    `json:"leverage"`
 	EndPrice     float64 `json:"end_price"`
 	OutTime      int64   `json:"out_time"`
 	Roe          float64 `json:"roe"`

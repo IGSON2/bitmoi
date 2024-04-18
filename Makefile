@@ -1,7 +1,7 @@
 ifneq ($(ls backend/gapi/pb),)
 	DELETE_COMMAND=cd backend/gapi/pb&&del *pb.go
 else
-	DELETE_COMMAND=echo "already empty"
+	DELETE_COMMAND=$(echo "already empty")
 endif
 
 sqlc:
