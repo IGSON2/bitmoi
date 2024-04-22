@@ -665,6 +665,36 @@ func (mr *MockStoreMockRecorder) GetAccumulationHist(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccumulationHist", reflect.TypeOf((*MockStore)(nil).GetAccumulationHist), arg0, arg1)
 }
 
+// GetAdminPracScores mocks base method.
+func (m *MockStore) GetAdminPracScores(arg0 context.Context) ([]db.GetAdminPracScoresRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAdminPracScores", arg0)
+	ret0, _ := ret[0].([]db.GetAdminPracScoresRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAdminPracScores indicates an expected call of GetAdminPracScores.
+func (mr *MockStoreMockRecorder) GetAdminPracScores(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminPracScores", reflect.TypeOf((*MockStore)(nil).GetAdminPracScores), arg0)
+}
+
+// GetAdminUsers mocks base method.
+func (m *MockStore) GetAdminUsers(arg0 context.Context, arg1 db.GetAdminUsersParams) ([]db.GetAdminUsersRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAdminUsers", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetAdminUsersRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAdminUsers indicates an expected call of GetAdminUsers.
+func (mr *MockStoreMockRecorder) GetAdminUsers(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminUsers", reflect.TypeOf((*MockStore)(nil).GetAdminUsers), arg0, arg1)
+}
+
 // GetAllPairsInDB1D mocks base method.
 func (m *MockStore) GetAllPairsInDB1D(arg0 context.Context) ([]string, error) {
 	m.ctrl.T.Helper()

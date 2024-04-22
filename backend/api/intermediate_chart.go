@@ -182,6 +182,7 @@ func (s *Server) closeImdScore(c *fiber.Ctx) error {
 	score.OutTime = cdd.PData[0].Time
 	score.EndPrice = cdd.PData[0].Close
 
+	// 쿼리를 하나로 통합 시키는 게 좋을듯
 	err = s.updateScore(req, score, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
@@ -241,17 +242,17 @@ func cutResultChart(cdd *CandleData, targetTimestamp int64, isPast bool) (*Candl
 	var cuttingCnt int
 	pdatas := cdd.PData
 
-	if plen := len(pdatas); plen > 0 {
+	if pLen := len(pdatas); pLen > 0 {
 		if isPast {
-			for i := plen - 1; i > 0; i-- {
+			for i := pLen - 1; i > 0; i-- {
 				if pdatas[i].Time <= targetTimestamp {
 					cuttingCnt++
 				}
 			}
-			cdd.PData = cdd.PData[:plen-cuttingCnt]
-			cdd.VData = cdd.VData[:plen-cuttingCnt]
+			cdd.PData = cdd.PData[:pLen-cuttingCnt]
+			cdd.VData = cdd.VData[:pLen-cuttingCnt]
 		} else {
-			for i := 0; i < plen; i++ {
+			for i := 0; i < pLen; i++ {
 				if pdatas[i].Time > targetTimestamp {
 					cuttingCnt++
 				}

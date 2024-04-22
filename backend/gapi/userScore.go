@@ -3,7 +3,9 @@ package gapi
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/gapi/pb"
+	"bitmoi/backend/utilities"
 	"context"
+	"database/sql"
 	"fmt"
 )
 
@@ -15,6 +17,11 @@ func (s *Server) insertUserScore(o *pb.ScoreRequest, r *pb.Score, c context.Cont
 		position = "short"
 	}
 
+	var isValidOuttime bool
+	if r.OutTime > 0 {
+		isValidOuttime = true
+	}
+
 	_, err := s.store.InsertPracScore(c, db.InsertPracScoreParams{
 		ScoreID:    o.ScoreId,
 		UserID:     o.UserId,
@@ -23,7 +30,7 @@ func (s *Server) insertUserScore(o *pb.ScoreRequest, r *pb.Score, c context.Cont
 		Entrytime:  r.Entrytime,
 		Position:   position,
 		Leverage:   int8(o.Leverage),
-		Outtime:    r.OutTime,
+		Outtime:    sql.NullString{Valid: isValidOuttime, String: utilities.EntryTimeFormatter(r.OutTime)},
 		Entryprice: r.EntryPrice,
 		Endprice:   r.EndPrice,
 		Pnl:        r.Pnl,

@@ -169,7 +169,7 @@ func (q *Queries) GetPracStageLenByScoreID(ctx context.Context, arg GetPracStage
 
 const getUnsettledPracScores = `-- name: GetUnsettledPracScores :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
-WHERE user_id = ? AND pnl <> 0 AND outtime = 0 AND settled_at IS NULL
+WHERE user_id = ? AND pnl <> 0 AND outtime IS NOT NULL AND settled_at IS NULL
 `
 
 func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]PracScore, error) {
@@ -362,19 +362,19 @@ INSERT INTO prac_score (
 `
 
 type InsertPracScoreParams struct {
-	ScoreID    string  `json:"score_id"`
-	UserID     string  `json:"user_id"`
-	Stage      int8    `json:"stage"`
-	Pairname   string  `json:"pairname"`
-	Entrytime  string  `json:"entrytime"`
-	Position   string  `json:"position"`
-	Leverage   int8    `json:"leverage"`
-	Outtime    int64   `json:"outtime"`
-	Quantity   float64 `json:"quantity"`
-	Entryprice float64 `json:"entryprice"`
-	Endprice   float64 `json:"endprice"`
-	Pnl        float64 `json:"pnl"`
-	Roe        float64 `json:"roe"`
+	ScoreID    string         `json:"score_id"`
+	UserID     string         `json:"user_id"`
+	Stage      int8           `json:"stage"`
+	Pairname   string         `json:"pairname"`
+	Entrytime  string         `json:"entrytime"`
+	Position   string         `json:"position"`
+	Leverage   int8           `json:"leverage"`
+	Outtime    sql.NullString `json:"outtime"`
+	Quantity   float64        `json:"quantity"`
+	Entryprice float64        `json:"entryprice"`
+	Endprice   float64        `json:"endprice"`
+	Pnl        float64        `json:"pnl"`
+	Roe        float64        `json:"roe"`
 }
 
 func (q *Queries) InsertPracScore(ctx context.Context, arg InsertPracScoreParams) (sql.Result, error) {
@@ -401,13 +401,13 @@ WHERE user_id = ? AND score_id = ? AND stage = ?
 `
 
 type UpdatePracScoreParams struct {
-	Outtime  int64   `json:"outtime"`
-	Endprice float64 `json:"endprice"`
-	Pnl      float64 `json:"pnl"`
-	Roe      float64 `json:"roe"`
-	UserID   string  `json:"user_id"`
-	ScoreID  string  `json:"score_id"`
-	Stage    int8    `json:"stage"`
+	Outtime  sql.NullString `json:"outtime"`
+	Endprice float64        `json:"endprice"`
+	Pnl      float64        `json:"pnl"`
+	Roe      float64        `json:"roe"`
+	UserID   string         `json:"user_id"`
+	ScoreID  string         `json:"score_id"`
+	Stage    int8           `json:"stage"`
 }
 
 func (q *Queries) UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams) (sql.Result, error) {

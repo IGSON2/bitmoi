@@ -13,7 +13,7 @@ type ScoreInterface interface {
 	GetEntrytime() string
 	GetPosition() string
 	GetLeverage() int8
-	GetOuttime() int64
+	GetOuttime() string
 	GetEntryprice() float64
 	GetQuantity() float64
 	GetEndprice() float64
@@ -30,7 +30,7 @@ func (s *PracScore) GetPairname() string        { return s.Pairname }
 func (s *PracScore) GetEntrytime() string       { return s.Entrytime }
 func (s *PracScore) GetPosition() string        { return s.Position }
 func (s *PracScore) GetLeverage() int8          { return s.Leverage }
-func (s *PracScore) GetOuttime() int64          { return s.Outtime }
+func (s *PracScore) GetOuttime() string         { return s.Outtime.String }
 func (s *PracScore) GetEntryprice() float64     { return s.Entryprice }
 func (s *PracScore) GetQuantity() float64       { return s.Quantity }
 func (s *PracScore) GetEndprice() float64       { return s.Endprice }
@@ -46,7 +46,7 @@ func (s *CompScore) GetPairname() string        { return s.Pairname }
 func (s *CompScore) GetEntrytime() string       { return s.Entrytime }
 func (s *CompScore) GetPosition() string        { return s.Position }
 func (s *CompScore) GetLeverage() int8          { return s.Leverage }
-func (s *CompScore) GetOuttime() int64          { return s.Outtime }
+func (s *CompScore) GetOuttime() string         { return s.Outtime.String }
 func (s *CompScore) GetEntryprice() float64     { return s.Entryprice }
 func (s *CompScore) GetQuantity() float64       { return s.Quantity }
 func (s *CompScore) GetEndprice() float64       { return s.Endprice }

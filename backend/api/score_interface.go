@@ -151,7 +151,7 @@ type OrderResult struct {
 	Entrytime    string  `json:"entry_time"`
 	Leverage     int8    `json:"leverage"`
 	EndPrice     float64 `json:"end_price"`
-	OutTime      int32   `json:"out_time"`
+	OutTime      int64   `json:"out_time"`
 	Roe          float64 `json:"roe"`
 	Pnl          float64 `json:"pnl"`
 	Commission   float64 `json:"commission"`
@@ -161,7 +161,7 @@ type OrderResult struct {
 func (o *OrderResult) GetPairName() string    { return o.Name }
 func (o *OrderResult) GetEntryTime() string   { return o.Entrytime }
 func (o *OrderResult) GetEndPrice() float64   { return o.EndPrice }
-func (o *OrderResult) GetOutTime() int64      { return int64(o.OutTime) }
+func (o *OrderResult) GetOutTime() int64      { return o.OutTime }
 func (o *OrderResult) GetRoe() float64        { return o.Roe }
 func (o *OrderResult) GetPnl() float64        { return o.Pnl }
 func (o *OrderResult) GetIsliquidated() bool  { return o.Isliquidated }

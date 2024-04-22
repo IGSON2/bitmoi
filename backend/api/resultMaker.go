@@ -43,7 +43,7 @@ func (s *Server) createPracResult(order *ScoreRequest, c *fiber.Ctx) (*ScoreResp
 		Score: calculateResult(resultchart, order, pracInfo),
 	}
 	result.Score.Entrytime = utilities.EntryTimeFormatter(resultchart.PData[0].Time - (resultchart.PData[1].Time - resultchart.PData[0].Time))
-	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
+	result.ResultChart = &CandleData{PData: resultchart.PData, VData: resultchart.VData}
 
 	return &result, nil
 }
@@ -64,7 +64,7 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 		Score: calculateResult(resultchart, compOrder, compInfo),
 	}
 
-	result.ResultChart = &CandleData{PData: resultchart.PData[:result.Score.OutTime], VData: resultchart.VData[:result.Score.OutTime]}
+	result.ResultChart = &CandleData{PData: resultchart.PData, VData: resultchart.VData}
 
 	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
 	if err != nil {
@@ -83,7 +83,7 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, info *utiliti
 	var (
 		roe      float64
 		pnl      float64
-		endIdx   int
+		outTime  int64
 		endPrice float64
 	)
 
@@ -100,38 +100,38 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, info *utiliti
 		if *order.IsLong {
 			if candle.High >= order.ProfitPrice {
 				roe = levQuanRate * ((order.ProfitPrice - order.EntryPrice) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.High
 				break
 			}
 			if candle.Low <= order.LossPrice {
 				roe = levQuanRate * ((order.LossPrice - order.EntryPrice) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.Low
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
 				roe = levQuanRate * ((candle.Close - order.EntryPrice) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.Close
 				break
 			}
 		} else {
 			if candle.Low <= order.ProfitPrice {
 				roe = levQuanRate * ((order.EntryPrice - order.ProfitPrice) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.Low
 				break
 			}
 			if candle.High >= order.LossPrice {
 				roe = levQuanRate * ((order.EntryPrice - order.LossPrice) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.High
 				break
 			}
 			if idx == len(resultchart.PData)-1 {
 				roe = levQuanRate * ((order.EntryPrice - candle.Close) / order.EntryPrice)
-				endIdx = idx + 1
+				outTime = candle.Time
 				endPrice = candle.Close
 				break
 			}
@@ -143,7 +143,7 @@ func calculateResult(resultchart *CandleData, order *ScoreRequest, info *utiliti
 		Name:       order.Name,
 		Leverage:   order.Leverage,
 		EndPrice:   common.FloorDecimal(endPrice),
-		OutTime:    int32(endIdx),
+		OutTime:    outTime,
 		Roe:        common.FloorDecimal(roe * 100),
 		Pnl:        common.FloorDecimal(pnl),
 		Commission: common.FloorDecimal(commissionRate * order.EntryPrice * order.Quantity),

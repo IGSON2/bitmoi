@@ -50,6 +50,8 @@ type Querier interface {
 	Get5mResult(ctx context.Context, arg Get5mResultParams) ([]Candles5m, error)
 	Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error)
 	GetAccumulationHist(ctx context.Context, arg GetAccumulationHistParams) ([]AccumulationHistory, error)
+	GetAdminPracScores(ctx context.Context) ([]GetAdminPracScoresRow, error)
+	GetAdminUsers(ctx context.Context, arg GetAdminUsersParams) ([]GetAdminUsersRow, error)
 	GetAllPairsInDB1D(ctx context.Context) ([]string, error)
 	// --------utils----------------
 	GetAllPairsInDB1H(ctx context.Context) ([]string, error)
