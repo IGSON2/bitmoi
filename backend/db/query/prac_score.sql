@@ -50,7 +50,7 @@ WHERE user_id = ? AND score_id = ? AND stage = ?;
 
 -- name: GetUnsettledPracScores :many
 SELECT * FROM prac_score
-WHERE user_id = ? AND pnl <> 0 AND outtime IS NOT NULL AND settled_at IS NULL;
+WHERE user_id = ? AND pnl <> 0 AND outtime = '' AND settled_at IS NULL;
 
 -- name: UpdatePracScoreSettledAt :execresult
 UPDATE prac_score SET settled_at = ?

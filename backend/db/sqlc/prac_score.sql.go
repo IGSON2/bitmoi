@@ -183,7 +183,7 @@ func (q *Queries) GetPracStageLenByScoreID(ctx context.Context, arg GetPracStage
 
 const getUnsettledPracScores = `-- name: GetUnsettledPracScores :many
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
-WHERE user_id = ? AND pnl <> 0 AND outtime IS NOT NULL AND settled_at IS NULL
+WHERE user_id = ? AND pnl <> 0 AND outtime = '' AND settled_at IS NULL
 `
 
 func (q *Queries) GetUnsettledPracScores(ctx context.Context, userID string) ([]PracScore, error) {
