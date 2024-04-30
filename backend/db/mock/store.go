@@ -260,6 +260,36 @@ func (mr *MockStoreMockRecorder) DeletePairs5m(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePairs5m", reflect.TypeOf((*MockStore)(nil).DeletePairs5m), arg0, arg1)
 }
 
+// DeletePracScore mocks base method.
+func (m *MockStore) DeletePracScore(arg0 context.Context, arg1 db.DeletePracScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeletePracScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeletePracScore indicates an expected call of DeletePracScore.
+func (mr *MockStoreMockRecorder) DeletePracScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePracScore", reflect.TypeOf((*MockStore)(nil).DeletePracScore), arg0, arg1)
+}
+
+// DeleteUser mocks base method.
+func (m *MockStore) DeleteUser(arg0 context.Context, arg1 string) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUser", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockStoreMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockStore)(nil).DeleteUser), arg0, arg1)
+}
+
 // Get15mCandles mocks base method.
 func (m *MockStore) Get15mCandles(arg0 context.Context, arg1 db.Get15mCandlesParams) ([]db.Candles15m, error) {
 	m.ctrl.T.Helper()
@@ -665,19 +695,19 @@ func (mr *MockStoreMockRecorder) GetAccumulationHist(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccumulationHist", reflect.TypeOf((*MockStore)(nil).GetAccumulationHist), arg0, arg1)
 }
 
-// GetAdminPracScores mocks base method.
-func (m *MockStore) GetAdminPracScores(arg0 context.Context) ([]db.GetAdminPracScoresRow, error) {
+// GetAdminScores mocks base method.
+func (m *MockStore) GetAdminScores(arg0 context.Context, arg1 db.GetAdminScoresParams) ([]db.GetAdminScoresRow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAdminPracScores", arg0)
-	ret0, _ := ret[0].([]db.GetAdminPracScoresRow)
+	ret := m.ctrl.Call(m, "GetAdminScores", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetAdminScoresRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAdminPracScores indicates an expected call of GetAdminPracScores.
-func (mr *MockStoreMockRecorder) GetAdminPracScores(arg0 interface{}) *gomock.Call {
+// GetAdminScores indicates an expected call of GetAdminScores.
+func (mr *MockStoreMockRecorder) GetAdminScores(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminPracScores", reflect.TypeOf((*MockStore)(nil).GetAdminPracScores), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminScores", reflect.TypeOf((*MockStore)(nil).GetAdminScores), arg0, arg1)
 }
 
 // GetAdminUsers mocks base method.
@@ -1368,6 +1398,21 @@ func (m *MockStore) InsertCompScore(arg0 context.Context, arg1 db.InsertCompScor
 func (mr *MockStoreMockRecorder) InsertCompScore(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertCompScore", reflect.TypeOf((*MockStore)(nil).InsertCompScore), arg0, arg1)
+}
+
+// InsertPracAfterScore mocks base method.
+func (m *MockStore) InsertPracAfterScore(arg0 context.Context, arg1 db.InsertPracAfterScoreParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertPracAfterScore", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertPracAfterScore indicates an expected call of InsertPracAfterScore.
+func (mr *MockStoreMockRecorder) InsertPracAfterScore(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertPracAfterScore", reflect.TypeOf((*MockStore)(nil).InsertPracAfterScore), arg0, arg1)
 }
 
 // InsertPracScore mocks base method.

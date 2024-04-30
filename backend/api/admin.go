@@ -51,24 +51,60 @@ func (s *Server) GetUsers(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-type AdminInvestResponse struct {
-	Number       int     `json:"number"`
-	UserID       string  `json:"id"`
-	BettingUsdp  float64 `json:"bettingusdp"`
-	Position     string  `json:"position"`
-	Leverage     int     `json:"leverage"`
-	Roe          int     `json:"roe"`
-	Pnl          int     `json:"pnl"`
-	PositionTime string  `json:"positiontime"`
-	OwnedTime    string  `json:"ownedtime"`
-	MaxRoe       string  `json:"maxroe"`
-	SubmitTime   string  `json:"submittime"`
-	EntryTime    string  `json:"entrytime"`
-	ExitTime     string  `json:"exittime"`
+type AdminScoreResponse struct {
+	Number        int64   `json:"number"`
+	Nickname      string  `json:"nickname"`
+	UserID        string  `json:"id"`
+	BettingUsdp   float64 `json:"bettingusdp"`
+	Position      string  `json:"position"`
+	Leverage      int8    `json:"leverage"`
+	Roe           float64 `json:"roe"`
+	Pnl           float64 `json:"pnl"`
+	MaxMinRoe     string  `json:"maxminroe"`
+	SubmitTime    string  `json:"submittime"`
+	EntryTime     string  `json:"entrytime"`
+	ExitTime      string  `json:"exittime"`
+	SettledAt     string  `json:"settledat"`
+	AfterExitTime string  `json:"afterexittime"`
 }
 
-func (s *Server) GetInvestInfo(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+func (s *Server) GetScoresInfo(c *fiber.Ctx) error {
+	mode := c.Query("mode", practice)
+	switch mode {
+	case practice:
+		scores, err := s.store.GetAdminScores(c.Context(), db.GetAdminScoresParams{
+			Limit:  1000,
+			Offset: 0,
+		})
+		if err != nil {
+			s.logger.Err(err).Msg("cannot get scores for admin")
+			return c.Status(fiber.StatusInternalServerError).SendString("Cannot get scores")
+		}
+		var response []AdminScoreResponse
+		for _, score := range scores {
+			response = append(response, AdminScoreResponse{
+				Number:        score.ID,
+				Nickname:      score.Nickname,
+				UserID:        score.UserID,
+				BettingUsdp:   score.Entryprice * score.Quantity / float64(score.Leverage),
+				Position:      score.Position,
+				Leverage:      score.Leverage,
+				Roe:           score.Roe,
+				Pnl:           score.Pnl,
+				EntryTime:     score.Entrytime,
+				ExitTime:      score.Outtime,
+				MaxMinRoe:     fmt.Sprintf("%.1f / %.1f", score.MaxRoe, score.MinRoe),
+				SubmitTime:    score.CreatedAt.Format("06.01.02 15:04:05"),
+				AfterExitTime: fmt.Sprintf("%.2f", float64(score.AfterOuttime/3600)),
+			})
+			if score.SettledAt.Valid {
+				response[len(response)-1].SettledAt = score.SettledAt.Time.Format("06.01.02 15:04:05")
+			}
+		}
+		return c.Status(fiber.StatusOK).JSON(response)
+	default:
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid mode")
+	}
 }
 
 type AdminUsdpResponse struct {

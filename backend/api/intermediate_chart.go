@@ -108,6 +108,7 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update user balance. err : %s", err.Error()))
 		}
 		cutResultChart(resultCdd, result.OutTime, false)
+		// AfterScore 계산 후 저장 필요
 	}
 	res = &InterScoreResponse{
 		ResultChart:   cdd,
@@ -182,7 +183,6 @@ func (s *Server) closeImdScore(c *fiber.Ctx) error {
 	score.OutTime = cdd.PData[0].Time
 	score.EndPrice = cdd.PData[0].Close
 
-	// 쿼리를 하나로 통합 시키는 게 좋을듯
 	err = s.updateScore(req, score, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot update score. err : %s", err.Error()))
@@ -207,6 +207,21 @@ func (s *Server) closeImdScore(c *fiber.Ctx) error {
 		AfterScore: s.calcAfterImdResult(resultChart, &req.ImdScoreRequest, info),
 	}
 	res.AfterScore.ClosedTime -= info.RefTimestamp
+
+	_, err = s.store.InsertPracAfterScore(c.Context(), db.InsertPracAfterScoreParams{
+		ScoreID:      req.ScoreId,
+		UserID:       req.UserId,
+		MaxRoe:       res.AfterScore.MaxRoe,
+		MinRoe:       res.AfterScore.MinRoe,
+		AfterOuttime: res.AfterScore.ClosedTime,
+	})
+
+	if err != nil {
+		s.logger.Error().Err(err).Str("user id", req.UserId).Str("score id", req.ScoreId).Msg("cannot insert after score.")
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("cannot insert after score. err : %s", err.Error()))
+
+	}
+
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 

@@ -52,6 +52,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	)
 }
 
+const deleteUser = `-- name: DeleteUser :execresult
+DELETE FROM users
+WHERE user_id = ?
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, userID string) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteUser, userID)
+}
+
 const getLastUserID = `-- name: GetLastUserID :one
 SELECT id FROM users
 ORDER BY id DESC

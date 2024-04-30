@@ -11,6 +11,20 @@ import (
 	"time"
 )
 
+const deletePracScore = `-- name: DeletePracScore :execresult
+DELETE FROM prac_score
+WHERE user_id = ? AND score_id = ?
+`
+
+type DeletePracScoreParams struct {
+	UserID  string `json:"user_id"`
+	ScoreID string `json:"score_id"`
+}
+
+func (q *Queries) DeletePracScore(ctx context.Context, arg DeletePracScoreParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePracScore, arg.UserID, arg.ScoreID)
+}
+
 const getPracScore = `-- name: GetPracScore :one
 SELECT score_id, user_id, stage, pairname, entrytime, position, leverage, outtime, entryprice, quantity, endprice, pnl, roe, settled_at, created_at FROM prac_score
 WHERE user_id = ? AND score_id = ? AND pairname = ?
@@ -362,19 +376,19 @@ INSERT INTO prac_score (
 `
 
 type InsertPracScoreParams struct {
-	ScoreID    string         `json:"score_id"`
-	UserID     string         `json:"user_id"`
-	Stage      int8           `json:"stage"`
-	Pairname   string         `json:"pairname"`
-	Entrytime  string         `json:"entrytime"`
-	Position   string         `json:"position"`
-	Leverage   int8           `json:"leverage"`
-	Outtime    sql.NullString `json:"outtime"`
-	Quantity   float64        `json:"quantity"`
-	Entryprice float64        `json:"entryprice"`
-	Endprice   float64        `json:"endprice"`
-	Pnl        float64        `json:"pnl"`
-	Roe        float64        `json:"roe"`
+	ScoreID    string  `json:"score_id"`
+	UserID     string  `json:"user_id"`
+	Stage      int8    `json:"stage"`
+	Pairname   string  `json:"pairname"`
+	Entrytime  string  `json:"entrytime"`
+	Position   string  `json:"position"`
+	Leverage   int8    `json:"leverage"`
+	Outtime    string  `json:"outtime"`
+	Quantity   float64 `json:"quantity"`
+	Entryprice float64 `json:"entryprice"`
+	Endprice   float64 `json:"endprice"`
+	Pnl        float64 `json:"pnl"`
+	Roe        float64 `json:"roe"`
 }
 
 func (q *Queries) InsertPracScore(ctx context.Context, arg InsertPracScoreParams) (sql.Result, error) {
@@ -401,13 +415,13 @@ WHERE user_id = ? AND score_id = ? AND stage = ?
 `
 
 type UpdatePracScoreParams struct {
-	Outtime  sql.NullString `json:"outtime"`
-	Endprice float64        `json:"endprice"`
-	Pnl      float64        `json:"pnl"`
-	Roe      float64        `json:"roe"`
-	UserID   string         `json:"user_id"`
-	ScoreID  string         `json:"score_id"`
-	Stage    int8           `json:"stage"`
+	Outtime  string  `json:"outtime"`
+	Endprice float64 `json:"endprice"`
+	Pnl      float64 `json:"pnl"`
+	Roe      float64 `json:"roe"`
+	UserID   string  `json:"user_id"`
+	ScoreID  string  `json:"score_id"`
+	Stage    int8    `json:"stage"`
 }
 
 func (q *Queries) UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams) (sql.Result, error) {

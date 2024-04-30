@@ -8,6 +8,9 @@ sqlc:
 	sqlc generate
 	make mock
 
+migratecreate:
+	migrate create -ext sql -dir backend/db/migrate -seq $(name)
+
 migrateup:
 	migrate -path backend/db/migrate -database "mysql://root:123@tcp(localhost:3306)/bitmoi" -verbose up
 

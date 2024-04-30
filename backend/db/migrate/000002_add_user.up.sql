@@ -25,7 +25,7 @@ CREATE TABLE `prac_score` (
   `entrytime` varchar(50) NOT NULL,
   `position` varchar(20) NOT NULL,
   `leverage` tinyint NOT NULL,
-  `outtime` varchar(50),
+  `outtime` varchar(50) NOT NULL,
   `entryprice` double NOT NULL,
   `quantity` double NOT NULL,
   `endprice` double NOT NULL,
@@ -33,10 +33,8 @@ CREATE TABLE `prac_score` (
   `roe` double NOT NULL,
   `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  `max_roe` double NOT NULL,
-  `min_roe` double NOT NULL,
   PRIMARY KEY (`score_id`, `user_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `comp_score` (
@@ -47,7 +45,7 @@ CREATE TABLE `comp_score` (
   `entrytime` varchar(50) NOT NULL,
   `position` varchar(20) NOT NULL,
   `leverage` tinyint NOT NULL,
-  `outtime` varchar(50),
+  `outtime` varchar(50) NOT NULL,
   `entryprice` double NOT NULL,
   `quantity` double NOT NULL,
   `endprice` double NOT NULL,
@@ -55,10 +53,8 @@ CREATE TABLE `comp_score` (
   `roe` double NOT NULL,
   `settled_at` timestamp,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  `max_roe` double NOT NULL,
-  `min_roe` double NOT NULL,
   PRIMARY KEY (`score_id`, `user_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `ranking_board` (

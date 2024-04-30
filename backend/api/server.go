@@ -145,7 +145,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	adminGroup := router.Group("/admin", adminAuthMiddleware(c.AdminID, server.tokenMaker), createNewLimitMiddleware(100, server.logger))
 	adminGroup.Get("/users", server.GetUsers)
-	adminGroup.Get("/invest", server.GetInvestInfo)
+	adminGroup.Get("/scores", server.GetScoresInfo)
 	adminGroup.Get("/usdp", server.GetUsdpInfo)
 	adminGroup.Post("/usdp", server.SetUsdpInfo)
 	adminGroup.Get("/token", server.GetTokenInfo)

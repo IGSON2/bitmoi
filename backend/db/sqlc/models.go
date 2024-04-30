@@ -82,39 +82,47 @@ type Candles5m struct {
 }
 
 type CompScore struct {
-	ScoreID    string         `json:"score_id"`
-	UserID     string         `json:"user_id"`
-	Stage      int8           `json:"stage"`
-	Pairname   string         `json:"pairname"`
-	Entrytime  string         `json:"entrytime"`
-	Position   string         `json:"position"`
-	Leverage   int8           `json:"leverage"`
-	Outtime    sql.NullString `json:"outtime"`
-	Entryprice float64        `json:"entryprice"`
-	Quantity   float64        `json:"quantity"`
-	Endprice   float64        `json:"endprice"`
-	Pnl        float64        `json:"pnl"`
-	Roe        float64        `json:"roe"`
-	SettledAt  sql.NullTime   `json:"settled_at"`
-	CreatedAt  time.Time      `json:"created_at"`
+	ScoreID    string       `json:"score_id"`
+	UserID     string       `json:"user_id"`
+	Stage      int8         `json:"stage"`
+	Pairname   string       `json:"pairname"`
+	Entrytime  string       `json:"entrytime"`
+	Position   string       `json:"position"`
+	Leverage   int8         `json:"leverage"`
+	Outtime    string       `json:"outtime"`
+	Entryprice float64      `json:"entryprice"`
+	Quantity   float64      `json:"quantity"`
+	Endprice   float64      `json:"endprice"`
+	Pnl        float64      `json:"pnl"`
+	Roe        float64      `json:"roe"`
+	SettledAt  sql.NullTime `json:"settled_at"`
+	CreatedAt  time.Time    `json:"created_at"`
+}
+
+type PracAfterScore struct {
+	ScoreID      string  `json:"score_id"`
+	UserID       string  `json:"user_id"`
+	MaxRoe       float64 `json:"max_roe"`
+	MinRoe       float64 `json:"min_roe"`
+	AfterOuttime int64   `json:"after_outtime"`
 }
 
 type PracScore struct {
-	ScoreID    string         `json:"score_id"`
-	UserID     string         `json:"user_id"`
-	Stage      int8           `json:"stage"`
-	Pairname   string         `json:"pairname"`
-	Entrytime  string         `json:"entrytime"`
-	Position   string         `json:"position"`
-	Leverage   int8           `json:"leverage"`
-	Outtime    sql.NullString `json:"outtime"`
-	Entryprice float64        `json:"entryprice"`
-	Quantity   float64        `json:"quantity"`
-	Endprice   float64        `json:"endprice"`
-	Pnl        float64        `json:"pnl"`
-	Roe        float64        `json:"roe"`
-	SettledAt  sql.NullTime   `json:"settled_at"`
-	CreatedAt  time.Time      `json:"created_at"`
+	ScoreID    string       `json:"score_id"`
+	UserID     string       `json:"user_id"`
+	Stage      int8         `json:"stage"`
+	Pairname   string       `json:"pairname"`
+	Entrytime  string       `json:"entrytime"`
+	Position   string       `json:"position"`
+	Leverage   int8         `json:"leverage"`
+	Outtime    string       `json:"outtime"`
+	Entryprice float64      `json:"entryprice"`
+	Quantity   float64      `json:"quantity"`
+	Endprice   float64      `json:"endprice"`
+	Pnl        float64      `json:"pnl"`
+	Roe        float64      `json:"roe"`
+	SettledAt  sql.NullTime `json:"settled_at"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 type RankingBoard struct {

@@ -21,6 +21,10 @@ INSERT INTO prac_score (
 SELECT * FROM prac_score
 WHERE user_id = ? AND score_id = ? AND pairname = ?;
 
+-- name: DeletePracScore :execresult
+DELETE FROM prac_score
+WHERE user_id = ? AND score_id = ?;
+
 -- name: GetPracScoresByStage :one
 SELECT * FROM prac_score
 WHERE score_id = ? AND user_id = ? AND stage = ?;

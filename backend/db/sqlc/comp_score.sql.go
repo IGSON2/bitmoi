@@ -316,19 +316,19 @@ INSERT INTO comp_score (
 `
 
 type InsertCompScoreParams struct {
-	ScoreID    string         `json:"score_id"`
-	UserID     string         `json:"user_id"`
-	Stage      int8           `json:"stage"`
-	Pairname   string         `json:"pairname"`
-	Entrytime  string         `json:"entrytime"`
-	Position   string         `json:"position"`
-	Leverage   int8           `json:"leverage"`
-	Outtime    sql.NullString `json:"outtime"`
-	Entryprice float64        `json:"entryprice"`
-	Quantity   float64        `json:"quantity"`
-	Endprice   float64        `json:"endprice"`
-	Pnl        float64        `json:"pnl"`
-	Roe        float64        `json:"roe"`
+	ScoreID    string  `json:"score_id"`
+	UserID     string  `json:"user_id"`
+	Stage      int8    `json:"stage"`
+	Pairname   string  `json:"pairname"`
+	Entrytime  string  `json:"entrytime"`
+	Position   string  `json:"position"`
+	Leverage   int8    `json:"leverage"`
+	Outtime    string  `json:"outtime"`
+	Entryprice float64 `json:"entryprice"`
+	Quantity   float64 `json:"quantity"`
+	Endprice   float64 `json:"endprice"`
+	Pnl        float64 `json:"pnl"`
+	Roe        float64 `json:"roe"`
 }
 
 func (q *Queries) InsertCompScore(ctx context.Context, arg InsertCompScoreParams) (sql.Result, error) {
@@ -370,16 +370,16 @@ WHERE user_id = ? AND score_id = ? AND pairname = ?
 `
 
 type UpdateCompcScoreParams struct {
-	Pairname   string         `json:"pairname"`
-	Entrytime  string         `json:"entrytime"`
-	Outtime    sql.NullString `json:"outtime"`
-	Entryprice float64        `json:"entryprice"`
-	Endprice   float64        `json:"endprice"`
-	Pnl        float64        `json:"pnl"`
-	Roe        float64        `json:"roe"`
-	UserID     string         `json:"user_id"`
-	ScoreID    string         `json:"score_id"`
-	Pairname_2 string         `json:"pairname_2"`
+	Pairname   string  `json:"pairname"`
+	Entrytime  string  `json:"entrytime"`
+	Outtime    string  `json:"outtime"`
+	Entryprice float64 `json:"entryprice"`
+	Endprice   float64 `json:"endprice"`
+	Pnl        float64 `json:"pnl"`
+	Roe        float64 `json:"roe"`
+	UserID     string  `json:"user_id"`
+	ScoreID    string  `json:"score_id"`
+	Pairname_2 string  `json:"pairname_2"`
 }
 
 func (q *Queries) UpdateCompcScore(ctx context.Context, arg UpdateCompcScoreParams) (sql.Result, error) {

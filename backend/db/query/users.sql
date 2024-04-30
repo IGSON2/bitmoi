@@ -90,3 +90,7 @@ WHERE user_id = ?;
 -- name: UpdateUserLastAccessedAt :execresult
 UPDATE users SET last_accessed_at = ?
 WHERE user_id = ?;
+
+-- name: DeleteUser :execresult
+DELETE FROM users
+WHERE user_id = ?;

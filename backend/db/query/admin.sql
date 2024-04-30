@@ -9,6 +9,8 @@ SELECT id, user_id, nickname, prac_balance, wmoi_balance, recommender_code, crea
 FROM users
 LIMIT ? OFFSET ?;
 
--- name: GetAdminPracScores :many
-SELECT u.id, u.nickname, u.user_id, p.quantity, p.entryprice, p.position, p.leverage, p.roe, p.pnl, p.entrytime, p.outtime, p.settled_at ,p.created_at
-FROM users u LEFT JOIN prac_score p on u.user_id = p.user_id;
+-- name: GetAdminScores :many
+SELECT u.id, u.nickname, p.* ,a.min_roe, a.max_roe, a.after_outtime from prac_score p
+ INNER JOIN users u ON p.user_id = u.user_id
+ INNER JOIN prac_after_score a ON p.user_id = a.user_id AND p.score_id = a.score_id
+ LIMIT ? OFFSET ?;

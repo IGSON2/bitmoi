@@ -80,7 +80,7 @@ func (s *Server) insertScore(req ScoreReqInterface, res OrderResultInterface, ct
 			Entrytime:  res.GetEntryTime(),
 			Position:   position,
 			Leverage:   req.GetLeverage(),
-			Outtime:    sql.NullString{Valid: true, String: utilities.EntryTimeFormatter(res.GetOutTime())},
+			Outtime:    utilities.EntryTimeFormatter(res.GetOutTime()),
 			Entryprice: req.GetEntryPrice(),
 			Quantity:   req.GetQuantity(),
 			Endprice:   res.GetEndPrice(),
@@ -96,7 +96,7 @@ func (s *Server) insertScore(req ScoreReqInterface, res OrderResultInterface, ct
 			Entrytime:  res.GetEntryTime(),
 			Position:   position,
 			Leverage:   req.GetLeverage(),
-			Outtime:    sql.NullString{Valid: true, String: utilities.EntryTimeFormatter(res.GetOutTime())},
+			Outtime:    utilities.EntryTimeFormatter(res.GetOutTime()),
 			Entryprice: req.GetEntryPrice(),
 			Quantity:   req.GetQuantity(),
 			Endprice:   res.GetEndPrice(),
@@ -123,11 +123,11 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 		if getErr != nil {
 			return getErr
 		}
-		if pracScore.Outtime.Valid {
+		if pracScore.Outtime != "" {
 			return errors.New("already closed score")
 		}
 		_, err = s.store.UpdatePracScore(ctx, db.UpdatePracScoreParams{
-			Outtime:  sql.NullString{Valid: true, String: utilities.EntryTimeFormatter(res.GetOutTime())},
+			Outtime:  utilities.EntryTimeFormatter(res.GetOutTime()),
 			Endprice: res.GetEndPrice(),
 			Pnl:      res.GetPnl(),
 			Roe:      res.GetRoe(),
@@ -144,13 +144,13 @@ func (s *Server) updateScore(req ScoreReqInterface, res OrderResultInterface, ct
 		if getErr != nil {
 			return getErr
 		}
-		if compScore.Outtime.Valid {
+		if compScore.Outtime != "" {
 			return errors.New("already closed score")
 		}
 		_, err = s.store.UpdateCompcScore(ctx, db.UpdateCompcScoreParams{
 			Pairname:   res.GetPairName(),
 			Entrytime:  res.GetEntryTime(),
-			Outtime:    sql.NullString{Valid: true, String: utilities.EntryTimeFormatter(res.GetOutTime())},
+			Outtime:    utilities.EntryTimeFormatter(res.GetOutTime()),
 			Entryprice: req.GetEntryPrice(),
 			Endprice:   res.GetEndPrice(),
 			Pnl:        res.GetPnl(),
