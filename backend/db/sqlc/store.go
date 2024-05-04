@@ -12,7 +12,8 @@ type Store interface {
 	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 	VerifyEmailTx(ctx context.Context, arg VerifyEmailTxParams) (VerifyEmailTxResult, error)
 	SpendTokenTx(ctx context.Context, arg SpendTokenTxParams) (SpendTokenTxResult, error)
-	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error
+	CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) (float64, error)
+	AppendPracBalanceTx(ctx context.Context, arg AppendPracBalanceTxParams) error
 	SettleImdPracScoreTx(ctx context.Context, arg SettleImdScoreTxParams) (float64, error)
 	RewardRecommenderTx(ctx context.Context, arg RewardRecommenderTxParams) (string, error)
 }

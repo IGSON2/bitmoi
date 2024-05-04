@@ -10,11 +10,12 @@ import (
 )
 
 type AccumulationHistory struct {
-	ID        int64     `json:"id"`
 	ToUser    string    `json:"to_user"`
 	Amount    float64   `json:"amount"`
 	Title     string    `json:"title"`
 	CreatedAt time.Time `json:"created_at"`
+	Method    string    `json:"method"`
+	Giver     string    `json:"giver"`
 }
 
 type BiddingHistory struct {
@@ -186,9 +187,10 @@ type VerifyEmail struct {
 }
 
 type WmoiMintingHistory struct {
-	ID        int64     `json:"id"`
 	ToUser    string    `json:"to_user"`
 	Amount    int64     `json:"amount"`
 	Title     string    `json:"title"`
 	CreatedAt time.Time `json:"created_at"`
+	Method    string    `json:"method"`
+	Giver     string    `json:"giver"`
 }

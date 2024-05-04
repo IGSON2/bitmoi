@@ -36,12 +36,72 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
-// CheckAttendTx mocks base method.
-func (m *MockStore) CheckAttendTx(arg0 context.Context, arg1 db.CheckAttendTxParams) error {
+// AppendPracBalanceTx mocks base method.
+func (m *MockStore) AppendPracBalanceTx(arg0 context.Context, arg1 db.AppendPracBalanceTxParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckAttendTx", arg0, arg1)
+	ret := m.ctrl.Call(m, "AppendPracBalanceTx", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
+}
+
+// AppendPracBalanceTx indicates an expected call of AppendPracBalanceTx.
+func (mr *MockStoreMockRecorder) AppendPracBalanceTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendPracBalanceTx", reflect.TypeOf((*MockStore)(nil).AppendPracBalanceTx), arg0, arg1)
+}
+
+// AppendUserCompBalance mocks base method.
+func (m *MockStore) AppendUserCompBalance(arg0 context.Context, arg1 db.AppendUserCompBalanceParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserCompBalance", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserCompBalance indicates an expected call of AppendUserCompBalance.
+func (mr *MockStoreMockRecorder) AppendUserCompBalance(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserCompBalance", reflect.TypeOf((*MockStore)(nil).AppendUserCompBalance), arg0, arg1)
+}
+
+// AppendUserPracBalance mocks base method.
+func (m *MockStore) AppendUserPracBalance(arg0 context.Context, arg1 db.AppendUserPracBalanceParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserPracBalance", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserPracBalance indicates an expected call of AppendUserPracBalance.
+func (mr *MockStoreMockRecorder) AppendUserPracBalance(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserPracBalance", reflect.TypeOf((*MockStore)(nil).AppendUserPracBalance), arg0, arg1)
+}
+
+// AppendUserWmoiBalance mocks base method.
+func (m *MockStore) AppendUserWmoiBalance(arg0 context.Context, arg1 db.AppendUserWmoiBalanceParams) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AppendUserWmoiBalance", arg0, arg1)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AppendUserWmoiBalance indicates an expected call of AppendUserWmoiBalance.
+func (mr *MockStoreMockRecorder) AppendUserWmoiBalance(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendUserWmoiBalance", reflect.TypeOf((*MockStore)(nil).AppendUserWmoiBalance), arg0, arg1)
+}
+
+// CheckAttendTx mocks base method.
+func (m *MockStore) CheckAttendTx(arg0 context.Context, arg1 db.CheckAttendTxParams) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckAttendTx", arg0, arg1)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CheckAttendTx indicates an expected call of CheckAttendTx.
@@ -708,6 +768,21 @@ func (m *MockStore) GetAdminScores(arg0 context.Context, arg1 db.GetAdminScoresP
 func (mr *MockStoreMockRecorder) GetAdminScores(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminScores", reflect.TypeOf((*MockStore)(nil).GetAdminScores), arg0, arg1)
+}
+
+// GetAdminUsdpInfo mocks base method.
+func (m *MockStore) GetAdminUsdpInfo(arg0 context.Context, arg1 db.GetAdminUsdpInfoParams) ([]db.GetAdminUsdpInfoRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAdminUsdpInfo", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetAdminUsdpInfoRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAdminUsdpInfo indicates an expected call of GetAdminUsdpInfo.
+func (mr *MockStoreMockRecorder) GetAdminUsdpInfo(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminUsdpInfo", reflect.TypeOf((*MockStore)(nil).GetAdminUsdpInfo), arg0, arg1)
 }
 
 // GetAdminUsers mocks base method.
@@ -1566,21 +1641,6 @@ func (mr *MockStoreMockRecorder) UpdatePracScoreSettledAt(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePracScoreSettledAt", reflect.TypeOf((*MockStore)(nil).UpdatePracScoreSettledAt), arg0, arg1)
 }
 
-// UpdateUserCompBalance mocks base method.
-func (m *MockStore) UpdateUserCompBalance(arg0 context.Context, arg1 db.UpdateUserCompBalanceParams) (sql.Result, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserCompBalance", arg0, arg1)
-	ret0, _ := ret[0].(sql.Result)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateUserCompBalance indicates an expected call of UpdateUserCompBalance.
-func (mr *MockStoreMockRecorder) UpdateUserCompBalance(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserCompBalance", reflect.TypeOf((*MockStore)(nil).UpdateUserCompBalance), arg0, arg1)
-}
-
 // UpdateUserLastAccessedAt mocks base method.
 func (m *MockStore) UpdateUserLastAccessedAt(arg0 context.Context, arg1 db.UpdateUserLastAccessedAtParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -1641,21 +1701,6 @@ func (mr *MockStoreMockRecorder) UpdateUserPhotoURL(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPhotoURL", reflect.TypeOf((*MockStore)(nil).UpdateUserPhotoURL), arg0, arg1)
 }
 
-// UpdateUserPracBalance mocks base method.
-func (m *MockStore) UpdateUserPracBalance(arg0 context.Context, arg1 db.UpdateUserPracBalanceParams) (sql.Result, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserPracBalance", arg0, arg1)
-	ret0, _ := ret[0].(sql.Result)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateUserPracBalance indicates an expected call of UpdateUserPracBalance.
-func (mr *MockStoreMockRecorder) UpdateUserPracBalance(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPracBalance", reflect.TypeOf((*MockStore)(nil).UpdateUserPracBalance), arg0, arg1)
-}
-
 // UpdateUserRank mocks base method.
 func (m *MockStore) UpdateUserRank(arg0 context.Context, arg1 db.UpdateUserRankParams) (sql.Result, error) {
 	m.ctrl.T.Helper()
@@ -1669,21 +1714,6 @@ func (m *MockStore) UpdateUserRank(arg0 context.Context, arg1 db.UpdateUserRankP
 func (mr *MockStoreMockRecorder) UpdateUserRank(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserRank", reflect.TypeOf((*MockStore)(nil).UpdateUserRank), arg0, arg1)
-}
-
-// UpdateUserWmoiBalance mocks base method.
-func (m *MockStore) UpdateUserWmoiBalance(arg0 context.Context, arg1 db.UpdateUserWmoiBalanceParams) (sql.Result, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateUserWmoiBalance", arg0, arg1)
-	ret0, _ := ret[0].(sql.Result)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateUserWmoiBalance indicates an expected call of UpdateUserWmoiBalance.
-func (mr *MockStoreMockRecorder) UpdateUserWmoiBalance(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserWmoiBalance", reflect.TypeOf((*MockStore)(nil).UpdateUserWmoiBalance), arg0, arg1)
 }
 
 // UpdateUserWmoiBalanceByRecom mocks base method.

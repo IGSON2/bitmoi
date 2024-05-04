@@ -18,19 +18,25 @@ CREATE TABLE `recommend_history` (
 );
 
 CREATE TABLE `wmoi_minting_history` (
-  `id` bigint AUTO_INCREMENT PRIMARY KEY,
   `to_user` varchar(255) NOT NULL,
   `amount` bigint NOT NULL,
   `title` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now()),
+  `method` VARCHAR(2) NOT NULL,
+  `giver` VARCHAR(20) NOT NULL,
+  CONSTRAINT wmoi_chk_method CHECK(method IN ('자동', '수동')),
+  PRIMARY KEY (`to_user`, `created_at`),
   FOREIGN KEY (`to_user`) REFERENCES `users`(`user_id`)
 );
 
 CREATE TABLE `accumulation_history` (
-  `id` bigint AUTO_INCREMENT PRIMARY KEY,
   `to_user` varchar(255) NOT NULL,
   `amount` DOUBLE NOT NULL DEFAULT 0,
   `title` VARCHAR(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT (now()),
+  `method` VARCHAR(2) NOT NULL,
+  `giver` VARCHAR(20) NOT NULL,
+  CONSTRAINT accu_chk_method CHECK(method IN ('자동', '수동')),
+  PRIMARY KEY (`to_user`, `created_at`),
   FOREIGN KEY (`to_user`) REFERENCES `users`(`user_id`)
 );

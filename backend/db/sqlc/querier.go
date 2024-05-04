@@ -10,6 +10,9 @@ import (
 )
 
 type Querier interface {
+	AppendUserCompBalance(ctx context.Context, arg AppendUserCompBalanceParams) (sql.Result, error)
+	AppendUserPracBalance(ctx context.Context, arg AppendUserPracBalanceParams) (sql.Result, error)
+	AppendUserWmoiBalance(ctx context.Context, arg AppendUserWmoiBalanceParams) (sql.Result, error)
 	CreateAccumulationHist(ctx context.Context, arg CreateAccumulationHistParams) (sql.Result, error)
 	CreateBiddingHistory(ctx context.Context, arg CreateBiddingHistoryParams) (sql.Result, error)
 	CreateRecommendHistory(ctx context.Context, arg CreateRecommendHistoryParams) (sql.Result, error)
@@ -53,6 +56,7 @@ type Querier interface {
 	Get5mVolSumPriceAVG(ctx context.Context, arg Get5mVolSumPriceAVGParams) (Get5mVolSumPriceAVGRow, error)
 	GetAccumulationHist(ctx context.Context, arg GetAccumulationHistParams) ([]AccumulationHistory, error)
 	GetAdminScores(ctx context.Context, arg GetAdminScoresParams) ([]GetAdminScoresRow, error)
+	GetAdminUsdpInfo(ctx context.Context, arg GetAdminUsdpInfoParams) ([]GetAdminUsdpInfoRow, error)
 	GetAdminUsers(ctx context.Context, arg GetAdminUsersParams) ([]GetAdminUsersRow, error)
 	GetAllPairsInDB1D(ctx context.Context) ([]string, error)
 	// --------utils----------------
@@ -107,14 +111,11 @@ type Querier interface {
 	UpdateCompcScore(ctx context.Context, arg UpdateCompcScoreParams) (sql.Result, error)
 	UpdatePracScore(ctx context.Context, arg UpdatePracScoreParams) (sql.Result, error)
 	UpdatePracScoreSettledAt(ctx context.Context, arg UpdatePracScoreSettledAtParams) (sql.Result, error)
-	UpdateUserCompBalance(ctx context.Context, arg UpdateUserCompBalanceParams) (sql.Result, error)
 	UpdateUserLastAccessedAt(ctx context.Context, arg UpdateUserLastAccessedAtParams) (sql.Result, error)
 	UpdateUserMetamaskAddress(ctx context.Context, arg UpdateUserMetamaskAddressParams) (sql.Result, error)
 	UpdateUserNickname(ctx context.Context, arg UpdateUserNicknameParams) (sql.Result, error)
 	UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error)
-	UpdateUserPracBalance(ctx context.Context, arg UpdateUserPracBalanceParams) (sql.Result, error)
 	UpdateUserRank(ctx context.Context, arg UpdateUserRankParams) (sql.Result, error)
-	UpdateUserWmoiBalance(ctx context.Context, arg UpdateUserWmoiBalanceParams) (sql.Result, error)
 	UpdateUserWmoiBalanceByRecom(ctx context.Context, arg UpdateUserWmoiBalanceByRecomParams) (sql.Result, error)
 	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (sql.Result, error)
 }

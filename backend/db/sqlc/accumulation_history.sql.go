@@ -14,9 +14,11 @@ const createAccumulationHist = `-- name: CreateAccumulationHist :execresult
 INSERT INTO accumulation_history (
     to_user,
     amount,
-    title
+    title,
+    giver,
+    method
 ) VALUES (
-    ?, ?, ?
+    ?, ?, ?, ?, ?
 )
 `
 
@@ -24,14 +26,22 @@ type CreateAccumulationHistParams struct {
 	ToUser string  `json:"to_user"`
 	Amount float64 `json:"amount"`
 	Title  string  `json:"title"`
+	Giver  string  `json:"giver"`
+	Method string  `json:"method"`
 }
 
 func (q *Queries) CreateAccumulationHist(ctx context.Context, arg CreateAccumulationHistParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createAccumulationHist, arg.ToUser, arg.Amount, arg.Title)
+	return q.db.ExecContext(ctx, createAccumulationHist,
+		arg.ToUser,
+		arg.Amount,
+		arg.Title,
+		arg.Giver,
+		arg.Method,
+	)
 }
 
 const getAccumulationHist = `-- name: GetAccumulationHist :many
-SELECT id, to_user, amount, title, created_at FROM accumulation_history
+SELECT to_user, amount, title, created_at, method, giver FROM accumulation_history
 WHERE to_user = ? AND title LIKE ?
 ORDER BY created_at DESC 
 LIMIT ?
@@ -60,11 +70,12 @@ func (q *Queries) GetAccumulationHist(ctx context.Context, arg GetAccumulationHi
 	for rows.Next() {
 		var i AccumulationHistory
 		if err := rows.Scan(
-			&i.ID,
 			&i.ToUser,
 			&i.Amount,
 			&i.Title,
 			&i.CreatedAt,
+			&i.Method,
+			&i.Giver,
 		); err != nil {
 			return nil, err
 		}

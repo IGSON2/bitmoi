@@ -90,6 +90,60 @@ func (q *Queries) GetAdminScores(ctx context.Context, arg GetAdminScoresParams) 
 	return items, nil
 }
 
+const getAdminUsdpInfo = `-- name: GetAdminUsdpInfo :many
+SELECT u.id, u.nickname, a.to_user, a.amount, a.title, a.created_at, a.method, a.giver FROM accumulation_history a 
+INNER JOIN users u ON a.to_user = u.user_id
+LIMIT ? OFFSET ?
+`
+
+type GetAdminUsdpInfoParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetAdminUsdpInfoRow struct {
+	ID        int64     `json:"id"`
+	Nickname  string    `json:"nickname"`
+	ToUser    string    `json:"to_user"`
+	Amount    float64   `json:"amount"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+	Method    string    `json:"method"`
+	Giver     string    `json:"giver"`
+}
+
+func (q *Queries) GetAdminUsdpInfo(ctx context.Context, arg GetAdminUsdpInfoParams) ([]GetAdminUsdpInfoRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAdminUsdpInfo, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAdminUsdpInfoRow{}
+	for rows.Next() {
+		var i GetAdminUsdpInfoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Nickname,
+			&i.ToUser,
+			&i.Amount,
+			&i.Title,
+			&i.CreatedAt,
+			&i.Method,
+			&i.Giver,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAdminUsers = `-- name: GetAdminUsers :many
 SELECT id, user_id, nickname, prac_balance, wmoi_balance, recommender_code, created_at, last_accessed_at,
 (SELECT COUNT(*) FROM accumulation_history WHERE users.user_id = accumulation_history.to_user AND accumulation_history.title='출석 체크 보상') AS attendance,

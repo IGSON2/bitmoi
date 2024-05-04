@@ -3,6 +3,8 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"fmt"
+	"math"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,7 +21,7 @@ type AdminUserResponse struct {
 	Referral   int64   `json:"referral"`
 	RecomCode  string  `json:"recom"`
 	SignUpDate string  `json:"signup"`
-	LastAccess string  `json:"lastaccess"`
+	LastAccess string  `json:"last_access"`
 }
 
 func (s *Server) GetUsers(c *fiber.Ctx) error {
@@ -37,7 +39,7 @@ func (s *Server) GetUsers(c *fiber.Ctx) error {
 			Number:     user.ID,
 			Nickname:   user.Nickname,
 			UserID:     user.UserID,
-			Usdp:       user.PracBalance,
+			Usdp:       math.Round(100*user.PracBalance) / 100,
 			Token:      user.WmoiBalance,
 			Attendance: user.Attendance,
 			PracScore:  fmt.Sprintf("%d/%d/%d", user.PracWin+user.PracLose, user.PracWin, user.PracLose),
@@ -86,7 +88,7 @@ func (s *Server) GetScoresInfo(c *fiber.Ctx) error {
 				Number:        score.ID,
 				Nickname:      score.Nickname,
 				UserID:        score.UserID,
-				BettingUsdp:   score.Entryprice * score.Quantity / float64(score.Leverage),
+				BettingUsdp:   math.Round(1000*score.Entryprice*score.Quantity/float64(score.Leverage)) / 1000,
 				Position:      score.Position,
 				Leverage:      score.Leverage,
 				Roe:           score.Roe,
@@ -107,17 +109,74 @@ func (s *Server) GetScoresInfo(c *fiber.Ctx) error {
 	}
 }
 
-type AdminUsdpResponse struct {
+type AdminUsdpInfoResponse struct {
+	Number    int64   `json:"number"`
+	Nickname  string  `json:"nickname"`
+	UserID    string  `json:"id"`
+	Amount    float64 `json:"amount"`
+	Title     string  `json:"title"`
+	Method    string  `json:"method"`
+	Giver     string  `json:"giver"`
+	CreatedAt string  `json:"created_at"`
 }
 
-func (s *Server) GetUsdpInfo(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+func (s *Server) GetPracUsdpInfo(c *fiber.Ctx) error {
+	infos, err := s.store.GetAdminUsdpInfo(c.Context(), db.GetAdminUsdpInfoParams{
+		Limit:  1000,
+		Offset: 0,
+	})
+	if err != nil {
+		return c.Status(fiber.ErrInternalServerError.Code).SendString("Cannot get usdp info")
+	}
+
+	var response []AdminUsdpInfoResponse
+	for _, info := range infos {
+		response = append(response, AdminUsdpInfoResponse{
+			Number:    info.ID,
+			Nickname:  info.Nickname,
+			UserID:    info.ToUser,
+			Amount:    info.Amount,
+			Title:     info.Title,
+			Method:    info.Method,
+			Giver:     info.Giver,
+			CreatedAt: info.CreatedAt.Format("06.01.02 15:04:05"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-type AdminSetUsdpRequest struct{}
+type AdminSetUsdpRequest struct {
+	UserID string  `json:"user_id"`
+	Amount float64 `json:"amount"`
+	Title  string  `json:"title"`
+}
 
-func (s *Server) SetUsdpInfo(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+func (s *Server) SetPracUsdpInfo(c *fiber.Ctx) error {
+	req := new(AdminSetUsdpRequest)
+	err := c.BodyParser(req)
+	if err != nil {
+		s.logger.Err(err).Msg("cannot parse admin set usdp info request")
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request")
+	}
+
+	err = s.store.AppendPracBalanceTx(c.Context(), db.AppendPracBalanceTxParams{
+		UserID: req.UserID,
+		Amount: req.Amount,
+		Title:  req.Title,
+		Giver:  "관리자",
+		Method: "수동",
+	})
+
+	if err != nil {
+		s.logger.Err(err).Msg("cannot set usdp info")
+		if strings.Contains(err.Error(), "chk_prac_bal") {
+			return c.Status(fiber.StatusBadRequest).SendString("Cannot set usdp under 0")
+		}
+		return c.Status(fiber.StatusInternalServerError).SendString("Cannot set usdp info")
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 type AdminTokenResponse struct{}

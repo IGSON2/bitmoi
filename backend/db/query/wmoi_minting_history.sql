@@ -2,9 +2,11 @@
 INSERT INTO wmoi_minting_history (
     to_user,
     amount,
-    title
+    title,
+    giver,
+    method
 ) VALUES (
-    ?, ?, ?
+    ?, ?, ?, ?, ?
 );
 
 -- name: GetWmoiMintingHist :many

@@ -42,6 +42,7 @@ func (s *Server) reissueAccessToken(c *fiber.Ctx) error {
 
 	refreshPayload, err := s.tokenMaker.VerifyToken(r.RefreshToken)
 	if err != nil {
+		s.logger.Error().Err(err).Msg("refresh token verification was failed")
 		return c.Status(fiber.StatusUnauthorized).SendString("refresh token verification was failed")
 	}
 
@@ -122,9 +123,22 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(userRes)
 }
 
-func (s *Server) checkAttendance(ctx context.Context, userId string) error {
+const (
+	AttendanceReward = 1000
+	AttendanceTitle  = "출석 체크 보상"
+	AttendanceGiver  = "시스템"
+	AttendanceMethod = "자동"
+)
+
+func (s *Server) checkAttendance(ctx context.Context, userId string) (float64, error) {
 	return s.store.CheckAttendTx(ctx, db.CheckAttendTxParams{
-		UserId:        userId,
+		AppendPracBalanceTxParams: db.AppendPracBalanceTxParams{
+			UserID: userId,
+			Amount: AttendanceReward,
+			Title:  AttendanceTitle,
+			Giver:  AttendanceGiver,
+			Method: AttendanceMethod,
+		},
 		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
 	})
 }

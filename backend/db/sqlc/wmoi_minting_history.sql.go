@@ -14,9 +14,11 @@ const createWmoiMintingHist = `-- name: CreateWmoiMintingHist :execresult
 INSERT INTO wmoi_minting_history (
     to_user,
     amount,
-    title
+    title,
+    giver,
+    method
 ) VALUES (
-    ?, ?, ?
+    ?, ?, ?, ?, ?
 )
 `
 
@@ -24,14 +26,22 @@ type CreateWmoiMintingHistParams struct {
 	ToUser string `json:"to_user"`
 	Amount int64  `json:"amount"`
 	Title  string `json:"title"`
+	Giver  string `json:"giver"`
+	Method string `json:"method"`
 }
 
 func (q *Queries) CreateWmoiMintingHist(ctx context.Context, arg CreateWmoiMintingHistParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createWmoiMintingHist, arg.ToUser, arg.Amount, arg.Title)
+	return q.db.ExecContext(ctx, createWmoiMintingHist,
+		arg.ToUser,
+		arg.Amount,
+		arg.Title,
+		arg.Giver,
+		arg.Method,
+	)
 }
 
 const getWmoiMintingHist = `-- name: GetWmoiMintingHist :many
-SELECT id, to_user, amount, title, created_at FROM wmoi_minting_history
+SELECT to_user, amount, title, created_at, method, giver FROM wmoi_minting_history
 WHERE to_user = ? AND title LIKE ?
 ORDER BY created_at DESC 
 LIMIT ?
@@ -60,11 +70,12 @@ func (q *Queries) GetWmoiMintingHist(ctx context.Context, arg GetWmoiMintingHist
 	for rows.Next() {
 		var i WmoiMintingHistory
 		if err := rows.Scan(
-			&i.ID,
 			&i.ToUser,
 			&i.Amount,
 			&i.Title,
 			&i.CreatedAt,
+			&i.Method,
+			&i.Giver,
 		); err != nil {
 			return nil, err
 		}

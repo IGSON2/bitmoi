@@ -71,16 +71,16 @@ SET
     nickname = ?
 WHERE user_id = ?;
 
--- name: UpdateUserPracBalance :execresult
-UPDATE users SET prac_balance = ?
+-- name: AppendUserPracBalance :execresult
+UPDATE users SET prac_balance = prac_Balance + ?
 WHERE user_id = ?;
 
--- name: UpdateUserCompBalance :execresult
-UPDATE users SET comp_balance = ?
+-- name: AppendUserCompBalance :execresult
+UPDATE users SET comp_balance = comp_balance + ?
 WHERE user_id = ?;
 
--- name: UpdateUserWmoiBalance :execresult
-UPDATE users SET wmoi_balance = ?
+-- name: AppendUserWmoiBalance :execresult
+UPDATE users SET wmoi_balance = wmoi_balance + ?
 WHERE user_id = ?;
 
 -- name: UpdateUserWmoiBalanceByRecom :execresult

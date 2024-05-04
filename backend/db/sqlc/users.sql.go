@@ -10,6 +10,48 @@ import (
 	"database/sql"
 )
 
+const appendUserCompBalance = `-- name: AppendUserCompBalance :execresult
+UPDATE users SET comp_balance = comp_balance + ?
+WHERE user_id = ?
+`
+
+type AppendUserCompBalanceParams struct {
+	CompBalance float64 `json:"comp_balance"`
+	UserID      string  `json:"user_id"`
+}
+
+func (q *Queries) AppendUserCompBalance(ctx context.Context, arg AppendUserCompBalanceParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, appendUserCompBalance, arg.CompBalance, arg.UserID)
+}
+
+const appendUserPracBalance = `-- name: AppendUserPracBalance :execresult
+UPDATE users SET prac_balance = prac_Balance + ?
+WHERE user_id = ?
+`
+
+type AppendUserPracBalanceParams struct {
+	PracBalance float64 `json:"prac_balance"`
+	UserID      string  `json:"user_id"`
+}
+
+func (q *Queries) AppendUserPracBalance(ctx context.Context, arg AppendUserPracBalanceParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, appendUserPracBalance, arg.PracBalance, arg.UserID)
+}
+
+const appendUserWmoiBalance = `-- name: AppendUserWmoiBalance :execresult
+UPDATE users SET wmoi_balance = wmoi_balance + ?
+WHERE user_id = ?
+`
+
+type AppendUserWmoiBalanceParams struct {
+	WmoiBalance float64 `json:"wmoi_balance"`
+	UserID      string  `json:"user_id"`
+}
+
+func (q *Queries) AppendUserWmoiBalance(ctx context.Context, arg AppendUserWmoiBalanceParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, appendUserWmoiBalance, arg.WmoiBalance, arg.UserID)
+}
+
 const createUser = `-- name: CreateUser :execresult
 INSERT INTO users (
     user_id,
@@ -322,20 +364,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 	return items, nil
 }
 
-const updateUserCompBalance = `-- name: UpdateUserCompBalance :execresult
-UPDATE users SET comp_balance = ?
-WHERE user_id = ?
-`
-
-type UpdateUserCompBalanceParams struct {
-	CompBalance float64 `json:"comp_balance"`
-	UserID      string  `json:"user_id"`
-}
-
-func (q *Queries) UpdateUserCompBalance(ctx context.Context, arg UpdateUserCompBalanceParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateUserCompBalance, arg.CompBalance, arg.UserID)
-}
-
 const updateUserLastAccessedAt = `-- name: UpdateUserLastAccessedAt :execresult
 UPDATE users SET last_accessed_at = ?
 WHERE user_id = ?
@@ -396,34 +424,6 @@ type UpdateUserPhotoURLParams struct {
 
 func (q *Queries) UpdateUserPhotoURL(ctx context.Context, arg UpdateUserPhotoURLParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateUserPhotoURL, arg.PhotoUrl, arg.UserID)
-}
-
-const updateUserPracBalance = `-- name: UpdateUserPracBalance :execresult
-UPDATE users SET prac_balance = ?
-WHERE user_id = ?
-`
-
-type UpdateUserPracBalanceParams struct {
-	PracBalance float64 `json:"prac_balance"`
-	UserID      string  `json:"user_id"`
-}
-
-func (q *Queries) UpdateUserPracBalance(ctx context.Context, arg UpdateUserPracBalanceParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateUserPracBalance, arg.PracBalance, arg.UserID)
-}
-
-const updateUserWmoiBalance = `-- name: UpdateUserWmoiBalance :execresult
-UPDATE users SET wmoi_balance = ?
-WHERE user_id = ?
-`
-
-type UpdateUserWmoiBalanceParams struct {
-	WmoiBalance float64 `json:"wmoi_balance"`
-	UserID      string  `json:"user_id"`
-}
-
-func (q *Queries) UpdateUserWmoiBalance(ctx context.Context, arg UpdateUserWmoiBalanceParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateUserWmoiBalance, arg.WmoiBalance, arg.UserID)
 }
 
 const updateUserWmoiBalanceByRecom = `-- name: UpdateUserWmoiBalanceByRecom :execresult

@@ -2,9 +2,11 @@
 INSERT INTO accumulation_history (
     to_user,
     amount,
-    title
+    title,
+    giver,
+    method
 ) VALUES (
-    ?, ?, ?
+    ?, ?, ?, ?, ?
 );
 
 -- name: GetAccumulationHist :many

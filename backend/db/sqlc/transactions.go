@@ -4,6 +4,7 @@ import (
 	"bitmoi/backend/contract"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -118,53 +119,72 @@ func (store *SqlStore) SpendTokenTx(ctx context.Context, arg SpendTokenTxParams)
 	return result, err
 }
 
-const AttendanceReward = 1000
+type AppendPracBalanceTxParams struct {
+	UserID string
+	Amount float64
+	Title  string
+	Giver  string
+	Method string
+}
+
+func (store *SqlStore) AppendPracBalanceTx(ctx context.Context, arg AppendPracBalanceTxParams) error {
+	err := store.execTx(ctx, func(q *Queries) error {
+		_, err := q.CreateAccumulationHist(ctx, CreateAccumulationHistParams{
+			ToUser: arg.UserID,
+			Amount: arg.Amount,
+			Title:  arg.Title,
+			Giver:  arg.Giver,
+			Method: arg.Method,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to update reward due to cannot create accumulation history. err: %w", err)
+		}
+
+		_, err = q.AppendUserPracBalance(ctx, AppendUserPracBalanceParams{
+			PracBalance: arg.Amount,
+			UserID:      arg.UserID,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to update reward due to cannot update prac balance. err: %w", err)
+		}
+		return nil
+	})
+	return err
+}
 
 type CheckAttendTxParams struct {
-	UserId        string
+	AppendPracBalanceTxParams
 	TodayMidnight time.Time
 }
 
-func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) error {
+func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParams) (float64, error) {
 
 	err := store.execTx(ctx, func(q *Queries) error {
-		user, err := q.GetUser(ctx, arg.UserId)
+		user, err := q.GetUser(ctx, arg.UserID)
 		if user.UserID == "" || err != nil {
 			return fmt.Errorf("failed to attendence due to cannot find user. err: %w", err)
 		}
 		if !user.LastAccessedAt.Valid || user.LastAccessedAt.Time.Before(arg.TodayMidnight) {
 			_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
 				LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
-				UserID:         arg.UserId,
+				UserID:         arg.UserID,
 			})
 
 			if err != nil {
 				return fmt.Errorf("failed to attendence due to cannot update last accessed at. err: %w", err)
 			}
 
-			_, err = q.CreateAccumulationHist(ctx, CreateAccumulationHistParams{
-				ToUser: arg.UserId,
-				Amount: AttendanceReward,
-				Title:  "출석 체크 보상",
-			})
-			if err != nil {
-				return fmt.Errorf("failed to attendence due to cannot create accumulation history. err: %w", err)
-			}
-
-			_, err = q.UpdateUserPracBalance(ctx, UpdateUserPracBalanceParams{
-				PracBalance: user.PracBalance + AttendanceReward,
-				UserID:      arg.UserId,
-			})
+			err = store.AppendPracBalanceTx(ctx, arg.AppendPracBalanceTxParams)
 
 			if err != nil {
 				return fmt.Errorf("failed to attendence due to cannot update prac balance. err: %w", err)
 			}
 			return nil
 		}
-		return fmt.Errorf("not time to attend yet")
+		return errors.New("attendance update time has not yet arrived")
 	})
 
-	return err
+	return arg.Amount, err
 }
 
 type SettleImdScoreTxParams struct {
@@ -195,13 +215,8 @@ func (store *SqlStore) SettleImdPracScoreTx(ctx context.Context, arg SettleImdSc
 			}
 		}
 
-		pBal, err := q.GetUserPracBalance(ctx, arg.UserID)
-		if err != nil {
-			return fmt.Errorf("failed to settle immediate score due to cannot get user balance. err: %w", err)
-		}
-
-		_, err = q.UpdateUserPracBalance(ctx, UpdateUserPracBalanceParams{
-			PracBalance: pBal + totalPnl,
+		_, err = q.AppendUserPracBalance(ctx, AppendUserPracBalanceParams{
+			PracBalance: totalPnl,
 			UserID:      arg.UserID,
 		})
 

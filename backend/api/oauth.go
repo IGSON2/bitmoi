@@ -159,11 +159,10 @@ func (s *Server) GoogleLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	rewardStr := fmt.Sprintf("%d", db.AttendanceReward)
-
 	redirectURL := fmt.Sprintf("%s/auth?accessToken=%s&refreshToken=%s&path=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken, rPath)
 
-	err = s.checkAttendance(c.Context(), userId)
+	reward, err := s.checkAttendance(c.Context(), userId)
+	rewardStr := fmt.Sprintf("%d", int(reward))
 	if err != nil {
 		s.logger.Warn().Err(err).Str("user id", userId).Msg("cannot check attendance")
 		rewardStr = ""
@@ -323,11 +322,10 @@ func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	rewardStr := fmt.Sprintf("%d", db.AttendanceReward)
-
 	redirectURL := fmt.Sprintf("%s/auth?accessToken=%s&refreshToken=%s&path=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken, rPath)
 
-	err = s.checkAttendance(c.Context(), userId)
+	reward, err := s.checkAttendance(c.Context(), userId)
+	rewardStr := fmt.Sprintf("%d", int(reward))
 	if err != nil {
 		s.logger.Warn().Err(err).Str("user id", userId).Msg("cannot check attendance")
 		rewardStr = ""

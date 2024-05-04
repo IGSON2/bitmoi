@@ -41,15 +41,15 @@ func (s *Server) updateUserBalance(req ScoreReqInterface, res OrderResultInterfa
 	}
 	switch req.GetMode() {
 	case practice:
-		_, err = s.store.UpdateUserPracBalance(ctx, db.UpdateUserPracBalanceParams{
-			PracBalance: user.PracBalance + res.GetPnl() - res.GetCommission(),
+		_, err = s.store.AppendUserPracBalance(ctx, db.AppendUserPracBalanceParams{
+			PracBalance: res.GetPnl() - res.GetCommission(),
 			UserID:      req.GetUserID(),
 		})
 		if err != nil {
 			return err
 		}
 	case competition:
-		_, err = s.store.UpdateUserCompBalance(ctx, db.UpdateUserCompBalanceParams{
+		_, err = s.store.AppendUserCompBalance(ctx, db.AppendUserCompBalanceParams{
 			CompBalance: user.CompBalance + res.GetPnl() - res.GetCommission(),
 			UserID:      req.GetUserID(),
 		})
