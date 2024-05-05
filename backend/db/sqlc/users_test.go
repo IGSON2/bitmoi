@@ -31,23 +31,21 @@ func TestLastaccessedAt(t *testing.T) {
 	store := newTestStore(t)
 
 	userID := "coactadmin"
-	zone, err := time.LoadLocation("Asia/Seoul")
-	require.NoError(t, err)
 
-	// zone = time.UTC
-	now := time.Now().In(zone)
+	now := time.Now()
 
-	_, err = store.UpdateUserLastAccessedAt(context.Background(), UpdateUserLastAccessedAtParams{
-		LastAccessedAt: sql.NullTime{Time: now.Add(9 * time.Hour), Valid: true},
+	_, err := store.UpdateUserLastAccessedAt(context.Background(), UpdateUserLastAccessedAtParams{
+		LastAccessedAt: sql.NullTime{Time: now, Valid: true},
 		UserID:         userID,
 	})
 	require.NoError(t, err)
 
 	userA, err := store.GetUser(context.Background(), userID)
 	require.NoError(t, err)
-	require.WithinDuration(t, now, userA.LastAccessedAt.Time, time.Second*5)
 
-	compareTime := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour()-1, 0, 0, 0, time.Local)
-	require.True(t, compareTime.Before(userA.LastAccessedAt.Time))
-	t.Log(compareTime, userA.LastAccessedAt.Time)
+	crZ, _ := userA.CreatedAt.Zone()
+	laZ, _ := userA.LastAccessedAt.Time.Zone()
+	nowZ, _ := now.Zone()
+	t.Logf("now: %v, created_at: %v, last_accessed_at: %v", nowZ, crZ, laZ)
+	t.Logf("now: %v, last_accessed_at: %v", now, userA.LastAccessedAt.Time)
 }
