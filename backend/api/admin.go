@@ -25,8 +25,6 @@ type AdminUserResponse struct {
 	LastAccess string  `json:"last_access"`
 }
 
-var asiaSeoul, _ = time.LoadLocation("Asia/Seoul")
-
 func (s *Server) GetUsers(c *fiber.Ctx) error {
 	users, err := s.store.GetAdminUsers(c.Context(), db.GetAdminUsersParams{
 		Limit:  1000,
@@ -52,7 +50,7 @@ func (s *Server) GetUsers(c *fiber.Ctx) error {
 			SignUpDate: user.CreatedAt.Format("06.01.02 15:04:05"),
 			// Mysql DB의 time_zone이 Asia/Seoul이여도, Default로 생성되는 값에만 적용되고 Update로 변환되는 argument에는 적용되지 않는다.
 			// LastAccess 필드는 Default로 생성되지 않고, update되기 때문에 client에게 제공할 때 별도의 time zone 변환이 필요하다.
-			LastAccess: user.LastAccessedAt.Time.In(asiaSeoul).Format("06.01.02 15:04:05"),
+			LastAccess: user.LastAccessedAt.Time.In(time.Local).Format("06.01.02 15:04:05"),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(response)
