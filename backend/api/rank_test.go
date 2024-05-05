@@ -3,10 +3,8 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -17,24 +15,22 @@ func TestGetRanks(t *testing.T) {
 		t.Skip()
 	}
 	s := newTestServer(t, newTestStore(t), nil)
-	client := http.DefaultClient
 
-	localAPI := fmt.Sprintf("http://localhost:%s", strings.Split(s.config.HTTPAddress, ":")[1])
-
-	req, err := http.NewRequest("GET", localAPI+"/rank?mode=practice&category=pnl&start=24-03-01&end=24-03-04", nil)
+	req, err := http.NewRequest("GET", "/basic/rank?mode=practice&category=pnl&start=24-04-29&end=24-05-05", nil)
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
-	res, err := client.Do(req)
+	res, err := s.router.Test(req, -1)
+	require.Equal(t, http.StatusOK, res.StatusCode)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 
-	rows := new(db.GetUserPracRankByPNLRow)
+	var rows []db.GetUserPracRankByPNLRow
 	b, err := io.ReadAll(res.Body)
-	json.Unmarshal(b, rows)
+	json.Unmarshal(b, &rows)
 	defer res.Body.Close()
 
-	require.NotNil(t, rows)
+	require.NotEmpty(t, rows)
 	require.NoError(t, err)
 
 	t.Log(rows)

@@ -14,11 +14,15 @@ func TestPracRanks(t *testing.T) {
 	}
 	store := newTestStore(t)
 
-	time1 := time.Now().Add(-3 * 24 * time.Hour)
-	time2 := time.Now()
+	time1, err := time.Parse("06-01-02", "24-05-06")
+	require.NoError(t, err)
+
+	time2, err := time.Parse("06-01-02", "24-05-07")
+	require.NoError(t, err)
+
 	rows, err := store.GetUserPracRankByPNL(context.Background(), GetUserPracRankByPNLParams{
-		CreatedAt:   time1,
-		CreatedAt_2: time2,
+		CreatedAt:   time1.Add(-9 * time.Hour),
+		CreatedAt_2: time2.Add(-9 * time.Hour),
 		Limit:       10,
 		Offset:      0,
 	})

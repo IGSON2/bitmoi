@@ -33,7 +33,7 @@ func (s *Server) getRank(c *fiber.Ctx) error {
 	r.Mode = c.Query("mode", practice)
 	r.Category = c.Query("category", "pnl")
 	r.Start = c.Query("start", now.AddDate(0, 0, -int(now.Weekday())+1).Format("06-01-02"))
-	r.End = c.Query("end", now.AddDate(0, 0, -int(now.Weekday())+7).Format("06-01-02"))
+	r.End = c.Query("end", now.AddDate(0, 0, -int(now.Weekday())+8).Format("06-01-02"))
 	r.Page = int32(c.QueryInt("page", 1))
 
 	errs := utilities.ValidateStruct(r)
@@ -56,7 +56,7 @@ func (s *Server) getRank(c *fiber.Ctx) error {
 		case "pnl":
 			pnlRanks, err := s.store.GetUserPracRankByPNL(c.Context(), db.GetUserPracRankByPNLParams{
 				CreatedAt:   start,
-				CreatedAt_2: end,
+				CreatedAt_2: end.Add(24 * time.Hour), // 24시간을 더해줘야 해당일까지의 데이터를 가져올 수 있음
 				Limit:       rankRows,
 				Offset:      (r.Page - 1) * rankRows,
 			})
