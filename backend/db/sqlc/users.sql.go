@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const appendUserCompBalance = `-- name: AppendUserCompBalance :execresult
@@ -296,9 +297,9 @@ SELECT last_accessed_at FROM users
 WHERE user_id = ?
 `
 
-func (q *Queries) GetUserLastAccessedAt(ctx context.Context, userID string) (sql.NullTime, error) {
+func (q *Queries) GetUserLastAccessedAt(ctx context.Context, userID string) (time.Time, error) {
 	row := q.db.QueryRowContext(ctx, getUserLastAccessedAt, userID)
-	var last_accessed_at sql.NullTime
+	var last_accessed_at time.Time
 	err := row.Scan(&last_accessed_at)
 	return last_accessed_at, err
 }
@@ -370,8 +371,8 @@ WHERE user_id = ?
 `
 
 type UpdateUserLastAccessedAtParams struct {
-	LastAccessedAt sql.NullTime `json:"last_accessed_at"`
-	UserID         string       `json:"user_id"`
+	LastAccessedAt time.Time `json:"last_accessed_at"`
+	UserID         string    `json:"user_id"`
 }
 
 func (q *Queries) UpdateUserLastAccessedAt(ctx context.Context, arg UpdateUserLastAccessedAtParams) (sql.Result, error) {

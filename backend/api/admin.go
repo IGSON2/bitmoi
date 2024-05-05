@@ -47,7 +47,7 @@ func (s *Server) GetUsers(c *fiber.Ctx) error {
 			Referral:   user.Referral,
 			RecomCode:  user.RecommenderCode,
 			SignUpDate: user.CreatedAt.Format("06.01.02 15:04:05"),
-			LastAccess: user.LastAccessedAt.Time.Format("06.01.02 15:04:05"),
+			LastAccess: user.LastAccessedAt.Format("06.01.02 15:04:05"),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(response)

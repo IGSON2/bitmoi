@@ -7,6 +7,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 type Querier interface {
@@ -90,7 +91,7 @@ type Querier interface {
 	GetUserByNickName(ctx context.Context, nickname string) (User, error)
 	GetUserByRecommenderCode(ctx context.Context, recommenderCode string) (User, error)
 	GetUserCompScoreSummary(ctx context.Context, nickname string) (GetUserCompScoreSummaryRow, error)
-	GetUserLastAccessedAt(ctx context.Context, userID string) (sql.NullTime, error)
+	GetUserLastAccessedAt(ctx context.Context, userID string) (time.Time, error)
 	GetUserPracBalance(ctx context.Context, userID string) (float64, error)
 	GetUserPracRankByPNL(ctx context.Context, arg GetUserPracRankByPNLParams) ([]GetUserPracRankByPNLRow, error)
 	GetUserPracRankByROE(ctx context.Context, arg GetUserPracRankByROEParams) ([]GetUserPracRankByROERow, error)

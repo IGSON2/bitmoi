@@ -162,20 +162,20 @@ type GetAdminUsersParams struct {
 }
 
 type GetAdminUsersRow struct {
-	ID              int64        `json:"id"`
-	UserID          string       `json:"user_id"`
-	Nickname        string       `json:"nickname"`
-	PracBalance     float64      `json:"prac_balance"`
-	WmoiBalance     float64      `json:"wmoi_balance"`
-	RecommenderCode string       `json:"recommender_code"`
-	CreatedAt       time.Time    `json:"created_at"`
-	LastAccessedAt  sql.NullTime `json:"last_accessed_at"`
-	Attendance      int64        `json:"attendance"`
-	Referral        int64        `json:"referral"`
-	PracWin         int64        `json:"prac_win"`
-	PracLose        int64        `json:"prac_lose"`
-	CompWin         int64        `json:"comp_win"`
-	CompLose        int64        `json:"comp_lose"`
+	ID              int64     `json:"id"`
+	UserID          string    `json:"user_id"`
+	Nickname        string    `json:"nickname"`
+	PracBalance     float64   `json:"prac_balance"`
+	WmoiBalance     float64   `json:"wmoi_balance"`
+	RecommenderCode string    `json:"recommender_code"`
+	CreatedAt       time.Time `json:"created_at"`
+	LastAccessedAt  time.Time `json:"last_accessed_at"`
+	Attendance      int64     `json:"attendance"`
+	Referral        int64     `json:"referral"`
+	PracWin         int64     `json:"prac_win"`
+	PracLose        int64     `json:"prac_lose"`
+	CompWin         int64     `json:"comp_win"`
+	CompLose        int64     `json:"comp_lose"`
 }
 
 func (q *Queries) GetAdminUsers(ctx context.Context, arg GetAdminUsersParams) ([]GetAdminUsersRow, error) {

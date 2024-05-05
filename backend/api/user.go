@@ -40,15 +40,13 @@ func convertUserResponse(user db.User) UserResponse {
 		RecommenderCode:   user.RecommenderCode,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
+		LastAccessedAt:    user.LastAccessedAt,
 	}
 	if user.PhotoUrl.Valid {
 		uR.PhotoURL = user.PhotoUrl.String
 	}
 	if user.MetamaskAddress.Valid {
 		uR.MetamaskAddress = user.MetamaskAddress.String
-	}
-	if user.LastAccessedAt.Valid {
-		uR.LastAccessedAt = user.LastAccessedAt.Time
 	}
 	return uR
 }

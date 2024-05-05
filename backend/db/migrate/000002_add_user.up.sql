@@ -12,7 +12,7 @@ CREATE TABLE `users` (
   `wmoi_balance` double NOT NULL DEFAULT 0 CHECK (wmoi_balance >= 0),
   `recommender_code` varchar(50) NOT NULL UNIQUE,
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  `last_accessed_at` timestamp,
+  `last_accessed_at` timestamp NOT NULL DEFAULT (now()),
   `password_changed_at` timestamp NOT NULL DEFAULT (now()),
   `address_changed_at` timestamp
 );
