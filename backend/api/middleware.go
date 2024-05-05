@@ -106,7 +106,7 @@ func adminAuthMiddleware(adminID string, maker *token.PasetoMaker) fiber.Handler
 
 func createNewOriginMiddleware() fiber.Handler {
 	return cors.New(cors.Config{
-		AllowOrigins: "https://bitmoi.co.kr, https://m.bitmoi.co.kr, http://localhost:3000, https://http://43.203.0.36:3000",
+		AllowOrigins: "https://bitmoi.co.kr, https://m.bitmoi.co.kr, http://localhost:3000, http://43.203.0.36:3000",
 	})
 }
 
