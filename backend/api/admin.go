@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -47,7 +48,8 @@ func (s *Server) GetUsers(c *fiber.Ctx) error {
 			Referral:   user.Referral,
 			RecomCode:  user.RecommenderCode,
 			SignUpDate: user.CreatedAt.Format("06.01.02 15:04:05"),
-			LastAccess: user.LastAccessedAt.Time.Format("06.01.02 15:04:05"),
+			// Mysql DB의 time_zone이 Asia/Seoul이여도, Default로 생성되는 값에만 적용되고 Update로 변환되는 argument에는 UTC가 적용된다.
+			LastAccess: user.LastAccessedAt.Time.Add(9 * time.Hour).Format("06.01.02 15:04:05"),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(response)

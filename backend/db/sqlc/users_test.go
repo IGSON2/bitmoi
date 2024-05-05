@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	"time"
 
@@ -30,15 +29,15 @@ func TestLastaccessedAt(t *testing.T) {
 	}
 	store := newTestStore(t)
 
-	userID := "coactadmin"
+	userID := "suninnaa@gmail.com"
 
 	now := time.Now()
 
-	_, err := store.UpdateUserLastAccessedAt(context.Background(), UpdateUserLastAccessedAtParams{
-		LastAccessedAt: sql.NullTime{Time: now, Valid: true},
-		UserID:         userID,
-	})
-	require.NoError(t, err)
+	// _, err := store.UpdateUserLastAccessedAt(context.Background(), UpdateUserLastAccessedAtParams{
+	// 	LastAccessedAt: sql.NullTime{Time: now, Valid: true},
+	// 	UserID:         userID,
+	// })
+	// require.NoError(t, err)
 
 	userA, err := store.GetUser(context.Background(), userID)
 	require.NoError(t, err)

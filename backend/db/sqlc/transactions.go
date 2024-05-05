@@ -169,8 +169,7 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 		lastAccessed = user.LastAccessedAt.Time
 
 		_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
-			// Mysql DB의 time_zone이 Asia/Seoul이여도, Default로 생성되는 값에만 적용되고 Update로 변환되는 argument에는 UTC가 적용된다.
-			LastAccessedAt: sql.NullTime{Time: time.Now().Add(9 * time.Hour), Valid: true},
+			LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
 			UserID:         arg.UserID,
 		})
 
