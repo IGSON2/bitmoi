@@ -172,7 +172,7 @@ type User struct {
 	WmoiBalance       float64        `json:"wmoi_balance"`
 	RecommenderCode   string         `json:"recommender_code"`
 	CreatedAt         time.Time      `json:"created_at"`
-	LastAccessedAt    time.Time      `json:"last_accessed_at"`
+	LastAccessedAt    sql.NullTime   `json:"last_accessed_at"`
 	PasswordChangedAt time.Time      `json:"password_changed_at"`
 	AddressChangedAt  sql.NullTime   `json:"address_changed_at"`
 }

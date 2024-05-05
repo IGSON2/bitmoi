@@ -5,6 +5,7 @@ import (
 	"bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -40,13 +41,15 @@ func convertUserResponse(user db.User) UserResponse {
 		RecommenderCode:   user.RecommenderCode,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
-		LastAccessedAt:    user.LastAccessedAt,
 	}
 	if user.PhotoUrl.Valid {
 		uR.PhotoURL = user.PhotoUrl.String
 	}
 	if user.MetamaskAddress.Valid {
 		uR.MetamaskAddress = user.MetamaskAddress.String
+	}
+	if user.LastAccessedAt.Valid {
+		uR.LastAccessedAt = user.LastAccessedAt.Time
 	}
 	return uR
 }
@@ -424,4 +427,24 @@ func (s *Server) getAccumulationHist(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(histories)
+}
+
+const (
+	AttendanceReward = 1000
+	AttendanceTitle  = "출석 체크 보상"
+	AttendanceGiver  = "시스템"
+	AttendanceMethod = "자동"
+)
+
+func (s *Server) checkAttendance(ctx context.Context, userId string) (float64, error) {
+	return s.store.CheckAttendTx(ctx, db.CheckAttendTxParams{
+		AppendPracBalanceTxParams: db.AppendPracBalanceTxParams{
+			UserID: userId,
+			Amount: AttendanceReward,
+			Title:  AttendanceTitle,
+			Giver:  AttendanceGiver,
+			Method: AttendanceMethod,
+		},
+		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
+	})
 }

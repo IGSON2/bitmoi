@@ -14,7 +14,9 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -146,4 +148,33 @@ func TestGetLastUserID(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Log(id)
+}
+
+func TestCheckAttendacne(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+
+	s := newTestServer(t, newTestStore(t), nil)
+
+	userID := utilities.MakeRanString(10)
+
+	_, err := s.store.CreateUser(context.Background(), db.CreateUserParams{
+		UserID:          userID,
+		Nickname:        utilities.MakeRanString(10),
+		Email:           utilities.MakeRanEmail(),
+		RecommenderCode: strings.ToUpper(utilities.MakeRanString(8)),
+	})
+	require.NoError(t, err)
+
+	user, err := s.store.GetUser(context.Background(), userID)
+	require.NoError(t, err)
+	require.False(t, user.LastAccessedAt.Valid)
+
+	_, err = s.checkAttendance(context.Background(), userID)
+	require.NoError(t, err)
+
+	user, err = s.store.GetUser(context.Background(), userID)
+	require.NoError(t, err)
+	require.WithinDuration(t, time.Now(), user.LastAccessedAt.Time, time.Second*5)
 }

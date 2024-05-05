@@ -9,7 +9,6 @@ import (
 	context "context"
 	sql "database/sql"
 	reflect "reflect"
-	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -1267,10 +1266,10 @@ func (mr *MockStoreMockRecorder) GetUserCompScoreSummary(arg0, arg1 interface{})
 }
 
 // GetUserLastAccessedAt mocks base method.
-func (m *MockStore) GetUserLastAccessedAt(arg0 context.Context, arg1 string) (time.Time, error) {
+func (m *MockStore) GetUserLastAccessedAt(arg0 context.Context, arg1 string) (sql.NullTime, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserLastAccessedAt", arg0, arg1)
-	ret0, _ := ret[0].(time.Time)
+	ret0, _ := ret[0].(sql.NullTime)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -4,6 +4,7 @@ import (
 	"bitmoi/backend/contract"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/big"
 	"time"
@@ -165,10 +166,10 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 			return fmt.Errorf("failed to attendence due to cannot find user. err: %w", err)
 		}
 
-		lastAccessed = user.LastAccessedAt
+		lastAccessed = user.LastAccessedAt.Time
 
 		_, err = q.UpdateUserLastAccessedAt(ctx, UpdateUserLastAccessedAtParams{
-			LastAccessedAt: time.Now(),
+			LastAccessedAt: sql.NullTime{Time: time.Now(), Valid: true},
 			UserID:         arg.UserID,
 		})
 
@@ -182,12 +183,11 @@ func (store *SqlStore) CheckAttendTx(ctx context.Context, arg CheckAttendTxParam
 		return arg.Amount, err
 	}
 
-	if lastAccessed.Before(arg.TodayMidnight) {
-		err = store.AppendPracBalanceTx(ctx, arg.AppendPracBalanceTxParams)
+	if lastAccessed.After(arg.TodayMidnight) {
+		return arg.Amount, errors.New("already checked attendance today")
 	}
 
-	return arg.Amount, err
-
+	return arg.Amount, store.AppendPracBalanceTx(ctx, arg.AppendPracBalanceTxParams)
 }
 
 type SettleImdScoreTxParams struct {

@@ -1,9 +1,7 @@
 package api
 
 import (
-	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -121,24 +119,4 @@ func (s *Server) verifyToken(c *fiber.Ctx) error {
 	}
 	userRes := convertUserResponse(user)
 	return c.Status(fiber.StatusOK).JSON(userRes)
-}
-
-const (
-	AttendanceReward = 1000
-	AttendanceTitle  = "출석 체크 보상"
-	AttendanceGiver  = "시스템"
-	AttendanceMethod = "자동"
-)
-
-func (s *Server) checkAttendance(ctx context.Context, userId string) (float64, error) {
-	return s.store.CheckAttendTx(ctx, db.CheckAttendTxParams{
-		AppendPracBalanceTxParams: db.AppendPracBalanceTxParams{
-			UserID: userId,
-			Amount: AttendanceReward,
-			Title:  AttendanceTitle,
-			Giver:  AttendanceGiver,
-			Method: AttendanceMethod,
-		},
-		TodayMidnight: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local),
-	})
 }
