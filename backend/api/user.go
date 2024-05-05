@@ -220,7 +220,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 	// }
 
 	if err := utilities.CheckPassword(loginReq.Password, user.HashedPassword.String); err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString(fmt.Sprintf("password is not correct err : %v", err))
+		return c.Status(fiber.StatusBadRequest).SendString("invalid password")
 	}
 
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(
