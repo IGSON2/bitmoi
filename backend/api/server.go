@@ -129,6 +129,7 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	authGroup.Get("/myscore", server.myscore)
 	// authGroup.Post("/freeToken", server.sendFreeErc20)
 	// authGroup.Post("/user/address", server.updateMetamaskAddress)
+	authGroup.Get("/checkAttendance", server.checkAttendance)
 	authGroup.Post("/user/recommender", server.rewardRecommender)
 	authGroup.Get("/user/accumulation", server.getAccumulationHist)
 	authGroup.Put("/user/nickname", server.updateNickname)

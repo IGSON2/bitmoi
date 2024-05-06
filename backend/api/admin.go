@@ -100,7 +100,7 @@ func (s *Server) GetScoresInfo(c *fiber.Ctx) error {
 				SubmitTime:  score.CreatedAt.Format("06.01.02 15:04:05"),
 			})
 			if score.MaxRoe.Valid && score.MinRoe.Valid {
-				response[len(response)-1].MaxMinRoe = fmt.Sprintf("%.1f / %.1f", score.MaxRoe.Float64, score.MinRoe.Float64)
+				response[len(response)-1].MaxMinRoe = fmt.Sprintf("%.1f / %.1f", score.MaxRoe.Float64*100, score.MinRoe.Float64*100)
 			}
 			if score.AfterOuttime.Valid {
 				response[len(response)-1].AfterExitTime = fmt.Sprintf("%.2f", float64(score.AfterOuttime.Int64/3600))

@@ -161,7 +161,7 @@ func (s *Server) GoogleLogin(c *fiber.Ctx) error {
 
 	redirectURL := fmt.Sprintf("%s/auth?accessToken=%s&refreshToken=%s&path=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken, rPath)
 
-	reward, err := s.checkAttendance(c.Context(), userId)
+	reward, err := checkAutoAttendance(s.store, c.Context(), userId)
 	rewardStr := fmt.Sprintf("%d", int(reward))
 	if err != nil {
 		s.logger.Warn().Err(err).Str("user id", userId).Msg("cannot check attendance")
@@ -324,7 +324,7 @@ func (s *Server) KakaoLogin(c *fiber.Ctx) error {
 
 	redirectURL := fmt.Sprintf("%s/auth?accessToken=%s&refreshToken=%s&path=%s&attendanceReward=", s.config.OauthRedirectURL, accessToken, refreshToken, rPath)
 
-	reward, err := s.checkAttendance(c.Context(), userId)
+	reward, err := checkAutoAttendance(s.store, c.Context(), userId)
 	rewardStr := fmt.Sprintf("%d", int(reward))
 	if err != nil {
 		s.logger.Warn().Err(err).Str("user id", userId).Msg("cannot check attendance")

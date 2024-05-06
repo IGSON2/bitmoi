@@ -429,6 +429,21 @@ func (s *Server) getAccumulationHist(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(histories)
 }
 
+func (s *Server) checkAttendance(c *fiber.Ctx) error {
+	payload, ok := c.Locals(authorizationPayloadKey).(*token.Payload)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).SendString("cannot get authorization payload")
+	}
+
+	reward, err := checkAutoAttendance(s.store, c.Context(), payload.UserID)
+	if err != nil {
+		s.logger.Error().Err(err).Msgf("cannot check attendance. user_id: %s", payload.UserID)
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot check attendance")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"attendanceReward": reward})
+}
+
 const (
 	AttendanceReward = 1000
 	AttendanceTitle  = "출석 체크 보상"
@@ -436,8 +451,8 @@ const (
 	AttendanceMethod = "자동"
 )
 
-func (s *Server) checkAttendance(ctx context.Context, userId string) (float64, error) {
-	return s.store.CheckAttendTx(ctx, db.CheckAttendTxParams{
+func checkAutoAttendance(store db.Store, ctx context.Context, userId string) (float64, error) {
+	return store.CheckAttendTx(ctx, db.CheckAttendTxParams{
 		AppendPracBalanceTxParams: db.AppendPracBalanceTxParams{
 			UserID: userId,
 			Amount: AttendanceReward,
