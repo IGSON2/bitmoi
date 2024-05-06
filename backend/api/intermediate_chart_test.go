@@ -3,15 +3,11 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -37,30 +33,16 @@ func TestCloseImdScore(t *testing.T) {
 	require.NoError(t, err)
 
 	// defer func() {
-	// _, err := s.store.DeleteUser(ctx, userID)
-	// require.NoError(t, err)
-	// _, err = s.store.DeletePracScore(ctx, db.DeletePracScoreParams{
-	// UserID:  userID,
-	// ScoreID: fmt.Sprintf("%d", ScoreID),
-	// })
-	// require.NoError(t, err)
+	// 	_, err := s.store.DeleteUser(ctx, userID)
+	// 	require.NoError(t, err)
+	// 	_, err = s.store.DeletePracScore(ctx, db.DeletePracScoreParams{
+	// 		UserID:  userID,
+	// 		ScoreID: fmt.Sprintf("%d", ScoreID),
+	// 	})
+	// 	require.NoError(t, err)
 	// }()
 
-	token, _, err := s.tokenMaker.CreateToken(userID, time.Hour)
-	require.NoError(t, err)
-
-	url := "/basic/practice"
-	httpReq, err := http.NewRequest("GET", url, nil)
-	require.NoError(t, err)
-
-	httpReq.Header.Add(authorizationHeaderKey, fmt.Sprintf("Bearer %s", token))
-
-	res, err := s.router.Test(httpReq, -1)
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, res.StatusCode)
-
-	resData, err := io.ReadAll(res.Body)
-	require.NoError(t, err)
+	resData := createAuthorizedGetRequest(t, s, userID, "/basic/practice")
 
 	newOC := new(OnePairChart)
 	err = json.Unmarshal(resData, newOC)
@@ -76,7 +58,6 @@ func TestCloseImdScore(t *testing.T) {
 	isLong := true
 	leverage := 1
 
-	url = "/intermediate/init"
 	imdInitData := ImdScoreRequest{
 		Mode:        practice,
 		UserId:      userID,
@@ -90,21 +71,11 @@ func TestCloseImdScore(t *testing.T) {
 		Leverage:    int8(leverage),
 		Identifier:  newOC.Identifier,
 	}
-	reqData, err := json.Marshal(imdInitData)
-	require.NoError(t, err)
 
-	httpReq, err = http.NewRequest("POST", url, bytes.NewReader(reqData))
-	require.NoError(t, err)
-	httpReq.Header.Add(authorizationHeaderKey, fmt.Sprintf("Bearer %s", token))
-	httpReq.Header.Add("Content-Type", "application/json")
-
-	res, err = s.router.Test(httpReq, -1)
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, res.StatusCode)
+	createAuthorizedPostRequest(t, s, userID, "/intermediate/init", imdInitData)
 
 	maxTimeStamp := newOC.OneChart.PData[0].Time + int64(utilities.MakeRanInt(1, 100))*db.GetIntervalStep(db.OneH)
 
-	url = "/intermediate/close"
 	imdCloseData := ImdCloseRequest{
 		ImdScoreRequest: imdInitData,
 		ReqInterval:     db.OneH,
@@ -112,16 +83,6 @@ func TestCloseImdScore(t *testing.T) {
 		MaxTimestamp:    maxTimeStamp,
 	}
 
-	reqData, err = json.Marshal(imdCloseData)
-	require.NoError(t, err)
-
-	httpReq, err = http.NewRequest("POST", url, bytes.NewReader(reqData))
-	require.NoError(t, err)
-	httpReq.Header.Add(authorizationHeaderKey, fmt.Sprintf("Bearer %s", token))
-	httpReq.Header.Add("Content-Type", "application/json")
-
-	res, err = s.router.Test(httpReq, -1)
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, res.StatusCode)
+	createAuthorizedPostRequest(t, s, userID, "/intermediate/close", imdCloseData)
 
 }

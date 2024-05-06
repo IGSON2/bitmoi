@@ -12,12 +12,10 @@ LIMIT ? OFFSET ?;
 -- name: GetAdminScores :many
 SELECT u.id, u.nickname, p.* ,a.min_roe, a.max_roe, a.after_outtime from prac_score p
  INNER JOIN users u ON p.user_id = u.user_id
- INNER JOIN prac_after_score a ON p.user_id = a.user_id AND p.score_id = a.score_id
+ LEFT JOIN prac_after_score a ON p.user_id = a.user_id AND p.score_id = a.score_id
  LIMIT ? OFFSET ?;
 
 -- name: GetAdminUsdpInfo :many
 SELECT u.id, u.nickname, a.* FROM accumulation_history a 
 INNER JOIN users u ON a.to_user = u.user_id
 LIMIT ? OFFSET ?;
-
--- name: SetAdminUsdpInfo :execresult

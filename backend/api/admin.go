@@ -87,20 +87,24 @@ func (s *Server) GetScoresInfo(c *fiber.Ctx) error {
 		var response []AdminScoreResponse
 		for _, score := range scores {
 			response = append(response, AdminScoreResponse{
-				Number:        score.ID,
-				Nickname:      score.Nickname,
-				UserID:        score.UserID,
-				BettingUsdp:   math.Round(1000*score.Entryprice*score.Quantity/float64(score.Leverage)) / 1000,
-				Position:      score.Position,
-				Leverage:      score.Leverage,
-				Roe:           score.Roe,
-				Pnl:           score.Pnl,
-				EntryTime:     score.Entrytime,
-				ExitTime:      score.Outtime,
-				MaxMinRoe:     fmt.Sprintf("%.1f / %.1f", score.MaxRoe, score.MinRoe),
-				SubmitTime:    score.CreatedAt.Format("06.01.02 15:04:05"),
-				AfterExitTime: fmt.Sprintf("%.2f", float64(score.AfterOuttime/3600)),
+				Number:      score.ID,
+				Nickname:    score.Nickname,
+				UserID:      score.UserID,
+				BettingUsdp: math.Round(1000*score.Entryprice*score.Quantity/float64(score.Leverage)) / 1000,
+				Position:    score.Position,
+				Leverage:    score.Leverage,
+				Roe:         score.Roe,
+				Pnl:         score.Pnl,
+				EntryTime:   score.Entrytime,
+				ExitTime:    score.Outtime,
+				SubmitTime:  score.CreatedAt.Format("06.01.02 15:04:05"),
 			})
+			if score.MaxRoe.Valid && score.MinRoe.Valid {
+				response[len(response)-1].MaxMinRoe = fmt.Sprintf("%.1f / %.1f", score.MaxRoe.Float64, score.MinRoe.Float64)
+			}
+			if score.AfterOuttime.Valid {
+				response[len(response)-1].AfterExitTime = fmt.Sprintf("%.2f", float64(score.AfterOuttime.Int64/3600))
+			}
 			if score.SettledAt.Valid {
 				response[len(response)-1].SettledAt = score.SettledAt.Time.Format("06.01.02 15:04:05")
 			}

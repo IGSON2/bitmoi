@@ -14,7 +14,7 @@ import (
 const getAdminScores = `-- name: GetAdminScores :many
 SELECT u.id, u.nickname, p.score_id, p.user_id, p.stage, p.pairname, p.entrytime, p.position, p.leverage, p.outtime, p.entryprice, p.quantity, p.endprice, p.pnl, p.roe, p.settled_at, p.created_at ,a.min_roe, a.max_roe, a.after_outtime from prac_score p
  INNER JOIN users u ON p.user_id = u.user_id
- INNER JOIN prac_after_score a ON p.user_id = a.user_id AND p.score_id = a.score_id
+ LEFT JOIN prac_after_score a ON p.user_id = a.user_id AND p.score_id = a.score_id
  LIMIT ? OFFSET ?
 `
 
@@ -24,26 +24,26 @@ type GetAdminScoresParams struct {
 }
 
 type GetAdminScoresRow struct {
-	ID           int64        `json:"id"`
-	Nickname     string       `json:"nickname"`
-	ScoreID      string       `json:"score_id"`
-	UserID       string       `json:"user_id"`
-	Stage        int8         `json:"stage"`
-	Pairname     string       `json:"pairname"`
-	Entrytime    string       `json:"entrytime"`
-	Position     string       `json:"position"`
-	Leverage     int8         `json:"leverage"`
-	Outtime      string       `json:"outtime"`
-	Entryprice   float64      `json:"entryprice"`
-	Quantity     float64      `json:"quantity"`
-	Endprice     float64      `json:"endprice"`
-	Pnl          float64      `json:"pnl"`
-	Roe          float64      `json:"roe"`
-	SettledAt    sql.NullTime `json:"settled_at"`
-	CreatedAt    time.Time    `json:"created_at"`
-	MinRoe       float64      `json:"min_roe"`
-	MaxRoe       float64      `json:"max_roe"`
-	AfterOuttime int64        `json:"after_outtime"`
+	ID           int64           `json:"id"`
+	Nickname     string          `json:"nickname"`
+	ScoreID      string          `json:"score_id"`
+	UserID       string          `json:"user_id"`
+	Stage        int8            `json:"stage"`
+	Pairname     string          `json:"pairname"`
+	Entrytime    string          `json:"entrytime"`
+	Position     string          `json:"position"`
+	Leverage     int8            `json:"leverage"`
+	Outtime      string          `json:"outtime"`
+	Entryprice   float64         `json:"entryprice"`
+	Quantity     float64         `json:"quantity"`
+	Endprice     float64         `json:"endprice"`
+	Pnl          float64         `json:"pnl"`
+	Roe          float64         `json:"roe"`
+	SettledAt    sql.NullTime    `json:"settled_at"`
+	CreatedAt    time.Time       `json:"created_at"`
+	MinRoe       sql.NullFloat64 `json:"min_roe"`
+	MaxRoe       sql.NullFloat64 `json:"max_roe"`
+	AfterOuttime sql.NullInt64   `json:"after_outtime"`
 }
 
 func (q *Queries) GetAdminScores(ctx context.Context, arg GetAdminScoresParams) ([]GetAdminScoresRow, error) {

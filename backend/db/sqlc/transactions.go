@@ -259,10 +259,20 @@ func (store *SqlStore) RewardRecommenderTx(ctx context.Context, arg RewardRecomm
 			return fmt.Errorf("failed to reward recommender due to cannot create recommend history. err: %w, recommender: %s, new_member: %s", err, recommender.UserID, arg.NewMember)
 		}
 
+		_, err = store.AppendUserWmoiBalance(ctx, AppendUserWmoiBalanceParams{
+			WmoiBalance: RecommendationReward,
+			UserID:      recommender.UserID,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to reward recommender due to cannot update wmoi balance. err: %w, recommender: %s", err, recommender.UserID)
+		}
+
 		_, err = store.CreateWmoiMintingHist(ctx, CreateWmoiMintingHistParams{
 			ToUser: recommender.UserID,
 			Amount: RecommendationReward,
 			Title:  RecommendationTitle,
+			Giver:  "관리자",
+			Method: "수동",
 		})
 		if err != nil {
 			return fmt.Errorf("failed to reward recommender due to cannot create wmoi minting history. err: %w, recommender: %s", err, recommender.UserID)
