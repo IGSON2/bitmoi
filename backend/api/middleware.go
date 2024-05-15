@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -122,4 +123,14 @@ func createNewLimitMiddleware(cnt int, logger *zerolog.Logger) fiber.Handler {
 			return c.Status(fiber.StatusTooManyRequests).SendString("Too many request.")
 		},
 	})
+}
+
+func createWebsocketMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			return c.Next()
+		}
+		return c.SendStatus(fiber.StatusUpgradeRequired)
+	}
 }

@@ -66,7 +66,7 @@ func (s *Server) createCompResult(compOrder *ScoreRequest, c *fiber.Ctx) (*Score
 
 	result.ResultChart = &CandleData{PData: resultchart.PData, VData: resultchart.VData}
 
-	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c)
+	originchart, err := s.selectStageChart(compInfo.Name, compInfo.Interval, compInfo.RefTimestamp, c.Context())
 	if err != nil {
 		return nil, fmt.Errorf("cannot select origin competition chart. err : %w", err)
 	}

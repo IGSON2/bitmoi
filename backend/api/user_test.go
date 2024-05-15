@@ -171,7 +171,7 @@ func TestCheckAttendacne(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, user.LastAccessedAt.Valid)
 
-	_, err = s.checkAttendance(context.Background(), userID)
+	_, err = checkAutoAttendance(s.store, context.Background(), userID)
 	require.NoError(t, err)
 
 	user, err = s.store.GetUser(context.Background(), userID)

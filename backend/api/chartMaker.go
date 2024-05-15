@@ -4,6 +4,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/utilities/common"
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -57,8 +58,13 @@ type OnePairChart struct {
 	timeFactor   int64
 }
 
-type Charts struct {
-	Charts OnePairChart `json:"charts"`
+type PriceVolumeData struct {
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Volume float64 `json:"volume"`
+	Time   int64   `json:"time"`
 }
 
 func (s *Server) calcBtcRatio(interval, name string, refTimestamp int64, c *fiber.Ctx) (float64, error) {
@@ -102,40 +108,40 @@ func (s *Server) calcBtcRatio(interval, name string, refTimestamp int64, c *fibe
 	return -1, fmt.Errorf("invalid interval %s", interval)
 }
 
-func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *fiber.Ctx) (*CandleData, error) {
+func (s *Server) selectStageChart(name, interval string, refTimestamp int64, ctx context.Context) (*CandleData, error) {
 	cdd := new(CandleData)
 
 	switch interval {
 	case db.OneD:
-		candles, err := s.store.Get1dCandles(c.Context(), db.Get1dCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		candles, err := s.store.Get1dCandles(ctx, db.Get1dCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1dSlice(candles)
 		cdd = (cs).InitCandleData()
 	case db.FourH:
-		candles, err := s.store.Get4hCandles(c.Context(), db.Get4hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		candles, err := s.store.Get4hCandles(ctx, db.Get4hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles4hSlice(candles)
 		cdd = (cs).InitCandleData()
 	case db.OneH:
-		candles, err := s.store.Get1hCandles(c.Context(), db.Get1hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		candles, err := s.store.Get1hCandles(ctx, db.Get1hCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles1hSlice(candles)
 		cdd = (cs).InitCandleData()
 	case db.FifM:
-		candles, err := s.store.Get15mCandles(c.Context(), db.Get15mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		candles, err := s.store.Get15mCandles(ctx, db.Get15mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
 		cs := Candles15mSlice(candles)
 		cdd = (cs).InitCandleData()
 	case db.FiveM:
-		candles, err := s.store.Get5mCandles(c.Context(), db.Get5mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
+		candles, err := s.store.Get5mCandles(ctx, db.Get5mCandlesParams{Name: name, Time: refTimestamp, Limit: oneTimeStageLoad})
 		if err != nil {
 			return nil, err
 		}
@@ -148,23 +154,23 @@ func (s *Server) selectStageChart(name, interval string, refTimestamp int64, c *
 	return cdd, nil
 }
 
-func calculateRefTimestamp(section int64, name, interval string) int64 {
+func calculateRefTimestamp(section int64) int64 {
 	oneMonth, waitingTime := 30*24*time.Hour.Seconds(), 30*24*time.Hour.Seconds()
 	return int64(utilities.MakeRanInt(int(waitingTime), int(section-int64(oneMonth))))
 }
 
-func (s *Server) makeChartToRef(interval, name string, mode string, prevStage int, c *fiber.Ctx) (*OnePairChart, error) {
+func (s *Server) makeChartToRef(interval, name string, mode string, ctx context.Context) (*OnePairChart, error) {
 
-	min, max, err := s.store.SelectMinMaxTime(interval, name, c.Context())
+	min, max, err := s.store.SelectMinMaxTime(interval, name, ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot count all rows. name : %s, interval : %s, err : %w", name, interval, err)
 	}
 
-	refTimestamp := max - calculateRefTimestamp(max-min, name, interval)
+	refTimestamp := max - calculateRefTimestamp(max-min)
 	if refTimestamp == max {
 		return nil, ErrShortRange
 	}
-	cdd, err := s.selectStageChart(name, interval, refTimestamp, c)
+	cdd, err := s.selectStageChart(name, interval, refTimestamp, ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", name, interval, err)
 	}

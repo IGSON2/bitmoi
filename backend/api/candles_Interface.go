@@ -11,6 +11,7 @@ type CandlesInterface interface {
 	Name() string
 	EntryTime() string
 	InitCandleData() *CandleData
+	InitAdvancedCandleData() []PriceVolumeData
 }
 
 type Candles1dSlice []db.Candles1d
@@ -47,6 +48,22 @@ func (c *Candles1dSlice) InitCandleData() *CandleData {
 		})
 	}
 	return &CandleData{pDataSlice, vDataSlice}
+}
+
+func (c *Candles1dSlice) InitAdvancedCandleData() []PriceVolumeData {
+	var pvDataSlice []PriceVolumeData
+	for _, row := range *c {
+		newPvData := PriceVolumeData{
+			Open:   row.Open,
+			Close:  row.Close,
+			High:   row.High,
+			Low:    row.Low,
+			Volume: row.Volume,
+			Time:   row.Time * 1000,
+		}
+		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
+	}
+	return pvDataSlice
 }
 
 type Candles4hSlice []db.Candles4h
@@ -86,6 +103,22 @@ func (c *Candles4hSlice) InitCandleData() *CandleData {
 	return &CandleData{pDataSlice, vDataSlice}
 }
 
+func (c *Candles4hSlice) InitAdvancedCandleData() []PriceVolumeData {
+	var pvDataSlice []PriceVolumeData
+	for _, row := range *c {
+		newPvData := PriceVolumeData{
+			Open:   row.Open,
+			Close:  row.Close,
+			High:   row.High,
+			Low:    row.Low,
+			Volume: row.Volume,
+			Time:   row.Time * 1000,
+		}
+		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
+	}
+	return pvDataSlice
+}
+
 type Candles1hSlice []db.Candles1h
 
 func (c *Candles1hSlice) EntryTime() string {
@@ -121,6 +154,22 @@ func (c *Candles1hSlice) InitCandleData() *CandleData {
 		})
 	}
 	return &CandleData{pDataSlice, vDataSlice}
+}
+
+func (c *Candles1hSlice) InitAdvancedCandleData() []PriceVolumeData {
+	var pvDataSlice []PriceVolumeData
+	for _, row := range *c {
+		newPvData := PriceVolumeData{
+			Open:   row.Open,
+			Close:  row.Close,
+			High:   row.High,
+			Low:    row.Low,
+			Volume: row.Volume,
+			Time:   row.Time * 1000,
+		}
+		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
+	}
+	return pvDataSlice
 }
 
 type Candles15mSlice []db.Candles15m
@@ -160,6 +209,22 @@ func (c *Candles15mSlice) InitCandleData() *CandleData {
 	return &CandleData{pDataSlice, vDataSlice}
 }
 
+func (c *Candles15mSlice) InitAdvancedCandleData() []PriceVolumeData {
+	var pvDataSlice []PriceVolumeData
+	for _, row := range *c {
+		newPvData := PriceVolumeData{
+			Open:   row.Open,
+			Close:  row.Close,
+			High:   row.High,
+			Low:    row.Low,
+			Volume: row.Volume,
+			Time:   row.Time * 1000,
+		}
+		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
+	}
+	return pvDataSlice
+}
+
 type Candles5mSlice []db.Candles5m
 
 func (c *Candles5mSlice) EntryTime() string {
@@ -195,4 +260,20 @@ func (c *Candles5mSlice) InitCandleData() *CandleData {
 		})
 	}
 	return &CandleData{pDataSlice, vDataSlice}
+}
+
+func (c *Candles5mSlice) InitAdvancedCandleData() []PriceVolumeData {
+	var pvDataSlice []PriceVolumeData
+	for _, row := range *c {
+		newPvData := PriceVolumeData{
+			Open:   row.Open,
+			Close:  row.Close,
+			High:   row.High,
+			Low:    row.Low,
+			Volume: row.Volume,
+			Time:   row.Time * 1000,
+		}
+		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
+	}
+	return pvDataSlice
 }

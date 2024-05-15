@@ -25,6 +25,16 @@ func (i *IdentificationData) IsPracticeMode() bool {
 	return i.PriceFactor == 0 || i.TimeFactor == 0 || i.VolumeFactor == 0
 }
 
+func DecodeIdentificationData(data string) (*IdentificationData, error) {
+	info := new(IdentificationData)
+	infoByte := DecryptByASE(data)
+	err := json.Unmarshal(infoByte, info)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
+	}
+	return info, nil
+}
+
 func Base64Encode(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }

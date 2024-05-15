@@ -4,6 +4,7 @@ import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
 	"context"
+	"errors"
 )
 
 func (s *Server) selectInterChart(info *utilities.IdentificationData, interval string, minTime, maxTime int64, ctx context.Context) (*CandleData, error) {
@@ -45,6 +46,7 @@ func (s *Server) selectInterChart(info *utilities.IdentificationData, interval s
 	}
 	if cdd.PData == nil || cdd.VData == nil {
 		s.logger.Debug().Str("name", info.Name).Str("interval", interval).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")
+		return nil, errors.New("no chart data")
 	}
 
 	return cdd, nil

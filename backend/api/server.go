@@ -152,6 +152,12 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	adminGroup.Get("/token", server.GetTokenInfo)
 	adminGroup.Get("/referral", server.GetReferralInfo)
 
+	advancedGroup := router.Group("/advanced", createNewLimitMiddleware(500, server.logger))
+	advancedGroup.Get("/practice", server.GetAdvancedPractice)
+
+	// websocketGroup := router.Group("/ws", createWebsocketMiddleware())
+	// websocketGroup.Get("/", websocket.New(server.websocketTest))
+
 	server.router = router
 
 	go server.BiddingLoop()
@@ -198,7 +204,7 @@ func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 	}
 	for i := 1; ; i++ {
 		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err = s.makeChartToRef(db.OneH, nextPair, practice, len(history), c)
+		oc, err = s.makeChartToRef(db.OneH, nextPair, practice, c.Context())
 		if err != nil || oc == nil {
 			if err == ErrShortRange {
 				s.logger.Warn().Str("parname", nextPair).Msgf("%s, Cnt: %d", err.Error(), i)
@@ -273,7 +279,7 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	}
 	for i := 1; ; i++ {
 		nextPair := utilities.FindDiffPair(s.pairs, history)
-		oc, err = s.makeChartToRef(db.OneH, nextPair, competition, len(history), c)
+		oc, err = s.makeChartToRef(db.OneH, nextPair, competition, c.Context())
 		if err != nil || oc == nil {
 			if err == ErrShortRange {
 				s.logger.Warn().Str("parname", nextPair).Msgf("%s, Cnt: %d", err.Error(), i)

@@ -3,21 +3,18 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/utilities"
-	"encoding/json"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func (s *Server) sendAnotherInterval(a *AnotherIntervalRequest, c *fiber.Ctx) (*OnePairChart, error) {
-	originInfo := new(utilities.IdentificationData)
-	infoByte := utilities.DecryptByASE(a.Identifier)
-	err := json.Unmarshal(infoByte, originInfo)
+	originInfo, err := utilities.DecodeIdentificationData(a.Identifier)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal chart identifier. err : %w", err)
 	}
 
-	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, originInfo.RefTimestamp+db.GetIntervalStep(db.OneH)-1, c)
+	cdd, err := s.selectStageChart(originInfo.Name, a.ReqInterval, originInfo.RefTimestamp+db.GetIntervalStep(db.OneH)-1, c.Context())
 	if err != nil {
 		return nil, fmt.Errorf("cannot make chart to reference timestamp. name : %s, interval : %s, err : %w", originInfo.Name, a.ReqInterval, err)
 	}
