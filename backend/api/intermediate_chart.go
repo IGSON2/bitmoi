@@ -63,7 +63,7 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 		anotherCdd, err := s.selectInterChart(info, it, req.MinTimestamp, req.MaxTimestamp, c.Context())
 		if err != nil {
 			if err != sql.ErrNoRows {
-				s.logger.Error().Str("name", info.Name).Str("interval", it).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot select intermediate chart to reference timestamp.")
+				s.logger.Error().Str("name", info.Name).Str("interval", it).Int64("min", req.MinTimestamp).Int64("max", req.MaxTimestamp).Msg("cannot select intermediate chart of other intervals to reference timestamp.")
 				return c.Status(fiber.StatusInternalServerError).SendString("cannot make intermediate another chart to reference timestamp.")
 			}
 		}
@@ -81,7 +81,7 @@ func (s *Server) getImdChart(c *fiber.Ctx) error {
 	)
 
 	// 작은단위로
-	if oc, ok := anotherIntvMap[req.CurInterval]; !ok || oc.PData == nil {
+	if oc, ok := anotherIntvMap[req.CurInterval]; !ok || oc == nil {
 		resultCdd = cdd
 	} else {
 		// 큰 단위에서 작은단위로 요청하여 현재의 큰 단위의 새로운 캔들이 없는 경우

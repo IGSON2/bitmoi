@@ -113,12 +113,12 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         if (mode === "competition") {
           if (isLogined) {
             response = await axiosClient.get(
-              `/basic/competition?names=${titleArray.join(",")}`
+              `/auth/competition?names=${titleArray.join(",")}`
             );
             if (response.status === HttpStatusCode.Unauthorized) {
               await checkAccessTokenValidity();
               response = await axiosClient.get(
-                `/basic/competition?names=${titleArray.join(",")}`
+                `/auth/competition?names=${titleArray.join(",")}`
               );
             }
           } else {
