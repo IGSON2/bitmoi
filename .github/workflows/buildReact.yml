@@ -9,13 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  temp:
-    name: log
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: log
-        run: echo "hello world"
   build:
     name: build
     runs-on: ubuntu-latest
