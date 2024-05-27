@@ -3,6 +3,7 @@ package api
 import (
 	db "bitmoi/backend/db/sqlc"
 	"bitmoi/backend/token"
+	btoken "bitmoi/backend/token"
 	"bitmoi/backend/utilities"
 	"bitmoi/backend/worker"
 	"context"
@@ -128,11 +129,18 @@ func (s *Server) createUser(c *fiber.Ctx) error {
 		fileURL, uploadErr = s.uploadProfileImageToS3(f, req.UserID)
 	}
 
+	code, err := btoken.GenerateRecCode()
+	if err != nil {
+		s.logger.Error().Err(err).Str("user id", req.UserID).Msg("cannot generate recommender code")
+		return c.Status(fiber.StatusInternalServerError).SendString("cannot generate recommender code")
+	}
+
 	arg := db.CreateUserParams{
-		UserID:         req.UserID,
-		HashedPassword: sql.NullString{Valid: true, String: hashedPassword},
-		Nickname:       req.Nickname,
-		Email:          req.Email,
+		UserID:          req.UserID,
+		HashedPassword:  sql.NullString{Valid: true, String: hashedPassword},
+		Nickname:        req.Nickname,
+		Email:           req.Email,
+		RecommenderCode: code,
 	}
 	if uploadErr == nil {
 		arg.PhotoUrl = sql.NullString{String: fileURL, Valid: true}
