@@ -58,7 +58,9 @@ function AddBidding() {
 
   const highestBidder = async (location) => {
     try {
-      const res = await axiosClient.get(`/highestBidder?location=${location}`);
+      const res = await axiosClient.get(
+        `/basic/highestBidder?location=${location}`
+      );
       setUserID(res.data.user_id);
       setHighestBidAmt(res.data.amount);
     } catch {
@@ -125,7 +127,7 @@ function AddBidding() {
 
   useEffect(() => {
     const getNextBidUnlock = async () => {
-      const res = await axiosClient.get("/nextBidUnlock");
+      const res = await axiosClient.get("/basic/nextBidUnlock");
       setNextUnlock(res.data.next_unlock);
     };
 

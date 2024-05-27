@@ -30,7 +30,7 @@ type TransactionResponse struct {
 // @Tags		erc20
 // @Accept		json
 // @Produce		json
-// @Param		MetamaskAddressRequest	body		api.MetamaskAddressRequest	true	"metamask 주소"
+// @Param		UpdateMetamaskRequest	body		api.UpdateMetamaskRequest	true	"metamask 주소"
 // @param 		Authorization header string true "Authorization"
 // @Success		200		{object}	string
 // @Router      /freeToken [post]

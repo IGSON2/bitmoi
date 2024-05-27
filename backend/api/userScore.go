@@ -192,7 +192,7 @@ type UserScoreSummary struct {
 // @Param 		 user path string true "User Nickname"
 // @Produce      json
 // @Success      200  {array}  UserScoreSummary
-// @Router       /score/{user} [get]
+// @Router       /basic/score/{user} [get]
 func (s *Server) getUserScoreSummary(c *fiber.Ctx) error {
 	// mode := c.Query("mode", practice)
 

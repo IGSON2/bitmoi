@@ -35,9 +35,9 @@ var (
 )
 
 type Server struct {
-	config          *utilities.Config // 환경 구성 요소
-	googleOauthCfg  *oauth2.Config    // OAuth2.0 인증 구성 요소
-	logger          *zerolog.Logger
+	config          *utilities.Config       // 환경 구성 요소
+	googleOauthCfg  *oauth2.Config          // OAuth2.0 인증 구성 요소
+	logger          *zerolog.Logger         // 로그 출력
 	store           db.Store                // DB 커넥션
 	router          *fiber.App              // 각 Endpoint별 router 집합
 	tokenMaker      *token.PasetoMaker      // 인증, 인가에 필요한 토큰 생성 및 검증
@@ -107,35 +107,24 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 	nomalGroup.Post("/practice", server.postPracticeScore)
 	nomalGroup.Get("/interval", server.getAnotherInterval)
 	nomalGroup.Get("/score/:nickname", server.getUserScoreSummary)
-	// nomalGroup.Get("/moreinfo", server.moreinfo)
-	// nomalGroup.Post("/user", server.createUser)
 	nomalGroup.Post("/user/login", server.loginUser)
 	nomalGroup.Get("/user/checkId", server.checkID)
 	nomalGroup.Get("/user/checkNickname", server.checkNickname)
-	// nomalGroup.Get("/user/verifyEmail", server.verifyEmail)
 	nomalGroup.Post("/reissueAccess", server.reissueAccessToken)
 	nomalGroup.Post("/verifyToken", server.verifyToken)
-	// nomalGroup.Get("/nextBidUnlock", server.getNextUnlockDate)
-	// nomalGroup.Get("/highestBidder", server.getHighestBidder)
-	// nomalGroup.Get("/selectedBidder", server.getSelectedBidder)
 	nomalGroup.Get("/login/google", server.GoogleLogin)
 	nomalGroup.Get("/login/kakao", server.KakaoLogin)
 	nomalGroup.Get("/oauth/:req_url", server.GetLoginURL)
 	nomalGroup.Get("/rank", server.getRank)
 
 	authGroup := router.Group("/auth", createNewLimitMiddleware(30, server.logger), authMiddleware(server.tokenMaker))
-	// authGroup.Get("/competition", server.getCompetitionChart)
-	// authGroup.Post("/competition", server.postCompetitionScore)
 	authGroup.Get("/myscore", server.myscore)
-	// authGroup.Post("/freeToken", server.sendFreeErc20)
-	// authGroup.Post("/user/address", server.updateMetamaskAddress)
 	authGroup.Get("/checkAttendance", server.checkAttendance)
 	authGroup.Post("/user/recommender", server.rewardRecommender)
 	authGroup.Get("/user/accumulation", server.getAccumulationHist)
 	authGroup.Put("/user/nickname", server.updateNickname)
 	authGroup.Put("/user/profile", server.updateProfileImg)
 	authGroup.Get("/user/wmoi-transactions", server.getWmoiMintingHist)
-	// authGroup.Post("/bidToken", server.bidToken)
 
 	upperLimitedGroup := router.Group("/intermediate", authMiddleware(server.tokenMaker), createNewLimitMiddleware(100, server.logger))
 	upperLimitedGroup.Post("/", server.getImdChart)
@@ -157,6 +146,20 @@ func NewServer(c *utilities.Config, s db.Store, taskDistributor worker.TaskDistr
 
 	// websocketGroup := router.Group("/ws", createWebsocketMiddleware())
 	// websocketGroup.Get("/", websocket.New(server.websocketTest))
+
+	// Only bitmoi PC
+	nomalGroup.Get("/moreinfo", server.moreinfo)
+	nomalGroup.Post("/user", server.createUser)
+	nomalGroup.Get("/user/verifyEmail", server.verifyEmail)
+	nomalGroup.Get("/nextBidUnlock", server.getNextUnlockDate)
+	nomalGroup.Get("/highestBidder", server.getHighestBidder)
+	nomalGroup.Get("/selectedBidder", server.getSelectedBidder)
+
+	authGroup.Get("/competition", server.getCompetitionChart)
+	authGroup.Post("/competition", server.postCompetitionScore)
+	authGroup.Post("/freeToken", server.sendFreeErc20)
+	authGroup.Post("/user/address", server.updateMetamaskAddress)
+	authGroup.Post("/bidToken", server.bidToken)
 
 	server.router = router
 
@@ -228,7 +231,7 @@ func (s *Server) getPracticeChart(c *fiber.Ctx) error {
 // @Produce		json
 // @Param		order	body		api.ScoreRequest	true	"주문 정보"
 // @Success		200		{object}	api.ScoreResponse
-// @Router       /practice [post]
+// @Router       /basic/practice [post]
 func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 	var PracticeOrder ScoreRequest
 	err := c.BodyParser(&PracticeOrder)
@@ -253,14 +256,7 @@ func (s *Server) postPracticeScore(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(r)
 }
 
-// getCompetitionChart godoc
-// @Summary      경쟁모드에서 제공할 차트를 불러옵니다.
-// @Tags         chart
-// @Param 		 names query string false "제외할 USDT페어들을 쉼표로 구분하여 전달합니다."
-// @param 		 Authorization header string true "Authorization"
-// @Produce      json
-// @Success      200  {object}  api.OnePairChart
-// @Router       /competition [get]
+// deprecated temporarily
 func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	var oc *OnePairChart
 
@@ -296,15 +292,7 @@ func (s *Server) getCompetitionChart(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(oc)
 }
 
-// postCompetitionScore godoc
-// @Summary		경쟁모드에서 작성한 주문을 제출합니다.
-// @Tags		score
-// @Accept		json
-// @Produce		json
-// @Param		order	body		api.ScoreRequest	true	"주문 정보"
-// @param		Authorization header string true "Authorization"
-// @Success		200		{object}	api.ScoreResponse
-// @Router      /competition [post]
+// deprecated temporarily
 func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 	var CompetitionOrder ScoreRequest
 	err := c.BodyParser(&CompetitionOrder)
@@ -378,7 +366,7 @@ func (s *Server) postCompetitionScore(c *fiber.Ctx) error {
 // @param 		 Authorization header string false "Authorization"
 // @Produce      json
 // @Success      200  {object}  api.OnePairChart
-// @Router       /interval [get]
+// @Router       /basic/interval [get]
 func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 	r := new(AnotherIntervalRequest)
 	err := c.QueryParser(r)
@@ -408,7 +396,8 @@ func (s *Server) getAnotherInterval(c *fiber.Ctx) error {
 // @param		 Authorization header string true "Authorization"
 // @Produce      json
 // @Success      200  {array}  db.CompScore
-// @Router       /myscore [get]
+// @Success      200  {array}  db.PracScore
+// @Router       /auth/myscore [get]
 func (s *Server) myscore(c *fiber.Ctx) error {
 	r := new(MyscoreRequest)
 	err := c.QueryParser(r)
@@ -437,13 +426,7 @@ func (s *Server) myscore(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(scores)
 }
 
-// moreinfo godoc
-// @Summary      사용자가 랭크에 등재하며 기입한 추가 정보를 불러옵니다.
-// @Tags         rank
-// @Param moreInfoRequest query api.MoreInfoRequest true "추가 정보 요청에 대한 정보"
-// @Produce      json
-// @Success      200  {array}  db.PracScore
-// @Router       /moreinfo [get]
+// deprecated
 func (s *Server) moreinfo(c *fiber.Ctx) error {
 	r := new(MoreInfoRequest)
 	err := c.QueryParser(r)

@@ -27,7 +27,7 @@ function RankDiv({ index, obj }) {
   const getMoreInfo = async () => {
     if (!moreInfo) {
       const response = await axiosClient.get(
-        `https://api.bitmoi.co.kr/moreinfo?userid=${obj.user_id}&scoreid=${obj.score_id}`
+        `https://api.bitmoi.co.kr/basic/moreinfo?userid=${obj.user_id}&scoreid=${obj.score_id}`
       );
       setData(response.data);
     }

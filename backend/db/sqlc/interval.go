@@ -103,3 +103,18 @@ func GetIntervalFromRange(from, to int64) string {
 	}
 	return ""
 }
+
+func ConvertResolution(resolution string) string {
+	switch resolution {
+	case "1D":
+		return OneD
+	case "240":
+		return FourH
+	case "60":
+		return OneH
+	case "15":
+		return FifM
+	default:
+		return ""
+	}
+}

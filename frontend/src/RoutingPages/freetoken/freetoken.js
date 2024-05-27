@@ -12,7 +12,7 @@ function Freetoken() {
   const [disableReq, setDisAbleReq] = useState(false);
   const getFreeToken = async () => {
     try {
-      const res = await axiosClient.post("/freeToken", {
+      const res = await axiosClient.post("/auth/freeToken", {
         addr: addr,
       });
       setWarning("");

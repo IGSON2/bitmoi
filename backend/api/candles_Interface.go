@@ -59,7 +59,7 @@ func (c *Candles1dSlice) InitAdvancedCandleData() []PriceVolumeData {
 			High:   row.High,
 			Low:    row.Low,
 			Volume: row.Volume,
-			Time:   row.Time * 1000,
+			Time:   (row.Time + 7200) * 1000,
 		}
 		pvDataSlice = append([]PriceVolumeData{newPvData}, pvDataSlice...)
 	}

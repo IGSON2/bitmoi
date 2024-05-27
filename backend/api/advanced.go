@@ -14,7 +14,17 @@ type AdvancedPracticeQuery struct {
 	From       int64  `json:"from" query:"from"`
 	To         int64  `json:"to" query:"to"`
 	Identifier string `json:"identifier" query:"identifier"`
+	Resolution string `json:"resolution" query:"resolution" validate:"oneof=15 60 240 1D"`
 }
+
+const (
+	ResolutionFifM  = "15"
+	ResolutionOneH  = "60"
+	ResolutionFourH = "240"
+	ResolutionOneD  = "1D"
+)
+
+var ResolutionArray = []string{ResolutionFifM, ResolutionOneH, ResolutionFourH, ResolutionOneD}
 
 func (s *Server) GetAdvancedPractice(c *fiber.Ctx) error {
 	payload := new(AdvancedPracticeQuery)
@@ -26,12 +36,18 @@ func (s *Server) GetAdvancedPractice(c *fiber.Ctx) error {
 
 	if payload.Identifier == "" {
 		nextPair := utilities.FindDiffPair(s.pairs, []string{})
-		aOc, err := s.makeAdvancedChartToRef(db.FifM, nextPair, c.Context())
+		aOc, err := s.makeAdvancedChartToRef(db.OneH, nextPair, c.Context())
 		if err != nil {
 			s.logger.Err(err).Msg("cannot get advanced practice chart")
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		s.logger.Debug().Str("name", aOc.Name).Str("interval", db.OneH).Str("From", utilities.TransMilli(aOc.PvDatas[len(aOc.PvDatas)-1].Time)).Str("To", utilities.TransMilli(aOc.PvDatas[0].Time)).Msg("get advanced practice chart.")
 		return c.Status(fiber.StatusOK).JSON(aOc)
+	}
+
+	if errs := utilities.ValidateStruct(payload); errs != nil {
+		s.logger.Err(fmt.Errorf("invalid resolution : %s", payload.Resolution)).Msgf("cannot get advanced practice chart: %s", errs.Error())
+		return c.Status(fiber.StatusBadRequest).SendString("invalid resolution")
 	}
 
 	info, err := utilities.DecodeIdentificationData(payload.Identifier)
@@ -40,11 +56,13 @@ func (s *Server) GetAdvancedPractice(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("cannot unmarshal chart identifier.")
 	}
 
-	pvData, err := s.selectAdvancedInterChart(info, db.FifM, payload.From, payload.To, c.Context())
+	pvData, err := s.selectAdvancedInterChart(info, db.ConvertResolution(payload.Resolution), payload.From, payload.To, c.Context())
 	if err != nil {
-		s.logger.Err(err).Msg("cannot select intermediate chart to reference timestamp.")
+		s.logger.Err(err).Str("name", info.Name).Msg("cannot select intermediate chart to reference timestamp.")
 		return c.Status(fiber.StatusInternalServerError).SendString("cannot select intermediate chart to reference timestamp.")
 	}
+
+	s.logger.Debug().Str("name", info.Name).Str("interval", info.Interval).Str("From", utilities.TransMilli(pvData[len(pvData)-1].Time)).Str("To", utilities.TransMilli(pvData[0].Time)).Msg("get advanced practice chart.")
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"pvdata": pvData})
 }
@@ -168,6 +186,9 @@ func (s *Server) selectAdvancedInterChart(info *utilities.IdentificationData, in
 		}
 		cs := Candles15mSlice(candles)
 		pvDatas = cs.InitAdvancedCandleData()
+	default:
+		s.logger.Debug().Str("name", info.Name).Str("interval", interval).Int64("min", minTime).Int64("max", maxTime).Msg("Invalid interval.")
+		return nil, errors.New("invalid interval")
 	}
 	if len(pvDatas) == 0 {
 		s.logger.Debug().Str("name", info.Name).Str("interval", interval).Int64("min", minTime).Int64("max", maxTime).Msg("No intermediate chart data.")

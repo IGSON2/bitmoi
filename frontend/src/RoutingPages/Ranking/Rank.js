@@ -22,12 +22,12 @@ function Rank() {
   };
 
   const getUserScore = async () => {
-    const response = await axiosClient.get(`/rank/${pageNum}`);
+    const response = await axiosClient.get(`/basic/rank`);
     setData(response.data);
   };
 
   const getNextBidUnlock = async () => {
-    const res = await axiosClient.get("/nextBidUnlock");
+    const res = await axiosClient.get("/basic/nextBidUnlock");
     setNextUnlock(res.data.next_unlock);
   };
 

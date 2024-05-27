@@ -19,7 +19,7 @@ function Login() {
   const login = async (e) => {
     e.preventDefault(e);
     try {
-      const response = await axiosClient.post("/user/login", {
+      const response = await axiosClient.post("/basic/user/login", {
         user_id: ID,
         password: password,
       });

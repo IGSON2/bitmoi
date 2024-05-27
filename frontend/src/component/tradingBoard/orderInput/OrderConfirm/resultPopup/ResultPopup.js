@@ -11,7 +11,7 @@ const ResultPopup = (props) => {
 
   const goRanking = async () => {
     try {
-      const response = await axiosClient.post("/rank", {
+      const response = await axiosClient.post("/basic/rank", {
         comment: comment,
         score_id: props.order.score_id,
       });

@@ -62,7 +62,7 @@ function Orderconfirm({
 
   const finalConfirm = async () => {
     try {
-      const response = await axiosClient.post(order.mode, order);
+      const response = await axiosClient.post(`/basic/${order.mode}`, order);
       if (order.mode === "competition") {
         setPairtitle(response.data.score.name);
         setTitleArray((current) => [...current, response.data.score.name]);

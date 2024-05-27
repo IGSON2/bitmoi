@@ -95,7 +95,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
   const openclosebuttonClick = () => setOpened((current) => !current);
   const reqinterval = async (reqinterval, identifier) => {
     const fIdentifier = encodeURIComponent(identifier);
-    const reqURL = `/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}`;
+    const reqURL = `/basic/interval?mode=${mode}&reqinterval=${reqinterval}&identifier=${fIdentifier}`;
     try {
       const response = await axiosClient.get(reqURL);
       return response.data;
@@ -113,12 +113,12 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
         if (mode === "competition") {
           if (isLogined) {
             response = await axiosClient.get(
-              `/competition?names=${titleArray.join(",")}`
+              `/basic/competition?names=${titleArray.join(",")}`
             );
             if (response.status === HttpStatusCode.Unauthorized) {
               await checkAccessTokenValidity();
               response = await axiosClient.get(
-                `/competition?names=${titleArray.join(",")}`
+                `/basic/competition?names=${titleArray.join(",")}`
               );
             }
           } else {
@@ -126,7 +126,7 @@ function TradingBoard({ modeHeight, mode, score_id, setIsLoaded }) {
           }
         } else {
           response = await axiosClient.get(
-            `/practice?names=${titleArray.join(",")}`
+            `/basic/practice?names=${titleArray.join(",")}`
           );
         }
 

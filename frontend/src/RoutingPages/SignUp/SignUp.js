@@ -51,7 +51,7 @@ function SignUp() {
     formData.append("image", selectedFile);
 
     try {
-      const response = await axiosClient.post("/user", formData);
+      const response = await axiosClient.post("/basic/user", formData);
 
       if (response.status == 200) {
         window.location.replace(`/goto/${emailDomain}`);

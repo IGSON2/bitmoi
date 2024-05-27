@@ -3,7 +3,7 @@ import axiosClient from "./axiosClient";
 const getSelectedBidderImg = async (location) => {
   try {
     const response = await axiosClient.get(
-      `/selectedBidder?location=${location}`
+      `/basic/selectedBidder?location=${location}`
     );
     if (response.status === 200) {
       return `https://cdn.bitmoi.co.kr/bidding/${location}/${response.data.user_id}`;

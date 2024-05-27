@@ -70,6 +70,7 @@ func main() {
 	app.Static("/signup", "./build")
 	app.Static("/goto/*", "./build")
 	app.Static("/freetoken", "./build")
-	log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
+	// log.Fatalln(app.ListenTLS(port, "./server.crt", "./server.key"))
+	log.Fatalln(app.Listen(port))
 
 }

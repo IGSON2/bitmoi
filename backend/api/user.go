@@ -60,7 +60,7 @@ func convertUserResponse(user db.User) UserResponse {
 // @Param user_id query string true "체크할 ID"
 // @Produce      json
 // @Success      200
-// @Router       /user/checkId [get]
+// @Router       /basic/user/checkId [get]
 func (s *Server) checkID(c *fiber.Ctx) error {
 	userID := c.Query("user_id")
 	user, _ := s.store.GetUser(c.Context(), userID)
@@ -76,7 +76,7 @@ func (s *Server) checkID(c *fiber.Ctx) error {
 // @Param nickname query string true "체크할 닉네임"
 // @Produce      json
 // @Success      200
-// @Router       /user/checkNickname [get]
+// @Router       /basic/user/checkNickname [get]
 func (s *Server) checkNickname(c *fiber.Ctx) error {
 	nickname := c.Query("nickname")
 	if nickname == "" {
@@ -190,7 +190,7 @@ type LoginUserResponse struct {
 // @Produce		json
 // @Param		LoginUserRequest	body		api.LoginUserRequest	true	"ID와 PW"
 // @Success		200		{object}	api.LoginUserResponse
-// @Router      /user/login [post]
+// @Router      /basic/user/login [post]
 func (s *Server) loginUser(c *fiber.Ctx) error {
 	loginReq := new(LoginUserRequest)
 	err := c.BodyParser(&loginReq)
@@ -273,7 +273,7 @@ func (s *Server) loginUser(c *fiber.Ctx) error {
 // @Tags		user
 // @Accept		json
 // @Produce		json
-// @Param		LoginUserRequest	body		api.MetamaskAddressRequest	true	"Metamask 주소"
+// @Param		LoginUserRequest	body		api.UpdateMetamaskRequest	true	"Metamask 주소"
 // @param 		Authorization header string true "Authorization"
 // @Success		200
 // @Router      /user/address [post]
