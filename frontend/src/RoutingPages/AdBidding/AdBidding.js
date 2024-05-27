@@ -43,7 +43,7 @@ function AddBidding() {
     formData.append("image", selectedFile);
 
     try {
-      const response = await axiosFormClient.post("/bidToken", formData);
+      const response = await axiosFormClient.post("/auth/bidToken", formData);
       console.log(response);
       if (response.status === 200) {
         setBidOpen(false);
