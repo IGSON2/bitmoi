@@ -97,7 +97,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 	}
 
 	subject := "[BITMOI] 인증 메일 안내"
-	verifyUrl := fmt.Sprintf("https://api.bitmoi.co.kr/user/verifyEmail?email_id=%d&secret_code=%s",
+	verifyUrl := fmt.Sprintf("https://api.bitmoi.co.kr/basic/user/verifyEmail?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
 	content := utilities.GenerateEmailMessage(user.UserID, verifyUrl)
 	to := []string{user.Email}
