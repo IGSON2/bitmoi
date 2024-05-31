@@ -1,6 +1,6 @@
 # A mock investment service for technical analysts, BITMOI
 
-## https://bitmoi.co.kr
+## https://m.bitmoi.co.kr
 
 ## License
 
