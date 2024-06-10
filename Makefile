@@ -39,8 +39,6 @@ proto: delete
 	--validate_out="lang=go:backend/gapi/pb" --validate_opt=paths=source_relative \
 	backend/gapi/proto/*.proto
 
-installgrpcweb:
-	npm install grpc-tools grpc-web
 
 reactproto:
 	npx grpc_tools_node_protoc \
@@ -62,7 +60,4 @@ swag:
 	rm -rf ./frontend/server/docs
 	swag init --output ./frontend/server/docs
 
-client:
-	cd ./frontend/server&&go run main.go
-
-.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto installgrpcweb reactproto rmi test benchmark swag client
+.PHONY: sqlc migrateup migratedown migrateup1 migratedown1 mock proto reactproto rmi test benchmark swag

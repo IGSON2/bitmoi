@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bitmoi/backend/api"
-	"bitmoi/backend/app"
-	db "bitmoi/backend/db/sqlc"
-	"bitmoi/backend/gapi"
-	"bitmoi/backend/mail"
-	"bitmoi/backend/utilities"
-	"bitmoi/backend/utilities/common"
-	"bitmoi/backend/worker"
+	"bitmoi/api"
+	"bitmoi/app"
+	db "bitmoi/db/sqlc"
+	"bitmoi/gapi"
+	"bitmoi/mail"
+	"bitmoi/utilities"
+	"bitmoi/utilities/common"
+	"bitmoi/worker"
 	"database/sql"
 	"fmt"
 	"os"

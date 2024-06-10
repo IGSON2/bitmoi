@@ -1,11 +1,3 @@
-frontend/build
-frontend/server/build
-frontend/server/server.crt
-frontend/server/server.csr
-frontend/server/server.key
-frontend/node_modules
-frontend/src/component/backendConn/fbase.js
-
 data
 
 *.db

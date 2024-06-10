@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "bitmoi/gapi/pb";
+
+import "candles.proto";
+import "score.proto";
+import "another_interval.proto";
+import "google/api/annotations.proto";
+
+service Bitmoi {
+    // 도전,경쟁모드 접속 시 보여지는 차트 데이터를 전송
+    rpc RequestCandles (CandlesRequest) returns (CandlesResponse){
+        option (google.api.http)={
+            post: "/v1/candles"
+            body: "*"
+        };
+    }
+
+    // 유저가 제출한 주문을 받고, 결과 차트 데이터를 전송
+    rpc PostScore (ScoreRequest) returns (ScoreResponse){
+        option (google.api.http)={
+            post: "/v1/score"
+            body: "*"
+        };
+    }
+
+    // 다른 시간 단위의 차트 데이터를 전송
+    rpc AnotherInterval (AnotherIntervalRequest) returns (CandlesResponse){
+        option (google.api.http)={
+            post: "/v1/another_interval"
+            body: "*"
+        };
+    }
+}

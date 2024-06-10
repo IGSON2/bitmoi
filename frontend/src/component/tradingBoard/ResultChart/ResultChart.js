@@ -1,1 +1,0 @@
-function Resultchart({ message, popupOpen }) {}

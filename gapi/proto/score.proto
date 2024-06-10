@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "bitmoi/gapi/pb";
+
+import "candles.proto";
+import "validate/validate.proto";
+
+message ScoreRequest {
+	string mode = 1 [(validate.rules).string = {in: ["practice","competition"]}];
+    string user_id = 2 [(validate.rules).string.min_bytes = 1];
+    string name = 3 [(validate.rules).string.min_bytes = 1];
+    int32 stage = 4 [(validate.rules).int32 = {gt: 0, lte: 10}];
+	bool is_long = 5;
+	double entry_price = 6 [(validate.rules).double.gt = 0];
+	double quantity = 7 [(validate.rules).double.gt = 0];
+	double profit_price  = 9 [(validate.rules).double.gte = 0];
+	double loss_price  = 10 [(validate.rules).double.gte = 0];
+	int32 leverage = 11 [(validate.rules).int32 = {gt: 0, lte: 100}];
+	double balance  = 12 [(validate.rules).double.gt = 0];
+    string identifier = 13 [(validate.rules).string.min_bytes = 1];
+    string score_id = 14 [(validate.rules).string.min_bytes = 1];
+    int32 waiting_term = 15 [(validate.rules).int32 = {gt: 0, lte: 1}];
+}
+
+message ScoreResponse {
+	CandleData origin_chart = 1;
+	CandleData result_chart = 2;
+	Score score = 3;
+}
+
+message Score {
+    int32 stage = 1;
+    string name = 2;
+    string entrytime = 3;
+	int32 leverage = 4;
+	double entry_price = 5;
+	double end_price = 6;
+	int64 out_time = 7;
+	double roe = 8;
+	double pnl  = 9;
+	double commission  = 10;
+	bool is_liquidated  = 11;
+}
